@@ -1,0 +1,220 @@
+const utils 	  = require('./utils.service')
+const tablaNombre = 'users';
+
+let User = {
+	all: async function (idAdmin){
+		
+		let error = {"error":"Error al obtener usuarios"}
+
+		const tablaNombre = 'users'
+
+		// Obtener los usuarios
+		const sql = `
+			SELECT * FROM ${tablaNombre}
+			WHERE idUser = ? OR id = ?
+		`
+		let response = []
+		
+		try {
+			response = await conn.query(sql, [idAdmin, idAdmin]);
+		} catch(e){}
+
+		return response.length > 0 ? {response: response} : error;
+	},
+	one: async function (id, idAdmin){
+		
+		let error = {"error":"Error al obtener usuarios"}
+
+		const tablaNombre = 'users'
+
+		// Obtener los usuarios
+		const sql = `
+			SELECT * FROM ${tablaNombre}
+			WHERE id = ? AND idUser = ?
+		`
+		let response = []
+		let stack 
+		try {
+			response = await conn.query(sql, [id, idAdmin]);
+		} catch(e){
+			stack = e
+		}
+		error.stack = stack
+		return response.length > 0 ? {response: response[0]} : error;
+	},
+	byToken: async function (token){
+		let error = {"error":"Error al obtener la configuración"}
+
+		const tablaNombre = 'users'
+
+		// Obtener los usuarios
+		const sql = `
+			SELECT background, logo, escuela, web FROM ${tablaNombre}
+			WHERE token = ?
+		`
+		let response = []
+		let stack 
+		try {
+			response = await conn.query(sql, [token]);
+		} catch(e){
+			stack = e
+		}
+		error.stack = stack
+		return response.length > 0 ? {response: response[0]} : error;
+	},
+	upsert: async function (usuario, idAdmin){
+
+		let error = {"error":"Error al ingresar/editar usuario"}
+		let sql = ``;
+		let arr = []
+
+		const tablaNombre = 'users'
+
+		if(usuario.id){
+
+			// Si viene clave nueva
+			if(usuario.passwordCopy){
+				usuario.password = md5(usuario.passwordCopy);
+			}
+
+			// Generate token in update
+			usuario.token = utils.makeToken(usuario.email, usuario.id, 'public')
+
+			// Actualizar usuario
+			sql = `
+				UPDATE ${tablaNombre}
+				SET name = ?,
+					escuela = ?,
+					web    = ?,
+					email  = ?,
+					type   = ?,
+					password = ?,
+					active = ?,
+					idUser = ?,
+					token = ?,
+					logo  = ?,
+					background = ?,
+					dateEdited = NOW()
+				WHERE id = ? 
+			`
+			arr = [usuario.name, usuario.escuela, usuario.web, usuario.email, usuario.type, usuario.password, parseInt(usuario.active), idAdmin, usuario.token, usuario.logo, usuario.background, usuario.id]
+		
+		} else {
+
+			// Hasheo con MD5
+			let password = md5(usuario.passwordCopy);
+
+			// Insertar usuario
+			sql = `
+				INSERT INTO ${tablaNombre}
+					(name, escuela, web, idUser, email, type, password, token, logo, background)
+				VALUES
+				 	(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			`
+			arr = [usuario.name, usuario.escuela, usuario.web, idAdmin, usuario.email, usuario.type, password, usuario.token, usuario.logo, usuario.background]
+		}
+
+		let response = []
+		
+
+		let stack 
+		try {
+			response = await conn.query(sql, arr);
+		} catch(e){
+			console.log("e: ", e)
+			stack = e
+		}
+		error.stack = {stack: stack, tail: response}
+		return (response.changedRows || response.insertId) ? {response: "Usuario ingresado correctamente"} : error;
+	},
+	login: async function (usuario, clave) {
+		const sql = `
+			SELECT id, name, email, type FROM ${tablaNombre}
+			WHERE 
+				(email = ?) AND password = MD5(?)
+				AND active = 1
+			;
+		`
+		let response = []
+		
+		try {
+			response = await conn.query(sql, [usuario, clave]);
+
+			if(response.length > 0){
+				const email = response[0].email
+				const id   	= response[0].id
+
+				// Genero el token a partir de 3 claves
+				response[0].token = utils.makeToken(email, id, key)
+			}
+		} catch(e){}
+
+		return response.length > 0 ? {response: response[0]} : {error: 'Usuario y/o clave incorrecta.'};
+	},
+	courses: async function (id) {
+
+		const sql = `
+			SELECT courses.id, courses.name  FROM courses
+			INNER JOIN user_course ON courses.id = user_course.idCourse
+			INNER JOIN users ON users.id = user_course.idUser
+			WHERE users.id = ?
+		`
+		let response = []
+		
+		try {
+			response = await conn.query(sql, [id]);
+		} catch(e){}
+
+		return response.length > 0 ? {response: response} : {error: '¡Aún no tienes cursos! Puedes reservar ahora!'};
+	},
+	resources: async function (idCourse) {
+
+		const sql = `
+			SELECT resources.id, 
+				   resources.name,
+				   resources.description,
+				   resources.link,
+				   resources.type
+			FROM resources
+			INNER JOIN course_resource ON course_resource.idResource = resources.id
+			WHERE course_resource.idCourse = ?
+			AND resources.active = 1
+		`
+		let response = []
+		
+		try {
+			response = await conn.query(sql, [idCourse]);
+		} catch(e){}
+
+		return response.length > 0 ? {response: response} : {error: '¡Aún no tienes materiales!'};
+	},
+	checkType: async function (token, id){
+		
+		let userCorrect = 'default';
+		const tablaNombre = 'users'
+
+		// Obtener los usuarios
+		const sql = `
+			SELECT * FROM ${tablaNombre}
+		`
+		let response = []
+		
+		try {
+			response = await conn.query(sql);
+		} catch(e){}
+
+		if(response.length > 0){
+			response.map( (usr) => {
+				let fastToken = utils.makeToken(usr.email, usr.id, key);
+				
+				// Check token and userId
+				if(token == fastToken && id == usr.id){
+					userCorrect = usr.type;
+					return;
+				}
+			})
+		}
+		return {response: userCorrect}
+	}
+}
+module.exports = User;

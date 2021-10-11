@@ -1,0 +1,443 @@
+<div id="courses--component" style="margin-top: 1rem;">
+	<h4 class="courseTitle">{{title}}
+		<spinner v-if="isLoading"></spinner>
+		<button type="button" style="float: right; margin-bottom: 1rem;" class="btn btn-secondary" data-toggle="modal" data-target="#staticBackdrop" v-on:click="newCourse">+ Curso</button>
+	</h4>
+	<input 
+		type="search" 
+		placeholder="Buscar cursos" 
+		v-model="searchQuery"
+		class="form-control" 
+		style="margin-bottom: 1rem">
+	<div class="courseContainer" v-if="!isLoading">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Nombre</th>
+					<th>Activo</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="course in resultQuery">
+					<td>{{course.id}}</td>
+					<td>{{course.name}}</td>
+					<td>{{course.active == 1 ? 'SI' : 'NO'}}</td>
+					<td>
+						<button class="btn btn-info" v-on:click="getCourseById(course.id)" data-toggle="modal" data-target="#staticBackdrop">Editar</button>
+
+						<button class="btn btn-danger" disabled style="opacity: 0.3;">Eliminar</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!-- course / Modal -->
+		<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog modal-xl">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h4 class="courseTitle" id="staticBackdropLabel">Curso {{course.id ? '#' + course.id : ''}}</h4>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+			  <!-- Tabs -->
+			  <div class="coursesTab">
+				<ul class="nav nav-tabs">
+					<li class="nav-item">
+						<a class="nav-link" v-bind:class="{active: tabs.general}" v-on:click="activeTab('general')">General</a>
+					</li>
+					<li class="nav-item" v-for="tab in tabItems" v-if="course.id != 0">
+						<a class="nav-link" v-bind:class="{active: tabs[tab.tab]}" v-on:click="activeTab(tab.tab)">{{tab.name}}</a>
+					</li>
+				</ul>
+			  </div>
+			  <!-- General -->
+		      <div class="modal-body" v-if="tabs.general">
+	        	<form>
+	        		<div class="row">
+	        			<div class="col-6">
+		          			<input type="text" placeholder="Descripción" class="form-control" v-model="course.name">
+		          		</div>
+		          		<div class="col-6">
+			          		<select class="form-control" v-model="course.active">
+				          		<option value="1">Activo</option>
+				          		<option value="0">Inactivo</option>
+				          	</select>
+			          	</div>
+		          	</div>
+					<!-- Si se edita ahi aparece -->
+					<div v-if="course.id != 0">
+						<div class="row">
+							<h4 class="col-12 courseTitle" style="margin-top: 1rem;">
+								<span>Recursos</span> 
+								<i class="bi bi-caret-down-square" style="float: right;" v-on:click="toggleItem.recursos = !toggleItem.recursos"></i>
+							</h4>
+						</div>
+						<!-- recursos--container -->
+						<div class="recursos--container" v-if="toggleItem.recursos">
+							<div class="row">
+								<div class="col-4">
+									<input type="text" placeholder="Nombre" class="form-control" v-model="resource.name">
+								</div>
+								<div class="col-4">
+									<input type="text" placeholder="Descripción" class="form-control" v-model="resource.description">
+								</div>
+								<div class="col-2">
+									<select class="form-control" v-model="resource.active">
+										<option selected="" disabled="">Seleccionar estado</option>
+										<option value="1">Activo</option>
+										<option value="0">Inactivo</option>
+									</select>
+								</div>
+								<div class="col-2">
+									<select class="form-control" v-model="resource.type">
+										<option selected="" disabled="">Seleccionar tipo</option>
+										<option value="video">Video</option>
+										<option value="material">Material</option>
+									</select>
+								</div>
+							</div>
+							<div class="row" style="margin-top: 1rem;">
+								<div class="col-2">
+									<input type="text" placeholder="https://" disabled class="form-control">
+								</div>
+								<div class="col-8">
+									<input type="text" v-on:keyup="removeHTTP(resource.link, 'resource', 'link')" placeholder="Link" class="form-control" v-model="resource.link">
+								</div>
+								<div class="col-2">
+									<button class="btn btn-info" type="button" v-on:click="addResource()">Agregar</button>
+								</div>
+							</div>
+							<div class="row" style="margin-top: 1rem;">
+								<div class="col-12">
+									<table class="table">
+										<thead>
+											<tr>
+												<th>Nombre</th>
+												<th>Descripción</th>
+												<th>Link</th>
+												<th>Tipo</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr v-for="(item, key) in course.resources" :key="key">
+												<td>{{item.name}}</td>
+												<td>{{item.description}}</td>
+												<td>
+													<a v-bind:href="item.link" target="_new">Ver enlace</a>
+												</td>
+												<td>
+													{{item.type}}
+												</td>
+												<td>
+													<button v-bind:disabled="item.active == 0" class="btn btn-danger" v-on:click="deleteResource(item, key)">Eliminar</button>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<hr>
+						<div class="row" style="margin-top: 1rem;">
+							<h4 class="col-12 courseTitle" style="margin-top: 1rem;">
+								<span>Estudiantes</span>
+								<i class="bi bi-caret-down-square" style="float: right;" v-on:click="toggleItem.alumnos = !toggleItem.alumnos"></i>
+							</h4>
+						</div>
+						<div class="alumnos--container" v-if="toggleItem.alumnos">
+							<div class="row">
+								<div class="col-12">
+									<table class="table">
+										<thead>
+											<tr>
+												<th>Nombre</th>
+												<th>Email</th>
+												<th>Tipo</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr v-for="user in users" v-if="user.active == 1 && user.type != 'admin'">
+												<td>{{user.name}}</td>
+												<td>{{user.email}}</td>
+												<td>{{user.type}}</td>
+												<td>
+													<input type="checkbox" v-model="user.inCourse">
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						</div>
+					</form>	
+				</div>
+
+	            <div v-if="error" class="alert alert-danger" style="margin-top: 1rem;">
+	            	{{error}}
+	            </div>
+		      
+			  <!-- Clases -->
+			  <div class="modal-body" v-if="tabs.clases">
+				<div class="row">
+					<div class="col-4">
+						<input type="text" placeholder="Tópico" class="form-control" v-model="clase.topico">
+					</div>
+					<div class="col-4">
+						<input type="text" placeholder="Docente" class="form-control" v-model="clase.docente">
+					</div>
+					<div class="col-4">
+						<input type="datetime-local" placeholder="Fecha" class="form-control" v-model="clase.fecha">
+					</div>
+				</div>
+				<div class="row" style="margin-top: 1rem;">
+					<div class="col-2">
+						<input type="text" placeholder="https://" disabled class="form-control">
+					</div>
+					<div class="col-6">
+						<input type="text" placeholder="Link de la Meet" v-on:keyup="removeHTTP(clase.meet, 'clase', 'meet')" class="form-control" v-model="clase.meet">
+					</div>
+					<div class="col-2">
+						<input type="text" placeholder="Duración (horas)" class="form-control" v-model="clase.duracion">
+					</div>
+					<div class="col-2">
+						<button class="btn btn-primary" v-on:click="addClase()">Agregar</button>
+					</div>
+				</div>
+				<div class="row" style="margin-top: 1rem;">
+					<!-- Tabla de clases -->
+					<div class="col-12">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Tópico</th>
+									<th>Docente</th>
+									<th>Fecha</th>
+									<th>Duración</th>
+									<th>Asistencias</th>
+									<th>Meet</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody style="zoom: 0.85;">
+								<tr v-for="(item, key) in course.clases" :key="key">
+									<td>{{item.topico}}</td>
+									<td>{{item.docente}}</td>
+									<td>{{item.fecha}}</td>
+									<td>{{item.duracion}}</td>
+									<td>{{item.asistencias}}</td>
+									<td>{{item.meet}}</td>
+									<td>
+										<button class="btn btn-secondary" v-on:click="asisteClase(item, key)">Asisten</button>
+										<button class="btn btn-danger" v-on:click="deleteClase(item, key)" v-bind:disabled="item.asistencias > 0">Eliminar</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			  </div>
+			  <!-- Pagos -->
+			  <div class="modal-body" v-if="tabs.pagos">
+				<div class="row">
+					<div class="col-4">
+						<input type="text" placeholder="Concepto" class="form-control" v-model="pago.concepto">
+					</div>
+					<div class="col-4">
+						<input type="text" placeholder="Información" class="form-control" v-model="pago.informacion">
+					</div>
+					<div class="col-4">
+						<input type="datetime-local" placeholder="Fecha" class="form-control" v-model="pago.fecha">
+					</div>
+				</div>
+				<div class="row" style="margin-top: 1rem;">
+					<div class="col-2">
+						<input type="text" placeholder="https://" disabled class="form-control">
+					</div>
+					<div class="col-6">
+						<input type="text" placeholder="Link de pago" v-on:keyup="removeHTTP(pago.link, 'pago', 'link')" class="form-control" v-model="pago.link">
+					</div>
+					<div class="col-2">
+						<input type="text" placeholder="Monto ($)" class="form-control" v-model="pago.monto">
+					</div>
+					<div class="col-2">
+						<button class="btn btn-primary" v-on:click="addPago()">Agregar</button>
+					</div>
+				</div>
+				<div class="row" style="margin-top: 1rem;">
+					<!-- Tabla de clases -->
+					<div class="col-12">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Concepto</th>
+									<th>Información</th>
+									<th>Vencimiento</th>
+									<th>Monto</th>
+									<th>Pagaron</th>
+									<th>Link</th>
+									<th></th>
+								</tr>
+							</thead>
+							<!-- Fix zoom -->
+							<tbody style="zoom: 0.85;">
+								<tr v-for="(item, key) in course.pagos" :key="key">
+									<td>{{item.concepto}}</td>
+									<td>{{item.informacion}}</td>
+									<td>{{item.fecha}}</td>
+									<td>{{item.monto}}</td>
+									<td>{{item.pagaron}}</td>
+									<td>{{item.link}}</td>
+									<td>
+										<button class="btn btn-secondary" v-on:click="asistePago(item, key)">Cobrar</button>
+										<button class="btn btn-danger" v-on:click="deletePago(item, key)" v-bind:disabled="item.pagaron > 0">Eliminar</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			  </div>
+
+			  <!-- Evaluaciones -->
+			  <div class="modal-body" v-if="tabs.evaluaciones">
+				<div class="row">
+					<div class="col-4">
+						<select v-model="evaluacion.userId" class="form-control">
+							<option disabled selected>Elegir un alumno</option>
+							<option v-bind:value="alumno.id" v-if="alumno.inCourse" v-for="alumno in users">{{alumno.name}}</option>
+						</select>
+					</div>
+					<div class="col-4">
+						<input type="text" placeholder="Docente" class="form-control" v-model="evaluacion.docente">
+					</div>
+					<div class="col-4">
+						<input type="datetime-local" placeholder="Fecha" class="form-control" v-model="evaluacion.fecha">
+					</div>
+				</div>
+				<div class="row" style="margin-top: 1rem;">
+					<div class="col-6">
+						<textarea class="form-control" cols="30" rows="4" v-model="evaluacion.observacion" placeholder="Concepto, Observaciones"></textarea>
+					</div>
+					<div class="col-2">
+						<input type="text" placeholder="Puntaje" class="form-control" v-model="evaluacion.puntaje">
+					</div>
+					<div class="col-4">
+						<button class="btn btn-primary" v-on:click="addEvaluacion()">Evaluar</button>
+						<button class="btn btn-secondary">Cancelar</button>
+					</div>
+				</div>
+				<div class="row" style="margin-top: 1rem;">
+					<!-- Tabla de clases -->
+					<div class="col-12">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Alumno</th>
+									<th>Docente</th>
+									<th>Fecha</th>
+									<th>Puntaje</th>
+									<th></th>
+								</tr>
+							</thead>
+							<!-- Fix zoom -->
+							<tbody style="zoom: 0.85;">
+								<tr v-for="(item, key) in course.evaluaciones" :key="key">
+									<td>{{item.userId}}</td>
+									<td>{{item.docente}}</td>
+									<td>{{item.fecha}}</td>
+									<td>{{item.puntaje}}</td>
+									<td>
+										<button class="btn btn-danger" v-on:click="deleteEvaluacion(item, key)">Eliminar</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			  </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+		        <button type="button" class="btn btn-success" v-on:click="upsertCourse">Guardar</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+		<!-- User / Asitencias -->
+		<div class="modal fade" id="asistenciasBackdrop" data-backdrop="static" data-keyboard="false" tabindex="0" aria-labelledby="asistenciasBackdrop" aria-hidden="true">
+			<div class="modal-dialog">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h4 class="courseTitle" id="staticBackdropLabel">{{claseAsiste.topico}}</h4>
+				  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				  </button>
+				</div>
+				<div class="modal-body" v-if="claseIsSelected">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Alumnos</th>
+								<th>Asiste</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(item, key) in course.clases[claseSelected].users">
+								<td>{{item.name}}</td>
+								<td>
+									<input type="checkbox" v-model="item.asiste">
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-success" v-on:click="confiraAsisteClase()">Confirmar</button>
+				</div>
+			  </div>
+			</div>
+		</div>
+
+		<!-- User / Pagos -->
+		<div class="modal fade" id="pagosBackdrop" data-backdrop="static" data-keyboard="false" tabindex="0" aria-labelledby="pagosBackdrop" aria-hidden="true">
+			<div class="modal-dialog">
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <h4 class="courseTitle" id="staticBackdropLabel">{{pagoAsiste.concepto}}</h4>
+				  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				  </button>
+				</div>
+				<div class="modal-body" v-if="pagoIsSelected">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Alumnos</th>
+								<th>Cobrar</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(item, key) in course.pagos[pagoSelected].users">
+								<td>{{item.name}}</td>
+								<td>
+									<input type="checkbox" v-model="item.pagar">
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-success" v-on:click="confiraPagoClase()">Confirmar</button>
+				</div>
+			  </div>
+			</div>
+		</div>
+	</div>
+</div>

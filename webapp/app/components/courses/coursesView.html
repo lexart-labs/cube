@@ -1,0 +1,104 @@
+<div id="courses--component">
+	<div class="container">
+		<h4 class="courseTitle"><i class="bi bi-bookmarks-fill"></i> {{title}} / {{curso}} <spinner v-if="isLoading"></spinner></h4>
+			<div class="myCoursesTab">
+				<button class="btn btn-primary" v-bind:class="{active: tabs.general}" v-on:click="activeTab('general')"><i class="bi bi-code-square"></i> Recursos</button>
+				<button class="btn btn-primary" v-bind:class="{active: tabs.clases}" v-on:click="activeTab('clases')"><i class="bi bi-easel"></i> Mis Clases</button>
+				<button class="btn btn-primary" v-bind:class="{active: tabs.pagos}" v-on:click="activeTab('pagos')"><i class="bi bi-cash-coin"></i> Mis Pagos</button>
+				<button class="btn btn-primary" v-bind:class="{active: tabs.evaluaciones}" v-on:click="activeTab('evaluaciones')"><i class="bi bi-file-earmark-check"></i> Mis Evaluaciones</button>
+			</div>
+			
+			<div
+				v-if="!error"
+			>
+				<!-- General -->
+				<input 
+					type="search" 
+					placeholder="Buscar recursos" 
+					v-model="searchQuery"
+					v-if="tabs.general"
+					class="form-control" 
+					style="margin-bottom: 1rem">
+				<div class="courseContainer" v-if="!isLoading">
+				<div 
+					v-bind:class="types[resource.type].color"
+					class="alert" 
+					role="alert" 
+					v-if="tabs.general"
+					v-for="resource in resultQuery">
+					<div>
+						<p><i class="bi" v-bind:class="types[resource.type].icon"></i> {{resource.name}}</p>
+						<p class="smallText">{{resource.description}}</p>
+					</div>
+					<div class="text-right">
+						<a v-bind:href="resource.link" target="_new">{{types[resource.type].text}}</a>
+					</div>
+				</div>
+				<!-- Mis clases -->
+				<div 
+					class="alert alert-primary" 
+					v-bind:class="{disabledClase: !clase.enableClase}"
+					role="alert" 
+					v-if="tabs.clases"
+					v-for="clase in clases">
+					<div>
+						<p>{{clase.topico}}</p>
+						<p class="smallText"><i class="bi bi-person-check-fill"></i> {{clase.docente}}</p>
+						<p class="smallText"><i class="bi bi-calendar-check-fill"></i> {{clase.fecha}}</p>
+					</div>
+					<div class="text-right">
+						<a v-if="clase.enableClase" v-bind:href="clase.meet" target="_new">Ir a la meet</a>
+					</div>
+				</div>
+
+				<!-- Mis pagos -->
+				<div 
+					class="alert alert-info" 
+					v-bind:class="{disabledClase: pago.userPay}"
+					role="alert" 
+					v-if="tabs.pagos"
+					v-for="pago in pagos">
+					<div>
+						<p>{{pago.concepto}}</p>
+						<p class="smallText">{{pago.informacion}}</p>
+						<p class="smallText"><b>MONTO: </b>${{pago.monto}}</p>
+						<p class="smallText"><b>VENCIMIENTO:</b> {{pago.fecha}}</p>
+					</div>
+					<div class="text-right" v-if="pago.userPay == false">
+						<a v-bind:href="pago.link" v-if="pago.link" target="_new">Pagar</a>
+						<a v-if="!pago.link">Coordinar pago por email y/o whatsapp</a>
+					</div>
+					<div class="text-right" v-if="pago.userPay == true">
+						<p>PAGO <i class="bi bi-check-circle-fill"></i></p>
+					</div>
+				</div>
+
+				<!-- Mis Evaluaciones -->
+				<div 
+					class="alert alert-info" 
+					role="alert" 
+					v-if="tabs.evaluaciones && evaluacion.userEvaluado == true"
+					v-for="evaluacion in evaluaciones">
+					<div>
+						<p>Evaluación del curso</p>
+						<p class="smallText">{{evaluacion.observacion}}</p>
+						<p class="smallText"><i class="bi bi-person-check-fill"></i> {{evaluacion.docente}}</p>
+						<p class="smallText"><i class="bi bi-calendar-check-fill"></i> {{evaluacion.fecha}}</p>
+					</div>
+					<div class="text-right">
+						<p>PUNTAJE {{evaluacion.puntaje}} <i class="bi bi-check-circle-fill"></i></p>
+					</div>
+				</div>
+			</div>
+			<div 
+				class="alert alert-danger" 
+				role="alert" 
+				v-if="error">
+			  <div>
+			  	<p>{{error}}</p>
+			  </div>
+			  <div class="text-right"></div>
+			</div>
+		</div>
+	</div>
+</div>

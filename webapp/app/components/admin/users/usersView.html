@@ -1,0 +1,107 @@
+<div id="users--component" style="margin-top: 1rem;">
+	<h4 class="courseTitle">
+		<span>{{title}}</span>
+		<spinner v-if="isLoading"></spinner>
+		<button type="button" style="float: right; margin-bottom: 1rem;" class="btn btn-secondary" data-toggle="modal" data-target="#staticBackdrop" v-on:click="newUser">+ User</button>
+	</h4>
+	<input 
+		type="search" 
+		placeholder="Buscar usuarios" 
+		v-model="searchQuery"
+		class="form-control" 
+		style="margin-bottom: 1rem">
+	<div class="courseContainer" v-if="!isLoading">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Nombre</th>
+					<th>Email</th>
+					<th>Tipo</th>
+					<th>Activo</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="user in resultQuery">
+					<td>{{user.name}}</td>
+					<td>{{user.email}}</td>
+					<td>{{user.type}}</td>
+					<td>{{user.active == 1 ? 'SI' : 'NO'}}</td>
+					<td>
+						<!-- Trigger modal -->
+						<button class="btn btn-info" data-toggle="modal" data-target="#staticBackdrop" v-on:click="getUserById(user.id)">Editar</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!-- User / Modal -->
+		<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		  <div class="modal-dialog  modal-lg">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h4 class="courseTitle" id="staticBackdropLabel">Usuario {{user.id ? '#' + user.id : ''}}</h4>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+	        	<form enctype="multipart/form-data">
+		          	<input type="text" placeholder="Nombre y apellido" class="form-control" v-model="user.name">
+		          	<br>
+		          	<input type="email" placeholder="Email" class="form-control" v-model="user.email">
+		          	<br>
+		          	<select class="form-control" v-model="user.type">
+		          		<option value="admin">Admin</option>
+		          		<option value="default">Estudiante</option>
+		          	</select>
+		          	<br>
+					<div v-if="user.type == 'admin'">
+						<input type="text" placeholder="Nombre institución" class="form-control" v-model="user.escuela">
+						<br>
+						<input type="text" placeholder="Sitio web" class="form-control" v-model="user.web">
+						<br>
+						<input type="text" v-model="user.token" class="form-control" disabled>
+						<br>
+						<div class="row" style="margin-bottom: 1rem;">
+							<div class="col-4">
+								<label for="">Logo</label>
+								<br>
+								<input type="hidden" v-model="user.logo">
+								<input type="file" ref="logo">
+								<br>
+								<img v-if="user.logo" v-bind:src="api + user.logo" alt="" width="120px">
+							</div>
+							<div class="col-4">
+								<label for="">Fondo</label>
+								<br>
+								<input type="hidden" v-model="user.background">
+								<input type="file" ref="background">
+								<br>
+								<img v-if="user.background" v-bind:src="api + user.background" alt="" width="120px">
+							</div>
+							<div class="col-4">
+								<button class="btn btn-info" type="button" v-on:click="uploadFile()">Subir</button>
+							</div>
+						</div>
+					</div>
+		          	<select class="form-control" v-model="user.active">
+		          		<option value="1">Activo</option>
+		          		<option value="0">Inactivo</option>
+		          	</select>
+		          	<br>
+		          	<input type="password" placeholder="Clave" class="form-control" v-model="user.passwordCopy">
+	            </form>
+	            <div v-if="error" class="alert alert-danger" style="margin-top: 1rem;">
+	            	{{error}}
+	            </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+		        <button type="button" class="btn btn-success" v-on:click="upsertUser">Guardar</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Lexart Cube</title>
+
+	<meta charset="utf8">
+
+	<!-- Incluir la libreria -->
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+	<!-- Router -->
+	<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+	
+	<!-- Axios -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" integrity="sha512-xnP2tOaCJnzp2d2IqKFcxuOiVCbuessxM6wuiolT9eeEJCyy0Vhcwa4zQvdrZNVqlqaxXhHqsSV1Ww7T2jSCUQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	
+	<!-- Custom STYLE -->
+	<link rel="stylesheet" type="text/css" href="style.css">
+
+	<script type="text/javascript" src="env.js"></script>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+	<div id="app" class="container-fluid">
+		<router-view></router-view>
+	</div>
+
+	<!-- Bootstrap -->
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+	<!-- Dependencies -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-toasted/1.1.28/vue-toasted.min.js"></script>
+
+	<!-- Shared -->
+	<script type="text/javascript" src="app/shared/menu.component.js"></script>
+	<script type="text/javascript" src="app/shared/spinner.component.js"></script>
+
+	<!-- Services -->
+	<script type="text/javascript" src="app/services/auth.service.js"></script>
+	<script type="text/javascript" src="app/services/user.service.js"></script>
+	<script type="text/javascript" src="app/services/course.service.js"></script>
+
+	<!-- Componentes -->
+	<script type="text/javascript" src="app/components/app.component.js"></script>
+	<script type="text/javascript" src="app/components/login/login.component.js"></script>
+	<script type="text/javascript" src="app/components/courses/courses.component.js"></script>
+	<script type="text/javascript" src="app/components/dashboard/dashboard.component.js"></script>
+	<script type="text/javascript" src="app/components/admin/admin.component.js"></script>
+	<script type="text/javascript" src="app/components/admin/users/users.component.js"></script>
+	<script type="text/javascript" src="app/components/admin/courses/courses.component.js"></script>
+
+	<!-- Instancia de Vue -->
+	<script type="text/javascript" src="app/app.js"></script>
+</body>
+</html>
