@@ -22,6 +22,7 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 				let id    = localStorage.getItem('id-' + APP_NAME);
 				let token = localStorage.getItem('token-app-' + APP_NAME);
 				let userId= localStorage.getItem('id-' + APP_NAME);
+
 				// Verifico el token
 				verifyToken(token)
 
@@ -31,6 +32,10 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 				}
 
 				if(id){
+					// Obtener los datos del lextracking
+					let userLextracking = JSON.parse(localStorage.getItem('_lextracking_user-' + APP_NAME))
+					console.log("userLextracking: ", userLextracking)
+
 					axios.get(API + 'courses/by-user/' + id, 
 						{headers: headers}).then( (res) => {
 

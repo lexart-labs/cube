@@ -1,46 +1,40 @@
-const utils = require('./utils.service')
+const utils  = require('./utils.service')
+const axios  = require('axios')
 
 const Mdl = {
 	middleware: async function (req, res, next){
 		
 		let error = {"error":"Token inválido"}
-
-		const tablaNombre = 'users'
-
-		// Obtener los usuarios
-		const sql = `
-			SELECT * FROM ${tablaNombre}
-		`
-		let response = []
-		
-		try {
-			response = await conn.query(sql);
-		} catch(e){}
-
 		let userCorrect = false;
 
-		if(response.length > 0){
-			response.map( (usr) => {
-				let fastToken = utils.makeToken(usr.email, usr.id, key);
-				
-				// Check token and userId
-				if(req.headers.token == fastToken && req.headers['user-id'] == usr.id){
-					userCorrect = true;
-					return;
-				}
-			})
-		}
 
-		// Si el usuario es correcto
-		// Entrego la informacion
-		if(userCorrect){
-			next();
-		} else {
+		let errorOutput = () => {
 			error.yourToken = req.headers.token;
 
 			res.set(['Content-Type', 'application/json']);
 			res.send(error);
 		}
+
+		axios.get(MIDDLEWARE_LEXTRACKING + req.headers['user-id'], 
+		{
+		  "headers": {
+			"token": req.headers.token
+		  }
+		}).then( res => {
+			if(!res.data.error){
+				// Viene en un array
+				let user = res.data.response[0]
+				if(user.idUser == req.headers['user-id']){
+					next();
+				} else {
+					errorOutput()
+				}
+			} else {
+				errorOutput()
+			}
+		}).catch( error => {
+			errorOutput()
+		})
 	},
 	middlewareCourse: async function (req, res, next){
 		
