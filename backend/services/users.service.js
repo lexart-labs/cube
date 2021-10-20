@@ -30,7 +30,7 @@ let User = {
 		// Obtener los usuarios
 		const sql = `
 			SELECT * FROM ${tablaNombre}
-			WHERE id = ? AND idUser = ?
+			WHERE idLextracking = ? AND idUser = ?
 		`
 		let response = []
 		let stack 
@@ -70,7 +70,7 @@ let User = {
 
 		const tablaNombre = 'users'
 
-		if(usuario.id){
+		if(usuario.id && !usuario.sync){
 
 			// Si viene clave nueva
 			if(usuario.passwordCopy){
@@ -84,34 +84,35 @@ let User = {
 			sql = `
 				UPDATE ${tablaNombre}
 				SET name = ?,
-					escuela = ?,
-					web    = ?,
 					email  = ?,
 					type   = ?,
 					password = ?,
 					active = ?,
 					idUser = ?,
 					token = ?,
-					logo  = ?,
-					background = ?,
 					dateEdited = NOW()
 				WHERE id = ? 
 			`
-			arr = [usuario.name, usuario.escuela, usuario.web, usuario.email, usuario.type, usuario.password, parseInt(usuario.active), idAdmin, usuario.token, usuario.logo, usuario.background, usuario.id]
+			arr = [usuario.name, usuario.email, usuario.type, usuario.password, parseInt(usuario.active), idAdmin, usuario.token, usuario.id]
 		
 		} else {
 
 			// Hasheo con MD5
-			let password = md5(usuario.passwordCopy);
+			// Si viene el sync del lextracking
+			let password = usuario.password
+
+			if(usuario.passwordCopy){
+				password = md5(usuario.passwordCopy);
+			}
 
 			// Insertar usuario
 			sql = `
 				INSERT INTO ${tablaNombre}
-					(name, escuela, web, idUser, email, type, password, token, logo, background)
+					(name, idLextracking, idUser, email, type, password, token)
 				VALUES
-				 	(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				 	(?, ?, ?, ?, ?, ?, ?)
 			`
-			arr = [usuario.name, usuario.escuela, usuario.web, idAdmin, usuario.email, usuario.type, password, usuario.token, usuario.logo, usuario.background]
+			arr = [usuario.name, usuario.id, idAdmin, usuario.email, usuario.type, password, usuario.token]
 		}
 
 		let response = []

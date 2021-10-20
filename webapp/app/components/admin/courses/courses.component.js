@@ -7,7 +7,7 @@ const CoursesAdminComp = Vue.component('courses-admin-component', function (call
 		callback({
 			data: function () {
 				return {
-					title: 'Administración de cursos',
+					title: 'Administración de evaluaciones',
 					courses: [],
 					error: '',
 					isLoading: true,
@@ -34,10 +34,9 @@ const CoursesAdminComp = Vue.component('courses-admin-component', function (call
 						examenes: false
 					},
 					tabItems: [
-						{name: 'Clases', tab: 'clases'},
-						{name: 'Pagos', tab: 'pagos'},
-						{name: 'Evaluaciones', tab: 'evaluaciones'},
-						{name: 'Exámenes', tab: 'examenes'}
+						{name: 'Desempeño', tab: 'clases'},
+						{name: 'Factor Humano', tab: 'pagos'},
+						{name: 'Habilidades', tab: 'evaluaciones'}
 					],
 					clase: {},
 					claseAsiste: {},

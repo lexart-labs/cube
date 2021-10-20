@@ -10,7 +10,7 @@ Vue.component('menu-component', function (callback) {
 					isAdmin: false,
 					setting: {
 						web: '',
-						escuela: 'Atlas education v1.1.0',
+						escuela: '',
 						logo: ''
 					},
 					api: API

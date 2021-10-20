@@ -1,7 +1,7 @@
 <div id="courses--component" style="margin-top: 1rem;">
 	<h4 class="courseTitle">{{title}}
 		<spinner v-if="isLoading"></spinner>
-		<button type="button" style="float: right; margin-bottom: 1rem;" class="btn btn-secondary" data-toggle="modal" data-target="#staticBackdrop" v-on:click="newCourse">+ Curso</button>
+		<button type="button" style="float: right; margin-bottom: 1rem;" class="btn btn-secondary" data-toggle="modal" data-target="#staticBackdrop" v-on:click="newCourse">+ Evaluación</button>
 	</h4>
 	<input 
 		type="search" 
@@ -38,7 +38,7 @@
 		  <div class="modal-dialog modal-xl">
 		    <div class="modal-content">
 		      <div class="modal-header">
-		        <h4 class="courseTitle" id="staticBackdropLabel">Curso {{course.id ? '#' + course.id : ''}}</h4>
+		        <h4 class="courseTitle" id="staticBackdropLabel">Evaluación {{course.id ? '#' + course.id : ''}}</h4>
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 		          <span aria-hidden="true">&times;</span>
 		        </button>

@@ -37,7 +37,7 @@ const routes = [
 			      component: Users
 			    },
 			    {
-			      path: 'courses',
+			      path: 'evaluaciones',
 			      component: CoursesAdmin
 			    }
 			]
