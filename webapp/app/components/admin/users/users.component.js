@@ -7,14 +7,15 @@ const UsersComp = Vue.component('users-component', function (callback) {
 		callback({
 			data: function () {
 				return {
-					title: 'Administración de usuarios',
+					title: 'Mis developers',
 					users: [],
 					error: '',
 					isLoading: true,
 					searchQuery: null,
 					curso: null,
 					user: {},
-					api: API
+					api: API,
+					usersLextracking: []
 				}
 			},
 			methods: {
@@ -115,6 +116,17 @@ const UsersComp = Vue.component('users-component', function (callback) {
 					if(!res.error){
 						let users  = res.response;
 						this.users = users;
+					} else {
+						this.error = res.error;
+					}
+				})
+
+				UserService().getAllUsersLextracking( (res) => {
+					this.isLoading = false;
+					if(!res.error){
+						let users  = res.response;
+						this.usersLextracking = users;
+						console.log("usersLextracking: ", this.usersLextracking)
 					} else {
 						this.error = res.error;
 					}

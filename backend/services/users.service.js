@@ -1,4 +1,6 @@
 const utils 	  = require('./utils.service')
+const axios 	  = require('axios')
+
 const tablaNombre = 'users';
 
 let User = {
@@ -20,6 +22,29 @@ let User = {
 		} catch(e){}
 
 		return response.length > 0 ? {response: response} : error;
+	},
+	allUserLextracking: async function (req){
+		
+		let error    = {"error":"Error al obtener usuarios"}
+		let response = {}
+
+		let model = 'user/all'
+		axios.get(MIDDLEWARE_LEXTRACKING + model, 
+		{
+		  "headers": {
+			"token": req.headers.token
+		  }
+		}).then( res => {
+			if(!res.data.error){
+				response = res.data.response
+			} else {
+				error = res.data.error
+			}
+
+			return response.length > 0 ? {response: response} : error;
+		}).catch( error => {
+			return error
+		})
 	},
 	one: async function (id, idAdmin){
 		

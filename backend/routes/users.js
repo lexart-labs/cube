@@ -34,6 +34,13 @@ router.get('/all', Mdl.middleware, async function (req, res) {
     res.send(response);
 })
 
+router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
+	let response = await User.allUserLextracking(req);
+
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
 router.get('/:id', Mdl.middleware, async function (req, res) {
 	let response = await User.one(req.params.id, req.headers['user-id']);
 

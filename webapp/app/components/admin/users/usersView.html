@@ -2,11 +2,11 @@
 	<h4 class="courseTitle">
 		<span>{{title}}</span>
 		<spinner v-if="isLoading"></spinner>
-		<button type="button" style="float: right; margin-bottom: 1rem;" class="btn btn-secondary" data-toggle="modal" data-target="#staticBackdrop" v-on:click="newUser">+ User</button>
+		<button type="button" style="float: right; margin-bottom: 1rem;" class="btn btn-secondary" data-toggle="modal" data-target="#staticBackdrop" v-on:click="newUser">+ Developers</button>
 	</h4>
 	<input 
 		type="search" 
-		placeholder="Buscar usuarios" 
+		placeholder="Buscar developers" 
 		v-model="searchQuery"
 		class="form-control" 
 		style="margin-bottom: 1rem">
