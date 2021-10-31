@@ -47,50 +47,13 @@
 		      </div>
 		      <div class="modal-body">
 	        	<form enctype="multipart/form-data">
-		          	<input type="text" placeholder="Nombre y apellido" class="form-control" v-model="user.name">
+					<label for="">Usuario de LexTracking</label>
+					<v-select v-model="user" label="name" :options="usersLextracking"></v-select>
 		          	<br>
-		          	<input type="email" placeholder="Email" class="form-control" v-model="user.email">
-		          	<br>
-		          	<select class="form-control" v-model="user.type">
-		          		<option value="admin">Admin</option>
-		          		<option value="default">Estudiante</option>
-		          	</select>
-		          	<br>
-					<div v-if="user.type == 'admin'">
-						<input type="text" placeholder="Nombre institución" class="form-control" v-model="user.escuela">
-						<br>
-						<input type="text" placeholder="Sitio web" class="form-control" v-model="user.web">
-						<br>
-						<input type="text" v-model="user.token" class="form-control" disabled>
-						<br>
-						<div class="row" style="margin-bottom: 1rem;">
-							<div class="col-4">
-								<label for="">Logo</label>
-								<br>
-								<input type="hidden" v-model="user.logo">
-								<input type="file" ref="logo">
-								<br>
-								<img v-if="user.logo" v-bind:src="api + user.logo" alt="" width="120px">
-							</div>
-							<div class="col-4">
-								<label for="">Fondo</label>
-								<br>
-								<input type="hidden" v-model="user.background">
-								<input type="file" ref="background">
-								<br>
-								<img v-if="user.background" v-bind:src="api + user.background" alt="" width="120px">
-							</div>
-							<div class="col-4">
-								<button class="btn btn-info" type="button" v-on:click="uploadFile()">Subir</button>
-							</div>
-						</div>
-					</div>
 		          	<select class="form-control" v-model="user.active">
 		          		<option value="1">Activo</option>
 		          		<option value="0">Inactivo</option>
 		          	</select>
-		          	<br>
-		          	<input type="password" placeholder="Clave" class="form-control" v-model="user.passwordCopy">
 	            </form>
 	            <div v-if="error" class="alert alert-danger" style="margin-top: 1rem;">
 	            	{{error}}

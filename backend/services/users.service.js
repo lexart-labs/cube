@@ -26,25 +26,15 @@ let User = {
 	allUserLextracking: async function (req){
 		
 		let error    = {"error":"Error al obtener usuarios"}
-		let response = {}
-
 		let model = 'user/all'
-		axios.get(MIDDLEWARE_LEXTRACKING + model, 
+		const response = await axios.get(API_LEXTRACKING + model, 
 		{
-		  "headers": {
+			"headers": {
 			"token": req.headers.token
-		  }
-		}).then( res => {
-			if(!res.data.error){
-				response = res.data.response
-			} else {
-				error = res.data.error
 			}
-
-			return response.length > 0 ? {response: response} : error;
-		}).catch( error => {
-			return error
 		})
+
+		return response.data.response.length > 0 ? {response: response.data.response} : error;
 	},
 	one: async function (id, idAdmin){
 		
@@ -150,7 +140,7 @@ let User = {
 			console.log("e: ", e)
 			stack = e
 		}
-		error.stack = {stack: stack, tail: response}
+		error.stack = {stack: stack, tail: response, sql: sql}
 		return (response.changedRows || response.insertId) ? {response: "Usuario ingresado correctamente"} : error;
 	},
 	login: async function (usuario, clave) {

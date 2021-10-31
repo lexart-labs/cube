@@ -13,7 +13,10 @@ const UsersComp = Vue.component('users-component', function (callback) {
 					isLoading: true,
 					searchQuery: null,
 					curso: null,
-					user: {},
+					user: {
+						name: "",
+						active: "1"
+					},
 					api: API,
 					usersLextracking: []
 				}
@@ -30,6 +33,11 @@ const UsersComp = Vue.component('users-component', function (callback) {
 					})
 				},
 				upsertUser: function (){
+					// Agrego usuarios nuevos con el sync desde el front
+					this.user.token = ""
+					this.user.sync 	= true
+					this.user.type  = this.user.role
+					
 					UserService().upsertUser( this.user, (res) => {
 						if(!res.error){
 							$('#staticBackdrop').modal('hide')

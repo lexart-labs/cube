@@ -19,8 +19,7 @@ const CoursesAdminComp = Vue.component('courses-admin-component', function (call
 					},
 					course: {
 						id: 0,
-						clases: [],
-						pagos: []
+						indicadores: {}
 					},
 					evaluacion: {},
 					pago: {},
@@ -49,7 +48,8 @@ const CoursesAdminComp = Vue.component('courses-admin-component', function (call
 					toggleItem: {
 						recursos: false,
 						alumnos: false
-					}
+					},
+					indicadores: {}
 				}
 			},
 			methods: {
@@ -129,6 +129,10 @@ const CoursesAdminComp = Vue.component('courses-admin-component', function (call
 								this.course.resources = []
 							}
 
+							if(!this.course.indicadores){
+								this.course.indicadores = this.indicadores
+							}
+
 							if(!this.course.pagos){
 								this.$set(this.course, 'pagos', [])
 							}
@@ -139,6 +143,7 @@ const CoursesAdminComp = Vue.component('courses-admin-component', function (call
 
 							// Reviso que alumnos están en el curso
 							if(this.course.users && this.course.users.length > 0){
+								console.log("this.users: ", this.users)
 								this.course.users.map( item => {
 									this.users.map( user => {
 										if(user.id == item.idUser){
@@ -219,6 +224,7 @@ const CoursesAdminComp = Vue.component('courses-admin-component', function (call
 							activeUsers.push(alumno)
 						}
 					})
+					console.log("this.users upsert: ", this.users)
 					this.course.users = activeUsers;
 					
 					console.log("this.course: ", this.course)
@@ -360,6 +366,13 @@ const CoursesAdminComp = Vue.component('courses-admin-component', function (call
 					} else {
 						this.error = res.error;
 					}
+				})
+
+				// Obtengo indicadores desde el JSON
+				axios.get('./data/indicadores.json').then( res => {
+					console.log("cargo los indicadores: ", res)
+					this.indicadores = res.data
+					this.course.indicadores = res.data
 				})
 
 			},

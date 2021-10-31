@@ -69,3 +69,4 @@ const app = new Vue({
 	}
 }).$mount('#app')
 Vue.use(Toasted);
+Vue.component('v-select', VueSelect.VueSelect);
