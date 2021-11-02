@@ -13,7 +13,8 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 					isSync: false,
 					searchQuery: null,
 					error: '',
-					success: ''
+					success: '',
+					resources: []
 				}
 			},
 			methods: {
@@ -34,6 +35,11 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 							});
 
 							this.error = ''
+							this.success = 'Usuario sincronizado 👏'
+							let id    	 = localStorage.getItem('id-' + APP_NAME);
+
+							// Obtenemos evaluaciones de un usuario
+							this.obtenerEvaluaciones(id)
 
 						} else {
 							this.error = res.error;
@@ -60,12 +66,28 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 						this.isLoading = false;
 						if(!res.data.error){
 							let data  = res.data.response;
-							console.log("data: ", data)
-							
+							this.resources = data
 						} else {
-							this.error 	   = res.data.error;
+							Vue.toasted.show('Error no se encontró evaluaciones', {
+								type: 'error',
+								duration: 2000
+							});
 						}
 					})
+				},
+				formatDate: function (date){
+					// Format SQL to UY date
+					let newDate = date.split('T')
+					// 0 index correspond to raw date after split
+					let uyDate  = newDate[0].split('-')
+					// 2 index - year
+					// 1 index - month
+					// 0 index - day
+					uyDate = uyDate[2] + '/' + uyDate[1] + '/' + uyDate[0]
+					// sum full year UY format with hour after split - index 0
+					uyDate = uyDate + ' ' + newDate[1]
+
+					return uyDate
 				}
 			},
 			mounted: function (){
@@ -110,11 +132,11 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 			computed: {
 			    resultQuery: function () {
 			      if(this.searchQuery){
-				      return this.courses.filter((item)=>{
+				      return this.resources.filter((item)=>{
 				        return this.searchQuery.toLowerCase().split(' ').every(v => item.name.toLowerCase().includes(v))
 				      })
 			      } else {
-			        return this.courses;
+			        return this.resources;
 			      }
 			    }
 			}

@@ -2,13 +2,7 @@
 	<div class="container">
 		<h4 class="courseTitle"><i class="bi bi-clipboard-data"></i> {{title}} <spinner v-if="isLoading"></spinner></h4>
 		<div class="courseContainer" v-if="!isLoading">
-			<div class="alert alert-info" role="alert" v-for="course in resultQuery" v-if="resultQuery.length > 0">
-			  <div><i class="bi bi-bookmarks-fill"></i> {{course.name}}</div>
-			  <div class="text-right">
-			  	<router-link v-bind:to="'/app/courses/' + course.id + '/' + encodeURIComponent(course.name)">Ver curso</router-link>
-			  </div>
-			</div>
-			<div v-if="resultQuery.length == 0">
+			<div>
 				<div 
 					class="alert alert-primary" 
 					role="alert" 
@@ -26,6 +20,30 @@
 					v-if="success">
 					<div>
 						<p>{{success}}</p>
+					</div>
+				</div>
+				<!-- General -->
+				<div class="dashboard--resources">
+					<input 
+						type="search" 
+						placeholder="Buscar evaluaciones" 
+						v-model="searchQuery"
+						v-if="success && resultQuery.length > 0"
+						class="form-control" 
+						style="margin-bottom: 1rem">
+					<div class="courseContainer" v-if="!isLoading"></div>
+					<div 
+						class="alert alert-primary" 
+						role="alert" 
+						v-if="success && resultQuery.length > 0"
+						v-for="resource in resultQuery">
+						<div>
+							<p><i class="bi bi-calendar-check-fill"></i> {{resource.name}}</p>
+							<p class="smallText">{{resource.user.name}} - {{formatDate(resource.fecha)}}</p>
+						</div>
+						<div class="text-right">
+							<b>{{resource.total}}%</b>
+						</div>
 					</div>
 				</div>
 			</div>
