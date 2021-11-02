@@ -22,7 +22,7 @@ const LoginComp = Vue.component('login-component', function (callback) {
 					this.isLoading = true
 					const user = copy(this.usr);
 
-					axios.post(API_LEXTRACKING + 'login', user).then( (res) => {
+					axios.post(API + 'users/login', user).then( (res) => {
 						let rs = res.data;
 						this.isLoading = false
 
@@ -32,7 +32,7 @@ const LoginComp = Vue.component('login-component', function (callback) {
 							// Guardar en el localStorage
 							// Token del response
 							localStorage.setItem('token-app-' + APP_NAME, rs.response.token)
-							localStorage.setItem('id-' + APP_NAME, rs.response.id)
+							localStorage.setItem('id-' + APP_NAME, rs.response.idLextracking)
 
 							window.localStorage.setItem('_lextracking_user-' + APP_NAME, JSON.stringify(rs.response))
 							

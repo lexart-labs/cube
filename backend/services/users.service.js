@@ -36,7 +36,7 @@ let User = {
 
 		return response.data.response.length > 0 ? {response: response.data.response} : error;
 	},
-	one: async function (id, idAdmin){
+	one: async function (id, token){
 		
 		let error = {"error":"Error al obtener usuarios"}
 
@@ -45,12 +45,13 @@ let User = {
 		// Obtener los usuarios
 		const sql = `
 			SELECT * FROM ${tablaNombre}
-			WHERE idLextracking = ? AND idUser = ?
+			WHERE idLextracking = ? AND token = ?
 		`
 		let response = []
 		let stack 
 		try {
-			response = await conn.query(sql, [id, idAdmin]);
+			response = await conn.query(sql, [id, token]);
+			console.log("response: ", response)
 		} catch(e){
 			stack = e
 		}
@@ -85,6 +86,20 @@ let User = {
 
 		const tablaNombre = 'users'
 
+		console.log("usuario.type: ", usuario.type)
+		
+		// Verifico si no es admin
+		if(usuario.idUser && (idAdmin != usuario.idUser)){
+			idAdmin = usuario.idUser
+		}
+		
+		// Si ya existe
+		const cubeUser = await this.loginCube(usuario.email)
+		
+		if(cubeUser.response){
+			usuario.sync = false
+		}
+
 		if(usuario.id && !usuario.sync){
 
 			// Si viene clave nueva
@@ -93,7 +108,7 @@ let User = {
 			}
 
 			// Generate token in update
-			usuario.token = utils.makeToken(usuario.email, usuario.id, 'public')
+			// usuario.token = utils.makeToken(usuario.email, usuario.id, 'public')
 
 			// Actualizar usuario
 			sql = `
@@ -127,7 +142,7 @@ let User = {
 				VALUES
 				 	(?, ?, ?, ?, ?, ?, ?)
 			`
-			arr = [usuario.name, usuario.id, idAdmin, usuario.email, usuario.type, password, usuario.token]
+			arr = [usuario.name, parseInt(usuario.id), idAdmin, usuario.email, usuario.type, password, usuario.token]
 		}
 
 		let response = []
@@ -140,29 +155,52 @@ let User = {
 			console.log("e: ", e)
 			stack = e
 		}
-		error.stack = {stack: stack, tail: response, sql: sql}
+		error.stack = {stack: stack, tail: response, sql: sql, arr: arr}
 		return (response.changedRows || response.insertId) ? {response: "Usuario ingresado correctamente"} : error;
 	},
-	login: async function (usuario, clave) {
+	loginLextracking: async function (email, password){
+		
+		let error    	= {"error":"Error al obtener usuarios"}
+		let model 		= 'login'
+		const res 		= await axios.post(API_LEXTRACKING + model, {email: email, password: password})
+		const response  = res.data
+
+		if(response.response){
+			// Obtengo el usuario dentro del cube
+			const lxUser = response.response
+			
+			// Si no hay usuario en el cube
+			response.response.idLextracking = response.response.id
+
+			const cubeUser = await this.loginCube(lxUser.email)
+
+			if(cubeUser.response){
+				response.response.cubeUser  = cubeUser.response
+				response.response.cubeExist = true
+				response.response.active 	= cubeUser.response.active
+				response.response.idUser 	= cubeUser.response.idUser
+				// Local ID
+				response.response.id			= cubeUser.response.id
+				response.response.idLextracking = cubeUser.response.idLextracking
+			} else if(response.response.role != "admin") {
+				return {error: "Usuario no disponible en la plataforma."};
+			}
+		}
+
+		return response.response ? {response: response.response} : error;
+	},
+	loginCube: async function (email) {
 		const sql = `
-			SELECT id, name, email, type FROM ${tablaNombre}
-			WHERE 
-				(email = ?) AND password = MD5(?)
+			SELECT id, name, email, type, active, idUser, idLextracking FROM ${tablaNombre}
+			WHERE email = ?
 				AND active = 1
 			;
 		`
 		let response = []
 		
 		try {
-			response = await conn.query(sql, [usuario, clave]);
+			response = await conn.query(sql, [email]);
 
-			if(response.length > 0){
-				const email = response[0].email
-				const id   	= response[0].id
-
-				// Genero el token a partir de 3 claves
-				response[0].token = utils.makeToken(email, id, key)
-			}
 		} catch(e){}
 
 		return response.length > 0 ? {response: response[0]} : {error: 'Usuario y/o clave incorrecta.'};
@@ -212,22 +250,18 @@ let User = {
 		// Obtener los usuarios
 		const sql = `
 			SELECT * FROM ${tablaNombre}
+			WHERE token = ?
 		`
 		let response = []
 		
 		try {
-			response = await conn.query(sql);
+			response = await conn.query(sql, [token]);
 		} catch(e){}
 
 		if(response.length > 0){
 			response.map( (usr) => {
-				let fastToken = utils.makeToken(usr.email, usr.id, key);
-				
-				// Check token and userId
-				if(token == fastToken && id == usr.id){
-					userCorrect = usr.type;
-					return;
-				}
+				userCorrect = usr.type;
+				return;
 			})
 		}
 		return {response: userCorrect}

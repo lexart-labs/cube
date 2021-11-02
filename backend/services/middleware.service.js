@@ -30,6 +30,7 @@ const Mdl = {
 					errorOutput()
 				}
 			} else {
+				error.error = 'Lextracking error: ' + res.data.error
 				errorOutput()
 			}
 		}).catch( error => {

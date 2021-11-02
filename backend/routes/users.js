@@ -5,7 +5,7 @@ const User 	 = require('../services/users.service')
 
 router.post('/login', async function (req, res) {
 	let post = req.body;
-	let response = await User.login(post.email, post.password);
+	let response = await User.loginLextracking(post.email, post.password);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
@@ -44,7 +44,7 @@ router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
 })
 
 router.get('/:id', Mdl.middleware, async function (req, res) {
-	let response = await User.one(req.params.id, req.headers['user-id']);
+	let response = await User.one(req.params.id, req.headers['token']);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);

@@ -21,7 +21,7 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 					// Obtener los datos del lextracking
 					let userLextracking = JSON.parse(localStorage.getItem('_lextracking_user-' + APP_NAME))
 					userLextracking.type = userLextracking.role
-					userLextracking.sync = true
+					userLextracking.sync = (userLextracking.cubeExist && userLextracking.cubeExist == true) ? false : true
 
 					this.isSync = true
 					UserService().upsertUser( userLextracking, (res) => {
@@ -46,6 +46,26 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 					})
 
 					console.log("userLextracking: ", userLextracking)
+				},
+				obtenerEvaluaciones: function (id){
+					let token 	= localStorage.getItem('token-app-' + APP_NAME);
+					let userId 	= localStorage.getItem('id-' + APP_NAME);
+
+					const headers = {
+						token: token,
+						'user-id': userId
+					}
+					axios.get(API + 'courses/by-user/' + id, 
+						{headers: headers}).then( (res) => {
+						this.isLoading = false;
+						if(!res.data.error){
+							let data  = res.data.response;
+							console.log("data: ", data)
+							
+						} else {
+							this.error 	   = res.data.error;
+						}
+					})
 				}
 			},
 			mounted: function (){
@@ -76,6 +96,9 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 							// this.courses = courses;
 							console.log("res: ", res.data)
 							this.success = 'Usuario sincronizado 👏'
+
+							// Obtenemos evaluaciones de un usuario
+							this.obtenerEvaluaciones(id)
 						} else {
 							// Si no obtengo el usuario en la base, deberíamos cargarnos
 							this.error = "¡Tu usuario no está sincronizado!"

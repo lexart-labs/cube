@@ -5,7 +5,7 @@
 	</h4>
 	<input 
 		type="search" 
-		placeholder="Buscar cursos" 
+		placeholder="Buscar evaluaciones" 
 		v-model="searchQuery"
 		class="form-control" 
 		style="margin-bottom: 1rem">
@@ -15,6 +15,9 @@
 				<tr>
 					<th>Id</th>
 					<th>Nombre</th>
+					<th>Developer</th>
+					<th>Fecha</th>
+					<th>Evaluación</th>
 					<th>Activo</th>
 					<th></th>
 				</tr>
@@ -23,6 +26,9 @@
 				<tr v-for="course in resultQuery">
 					<td>{{course.id}}</td>
 					<td>{{course.name}}</td>
+					<td>{{course.user.name}}</td>
+					<td>{{course.fecha}}</td>
+					<td><b>{{course.total}}%</b></td>
 					<td>{{course.active == 1 ? 'SI' : 'NO'}}</td>
 					<td>
 						<button class="btn btn-info" v-on:click="getCourseById(course.id)" data-toggle="modal" data-target="#staticBackdrop">Editar</button>

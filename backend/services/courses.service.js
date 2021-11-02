@@ -10,7 +10,7 @@ let Course = {
 
 		// Obtener los usuarios
 		const sql = `
-			SELECT id, name, active FROM ${tablaNombre}
+			SELECT id, name, active, json_data FROM ${tablaNombre}
 			WHERE idUser = ?
 		`
 		let response = []
@@ -19,7 +19,29 @@ let Course = {
 			response = await conn.query(sql, [idAdmin]);
 		} catch(e){}
 
+		if(response.length > 0){
+			response.map( (item,i) => {
+				try {
+					let json_data = JSON.parse(item.json_data)
+					json_data.id  = item.id
+					json_data.total = this.calcTotal(json_data.indicadores)
+					response[i] = json_data
+				} catch (e){}
+			})
+		}
+
 		return response.length > 0 ? {response: response} : error;
+	},
+	calcTotal: function (arr){
+		let indicadores = arr
+		let total = 0
+		for (const key in indicadores){
+			indicadores[key].map( item => {
+				total += parseInt(item.total)
+			})
+		}
+		console.log("total: ", total)
+		return Math.round((total * 100)/MAX_EVALUACION)
 	},
 	one: async function (id){
 		
@@ -139,14 +161,28 @@ let Course = {
 	courses: async function (id) {
 
 		const sql = `
-			SELECT courses.id, courses.name  FROM courses
-			WHERE courses.json_data REGEXP '"idUser": ?,'
+			SELECT courses.id, courses.name, courses.json_data  FROM courses
+			WHERE courses.json_data REGEXP '"idLextracking": ?'
 		`
 		let response = []
 		
 		try {
 			response = await conn.query(sql, [parseInt(id)]);
-		} catch(e){}
+			console.log("response: ", response, id)
+		} catch(e){
+			console.log("e: ", e)
+		}
+
+		if(response.length > 0){
+			response.map( (item,i) => {
+				try {
+					let json_data = JSON.parse(item.json_data)
+					json_data.id  = item.id
+					json_data.total = this.calcTotal(json_data.indicadores)
+					response[i] = json_data
+				} catch (e){}
+			})
+		}
 
 		let error = {error: '¡Aún no tienes cursos! Puedes reservar ahora!'}
 

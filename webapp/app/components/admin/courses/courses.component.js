@@ -49,7 +49,8 @@ const CoursesAdminComp = Vue.component('courses-admin-component', function (call
 						recursos: false,
 						alumnos: false
 					},
-					indicadores: {}
+					indicadores: {},
+					MAX_EVALUACION: 135
 				}
 			},
 			methods: {
