@@ -168,6 +168,8 @@ let User = {
 		if(response.response){
 			// Obtengo el usuario dentro del cube
 			const lxUser = response.response
+
+			console.log("lxUser: ", lxUser)
 			
 			// Si no hay usuario en el cube
 			response.response.idLextracking = response.response.id
@@ -182,7 +184,7 @@ let User = {
 				// Local ID
 				response.response.id			= cubeUser.response.id
 				response.response.idLextracking = cubeUser.response.idLextracking
-			} else if(response.response.role != "admin") {
+			} else if(response.response.role != "admin" && response.response.role != "pm") {
 				return {error: "Usuario no disponible en la plataforma."};
 			}
 		}
@@ -247,6 +249,8 @@ let User = {
 		let userCorrect = 'default';
 		const tablaNombre = 'users'
 
+		// check if its admin or pm
+		const allowRoles = ['admin','pm']
 		// Obtener los usuarios
 		const sql = `
 			SELECT * FROM ${tablaNombre}
@@ -260,7 +264,7 @@ let User = {
 
 		if(response.length > 0){
 			response.map( (usr) => {
-				userCorrect = usr.type;
+				userCorrect = allowRoles.includes(usr.type) ? 'admin' : userCorrect;
 				return;
 			})
 		}

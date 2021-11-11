@@ -39,7 +39,8 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 							let id    	 = localStorage.getItem('id-' + APP_NAME);
 
 							// Obtenemos evaluaciones de un usuario
-							this.obtenerEvaluaciones(id)
+							// this.obtenerEvaluaciones(id)
+							window.location.reload()
 
 						} else {
 							this.error = res.error;
