@@ -126,6 +126,9 @@
 	.btn-black img {
 		width: 100px;
 	}
+	.obs--title {
+		margin-top: 1rem;
+	}
 }
 @media (max-width: 768px){
 	.formContainer__background {

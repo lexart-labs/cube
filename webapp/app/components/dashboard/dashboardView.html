@@ -40,6 +40,8 @@
 						<div>
 							<p><i class="bi bi-calendar-check-fill"></i> {{resource.name}}</p>
 							<p class="smallText">{{resource.user.name}} - {{formatDate(resource.fecha)}}</p>
+							<hr>
+							<p class="smallText" v-html="resource.observaciones"></p>
 						</div>
 						<div class="text-right">
 							<b>{{resource.total}}%</b>

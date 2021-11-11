@@ -79,6 +79,12 @@
 				          	</select>
 			          	</div>
 		          	</div>
+					<div class="row">
+						<div class="col-12">
+							<label for="" class="obs--title">Observaciones</label>
+							<textarea name="" id="" cols="30" rows="5" class="form-control" v-model="course.observaciones"></textarea>
+						</div>
+					</div>
 				</div>
 
 	            <div v-if="error" class="alert alert-danger" style="margin-top: 1rem;">
@@ -104,7 +110,7 @@
 									<td>
 										<input type="range" min="1" max="5" class="form-control" v-model="item.total">
 									</td>
-									<td></td>
+									<td><b>{{item.total}}/{{MAX_POINTS}}</b></td>
 								</tr>
 							</tbody>
 						</table>
@@ -130,7 +136,7 @@
 									<td>
 										<input type="range" min="1" max="5" class="form-control" v-model="item.total">
 									</td>
-									<td></td>
+									<td><b>{{item.total}}/{{MAX_POINTS}}</b></td>
 								</tr>
 							</tbody>
 						</table>
@@ -157,7 +163,7 @@
 									<td>
 										<input type="range" min="1" max="5" class="form-control" v-model="item.total">
 									</td>
-									<td></td>
+									<td><b>{{item.total}}/{{MAX_POINTS}}</b></td>
 								</tr>
 							</tbody>
 						</table>

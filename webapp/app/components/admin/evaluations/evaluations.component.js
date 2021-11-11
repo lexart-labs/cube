@@ -19,6 +19,7 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 					},
 					course: {
 						id: 0,
+						fecha: '',
 						indicadores: {}
 					},
 					evaluacion: {},
@@ -50,16 +51,19 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 						alumnos: false
 					},
 					indicadores: {},
-					MAX_EVALUACION: 135
+					MAX_EVALUACION: 135,
+					MAX_POINTS: 5
 				}
 			},
 			methods: {
 				newCourse: function (){
 					this.course = {
 						id: 0,
-						active: 1
+						active: 1,
+						fecha: new Date().toISOString().slice(0,19)
 					}
 					this.error = ''
+					console.log("evaluación :: ", this.course)
 				},
 				activeTab: function (tab){
 					// Set all to false
