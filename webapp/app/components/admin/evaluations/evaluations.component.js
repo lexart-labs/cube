@@ -1,5 +1,5 @@
-const CoursesAdminComp = Vue.component('courses-admin-component', function (callback) {
-	let viewUrl = './app/components/admin/courses/coursesView.html'
+const EvaluationsAdminComp = Vue.component('evaluations-admin-component', function (callback) {
+	let viewUrl = './app/components/admin/evaluations/evaluationsView.html'
 
 	axios.get(viewUrl).then( function (result){
 		let view = result.data;
@@ -59,6 +59,7 @@ const CoursesAdminComp = Vue.component('courses-admin-component', function (call
 						id: 0,
 						active: 1
 					}
+					this.error = ''
 				},
 				activeTab: function (tab){
 					// Set all to false

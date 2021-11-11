@@ -18,18 +18,18 @@ const kickOut = function () {
 // Definir los componentes de forma dinámica
 const Login   	= LoginComp;
 const AppComp   = AppComponent;
-const Courses 	= CoursesComp;
+const Evaluations 	= EvaluationsComp;
 const Dashboard = DashboardComp;
 const Admin 	= AdminComp;
 const Users 	= UsersComp;
-const CoursesAdmin = CoursesAdminComp;
+const EvaluationsAdmin = EvaluationsAdminComp;
 
 const routes = [
   { path: '/:token?', component: Login },
   { path: '/app', component: AppComp, 
   	children: [
   		{ path: 'dashboard', component: Dashboard },
-  		{ path: 'courses/:id/:curso', component: Courses },
+  		{ path: 'evaluations/:id/:curso', component: Evaluations },
   		{ path: 'administration', component: Admin,  
 		  	children: [
 			    {
@@ -38,7 +38,7 @@ const routes = [
 			    },
 			    {
 			      path: 'evaluaciones',
-			      component: CoursesAdmin
+			      component: EvaluationsAdmin
 			    }
 			]
 		}

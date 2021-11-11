@@ -1,5 +1,5 @@
-const CoursesComp = Vue.component('courses-component', function (callback) {
-	let viewUrl = './app/components/courses/coursesView.html'
+const EvaluationsComp = Vue.component('evaluations-component', function (callback) {
+	let viewUrl = './app/components/evaluations/evaluationsView.html'
 
 	axios.get(viewUrl).then( function (result){
 		let view = result.data;

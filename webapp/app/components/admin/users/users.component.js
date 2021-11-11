@@ -23,7 +23,10 @@ const UsersComp = Vue.component('users-component', function (callback) {
 			},
 			methods: {
 				newUser: function (){
-					this.user = {}
+					this.user = {
+						name: "",
+						active: "1"
+					}
 				},
 				getUserById: function (id){
 					UserService().getUserById(id, (res) => {
