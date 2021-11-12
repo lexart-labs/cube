@@ -1,7 +1,7 @@
 const utils 	  = require('./utils.service')
 const Resource    = require('../services/resources.service')
 const User 		  = require('../services/users.service')
-const tablaNombre = 'courses';
+const tablaNombre = 'evaluations';
 
 let Course = {
 	all: async function (idAdmin){
@@ -101,16 +101,16 @@ let Course = {
 			
 			// Update course
 			sql = `
-				UPDATE courses
-				SET name = ?, idUser = ?, active = ?, json_data = ?, json_clases = ?, json_pagos = ?, json_evaluaciones = ?
+				UPDATE evaluations
+				SET name = ?, idUser = ?, idLextracking = ?, active = ?, json_data = ?, json_clases = ?, json_pagos = ?, json_evaluaciones = ?
 				WHERE id = ${course.id}
 			`
 		} else {
 			sql = `
-				INSERT INTO courses
-				(name,idUser,active,json_data,json_clases,json_pagos,json_evaluaciones)
+				INSERT INTO evaluations
+				(name,idUser,idLextracking,active,json_data,json_clases,json_pagos,json_evaluaciones)
 				VALUES
-				(?,?,?,?,?,?,?)
+				(?,?,?,?,?,?,?,?)
 			`
 			word = "creado"
 		}
@@ -126,7 +126,7 @@ let Course = {
 			delete course.clases
 			delete course.pagos
 			delete course.evaluaciones
-			response = await conn.query(sql, [course.name, idAdmin, course.active, JSON.stringify(course), json_clases, json_pagos, json_evaluaciones])
+			response = await conn.query(sql, [course.name, idAdmin, course.user.idLextracking, course.active, JSON.stringify(course), json_clases, json_pagos, json_evaluaciones])
 		} catch(e){
 			stackTrace = e;
 		}
@@ -161,8 +161,8 @@ let Course = {
 	courses: async function (id) {
 
 		const sql = `
-			SELECT courses.id, courses.name, courses.json_data  FROM courses
-			WHERE courses.json_data LIKE '%"idLextracking": ?}%'
+			SELECT evaluations.id, evaluations.name, evaluations.json_data, evaluations.idLextracking FROM evaluations
+			WHERE evaluations.idLextracking = ?
 		`
 		let response = []
 		
