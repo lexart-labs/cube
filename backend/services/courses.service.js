@@ -162,7 +162,7 @@ let Course = {
 
 		const sql = `
 			SELECT courses.id, courses.name, courses.json_data  FROM courses
-			WHERE courses.json_data REGEXP '"idLextracking": ?\\}'
+			WHERE courses.json_data REGEXP '"idLextracking": ?\}'
 		`
 		let response = []
 		
