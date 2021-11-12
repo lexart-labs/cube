@@ -161,8 +161,9 @@ let Course = {
 	courses: async function (id) {
 
 		const sql = `
-			SELECT courses.id, courses.name, courses.json_data  FROM courses
-			WHERE courses.json_data REGEXP '"idLextracking": ?'
+			SELECT courses.id, courses.name, courses.json_data, courses.idUser  FROM courses
+			LEFT JOIN users ON users.idUser = courses.idUser
+			WHERE users.idLextracking = ?
 		`
 		let response = []
 		
