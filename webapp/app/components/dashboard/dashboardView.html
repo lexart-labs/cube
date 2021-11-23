@@ -39,7 +39,7 @@
 						v-for="resource in resultQuery">
 						<div>
 							<p><i class="bi bi-calendar-check-fill"></i> {{resource.name}}</p>
-							<p class="smallText">{{resource.user.name}} - {{formatDate(resource.fecha)}}</p>
+							<p class="smallText"><b>Tech Lead:</b> {{resource.lead}} - {{formatDate(resource.fecha)}}</p>
 							<hr>
 							<p class="smallText" v-html="resource.observaciones"></p>
 						</div>

@@ -161,8 +161,16 @@ let Course = {
 	courses: async function (id) {
 
 		const sql = `
-			SELECT evaluations.id, evaluations.name, evaluations.json_data, evaluations.idLextracking FROM evaluations
+			SELECT 
+				users.name AS lead, 
+				evaluations.id, 
+				evaluations.name, 
+				evaluations.json_data, 
+				evaluations.idLextracking 
+			FROM evaluations
+			LEFT JOIN users ON users.idUser = evaluations.idUser
 			WHERE evaluations.idLextracking = ?
+			GROUP BY evaluations.id
 		`
 		let response = []
 		
@@ -178,6 +186,7 @@ let Course = {
 				try {
 					let json_data = JSON.parse(item.json_data)
 					json_data.id  = item.id
+					json_data.lead = item.lead
 					json_data.total = this.calcTotal(json_data.indicadores)
 					response[i] = json_data
 				} catch (e){}
