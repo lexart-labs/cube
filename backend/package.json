@@ -4,7 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node .",
+    "start:dev": "nodemon ."
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +18,8 @@
     "md5": "^2.3.0",
     "multer": "^1.4.3",
     "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }
