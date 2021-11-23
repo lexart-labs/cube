@@ -1,5 +1,3 @@
-const utils 	  = require('./utils.service');
-
 const TABLE_NAME = 'career';
 const ERROR = { error: 'No fue possible recuperar los datos'};
 

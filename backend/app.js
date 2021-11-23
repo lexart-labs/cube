@@ -12,6 +12,7 @@ global.Mdl   = require('./services/middleware.service')
 const usersRouter 	= require('./routes/users')
 const coursesRouter = require('./routes/courses')
 const resourcesRouter = require('./routes/resources')
+const careersRouter = require('./routes/careers');
 
 const port 	  	 = 3001;
 const seed       = 100000000000000
@@ -44,6 +45,7 @@ app.get('/', function (req, res) {
 app.use('/users', usersRouter)
 app.use('/courses', coursesRouter)
 app.use('/resources', resourcesRouter)
+app.use('/careers', careersRouter)
 app.use('/public', express.static('public'));
 
 app.post('/upload-file', upload.single('file-image'), function (req, res, next) {
