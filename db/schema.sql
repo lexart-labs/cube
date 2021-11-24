@@ -6,9 +6,11 @@ CREATE TABLE users (
 	type text NOT NULL,
 	password text NOT NULL,
 	active tinyint(2) DEFAULT 1,
+	idPosition int(11) NOT NULL DEFAULT 1,
 	dateCreated datetime DEFAULT current_timestamp,
 	dateEdited datetime DEFAULT current_timestamp,
 	PRIMARY KEY (id),
+	FOREIGN KEY (idProduct) REFERENCES user_position_level(id),
 	UNIQUE(email)
 );
 
