@@ -2,6 +2,13 @@ const utils 	  = require('./utils.service')
 const axios 	  = require('axios')
 
 const tablaNombre = 'users';
+const POSITION_INFO = `
+	SELECT c.position, l.level
+	FROM user_position_level
+	INNER JOIN careers AS c ON user_position_level.idPosition = c.id
+	INNER JOIN levels AS l ON user_position_level.idLevel= l.id
+	WHERE user_position_level.id = ?;
+`;
 
 let User = {
 	all: async function (idAdmin){
@@ -36,7 +43,7 @@ let User = {
 
 		return response.data.response.length > 0 ? {response: response.data.response} : error;
 	},
-	one: async function (id, token){
+	one: async function (id, token, idPosition){
 		
 		let error = {"error":"Error al obtener usuarios"}
 
@@ -44,13 +51,14 @@ let User = {
 
 		// Obtener los usuarios
 		const sql = `
-			SELECT * FROM ${tablaNombre}
+			SELECT *, (${POSITION_INFO}) AS positionInfo
+			FROM ${tablaNombre}
 			WHERE idLextracking = ? AND token = ?
 		`
 		let response = []
 		let stack 
 		try {
-			response = await conn.query(sql, [id, token]);
+			response = await conn.query(sql, [idPosition, id, token]);
 			console.log("response: ", response)
 		} catch(e){
 			stack = e
