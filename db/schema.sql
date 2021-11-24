@@ -33,6 +33,22 @@ CREATE TABLE resources (
 	PRIMARY KEY (id)
 );
 
+CREATE TABLE careers (
+	id INT NOT NULL AUTO_INCREMENT,
+	position VARCHAR(200) NOT NULL,
+	active tinyint(2) DEFAULT 1,
+	dateCreated datetime DEFAULT current_timestamp,
+	dateEdited datetime DEFAULT current_timestamp,
+	PRIMARY KEY (id));
+
+CREATE TABLE levels (
+	id INT NOT NULL AUTO_INCREMENT,
+	level VARCHAR(200) NOT NULL,
+	active tinyint(2) DEFAULT 1,
+	dateCreated datetime DEFAULT current_timestamp,
+	dateEdited datetime DEFAULT current_timestamp,
+	PRIMARY KEY (id));
+
 -- RELATION
 CREATE TABLE user_course (
 	id int NOT NULL AUTO_INCREMENT,
@@ -56,4 +72,16 @@ CREATE TABLE course_resource (
 	PRIMARY KEY (id),
 	FOREIGN KEY (idResource) REFERENCES resources(id),
 	FOREIGN KEY (idCourse) REFERENCES courses(id)
+);
+
+CREATE TABLE user_position_level (
+	id int NOT NULL AUTO_INCREMENT,
+	idPosition int NOT NULL,
+	idLevel int NOT NULL,
+	idUser int NOT NULL,
+	active tinyint(2) DEFAULT 1,
+	dateCreated datetime DEFAULT current_timestamp,
+	PRIMARY KEY (id),
+	FOREIGN KEY (idPosition) REFERENCES careers(id),
+	FOREIGN KEY (idLevel) REFERENCES levels(id)
 );
