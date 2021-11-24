@@ -44,7 +44,7 @@ router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
 })
 
 router.get('/:id', Mdl.middleware, async function (req, res) {
-	let response = await User.one(req.params.id, req.headers['token']);
+	let response = await User.one(req.params.id, req.headers['token'], req.params.idPosition);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
