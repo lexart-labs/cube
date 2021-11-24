@@ -1,4 +1,4 @@
-const TABLE_NAME = 'career';
+const TABLE_NAME = 'careers';
 const ERROR = { error: 'No fue possible recuperar los datos'};
 
 const Career = {
