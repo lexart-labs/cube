@@ -1,7 +1,7 @@
-const TABLE_NAME = 'careers';
+const TABLE_NAME = 'levels';
 const ERROR = { error: 'No fue possible recuperar los datos'};
 
-const Career = {
+const Levels = {
   getAll: async () => {
     const sql = `SELECT * FROM ${TABLE_NAME}`;
     let response = [];
@@ -14,4 +14,4 @@ const Career = {
   },
 };
 
-module.exports = Career;
+module.exports = Levels;
