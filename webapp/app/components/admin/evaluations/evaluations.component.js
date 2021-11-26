@@ -63,7 +63,7 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 						fecha: new Date().toISOString().slice(0,19)
 					}
 					this.error = ''
-					console.log("evaluación :: ", this.course)
+					// console.log("evaluación :: ", this.course)
 				},
 				activeTab: function (tab){
 					// Set all to false
@@ -73,7 +73,7 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 					this.$set(this.tabs, tab, true)
 				},
 				asisteClase: function(item, key){
-					console.log("asistencia: ", item)
+					// console.log("asistencia: ", item)
 					$('#asistenciasBackdrop').modal('show')
 					
 					const claseItem  = copy(item)
@@ -82,7 +82,7 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 					this.claseIsSelected = true
 				},
 				asistePago: function(item, key){
-					console.log("asistencia: ", item)
+					// console.log("asistencia: ", item)
 					$('#pagosBackdrop').modal('show')
 					
 					const pagoItem  = copy(item)
@@ -91,7 +91,7 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 					this.pagoIsSelected = true
 				},
 				confiraAsisteClase: function (){
-					console.log("this.claseAsiste: ", this.claseAsiste)
+					// console.log("this.claseAsiste: ", this.claseAsiste)
 					$('#asistenciasBackdrop').modal('hide')
 					
 					setTimeout( () => {
@@ -100,7 +100,7 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 					
 				},
 				confiraPagoClase: function (){
-					console.log("this.claseAsiste: ", this.pagoAsiste)
+					// console.log("this.claseAsiste: ", this.pagoAsiste)
 					$('#pagosBackdrop').modal('hide')
 					
 					setTimeout( () => {
@@ -130,7 +130,7 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 					CourseService().getCourseById(id, (res) => {
 						if(!res.error){
 							this.course = res.response;
-							console.log("this.course: ", this.course)
+							// console.log("this.course: ", this.course)
 							if(!this.course.resources){
 								this.course.resources = []
 							}
@@ -149,7 +149,7 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 
 							// Reviso que alumnos están en el curso
 							if(this.course.users && this.course.users.length > 0){
-								console.log("this.users: ", this.users)
+								// console.log("this.users: ", this.users)
 								this.course.users.map( item => {
 									this.users.map( user => {
 										if(user.id == item.idUser){
@@ -230,13 +230,13 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 							activeUsers.push(alumno)
 						}
 					})
-					console.log("this.users upsert: ", this.users)
+					// console.log("this.users upsert: ", this.users)
 					this.course.users = activeUsers;
 					
-					console.log("this.course: ", this.course)
+					// console.log("this.course: ", this.course)
 
 					CourseService().upsertCourse(this.course, (res)=> {
-						console.log("res course: ", res)
+						// console.log("res course: ", res)
 						if(res.response){
 							$('#staticBackdrop').modal('hide')
 							// Disparo el toast
@@ -329,11 +329,11 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 				deleteClase: function (item, key){
 					
 					this.course.clases.splice(key, 1)
-					console.log("this.course.clases: ", this.course.clases)
+					// console.log("this.course.clases: ", this.course.clases)
 				},
 				deletePago: function (item, key){
 					this.course.pagos.splice(key, 1)
-					console.log("this.course.pago: ", this.course.pagos)
+					// console.log("this.course.pago: ", this.course.pagos)
 				},
 				deleteEvaluacion: function (item, key){
 					this.course.evaluaciones.splice(key, 1)
@@ -376,7 +376,7 @@ const EvaluationsAdminComp = Vue.component('evaluations-admin-component', functi
 
 				// Obtengo indicadores desde el JSON
 				axios.get('./data/indicadores.json').then( res => {
-					console.log("cargo los indicadores: ", res)
+					// console.log("cargo los indicadores: ", res)
 					this.indicadores = res.data
 					this.course.indicadores = res.data
 				})
