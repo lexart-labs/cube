@@ -174,7 +174,7 @@ let User = {
 			// Si no hay usuario en el cube
 			response.response.idLextracking = response.response.id
 
-			const cubeUser = await this.loginCube(lxUser.email)
+			const cubeUser = await this.loginCube(lxUser.email);
 
 			if (cubeUser.response) {
 				response.response.cubeUser = cubeUser.response

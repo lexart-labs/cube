@@ -3,7 +3,7 @@ const ERROR = { error: 'No fue possible recuperar los datos' };
 
 const Career = {
   getAll: async () => {
-    const sql = `SELECT * FROM ${TABLE_NAME}`;
+    const sql = `SELECT * FROM ${TABLE_NAME} WHERE id NOT IN (8, 9, 10, 11)`;
     let response = [];
     try {
       response = await conn.query(sql);
