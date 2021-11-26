@@ -53,7 +53,7 @@ app.use('/public', express.static('public'));
 app.post('/upload-file', upload.single('file-image'), function (req, res, next) {
   // req.file is the `profile-file` file
   // req.body will hold the text fields, if there were any
-  console.log(JSON.stringify(req.file))
+  // console.log(JSON.stringify(req.file))
   return res.send({response: {url: req.file.path}})
 })
 

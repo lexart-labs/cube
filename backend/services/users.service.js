@@ -2,13 +2,6 @@ const utils = require('./utils.service')
 const axios = require('axios')
 
 const tablaNombre = 'users';
-const POSITION_INFO = `
-	SELECT c.position, l.level
-	FROM user_position_level
-	INNER JOIN careers AS c ON user_position_level.idPosition = c.id
-	INNER JOIN levels AS l ON user_position_level.idLevel= l.id
-	WHERE user_position_level.id = ?;
-`;
 
 let User = {
 	all: async function (idAdmin) {
@@ -43,38 +36,25 @@ let User = {
 
 		return response.data.response.length > 0 ? { response: response.data.response } : error;
 	},
-	one: async function (id, token, idPosition) {
+	one: async function (id, token) {
 
 		let error = { "error": "Error al obtener usuarios" }
+		let response = [];
+		let stack;
 
-		const tablaNombre = 'users';
-		let response = []
-		let stack
-
-		// Obtener los usuarios
-		if (idPosition) {
+		// Obtener los usuari
 			const sql = `
-			SELECT *, (${POSITION_INFO}) AS positionInfo
-			FROM ${tablaNombre}
-			WHERE idLextracking = ? AND token = ?
-		`
-			try {
-				response = await conn.query(sql, [idPosition, id, token]);
-			} catch (e) {
-				stack = e
-			}
-		} else {
-			const sql = `
-			SELECT * FROM ${tablaNombre}
-			WHERE idLextracking = ? AND token = ?
-		`
-			try {
-				response = await conn.query(sql, [id, token]);
-				console.log("response: ", response)
-			} catch (e) {
-				stack = e
-			}
+				SELECT c.position, u.* FROM user_position_level uc
+				INNER JOIN users u ON uc.idPosition = u.idPosition
+				INNER JOIN careers c ON uc.idPosition = c.id
+				WHERE u.idLextracking = ? AND u.token = ?;
+			`
+		try {
+			response = await conn.query(sql, [id, token]);
+		} catch (e) {
+			stack = e
 		}
+
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
 	},
@@ -106,7 +86,7 @@ let User = {
 
 		const tablaNombre = 'users'
 
-		console.log("usuario.type: ", usuario.type)
+		// console.log("usuario.type: ", usuario.type)
 
 		// Verifico si no es admin
 		if (usuario.idUser && (idAdmin != usuario.idUser)) {
@@ -189,7 +169,7 @@ let User = {
 			// Obtengo el usuario dentro del cube
 			const lxUser = response.response
 
-			console.log("lxUser: ", lxUser)
+			// console.log("lxUser: ", lxUser)
 
 			// Si no hay usuario en el cube
 			response.response.idLextracking = response.response.id
