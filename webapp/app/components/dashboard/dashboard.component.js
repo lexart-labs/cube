@@ -14,7 +14,12 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 					searchQuery: null,
 					error: '',
 					success: '',
-					resources: []
+					resources: [],
+					show: 'Dashboard',
+					abas: [
+						{ name: 'Dashboard', class: 'bi bi-clipboard-data', hasIcon: true },
+						{ name: 'Evaluaciones', class: 'bi bi-calendar-check-fill', hasIcon: true},
+					]
 				}
 			},
 			methods: {
@@ -88,6 +93,9 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 					uyDate = uyDate + ' ' + newDate[1]
 
 					return uyDate
+				},
+				setShow: function (abaName) {
+					this.show = abaName;
 				}
 			},
 			mounted: function (){
