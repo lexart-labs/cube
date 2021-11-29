@@ -45,7 +45,7 @@ let User = {
 		// Obtener los usuari
 			const sql = `
 				SELECT c.position, u.* FROM user_position_level uc
-				INNER JOIN users u ON uc.idPosition = u.idPosition
+				INNER JOIN users u ON uc.id = u.idPosition
 				INNER JOIN careers c ON uc.idPosition = c.id
 				WHERE u.idLextracking = ? AND u.token = ?;
 			`
@@ -269,6 +269,25 @@ let User = {
 			})
 		}
 		return { response: userCorrect }
+	},
+	updatePosition: async function(idUser, idPosition, idLevel) {
+		const sqlUser = `
+			UPDATE users SET idPosition = ? WHERE id = ?
+		`;
+		const sqlJunction = `
+			INSERT INTO user_position_level (idPosition, idLevel, idUser)
+			VALUES (?, ?, ?)
+		`;
+		const error = { error: '¡No fue posible actualizar la posición!' };
+
+		try {
+			const { insertId } = await conn.query(sqlJunction, [idPosition, idLevel, idUser]);
+			const { changedRows } = await conn.query(sqlUser, [insertId, idUser]);
+			return changedRows ? { response: '¡Actualizado con éxito!' } : error;
+		} catch (e) {
+			console.log(e.message);
+			return error;
+		}
 	}
 }
 module.exports = User;

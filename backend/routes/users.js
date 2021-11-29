@@ -58,4 +58,13 @@ router.post('/upsert', Mdl.middleware, async function (req, res) {
     res.send(response);
 })
 
+router.put('/position/:idUser', Mdl.middleware, async function (req, res) {
+	const { idPosition, idLevel } = req.body;
+	const { idUser } = req.params;
+	const response = await User.updatePosition(idUser, idPosition, idLevel);
+
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
 module.exports = router;
