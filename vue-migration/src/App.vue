@@ -30,6 +30,8 @@ export default {
 </script>
 
 <style>
+@import "vue-select-3/dist/vue-select.css";
+
 @media all {
   /* Componente: Login form */
   #login--form {
