@@ -69,10 +69,10 @@
 </template>
 
 <script>
+/* eslint-disable no-underscore-dangle */
 import axios from 'axios';
-require('dotenv').config();
-
-const { APP_NAME, API } = process.env;
+import { copy } from '../services/helpers';
+import { API, APP_NAME } from '../../env';
 
 export default {
   name: 'Login',
@@ -89,67 +89,68 @@ export default {
     };
   },
   methods: {
-    loginUser: function () {
+    loginUser() {
       this.isLoading = true;
       const user = copy(this.usr);
+      console.log(API);
 
-      axios.post(API + "users/login", user).then(
+      axios.post(`${API}users/login`, user).then(
         (res) => {
-          let rs = res.data;
+          const rs = res.data;
           this.isLoading = false;
 
           if (!rs.error) {
             // Guardar en el localStorage
             // Token del response
-            localStorage.setItem("token-app-" + APP_NAME, rs.response.token);
-            localStorage.setItem("id-" + APP_NAME, rs.response.idLextracking);
+            localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
+            localStorage.setItem(`id-${APP_NAME}`, rs.response.idLextracking);
 
             window.localStorage.setItem(
-              "_lextracking_user-" + APP_NAME,
-              JSON.stringify(rs.response)
+              `_lextracking_user-${APP_NAME}`,
+              JSON.stringify(rs.response),
             );
 
-            router.push("/app/dashboard");
+            this.$router.push('/app/dashboard');
           } else {
             this.error = rs.error;
           }
         },
-        (err) => {
-          this.error = "Error de servidor. Contacte al administrador";
+        () => {
+          this.error = 'Error de servidor. Contacte al administrador';
           this.isLoading = false;
-        }
+        },
       );
     },
   },
-  mounted: function () {
+  mounted() {
     localStorage.clear();
 
     // Obtengo la información de la escuela si tengo token
-    let token = app._route.params.token;
+    const { token } = this.$route.params;
     if (token) {
-      axios.get(API + "users/school/" + token).then(
+      axios.get(`${API}users/school/${token}`).then(
         (res) => {
           if (!res.data.error) {
             this.setting = res.data.response;
             // Bypass del token al storage
             this.setting.token = token;
             window.localStorage.setItem(
-              "_setting-" + APP_NAME,
-              JSON.stringify(this.setting)
+              `_setting-${APP_NAME}`,
+              JSON.stringify(this.setting),
             );
           } else {
-            Vue.toasted.show("Error en obtener la institución", {
-              type: "error",
+            this.$toast.show('Error en obtener la institución', {
+              type: 'error',
               duration: 2000,
             });
           }
         },
-        (err) => {
-          Vue.toasted.show("Error en obtener la institución", {
-            type: "error",
+        () => {
+          this.$toast.show('Error en obtener la institución', {
+            type: 'error',
             duration: 2000,
           });
-        }
+        },
       );
     }
   },

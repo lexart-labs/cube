@@ -6,13 +6,13 @@ import Evaluations from '../views/Evaluations.vue';
 import Admin from '../views/Admin/Admin.vue';
 import Users from '../views/Admin/Users.vue';
 import EvaluationsAdmin from '../views/Admin/Evaluations.vue';
-import AppComp from '../App.vue';
+import AppComponent from '../views/AppComponent.vue';
 
 const routes = [
   { path: '/:token?', name: 'Login', component: Login },
   {
     path: '/app',
-    component: AppComp,
+    component: AppComponent,
     children: [
       { path: 'dashboard', component: Dashboard },
       { path: 'evaluations/:id/:curso', component: Evaluations },
@@ -37,6 +37,7 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+  linkActiveClass: 'active',
 });
 
 export default router;

@@ -5,34 +5,40 @@
 </template>
 
 <script>
+/* eslint-disable camelcase */
 import axios from 'axios';
+import * as am4core from '@amcharts/amcharts4/core';
+import * as am4charts from '@amcharts/amcharts4/charts';
+import am4themes_animated from '@amcharts/amcharts4/themes/animated';
+
 require('dotenv').config();
+
 const { APP_NAME, API } = process.env;
 
 export default {
-  name: "Timeline",
-  data: function () {
+  name: 'Timeline',
+  data() {
     return {
       isLoading: false,
     };
   },
-  mounted: async function () {
+  async mounted() {
     this.isLoading = true;
     const AIMLpositions = [
-      { position: "IA/ML Developer" },
-      { position: "IA/ML Architect" },
-      { position: "Research Developer" },
-      { position: "Research Architect" },
+      { position: 'IA/ML Developer' },
+      { position: 'IA/ML Architect' },
+      { position: 'Research Developer' },
+      { position: 'Research Architect' },
     ];
 
     const { data: { response: careers } } = await axios.get(`${API}careers`);
 
-    let id = localStorage.getItem('id-' + APP_NAME);
-    let token = localStorage.getItem('token-app-' + APP_NAME);
-    let userId = localStorage.getItem('id-' + APP_NAME);
+    const id = localStorage.getItem(`id-${APP_NAME}`);
+    const token = localStorage.getItem(`token-app-${APP_NAME}`);
+    const userId = localStorage.getItem(`id-${APP_NAME}`);
     const headers = { token, 'user-id': userId };
 
-    const { data: { response } } = await axios.get(API + "users/" + id, { headers });
+    const { data: { response } } = await axios.get(`${API}users/${id}`, { headers });
     this.isLoading = false;
 
     const current = response.position;
@@ -41,37 +47,36 @@ export default {
     am4core.useTheme(am4themes_animated);
     const chart = am4core.create(this.$refs.chartdiv, am4charts.XYChart);
 
-    const generateData = (array) =>
-      array.reduce((acc, cur, i) => {
-        const docTemplate = {
-          x: i++,
-          y: 1,
-          text: cur.position,
-          center: i % 2 === 0 ? "top" : "bottom",
-          config: {
-            fill: isFull ? "#2bc4a7" : "white",
-          },
-        };
+    const generateData = (array) => array.reduce((acc, cur, i) => {
+      const docTemplate = {
+        x: i + 1,
+        y: 1,
+        text: cur.position,
+        center: i % 2 === 0 ? 'top' : 'bottom',
+        config: {
+          fill: isFull ? '#2bc4a7' : 'white',
+        },
+      };
 
-        if (cur.position === current) {
-          isFull = false;
-          return [...acc, { ...docTemplate, config: { fill: "#2bc4a7" } }];
-        }
-        return [...acc, docTemplate];
-      }, []);
+      if (cur.position === current) {
+        isFull = false;
+        return [...acc, { ...docTemplate, config: { fill: '#2bc4a7' } }];
+      }
+      return [...acc, docTemplate];
+    }, []);
 
     chart.data = AIMLpositions.includes(current)
       ? generateData(AIMLpositions)
       : generateData(careers);
 
     // Configuraciones
-    let xAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-    xAxis.dataFields.category = "x";
+    const xAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+    xAxis.dataFields.category = 'x';
     xAxis.renderer.grid.template.disabled = true;
     xAxis.renderer.labels.template.disabled = true;
     xAxis.tooltip.disabled = true;
 
-    let yAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    const yAxis = chart.yAxes.push(new am4charts.ValueAxis());
     yAxis.min = 0;
     yAxis.max = 2;
     yAxis.strictMinMax = true;
@@ -80,27 +85,27 @@ export default {
     yAxis.renderer.baseGrid.disabled = true;
     yAxis.tooltip.disabled = true;
 
-    let series = chart.series.push(new am4charts.LineSeries());
-    series.dataFields.categoryX = "x";
-    series.dataFields.valueY = "y";
-    series.stroke = am4core.color("#2bc4a7");
+    const series = chart.series.push(new am4charts.LineSeries());
+    series.dataFields.categoryX = 'x';
+    series.dataFields.valueY = 'y';
+    series.stroke = am4core.color('#2bc4a7');
     series.strokeWidth = 4;
 
-    let bullet = series.bullets.push(new am4charts.CircleBullet());
-    bullet.circle.fill = am4core.color("#2bc4a7");
-    bullet.circle.configField = "config";
+    const bullet = series.bullets.push(new am4charts.CircleBullet());
+    bullet.circle.fill = am4core.color('#2bc4a7');
+    bullet.circle.configField = 'config';
     bullet.circle.radius = 10;
 
-    let labelBullet = series.bullets.push(new am4charts.LabelBullet());
-    labelBullet.label.text = "{text}";
+    const labelBullet = series.bullets.push(new am4charts.LabelBullet());
+    labelBullet.label.text = '{text}';
     labelBullet.label.maxWidth = 150;
     labelBullet.label.wrap = true;
     labelBullet.label.truncate = false;
-    labelBullet.label.textAlign = "middle";
-    labelBullet.label.propertyFields.verticalCenter = "center";
+    labelBullet.label.textAlign = 'middle';
+    labelBullet.label.propertyFields.verticalCenter = 'center';
     labelBullet.label.paddingTop = 20;
     labelBullet.label.paddingBottom = 20;
-    labelBullet.label.fill = am4core.color("#6a6c74");
+    labelBullet.label.fill = am4core.color('#6a6c74');
   },
 };
 </script>
