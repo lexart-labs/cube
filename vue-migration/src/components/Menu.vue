@@ -31,10 +31,7 @@
 <script>
 import AuthService from '../services/auth.service';
 import { verifyToken } from '../services/helpers';
-
-require('dotenv').config();
-
-const { APP_NAME, API } = process.env;
+import { API, APP_NAME } from '../../env';
 
 export default {
   name: 'Menu',
