@@ -10,10 +10,7 @@ import axios from 'axios';
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
 import am4themes_animated from '@amcharts/amcharts4/themes/animated';
-
-require('dotenv').config();
-
-const { APP_NAME, API } = process.env;
+import { APP_NAME, API } from '../../env';
 
 export default {
   name: 'Timeline',

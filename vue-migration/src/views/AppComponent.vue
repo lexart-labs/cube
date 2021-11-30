@@ -1,16 +1,16 @@
 <template>
   <div id="app--component">
-    <!-- <Menu /> -->
+    <Menu />
     <router-view />
   </div>
 </template>
 
 <script>
-// import Menu from '../components/Menu.vue';
+import Menu from '../components/Menu.vue';
 
 export default {
   name: 'AppComponent',
-  // components: { Menu },
+  components: { Menu },
   data() {
     return {};
   },
