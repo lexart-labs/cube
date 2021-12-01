@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import VueRouter from 'vue-router';
 
 import Login from '../views/Login.vue';
 import Dashboard from '../views/Dashboard.vue';
@@ -34,9 +34,10 @@ const routes = [
   },
 ];
 
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+const router = new VueRouter({
+  history: 'history',
   routes,
+  base: process.env.BASE_URL,
   linkActiveClass: 'active',
 });
 

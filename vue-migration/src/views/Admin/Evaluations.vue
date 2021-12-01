@@ -425,27 +425,34 @@
 </template>
 
 <script>
+/* eslint-disable no-undef */
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-unused-vars */
 import axios from 'axios';
-import { verifyToken } from '../../services/helpers';
+import Spinner from '../../components/Spinner.vue';
+import { verifyToken, copy } from '../../services/helpers';
+import CourseService from '../../services/course.service';
+import UserService from '../../services/user.service';
 import { APP_NAME } from '../../../env';
 
 export default {
-  name: "EvaluationsAdmin",
-  data: function () {
+  name: 'EvaluationsAdmin',
+  components: { Spinner },
+  data() {
     return {
-      title: "Administración de evaluaciones",
+      title: 'Administración de evaluaciones',
       courses: [],
-      error: "",
+      error: '',
       isLoading: true,
       searchQuery: null,
       resource: {
         active: 1,
-        type: "video",
-        link: "",
+        type: 'video',
+        link: '',
       },
       course: {
         id: 0,
-        fecha: "",
+        fecha: '',
         indicadores: {},
       },
       evaluacion: {},
@@ -460,9 +467,9 @@ export default {
         examenes: false,
       },
       tabItems: [
-        { name: "Desempeño", tab: "clases" },
-        { name: "Factor Humano", tab: "pagos" },
-        { name: "Habilidades", tab: "evaluaciones" },
+        { name: 'Desempeño', tab: 'clases' },
+        { name: 'Factor Humano', tab: 'pagos' },
+        { name: 'Habilidades', tab: 'evaluaciones' },
       ],
       clase: {},
       claseAsiste: {},
@@ -482,53 +489,52 @@ export default {
     };
   },
   methods: {
-    newCourse: function () {
+    newCourse() {
       this.course = {
         id: 0,
         active: 1,
         fecha: new Date().toISOString().slice(0, 19),
       };
-      this.error = "";
+      this.error = '';
       // console.log("evaluación :: ", this.course)
     },
-    activeTab: function (tab) {
+    activeTab(tab) {
       // Set all to false
-      for (const key in this.tabs) {
-        this.$set(this.tabs, key, false);
-      }
+      Object.keys(this.tabs)
+        .forEach((key) => { this.$set(this.tabs, key, false); });
       this.$set(this.tabs, tab, true);
     },
-    asisteClase: function (item, key) {
-      $("#asistenciasBackdrop").modal("show");
+    asisteClase(item, key) {
+      $('#asistenciasBackdrop').modal('show');
 
       const claseItem = copy(item);
       this.claseAsiste = claseItem;
       this.claseSelected = key;
       this.claseIsSelected = true;
     },
-    asistePago: function (item, key) {
-      $("#pagosBackdrop").modal("show");
+    asistePago(item, key) {
+      $('#pagosBackdrop').modal('show');
 
       const pagoItem = copy(item);
       this.pagoAsiste = pagoItem;
       this.pagoSelected = key;
       this.pagoIsSelected = true;
     },
-    confiraAsisteClase: function () {
-      $("#asistenciasBackdrop").modal("hide");
+    confiraAsisteClase() {
+      $('#asistenciasBackdrop').modal('hide');
 
       setTimeout(() => {
         this.claseIsSelected = false;
       }, 10);
     },
-    confiraPagoClase: function () {
-      $("#pagosBackdrop").modal("hide");
+    confiraPagoClase() {
+      $('#pagosBackdrop').modal('hide');
 
       setTimeout(() => {
         this.pagoIsSelected = false;
       }, 10);
     },
-    getCourseById: function (id) {
+    getCourseById(id) {
       this.course = {
         clases: [],
         users: [],
@@ -559,18 +565,18 @@ export default {
           }
 
           if (!this.course.pagos) {
-            this.$set(this.course, "pagos", []);
+            this.$set(this.course, 'pagos', []);
           }
 
           if (!this.course.evaluaciones) {
-            this.$set(this.course, "evaluaciones", []);
+            this.$set(this.course, 'evaluaciones', []);
           }
 
           // Reviso que alumnos están en el curso
           if (this.course.users && this.course.users.length > 0) {
             this.course.users.map((item) => {
               this.users.map((user) => {
-                if (user.id == item.idUser) {
+                if (user.id === item.idUser) {
                   user.inCourse = true;
                 }
               });
@@ -580,21 +586,21 @@ export default {
               if (!clase.users) {
                 clase.users = [];
                 clase.users = copy(
-                  this.users.filter((user) => user.inCourse == true)
+                  this.users.filter((user) => user.inCourse === true),
                 );
                 clase.asistencias = 0;
               } else {
                 let countAsistencias = 0;
                 clase.users.map((item) => {
-                  if (item.asiste == true) {
-                    countAsistencias++;
+                  if (item.asiste === true) {
+                    countAsistencias += 1;
                   }
                 });
                 clase.asistencias = countAsistencias;
 
-                if (countAsistencias == 0) {
+                if (countAsistencias === 0) {
                   clase.users = copy(
-                    this.users.filter((user) => user.inCourse == true)
+                    this.users.filter((user) => user.inCourse === true),
                   );
                 }
               }
@@ -604,21 +610,21 @@ export default {
               if (!pago.users) {
                 pago.users = [];
                 pago.users = copy(
-                  this.users.filter((user) => user.inCourse == true)
+                  this.users.filter((user) => user.inCourse === true),
                 );
                 pago.pagaron = 0;
               } else {
                 let countAsistencias = 0;
                 // Aux users
-                let userArr = copy(
-                  this.users.filter((user) => user.inCourse == true)
+                const userArr = copy(
+                  this.users.filter((user) => user.inCourse === true),
                 );
 
-                userArr.map((user, i) => {
+                userArr.map((user, _i) => {
                   pago.users.map((item) => {
-                    if (item.pagar == true && user.id == item.id) {
+                    if (item.pagar === true && user.id === item.id) {
                       user.pagar = true;
-                      countAsistencias++;
+                      countAsistencias += 1;
                     }
                   });
                 });
@@ -627,9 +633,9 @@ export default {
                 pago.users = copy(userArr);
                 pago.pagaron = countAsistencias;
 
-                if (countAsistencias == 0) {
+                if (countAsistencias === 0) {
                   pago.users = copy(
-                    this.users.filter((user) => user.inCourse == true)
+                    this.users.filter((user) => user.inCourse === true),
                   );
                 }
               }
@@ -643,12 +649,12 @@ export default {
         }
       });
     },
-    upsertCourse: function () {
+    upsertCourse() {
       // Verifico que los usuarios estén dentro del curso sino los agrego
-      let activeUsers = [];
+      const activeUsers = [];
 
       this.users.map((item) => {
-        if (item.inCourse == true) {
+        if (item.inCourse === true) {
           const alumno = {
             idUser: item.id,
             idCourse: this.course.id,
@@ -661,40 +667,40 @@ export default {
 
       CourseService().upsertCourse(this.course, (res) => {
         if (res.response) {
-          $("#staticBackdrop").modal("hide");
+          $('#staticBackdrop').modal('hide');
           // Disparo el toast
           this.$toast.show(res.response, {
-            type: "success",
+            type: 'success',
             duration: 2000,
           });
 
           // Get all courses again
-          CourseService().getAllCourses((res) => {
+          CourseService().getAllCourses((resp) => {
             this.isLoading = false;
             if (!res.error) {
-              let courses = res.response;
+              const courses = resp.response;
               this.courses = courses;
             } else {
-              this.error = res.error;
+              this.error = resp.error;
             }
           });
         }
       });
     },
-    removeHTTP: function (url, model, prop) {
+    removeHTTP(url, model, prop) {
       this.$set(
         this[model],
         prop,
-        url.replace("http://", "").replace("https://", "")
+        url.replace('http://', '').replace('https://', ''),
       );
     },
-    addResource: function () {
-      let resource = this.resource;
-      const protocol = "https://";
+    addResource() {
+      const { resource } = this;
+      const protocol = 'https://';
       if (
-        resource.link &&
-        (!resource.link.includes("http://") ||
-          !resource.link.includes("https://"))
+        resource.link
+        && (!resource.link.includes('http://')
+          || !resource.link.includes('https://'))
       ) {
         resource.link = protocol + resource.link;
       }
@@ -702,11 +708,11 @@ export default {
 
       this.resource = {
         active: 1,
-        type: "video",
-        link: "",
+        type: 'video',
+        link: '',
       };
     },
-    deleteResource: function (item, key) {
+    deleteResource(item, key) {
       const deleted = {
         id: item.id ? item.id : null,
         idCourse: item.idCourse,
@@ -718,12 +724,12 @@ export default {
       }
       this.course.resources.splice(key, 1);
     },
-    addClase: function () {
-      const clase = this.clase;
-      const protocol = "https://";
+    addClase() {
+      const { clase } = this;
+      const protocol = 'https://';
       if (
-        clase.meet &&
-        (!clase.meet.includes("http://") || !clase.meet.includes("https://"))
+        clase.meet
+        && (!clase.meet.includes('http://') || !clase.meet.includes('https://'))
       ) {
         clase.meet = protocol + clase.meet;
       }
@@ -735,12 +741,12 @@ export default {
 
       this.clase = {};
     },
-    addPago: function () {
-      const pago = this.pago;
-      const protocol = "https://";
+    addPago() {
+      const { pago } = this;
+      const protocol = 'https://';
       if (
-        pago.link &&
-        (!pago.link.includes("http://") || !pago.link.includes("https://"))
+        pago.link
+        && (!pago.link.includes('http://') || !pago.link.includes('https://'))
       ) {
         pago.link = protocol + pago.link;
       }
@@ -753,8 +759,8 @@ export default {
 
       this.pago = {};
     },
-    addEvaluacion: function () {
-      const evaluacion = this.evaluacion;
+    addEvaluacion() {
+      const { evaluacion } = this;
 
       if (!this.course.evaluaciones) {
         this.course.evaluaciones = [];
@@ -763,29 +769,29 @@ export default {
 
       this.evaluacion = {};
     },
-    deleteClase: function (item, key) {
+    deleteClase(item, key) {
       this.course.clases.splice(key, 1);
       // console.log("this.course.clases: ", this.course.clases)
     },
-    deletePago: function (item, key) {
+    deletePago(item, key) {
       this.course.pagos.splice(key, 1);
       // console.log("this.course.pago: ", this.course.pagos)
     },
-    deleteEvaluacion: function (item, key) {
+    deleteEvaluacion(item, key) {
       this.course.evaluaciones.splice(key, 1);
     },
   },
-  mounted: function () {
-    let id = app._route.params.id ? app._route.params.id : undefined;
-    this.curso = app._route.params.curso
-      ? decodeURIComponent(app._route.params.curso)
+  mounted() {
+    const id = this.$route.params.id ? this.$route.params.id : undefined;
+    this.curso = this.$route.params.curso
+      ? decodeURIComponent(this.$route.params.curso)
       : undefined;
-    let token = localStorage.getItem("token-app-" + APP_NAME);
-    let userId = localStorage.getItem("id-" + APP_NAME);
+    const token = localStorage.getItem(`token-app-${APP_NAME}`);
+    const userId = localStorage.getItem(`id-${APP_NAME}`);
 
     const headers = {
-      token: token,
-      "user-id": userId,
+      token,
+      'user-id': userId,
     };
 
     // Verifico el token
@@ -794,7 +800,7 @@ export default {
     CourseService().getAllCourses((res) => {
       this.isLoading = false;
       if (!res.error) {
-        let courses = res.response;
+        const courses = res.response;
         this.courses = courses;
       } else {
         this.error = res.error;
@@ -804,7 +810,7 @@ export default {
     UserService().getAllUsers((res) => {
       this.isLoading = false;
       if (!res.error) {
-        let users = res.response;
+        const users = res.response;
         this.users = users;
       } else {
         this.error = res.error;
@@ -812,24 +818,21 @@ export default {
     });
 
     // Obtengo indicadores desde el JSON
-    axios.get("./data/indicadores.json").then((res) => {
+    axios.get('src/data/indicadores.json').then((res) => {
       // console.log("cargo los indicadores: ", res)
       this.indicadores = res.data;
       this.course.indicadores = res.data;
     });
   },
   computed: {
-    resultQuery: function () {
+    resultQuery() {
       if (this.searchQuery) {
-        return this.courses.filter((item) => {
-          return this.searchQuery
-            .toLowerCase()
-            .split(" ")
-            .every((v) => item.name.toLowerCase().includes(v));
-        });
-      } else {
-        return this.courses;
+        return this.courses.filter((item) => this.searchQuery
+          .toLowerCase()
+          .split(' ')
+          .every((v) => item.name.toLowerCase().includes(v)));
       }
+      return this.courses;
     },
   },
 };

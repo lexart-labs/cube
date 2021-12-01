@@ -1,9 +1,7 @@
 /* eslint-disable func-names */
 import axios from 'axios';
 
-require('dotenv').config();
-
-const { APP_NAME, API } = process.env;
+import { APP_NAME, API } from '../../env';
 
 const AuthService = function () {
   return {

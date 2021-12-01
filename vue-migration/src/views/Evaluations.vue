@@ -157,6 +157,7 @@
 </template>
 
 <script>
+/* eslint-disable no-param-reassign */
 import axios from 'axios';
 import { API, APP_NAME } from '../../env';
 import { verifyToken } from '../services/helpers';
@@ -196,9 +197,8 @@ export default {
   methods: {
     activeTab(tab) {
       // Set all to false
-      for (const key in this.tabs) {
-        this.$set(this.tabs, key, false);
-      }
+      Object.keys(this.tabs)
+        .forEach((key) => { this.$set(this.tabs, key, false); });
       this.$set(this.tabs, tab, true);
     },
     formatDate(date) {
@@ -246,7 +246,7 @@ export default {
           this.evaluaciones = data.evaluaciones;
 
           this.clases.map((clase) => {
-            // Disable all clases
+            // eslint-disable-next-line no-param-reassign
             clase.enableClase = false;
 
             // Check if date is the same as today

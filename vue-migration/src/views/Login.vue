@@ -19,7 +19,7 @@
       <!-- Add logo -->
       <img
         v-bind:src="
-          setting.logo ? api + setting.logo : 'assets/lexart-cube.png'
+          setting.logo ? api + setting.logo : require('@/assets/lexart-cube.png')
         "
       />
     </div>
@@ -29,7 +29,7 @@
         <div class="col-10 formContainer">
           <img
             v-bind:src="
-              setting.logo ? api + setting.logo : 'assets/lexart-cube.png'
+              setting.logo ? api + setting.logo : '../assets/lexart-cube.png'
             "
             class="only-mob"
           />
@@ -55,7 +55,7 @@
               v-on:click="loginUser"
             >
               <span>{{ !isLoading ? "Login con" : "Login in" }}</span>
-              <img src="assets/lextracking-logo.svg" alt="" />
+              <img src="../assets/lextracking-logo.svg" alt="" />
             </button>
             <div v-if="error" class="alert alert-danger">
               {{ error }}
@@ -71,6 +71,7 @@
 <script>
 /* eslint-disable no-underscore-dangle */
 import axios from 'axios';
+import Vue from 'vue';
 import { copy } from '../services/helpers';
 import { API, APP_NAME } from '../../env';
 
@@ -92,7 +93,6 @@ export default {
     loginUser() {
       this.isLoading = true;
       const user = copy(this.usr);
-      console.log(API);
 
       axios.post(`${API}users/login`, user).then(
         (res) => {
@@ -139,14 +139,14 @@ export default {
               JSON.stringify(this.setting),
             );
           } else {
-            this.$toast.show('Error en obtener la institución', {
+            Vue.toasted.show('Error en obtener la institución', {
               type: 'error',
               duration: 2000,
             });
           }
         },
         () => {
-          this.$toast.show('Error en obtener la institución', {
+          Vue.toasted.show('Error en obtener la institución', {
             type: 'error',
             duration: 2000,
           });

@@ -1,5 +1,5 @@
 <template>
-  <router-view />
+    <router-view/>
 </template>
 
 <script>
@@ -23,5 +23,5 @@ export default {
 };
 </script>
 
-<style>
+<style src="./styles.css">
 </style>

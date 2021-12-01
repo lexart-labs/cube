@@ -46,6 +46,7 @@ export default {
       api: API,
     };
   },
+  methods: {},
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
     try {

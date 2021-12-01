@@ -21,29 +21,30 @@
 </template>
 
 <script>
+/* eslint-disable no-unused-vars */
 import { APP_NAME } from '../../../env';
 import { verifyToken } from '../../services/helpers';
 
 export default {
-  name: "Admin",
-  data: function () {
+  name: 'Admin',
+  data() {
     return {
-      title: "Administración",
+      title: 'Administración',
       resources: [],
-      error: "",
+      error: '',
       isLoading: true,
       searchQuery: null,
       curso: null,
     };
   },
   methods: {},
-  mounted: function () {
-    let id = this.$route.params.id ? this.$route.params.id : undefined;
+  mounted() {
+    const id = this.$route.params.id ? this.$route.params.id : undefined;
     this.curso = this.$route.params.curso
       ? decodeURIComponent(this.$route.params.curso)
       : undefined;
-    let token = localStorage.getItem("token-app-" + APP_NAME);
-    let userId = localStorage.getItem("id-" + APP_NAME);
+    const token = localStorage.getItem(`token-app-${APP_NAME}`);
+    const userId = localStorage.getItem(`id-${APP_NAME}`);
 
     // Verifico el token
     verifyToken(token);
@@ -51,17 +52,14 @@ export default {
     this.isLoading = false;
   },
   computed: {
-    resultQuery: function () {
+    resultQuery() {
       if (this.searchQuery) {
-        return this.resources.filter((item) => {
-          return this.searchQuery
-            .toLowerCase()
-            .split(" ")
-            .every((v) => item.name.toLowerCase().includes(v));
-        });
-      } else {
-        return this.resources;
+        return this.resources.filter((item) => this.searchQuery
+          .toLowerCase()
+          .split(' ')
+          .every((v) => item.name.toLowerCase().includes(v)));
       }
+      return this.resources;
     },
   },
 };

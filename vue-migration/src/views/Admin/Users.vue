@@ -124,55 +124,59 @@
 </template>
 
 <script>
+/* eslint-disable no-undef */
 import axios from 'axios';
+import Vue from 'vue';
+import Spinner from '../../components/Spinner.vue';
 import UserService from '../../services/user.service';
 import { verifyToken } from '../../services/helpers';
 import { API, APP_NAME } from '../../../env';
 
 export default {
-  name: "Users",
-  data: function () {
+  name: 'Users',
+  components: { Spinner },
+  data() {
     return {
-      title: "Mis developers",
+      title: 'Mis developers',
       users: [],
-      error: "",
+      error: '',
       isLoading: true,
       searchQuery: null,
       curso: null,
       user: {
-        name: "",
-        active: "1",
+        name: '',
+        active: '1',
       },
       api: API,
       usersLextracking: [],
     };
   },
   methods: {
-    newUser: function () {
+    newUser() {
       this.user = {
-        name: "",
-        active: "1",
+        name: '',
+        active: '1',
       };
     },
-    getUserById: function (id) {
+    getUserById(id) {
       UserService().getUserById(id, (res) => {
         if (!res.error) {
           this.user = res.response;
         }
       });
     },
-    upsertUser: function () {
+    upsertUser() {
       // Agrego usuarios nuevos con el sync desde el front
-      this.user.token = "";
+      this.user.token = '';
       this.user.sync = true;
       this.user.type = this.user.role;
 
       UserService().upsertUser(this.user, (res) => {
         if (!res.error) {
-          $("#staticBackdrop").modal("hide");
+          $('#staticBackdrop').modal('hide');
 
-          this.$toast.show("Usuario editado/creado correctamente", {
-            type: "success",
+          Vue.toasted.show('Usuario editado/creado correctamente', {
+            type: 'success',
             duration: 2000,
           });
 
@@ -184,29 +188,28 @@ export default {
         }
       });
     },
-    uploadFile: function () {
-      let logoFile = this.$refs.logo.files[0];
-      let bgFile = this.$refs.background.files[0];
+    uploadFile() {
+      const logoFile = this.$refs.logo.files[0];
+      const bgFile = this.$refs.background.files[0];
 
-      let formLogo = new FormData();
-      let formBg = new FormData();
-      formLogo.append("file-image", logoFile);
-      formBg.append("file-image", bgFile);
+      const formLogo = new FormData();
+      const formBg = new FormData();
+      formLogo.append('file-image', logoFile);
+      formBg.append('file-image', bgFile);
 
       if (logoFile) {
         // Upload logo
         axios
-          .post(API + "upload-file", formLogo, {
+          .post(`${API}upload-file`, formLogo, {
             headers: {
-              "Content-Type": "multipart/form-data",
+              'Content-Type': 'multipart/form-data',
             },
           })
           .then((sucess) => {
-
             this.user.logo = sucess.data.response.url;
 
-            this.$toast.show("Logo subido correctamente", {
-              type: "success",
+            Vue.toasted.show('Logo subido correctamente', {
+              type: 'success',
               duration: 2000,
             });
           });
@@ -215,28 +218,28 @@ export default {
       if (bgFile) {
         // Upload background
         axios
-          .post(API + "upload-file", formBg, {
+          .post(`${API}upload-file`, formBg, {
             headers: {
-              "Content-Type": "multipart/form-data",
+              'Content-Type': 'multipart/form-data',
             },
           })
           .then((sucess) => {
             this.user.background = sucess.data.response.url;
 
-            this.$toast.show("Background subido correctamente", {
-              type: "success",
+            Vue.toasted.show('Background subido correctamente', {
+              type: 'success',
               duration: 2000,
             });
           });
       }
     },
-    silentFunction: function () {
+    silentFunction() {
       console.log(this.$refs.logo.files);
       console.log(this.$refs.background.files);
     },
   },
-  mounted: function () {
-    let token = localStorage.getItem("token-app-" + APP_NAME);
+  mounted() {
+    const token = localStorage.getItem(`token-app-${APP_NAME}`);
 
     // Verifico el token
     verifyToken(token);
@@ -244,7 +247,7 @@ export default {
     UserService().getAllUsers((res) => {
       this.isLoading = false;
       if (!res.error) {
-        let users = res.response;
+        const users = res.response;
         this.users = users;
       } else {
         this.error = res.error;
@@ -254,7 +257,7 @@ export default {
     UserService().getAllUsersLextracking((res) => {
       this.isLoading = false;
       if (!res.error) {
-        let users = res.response;
+        const users = res.response;
         this.usersLextracking = users;
       } else {
         this.error = res.error;
@@ -262,17 +265,14 @@ export default {
     });
   },
   computed: {
-    resultQuery: function () {
+    resultQuery() {
       if (this.searchQuery) {
-        return this.users.filter((item) => {
-          return this.searchQuery
-            .toLowerCase()
-            .split(" ")
-            .every((v) => item.name.toLowerCase().includes(v));
-        });
-      } else {
-        return this.users;
+        return this.users.filter((item) => this.searchQuery
+          .toLowerCase()
+          .split(' ')
+          .every((v) => item.name.toLowerCase().includes(v)));
       }
+      return this.users;
     },
   },
 };

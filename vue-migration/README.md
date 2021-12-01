@@ -1,4 +1,4 @@
-# vue-migration
+# vue-2
 
 ## Project setup
 ```
