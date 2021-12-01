@@ -79,7 +79,7 @@ const UsersComp = Vue.component('users-component', function (callback) {
 								}
 							}
 						).then((sucess) => {
-							console.log('success logo: ', sucess);
+							// console.log('success logo: ', sucess);
 							
 							this.user.logo = sucess.data.response.url
 
@@ -100,7 +100,7 @@ const UsersComp = Vue.component('users-component', function (callback) {
 								}
 							}
 						).then((sucess) => {
-							console.log('success background: ', sucess);
+							// console.log('success background: ', sucess);
 							this.user.background = sucess.data.response.url
 
 							Vue.toasted.show('Background subido correctamente', {
@@ -111,8 +111,8 @@ const UsersComp = Vue.component('users-component', function (callback) {
 					}
 				},
 				silentFunction: function (){
-					console.log(this.$refs.logo.files);
-					console.log(this.$refs.background.files);
+					// console.log(this.$refs.logo.files);
+					// console.log(this.$refs.background.files);
 				}
 			},
 			mounted: function (){
@@ -137,7 +137,7 @@ const UsersComp = Vue.component('users-component', function (callback) {
 					if(!res.error){
 						let users  = res.response;
 						this.usersLextracking = users;
-						console.log("usersLextracking: ", this.usersLextracking)
+						// console.log("usersLextracking: ", this.usersLextracking)
 					} else {
 						this.error = res.error;
 					}

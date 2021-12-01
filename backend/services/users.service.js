@@ -1,12 +1,12 @@
-const utils 	  = require('./utils.service')
-const axios 	  = require('axios')
+const utils = require('./utils.service')
+const axios = require('axios')
 
 const tablaNombre = 'users';
 
 let User = {
-	all: async function (idAdmin){
-		
-		let error = {"error":"Error al obtener usuarios"}
+	all: async function (idAdmin) {
+
+		let error = { "error": "Error al obtener usuarios" }
 
 		const tablaNombre = 'users'
 
@@ -16,50 +16,50 @@ let User = {
 			WHERE idUser = ? OR id = ?
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [idAdmin, idAdmin]);
-		} catch(e){}
+		} catch (e) { }
 
-		return response.length > 0 ? {response: response} : error;
+		return response.length > 0 ? { response: response } : error;
 	},
-	allUserLextracking: async function (req){
-		
-		let error    = {"error":"Error al obtener usuarios"}
+	allUserLextracking: async function (req) {
+
+		let error = { "error": "Error al obtener usuarios" }
 		let model = 'user/all'
-		const response = await axios.get(API_LEXTRACKING + model, 
-		{
-			"headers": {
-			"token": req.headers.token
-			}
-		})
+		const response = await axios.get(API_LEXTRACKING + model,
+			{
+				"headers": {
+					"token": req.headers.token
+				}
+			})
 
-		return response.data.response.length > 0 ? {response: response.data.response} : error;
+		return response.data.response.length > 0 ? { response: response.data.response } : error;
 	},
-	one: async function (id, token){
-		
-		let error = {"error":"Error al obtener usuarios"}
+	one: async function (id, token) {
 
-		const tablaNombre = 'users'
+		let error = { "error": "Error al obtener usuarios" }
+		let response = [];
+		let stack;
 
-		// Obtener los usuarios
-		const sql = `
-			SELECT * FROM ${tablaNombre}
-			WHERE idLextracking = ? AND token = ?
-		`
-		let response = []
-		let stack 
+		// Obtener los usuari
+			const sql = `
+				SELECT c.position, u.* FROM user_position_level uc
+				INNER JOIN users u ON uc.id = u.idPosition
+				INNER JOIN careers c ON uc.idPosition = c.id
+				WHERE u.idLextracking = ? AND u.token = ?;
+			`
 		try {
 			response = await conn.query(sql, [id, token]);
-			console.log("response: ", response)
-		} catch(e){
+		} catch (e) {
 			stack = e
 		}
+
 		error.stack = stack
-		return response.length > 0 ? {response: response[0]} : error;
+		return response.length > 0 ? { response: response[0] } : error;
 	},
-	byToken: async function (token){
-		let error = {"error":"Error al obtener la configuración"}
+	byToken: async function (token) {
+		let error = { "error": "Error al obtener la configuración" }
 
 		const tablaNombre = 'users'
 
@@ -69,41 +69,41 @@ let User = {
 			WHERE token = ?
 		`
 		let response = []
-		let stack 
+		let stack
 		try {
 			response = await conn.query(sql, [token]);
-		} catch(e){
+		} catch (e) {
 			stack = e
 		}
 		error.stack = stack
-		return response.length > 0 ? {response: response[0]} : error;
+		return response.length > 0 ? { response: response[0] } : error;
 	},
-	upsert: async function (usuario, idAdmin){
+	upsert: async function (usuario, idAdmin) {
 
-		let error = {"error":"Error al ingresar/editar usuario"}
+		let error = { "error": "Error al ingresar/editar usuario" }
 		let sql = ``;
 		let arr = []
 
 		const tablaNombre = 'users'
 
-		console.log("usuario.type: ", usuario.type)
-		
+		// console.log("usuario.type: ", usuario.type)
+
 		// Verifico si no es admin
-		if(usuario.idUser && (idAdmin != usuario.idUser)){
+		if (usuario.idUser && (idAdmin != usuario.idUser)) {
 			idAdmin = usuario.idUser
 		}
-		
+
 		// Si ya existe
 		const cubeUser = await this.loginCube(usuario.email)
-		
-		if(cubeUser.response){
+
+		if (cubeUser.response) {
 			usuario.sync = false
 		}
 
-		if(usuario.id && !usuario.sync){
+		if (usuario.id && !usuario.sync) {
 
 			// Si viene clave nueva
-			if(usuario.passwordCopy){
+			if (usuario.passwordCopy) {
 				usuario.password = md5(usuario.passwordCopy);
 			}
 
@@ -124,14 +124,14 @@ let User = {
 				WHERE id = ? 
 			`
 			arr = [usuario.name, usuario.email, usuario.type, usuario.password, parseInt(usuario.active), idAdmin, usuario.token, usuario.id]
-		
+
 		} else {
 
 			// Hasheo con MD5
 			// Si viene el sync del lextracking
 			let password = usuario.password
 
-			if(usuario.passwordCopy){
+			if (usuario.passwordCopy) {
 				password = md5(usuario.passwordCopy);
 			}
 
@@ -146,50 +146,50 @@ let User = {
 		}
 
 		let response = []
-		
 
-		let stack 
+
+		let stack
 		try {
 			response = await conn.query(sql, arr);
-		} catch(e){
+		} catch (e) {
 			console.log("e: ", e)
 			stack = e
 		}
-		error.stack = {stack: stack, tail: response, sql: sql, arr: arr}
-		return (response.changedRows || response.insertId) ? {response: "Usuario ingresado correctamente"} : error;
+		error.stack = { stack: stack, tail: response, sql: sql, arr: arr }
+		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
-	loginLextracking: async function (email, password){
-		
-		let error    	= {"error":"Error al obtener usuarios"}
-		let model 		= 'login'
-		const res 		= await axios.post(API_LEXTRACKING + model, {email: email, password: password})
-		const response  = res.data
+	loginLextracking: async function (email, password) {
 
-		if(response.response){
+		let error = { "error": "Error al obtener usuarios" }
+		let model = 'login'
+		const res = await axios.post(API_LEXTRACKING + model, { email: email, password: password })
+		const response = res.data
+
+		if (response.response) {
 			// Obtengo el usuario dentro del cube
 			const lxUser = response.response
 
-			console.log("lxUser: ", lxUser)
-			
+			// console.log("lxUser: ", lxUser)
+
 			// Si no hay usuario en el cube
 			response.response.idLextracking = response.response.id
 
-			const cubeUser = await this.loginCube(lxUser.email)
+			const cubeUser = await this.loginCube(lxUser.email);
 
-			if(cubeUser.response){
-				response.response.cubeUser  = cubeUser.response
+			if (cubeUser.response) {
+				response.response.cubeUser = cubeUser.response
 				response.response.cubeExist = true
-				response.response.active 	= cubeUser.response.active
-				response.response.idUser 	= cubeUser.response.idUser
+				response.response.active = cubeUser.response.active
+				response.response.idUser = cubeUser.response.idUser
 				// Local ID
-				response.response.id			= cubeUser.response.id
+				response.response.id = cubeUser.response.id
 				response.response.idLextracking = cubeUser.response.idLextracking
-			} else if(response.response.role != "admin" && response.response.role != "pm") {
-				return {error: "Usuario no disponible en la plataforma."};
+			} else if (response.response.role != "admin" && response.response.role != "pm") {
+				return { error: "Usuario no disponible en la plataforma." };
 			}
 		}
 
-		return response.response ? {response: response.response} : error;
+		return response.response ? { response: response.response } : error;
 	},
 	loginCube: async function (email) {
 		const sql = `
@@ -199,13 +199,13 @@ let User = {
 			;
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [email]);
 
-		} catch(e){}
+		} catch (e) { }
 
-		return response.length > 0 ? {response: response[0]} : {error: 'Usuario y/o clave incorrecta.'};
+		return response.length > 0 ? { response: response[0] } : { error: 'Usuario y/o clave incorrecta.' };
 	},
 	courses: async function (id) {
 
@@ -216,12 +216,12 @@ let User = {
 			WHERE users.id = ?
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [id]);
-		} catch(e){}
+		} catch (e) { }
 
-		return response.length > 0 ? {response: response} : {error: '¡Aún no tienes cursos! Puedes reservar ahora!'};
+		return response.length > 0 ? { response: response } : { error: '¡Aún no tienes cursos! Puedes reservar ahora!' };
 	},
 	resources: async function (idCourse) {
 
@@ -237,38 +237,57 @@ let User = {
 			AND resources.active = 1
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [idCourse]);
-		} catch(e){}
+		} catch (e) { }
 
-		return response.length > 0 ? {response: response} : {error: '¡Aún no tienes materiales!'};
+		return response.length > 0 ? { response: response } : { error: '¡Aún no tienes materiales!' };
 	},
-	checkType: async function (token, id){
-		
+	checkType: async function (token, id) {
+
 		let userCorrect = 'default';
 		const tablaNombre = 'users'
 
 		// check if its admin or pm
-		const allowRoles = ['admin','pm']
+		const allowRoles = ['admin', 'pm']
 		// Obtener los usuarios
 		const sql = `
 			SELECT * FROM ${tablaNombre}
 			WHERE token = ?
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [token]);
-		} catch(e){}
+		} catch (e) { }
 
-		if(response.length > 0){
-			response.map( (usr) => {
+		if (response.length > 0) {
+			response.map((usr) => {
 				userCorrect = allowRoles.includes(usr.type) ? 'admin' : userCorrect;
 				return;
 			})
 		}
-		return {response: userCorrect}
+		return { response: userCorrect }
+	},
+	updatePosition: async function(idUser, idPosition, idLevel) {
+		const sqlUser = `
+			UPDATE users SET idPosition = ? WHERE id = ?
+		`;
+		const sqlJunction = `
+			INSERT INTO user_position_level (idPosition, idLevel, idUser)
+			VALUES (?, ?, ?)
+		`;
+		const error = { error: '¡No fue posible actualizar la posición!' };
+
+		try {
+			const { insertId } = await conn.query(sqlJunction, [idPosition, idLevel, idUser]);
+			const { changedRows } = await conn.query(sqlUser, [insertId, idUser]);
+			return changedRows ? { response: '¡Actualizado con éxito!' } : error;
+		} catch (e) {
+			console.log(e.message);
+			return error;
+		}
 	}
 }
 module.exports = User;

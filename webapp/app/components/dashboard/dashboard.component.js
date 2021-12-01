@@ -14,7 +14,12 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 					searchQuery: null,
 					error: '',
 					success: '',
-					resources: []
+					resources: [],
+					show: 'Dashboard',
+					abas: [
+						{ name: 'Dashboard', class: 'bi bi-clipboard-data', hasIcon: true },
+						{ name: 'Evaluaciones', class: 'bi bi-calendar-check-fill', hasIcon: true},
+					]
 				}
 			},
 			methods: {
@@ -52,7 +57,6 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 						}
 					})
 
-					console.log("userLextracking: ", userLextracking)
 				},
 				obtenerEvaluaciones: function (id){
 					let token 	= localStorage.getItem('token-app-' + APP_NAME);
@@ -89,6 +93,9 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 					uyDate = uyDate + ' ' + newDate[1]
 
 					return uyDate
+				},
+				setShow: function (abaName) {
+					this.show = abaName;
 				}
 			},
 			mounted: function (){
@@ -112,12 +119,10 @@ const DashboardComp = Vue.component('dashboard-component', function (callback) {
 
 						this.isLoading = false;
 
-						console.log("res: ", res)
 
 						if(!res.data.error){
 							// let courses  = res.data.response;
 							// this.courses = courses;
-							console.log("res: ", res.data)
 							this.success = 'Usuario sincronizado 👏'
 
 							// Obtenemos evaluaciones de un usuario

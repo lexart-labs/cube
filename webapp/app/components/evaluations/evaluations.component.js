@@ -93,7 +93,6 @@ const EvaluationsComp = Vue.component('evaluations-component', function (callbac
 
 								// Check if date is the same as today
 								const claseDate = clase.fecha.split('T')[0]
-								console.log(today, claseDate)
 								if(today.includes(claseDate)){
 									clase.enableClase = true
 								}

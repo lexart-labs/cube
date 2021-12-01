@@ -37,7 +37,7 @@ router.get('/all', Mdl.middleware, async function (req, res) {
 router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
 	let response = await User.allUserLextracking(req);
 
-	console.log(response)
+	// console.log(response)
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
@@ -53,6 +53,15 @@ router.get('/:id', Mdl.middleware, async function (req, res) {
 router.post('/upsert', Mdl.middleware, async function (req, res) {
 	let post 	 = req.body;
 	let response = await User.upsert(post, req.headers['user-id']);
+
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
+router.put('/position/:idUser', Mdl.middleware, async function (req, res) {
+	const { idPosition, idLevel } = req.body;
+	const { idUser } = req.params;
+	const response = await User.updatePosition(idUser, idPosition, idLevel);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);

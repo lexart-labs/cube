@@ -26,8 +26,6 @@ const LoginComp = Vue.component('login-component', function (callback) {
 						let rs = res.data;
 						this.isLoading = false
 
-						console.log("res login: ", rs)
-
 						if(!rs.error){
 							// Guardar en el localStorage
 							// Token del response
@@ -54,7 +52,6 @@ const LoginComp = Vue.component('login-component', function (callback) {
 				let token = app._route.params.token
 				if(token){
 					axios.get(API + 'users/school/' + token).then( (res) => {
-						console.log("school settings: ", res)
 						if(!res.data.error){
 							this.setting = res.data.response
 							// Bypass del token al storage
