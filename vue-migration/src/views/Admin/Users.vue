@@ -87,6 +87,31 @@
                   :options="usersLextracking"
                 ></v-select>
                 <br />
+                <div class="row">
+                  <div class="col">
+                    <select class="form-control">
+                      <option
+                        v-for="(career, i) in careers"
+                        :value="career.position"
+                        :key="`car${i}`"
+                      >
+                        {{ career.position }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col">
+                    <select class="form-control">
+                      <option
+                        v-for="(level, i) in levels"
+                        :value="level.level"
+                        :key="`lev${i}`"
+                      >
+                        {{ level.level }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <br />
                 <select class="form-control" v-model="user.active">
                   <option value="1">Activo</option>
                   <option value="0">Inactivo</option>
@@ -125,37 +150,42 @@
 
 <script>
 /* eslint-disable no-undef */
-import axios from 'axios';
-import Vue from 'vue';
-import Spinner from '../../components/Spinner.vue';
-import UserService from '../../services/user.service';
-import { verifyToken } from '../../services/helpers';
-import { API, APP_NAME } from '../../../env';
+import axios from "axios";
+import Vue from "vue";
+import Spinner from "../../components/Spinner.vue";
+import UserService from "../../services/user.service";
+import CareerService from "../../services/career.service";
+import LevelService from "../../services/level.service";
+import { verifyToken } from "../../services/helpers";
+import { API, APP_NAME } from "../../../env";
 
 export default {
-  name: 'Users',
+  name: "Users",
   components: { Spinner },
   data() {
     return {
-      title: 'Mis developers',
+      title: "Mis developers",
       users: [],
-      error: '',
+      error: "",
       isLoading: true,
       searchQuery: null,
       curso: null,
       user: {
-        name: '',
-        active: '1',
+        name: "",
+        active: "1",
       },
       api: API,
       usersLextracking: [],
+      levels: [],
+      careers: [],
+      payload: {},
     };
   },
   methods: {
     newUser() {
       this.user = {
-        name: '',
-        active: '1',
+        name: "",
+        active: "1",
       };
     },
     getUserById(id) {
@@ -167,16 +197,16 @@ export default {
     },
     upsertUser() {
       // Agrego usuarios nuevos con el sync desde el front
-      this.user.token = '';
+      this.user.token = "";
       this.user.sync = true;
       this.user.type = this.user.role;
 
       UserService().upsertUser(this.user, (res) => {
         if (!res.error) {
-          $('#staticBackdrop').modal('hide');
+          $("#staticBackdrop").modal("hide");
 
-          Vue.toasted.show('Usuario editado/creado correctamente', {
-            type: 'success',
+          Vue.toasted.show("Usuario editado/creado correctamente", {
+            type: "success",
             duration: 2000,
           });
 
@@ -194,22 +224,22 @@ export default {
 
       const formLogo = new FormData();
       const formBg = new FormData();
-      formLogo.append('file-image', logoFile);
-      formBg.append('file-image', bgFile);
+      formLogo.append("file-image", logoFile);
+      formBg.append("file-image", bgFile);
 
       if (logoFile) {
         // Upload logo
         axios
           .post(`${API}upload-file`, formLogo, {
             headers: {
-              'Content-Type': 'multipart/form-data',
+              "Content-Type": "multipart/form-data",
             },
           })
           .then((sucess) => {
             this.user.logo = sucess.data.response.url;
 
-            Vue.toasted.show('Logo subido correctamente', {
-              type: 'success',
+            Vue.toasted.show("Logo subido correctamente", {
+              type: "success",
               duration: 2000,
             });
           });
@@ -220,14 +250,14 @@ export default {
         axios
           .post(`${API}upload-file`, formBg, {
             headers: {
-              'Content-Type': 'multipart/form-data',
+              "Content-Type": "multipart/form-data",
             },
           })
           .then((sucess) => {
             this.user.background = sucess.data.response.url;
 
-            Vue.toasted.show('Background subido correctamente', {
-              type: 'success',
+            Vue.toasted.show("Background subido correctamente", {
+              type: "success",
               duration: 2000,
             });
           });
@@ -243,6 +273,13 @@ export default {
 
     // Verifico el token
     verifyToken(token);
+
+    CareerService()
+      .getAll()
+      .then((res) => (this.careers = res.response));
+    LevelService()
+      .getAll()
+      .then((res) => (this.levels = res.response));
 
     UserService().getAllUsers((res) => {
       this.isLoading = false;
@@ -267,10 +304,12 @@ export default {
   computed: {
     resultQuery() {
       if (this.searchQuery) {
-        return this.users.filter((item) => this.searchQuery
-          .toLowerCase()
-          .split(' ')
-          .every((v) => item.name.toLowerCase().includes(v)));
+        return this.users.filter((item) =>
+          this.searchQuery
+            .toLowerCase()
+            .split(" ")
+            .every((v) => item.name.toLowerCase().includes(v))
+        );
       }
       return this.users;
     },
