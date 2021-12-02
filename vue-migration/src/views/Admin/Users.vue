@@ -29,6 +29,7 @@
             <th>Email</th>
             <th>Tipo</th>
             <th>Cargo</th>
+            <th>Nível</th>
             <th>Activo</th>
             <th></th>
           </tr>
@@ -39,6 +40,7 @@
             <td>{{ user.email }}</td>
             <td>{{ user.type }}</td>
             <td>{{ user.position }}</td>
+            <td>{{ user.level }}</td>
             <td>{{ user.active == 1 ? "SI" : "NO" }}</td>
             <td>
               <!-- Trigger modal -->
@@ -91,11 +93,10 @@
                 <br />
                 <div class="row">
                   <div class="col">
+                    <label for="career">Cargo</label>
                     <select
-                      class="form-control"
-                      v-model="user.idPosition"
-                    >
-                      <option :value="user.idPosition" disabled selected>{{ user.position }}</option>
+                      class="form-control" v-model="user.idPosition" id="career">
+                      <option value="" disabled selected>Selecione...</option>
                       <option
                         v-for="(career, i) in careers"
                         :value="career.id"
@@ -106,7 +107,9 @@
                     </select>
                   </div>
                   <div class="col">
-                    <select class="form-control" v-model="user.idLevel">
+                    <label for="lvl">Nível</label>
+                    <select class="form-control" v-model="user.idLevel" id="lvl">
+                      <option value="" disabled selected>Selecione...</option>
                       <option
                         v-for="(level, i) in levels"
                         :value="level.id"
@@ -177,8 +180,8 @@ export default {
       searchQuery: null,
       curso: null,
       user: {
-        name: "",
-        active: "1",
+        name: '',
+        active: '1',
       },
       api: API,
       usersLextracking: [],

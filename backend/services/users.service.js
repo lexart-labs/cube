@@ -12,9 +12,10 @@ let User = {
 
 		// Obtener los usuarios
 		const sql = `
-			SELECT c.position as position, u.* FROM user_position_level uc
+			SELECT c.position AS position, l.level AS level, u.* FROM user_position_level uc
 			INNER JOIN users u ON uc.id = u.idPosition
 			INNER JOIN careers c ON uc.idPosition = c.id
+			INNER JOIN levels l ON uc.idLevel = l.id
 			WHERE u.idUser = ? OR u.id = ?
 		`
 		let response = []
@@ -46,9 +47,10 @@ let User = {
 
 		// Obtener los usuari
 			const sql = `
-				SELECT c.position as position, u.* FROM user_position_level uc
+				SELECT c.position as position, l.level AS level, u.* FROM user_position_level uc
 				INNER JOIN users u ON uc.id = u.idPosition
 				INNER JOIN careers c ON uc.idPosition = c.id
+				INNER JOIN levels l ON uc.idLevel = l.id
 				WHERE u.idLextracking = ? AND u.token = ?;
 			`
 		try {
