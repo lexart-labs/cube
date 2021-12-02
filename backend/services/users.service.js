@@ -12,8 +12,10 @@ let User = {
 
 		// Obtener los usuarios
 		const sql = `
-			SELECT * FROM ${tablaNombre}
-			WHERE idUser = ? OR id = ?
+			SELECT c.position as position, u.* FROM user_position_level uc
+			INNER JOIN users u ON uc.id = u.idPosition
+			INNER JOIN careers c ON uc.idPosition = c.id
+			WHERE u.idUser = ? OR u.id = ?
 		`
 		let response = []
 
@@ -44,7 +46,7 @@ let User = {
 
 		// Obtener los usuari
 			const sql = `
-				SELECT c.position, u.* FROM user_position_level uc
+				SELECT c.position as position, u.* FROM user_position_level uc
 				INNER JOIN users u ON uc.id = u.idPosition
 				INNER JOIN careers c ON uc.idPosition = c.id
 				WHERE u.idLextracking = ? AND u.token = ?;
@@ -52,6 +54,7 @@ let User = {
 		try {
 			response = await conn.query(sql, [id, token]);
 		} catch (e) {
+			console.log(e.message);
 			stack = e
 		}
 
@@ -82,7 +85,8 @@ let User = {
 
 		let error = { "error": "Error al ingresar/editar usuario" }
 		let sql = ``;
-		let arr = []
+		let arr = [];
+		let shouldCreateNewPosition = false;
 
 		const tablaNombre = 'users'
 
@@ -94,9 +98,10 @@ let User = {
 		}
 
 		// Si ya existe
-		const cubeUser = await this.loginCube(usuario.email)
+		const cubeUser = await this.loginCube(usuario.email);
 
 		if (cubeUser.response) {
+			shouldCreateNewPosition = !(cubeUser.response.idPosition == usuario.idPosition);
 			usuario.sync = false
 		}
 
@@ -108,7 +113,7 @@ let User = {
 			}
 
 			// Generate token in update
-			// usuario.token = utils.makeToken(usuario.email, usuario.id, 'public')
+			usuario.token = utils.makeToken(usuario.email, usuario.id, 'public')
 
 			// Actualizar usuario
 			sql = `
@@ -120,10 +125,20 @@ let User = {
 					active = ?,
 					idUser = ?,
 					token = ?,
+					idPosition = ?,
 					dateEdited = NOW()
 				WHERE id = ? 
 			`
-			arr = [usuario.name, usuario.email, usuario.type, usuario.password, parseInt(usuario.active), idAdmin, usuario.token, usuario.id]
+			arr = [
+				usuario.name,
+				usuario.email,
+				usuario.type,
+				usuario.password,
+				parseInt(usuario.active),
+				idAdmin,
+				usuario.token,
+				usuario.idPosition,
+				usuario.id]
 
 		} else {
 
@@ -138,15 +153,26 @@ let User = {
 			// Insertar usuario
 			sql = `
 				INSERT INTO ${tablaNombre}
-					(name, idLextracking, idUser, email, type, password, token)
+					(name, idLextracking, idUser, email, type, password, token, idPosition)
 				VALUES
-				 	(?, ?, ?, ?, ?, ?, ?)
+				 	(?, ?, ?, ?, ?, ?, ?, ?)
 			`
-			arr = [usuario.name, parseInt(usuario.id), idAdmin, usuario.email, usuario.type, password, usuario.token]
+			arr = [
+				usuario.name,
+				parseInt(usuario.id),
+				idAdmin,
+				usuario.email,
+				usuario.type,
+				password,
+				usuario.token,
+				usuario.idPosition,
+			]
 		}
 
-		let response = []
+		let response = [];
 
+		// Solo crea una nueva posición si es necesario
+		shouldCreateNewPosition && this.updatePosition(cubeUser.response.id, usuario);
 
 		let stack
 		try {
@@ -193,7 +219,7 @@ let User = {
 	},
 	loginCube: async function (email) {
 		const sql = `
-			SELECT id, name, email, type, active, idUser, idLextracking FROM ${tablaNombre}
+			SELECT id, name, email, type, active, idUser, idLextracking, idPosition FROM ${tablaNombre}
 			WHERE email = ?
 				AND active = 1
 			;
@@ -270,20 +296,16 @@ let User = {
 		}
 		return { response: userCorrect }
 	},
-	updatePosition: async function(idUser, idPosition, idLevel) {
-		const sqlUser = `
-			UPDATE users SET idPosition = ? WHERE id = ?
-		`;
-		const sqlJunction = `
+	updatePosition: async function( idUser, { idPosition, idLevel }) {
+		const sql = `
 			INSERT INTO user_position_level (idPosition, idLevel, idUser)
 			VALUES (?, ?, ?)
 		`;
 		const error = { error: '¡No fue posible actualizar la posición!' };
 
 		try {
-			const { insertId } = await conn.query(sqlJunction, [idPosition, idLevel, idUser]);
-			const { changedRows } = await conn.query(sqlUser, [insertId, idUser]);
-			return changedRows ? { response: '¡Actualizado con éxito!' } : error;
+			const { insertId } = await conn.query(sql, [idPosition, idLevel, idUser]);
+			return insertId ? { response: '¡Actualizado con éxito!' } : error;
 		} catch (e) {
 			console.log(e.message);
 			return error;

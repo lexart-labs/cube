@@ -28,6 +28,7 @@
             <th>Nombre</th>
             <th>Email</th>
             <th>Tipo</th>
+            <th>Cargo</th>
             <th>Activo</th>
             <th></th>
           </tr>
@@ -37,6 +38,7 @@
             <td>{{ user.name }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.type }}</td>
+            <td>{{ user.position }}</td>
             <td>{{ user.active == 1 ? "SI" : "NO" }}</td>
             <td>
               <!-- Trigger modal -->
@@ -89,10 +91,14 @@
                 <br />
                 <div class="row">
                   <div class="col">
-                    <select class="form-control">
+                    <select
+                      class="form-control"
+                      v-model="user.idPosition"
+                    >
+                      <option :value="user.idPosition" disabled selected>{{ user.position }}</option>
                       <option
                         v-for="(career, i) in careers"
-                        :value="career.position"
+                        :value="career.id"
                         :key="`car${i}`"
                       >
                         {{ career.position }}
@@ -100,10 +106,10 @@
                     </select>
                   </div>
                   <div class="col">
-                    <select class="form-control">
+                    <select class="form-control" v-model="user.idLevel">
                       <option
                         v-for="(level, i) in levels"
-                        :value="level.level"
+                        :value="level.id"
                         :key="`lev${i}`"
                       >
                         {{ level.level }}
