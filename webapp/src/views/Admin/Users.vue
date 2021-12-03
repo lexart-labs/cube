@@ -95,7 +95,7 @@
                   <div class="col">
                     <label for="career">Cargo</label>
                     <select
-                      class="form-control" v-model="user.idPosition" id="career">
+                      class="form-control" v-model="user.positionId" id="career">
                       <option value="" disabled selected>Selecione...</option>
                       <option
                         v-for="(career, i) in careers"
@@ -187,7 +187,6 @@ export default {
       usersLextracking: [],
       levels: [],
       careers: [],
-      payload: {},
     };
   },
   methods: {
@@ -208,7 +207,7 @@ export default {
       // Agrego usuarios nuevos con el sync desde el front
       this.user.token = "";
       this.user.sync = true;
-      this.user.type = this.user.role;
+      this.user.type = this.user.role || this.user.type;
 
       UserService().upsertUser(this.user, (res) => {
         if (!res.error) {

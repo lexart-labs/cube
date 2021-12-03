@@ -40,7 +40,6 @@ let User = {
 		return response.data.response.length > 0 ? { response: response.data.response } : error;
 	},
 	one: async function (id, token) {
-
 		let error = { "error": "Error al obtener usuarios" }
 		let response = [];
 		let stack;
@@ -51,8 +50,11 @@ let User = {
 				INNER JOIN users u ON uc.id = u.idPosition
 				INNER JOIN careers c ON uc.idPosition = c.id
 				INNER JOIN levels l ON uc.idLevel = l.id
-				WHERE u.idLextracking = ? AND u.token = ?;
+				WHERE u.id = ?;
 			`
+		// alterado o where, antes estava WHERE u.idLextraking = ? AND u.token = ?;
+		// E ele nunca encontrava o usuário, pois quando se cria um, ele não é criado com o token;
+
 		try {
 			response = await conn.query(sql, [id, token]);
 		} catch (e) {
@@ -103,9 +105,14 @@ let User = {
 		const cubeUser = await this.loginCube(usuario.email);
 
 		if (cubeUser.response) {
-			shouldCreateNewPosition = !(cubeUser.response.idPosition == usuario.idPosition);
+			shouldCreateNewPosition = cubeUser.response.idPosition == usuario.positionId
+				? false : true;
 			usuario.sync = false
 		}
+
+		const idPosition = shouldCreateNewPosition
+				? await this.updatePosition(usuario)
+				: usuario.idPosition;
 
 		if (usuario.id && !usuario.sync) {
 
@@ -139,11 +146,11 @@ let User = {
 				parseInt(usuario.active),
 				idAdmin,
 				usuario.token,
-				usuario.idPosition,
-				usuario.id]
+				idPosition,
+				usuario.id,
+			]
 
 		} else {
-
 			// Hasheo con MD5
 			// Si viene el sync del lextracking
 			let password = usuario.password
@@ -151,6 +158,8 @@ let User = {
 			if (usuario.passwordCopy) {
 				password = md5(usuario.passwordCopy);
 			}
+
+			const idPosition = await this.updatePosition(usuario);
 
 			// Insertar usuario
 			sql = `
@@ -167,14 +176,11 @@ let User = {
 				usuario.type,
 				password,
 				usuario.token,
-				usuario.idPosition,
+				idPosition,
 			]
 		}
 
 		let response = [];
-
-		// Solo crea una nueva posición si es necesario
-		shouldCreateNewPosition && this.updatePosition(cubeUser.response.id, usuario);
 
 		let stack
 		try {
@@ -221,9 +227,11 @@ let User = {
 	},
 	loginCube: async function (email) {
 		const sql = `
-			SELECT id, name, email, type, active, idUser, idLextracking, idPosition FROM ${tablaNombre}
-			WHERE email = ?
-				AND active = 1
+			SELECT u.id, u.name, u.email, u.type, u.active, u.idUser, u.idLextracking, uc.idPosition
+			FROM ${tablaNombre} u
+			INNER JOIN user_position_level uc ON u.idPosition = uc.id
+			WHERE u.email = ?
+				AND u.active = 1
 			;
 		`
 		let response = []
@@ -298,7 +306,7 @@ let User = {
 		}
 		return { response: userCorrect }
 	},
-	updatePosition: async function( idUser, { idPosition, idLevel }) {
+	updatePosition: async function({ id, positionId, idLevel }) {
 		const sql = `
 			INSERT INTO user_position_level (idPosition, idLevel, idUser)
 			VALUES (?, ?, ?)
@@ -306,8 +314,8 @@ let User = {
 		const error = { error: '¡No fue posible actualizar la posición!' };
 
 		try {
-			const { insertId } = await conn.query(sql, [idPosition, idLevel, idUser]);
-			return insertId ? { response: '¡Actualizado con éxito!' } : error;
+			const { insertId } = await conn.query(sql, [positionId, idLevel, id]);
+			return insertId ? insertId : error;
 		} catch (e) {
 			console.log(e.message);
 			return error;
