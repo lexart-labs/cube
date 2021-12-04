@@ -12,8 +12,11 @@ let User = {
 
 		// Obtener los usuarios
 		const sql = `
-			SELECT * FROM ${tablaNombre}
-			WHERE idUser = ? OR id = ?
+			SELECT c.position AS position, l.level AS level, u.* FROM user_position_level uc
+			INNER JOIN users u ON uc.id = u.idPosition
+			INNER JOIN careers c ON uc.idPosition = c.id
+			INNER JOIN levels l ON uc.idLevel = l.id
+			WHERE u.idUser = ? OR u.id = ?
 		`
 		let response = []
 
@@ -37,21 +40,25 @@ let User = {
 		return response.data.response.length > 0 ? { response: response.data.response } : error;
 	},
 	one: async function (id, token) {
-
 		let error = { "error": "Error al obtener usuarios" }
 		let response = [];
 		let stack;
 
 		// Obtener los usuari
 			const sql = `
-				SELECT c.position, u.* FROM user_position_level uc
+				SELECT c.position as position, l.level AS level, u.* FROM user_position_level uc
 				INNER JOIN users u ON uc.id = u.idPosition
 				INNER JOIN careers c ON uc.idPosition = c.id
-				WHERE u.idLextracking = ? AND u.token = ?;
+				INNER JOIN levels l ON uc.idLevel = l.id
+				WHERE u.id = ?;
 			`
+		// alterado o where, antes estava WHERE u.idLextraking = ? AND u.token = ?;
+		// E ele nunca encontrava o usuário, pois quando se cria um, ele não é criado com o token;
+
 		try {
 			response = await conn.query(sql, [id, token]);
 		} catch (e) {
+			console.log(e.message);
 			stack = e
 		}
 
@@ -82,7 +89,8 @@ let User = {
 
 		let error = { "error": "Error al ingresar/editar usuario" }
 		let sql = ``;
-		let arr = []
+		let arr = [];
+		let shouldCreateNewPosition = false;
 
 		const tablaNombre = 'users'
 
@@ -94,11 +102,17 @@ let User = {
 		}
 
 		// Si ya existe
-		const cubeUser = await this.loginCube(usuario.email)
+		const cubeUser = await this.loginCube(usuario.email);
 
 		if (cubeUser.response) {
+			shouldCreateNewPosition = cubeUser.response.idPosition == usuario.positionId
+				? false : true;
 			usuario.sync = false
 		}
+
+		const idPosition = shouldCreateNewPosition
+				? await this.updatePosition(usuario)
+				: usuario.idPosition;
 
 		if (usuario.id && !usuario.sync) {
 
@@ -108,7 +122,7 @@ let User = {
 			}
 
 			// Generate token in update
-			// usuario.token = utils.makeToken(usuario.email, usuario.id, 'public')
+			usuario.token = utils.makeToken(usuario.email, usuario.id, 'public')
 
 			// Actualizar usuario
 			sql = `
@@ -120,13 +134,23 @@ let User = {
 					active = ?,
 					idUser = ?,
 					token = ?,
+					idPosition = ?,
 					dateEdited = NOW()
 				WHERE id = ? 
 			`
-			arr = [usuario.name, usuario.email, usuario.type, usuario.password, parseInt(usuario.active), idAdmin, usuario.token, usuario.id]
+			arr = [
+				usuario.name,
+				usuario.email,
+				usuario.type,
+				usuario.password,
+				parseInt(usuario.active),
+				idAdmin,
+				usuario.token,
+				idPosition,
+				usuario.id,
+			]
 
 		} else {
-
 			// Hasheo con MD5
 			// Si viene el sync del lextracking
 			let password = usuario.password
@@ -135,18 +159,28 @@ let User = {
 				password = md5(usuario.passwordCopy);
 			}
 
+			const idPosition = await this.updatePosition(usuario);
+
 			// Insertar usuario
 			sql = `
 				INSERT INTO ${tablaNombre}
-					(name, idLextracking, idUser, email, type, password, token)
+					(name, idLextracking, idUser, email, type, password, token, idPosition)
 				VALUES
-				 	(?, ?, ?, ?, ?, ?, ?)
+				 	(?, ?, ?, ?, ?, ?, ?, ?)
 			`
-			arr = [usuario.name, parseInt(usuario.id), idAdmin, usuario.email, usuario.type, password, usuario.token]
+			arr = [
+				usuario.name,
+				parseInt(usuario.id),
+				idAdmin,
+				usuario.email,
+				usuario.type,
+				password,
+				usuario.token,
+				idPosition,
+			]
 		}
 
-		let response = []
-
+		let response = [];
 
 		let stack
 		try {
@@ -193,9 +227,11 @@ let User = {
 	},
 	loginCube: async function (email) {
 		const sql = `
-			SELECT id, name, email, type, active, idUser, idLextracking FROM ${tablaNombre}
-			WHERE email = ?
-				AND active = 1
+			SELECT u.id, u.name, u.email, u.type, u.active, u.idUser, u.idLextracking, uc.idPosition
+			FROM ${tablaNombre} u
+			INNER JOIN user_position_level uc ON u.idPosition = uc.id
+			WHERE u.email = ?
+				AND u.active = 1
 			;
 		`
 		let response = []
@@ -270,20 +306,16 @@ let User = {
 		}
 		return { response: userCorrect }
 	},
-	updatePosition: async function(idUser, idPosition, idLevel) {
-		const sqlUser = `
-			UPDATE users SET idPosition = ? WHERE id = ?
-		`;
-		const sqlJunction = `
+	updatePosition: async function({ id, positionId, idLevel }) {
+		const sql = `
 			INSERT INTO user_position_level (idPosition, idLevel, idUser)
 			VALUES (?, ?, ?)
 		`;
 		const error = { error: '¡No fue posible actualizar la posición!' };
 
 		try {
-			const { insertId } = await conn.query(sqlJunction, [idPosition, idLevel, idUser]);
-			const { changedRows } = await conn.query(sqlUser, [insertId, idUser]);
-			return changedRows ? { response: '¡Actualizado con éxito!' } : error;
+			const { insertId } = await conn.query(sql, [positionId, idLevel, id]);
+			return insertId ? insertId : error;
 		} catch (e) {
 			console.log(e.message);
 			return error;
