@@ -40,7 +40,7 @@ let Course = {
 				total += parseInt(item.total)
 			})
 		}
-		console.log("total: ", total)
+		// console.log("total: ", total)
 		return Math.round((total * 100)/MAX_EVALUACION)
 	},
 	one: async function (id){
@@ -176,7 +176,7 @@ let Course = {
 		
 		try {
 			response = await conn.query(sql, [parseInt(id)]);
-			console.log("response: ", response, id)
+			// console.log("response: ", response, id)
 		} catch(e){
 			console.log("e: ", e)
 		}

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Course = require('../services/courses.service')
-const User   = require('../services/users.service')
+const Course = require('../services/courses.service');
+const User   = require('../services/users.service');
 
 router.get('/all', Mdl.middleware, async function (req, res) {
 	let response = await Course.all(req.headers['user-id']);
