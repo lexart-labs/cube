@@ -193,6 +193,8 @@ export default {
       this.user = {
         name: "",
         active: "1",
+        positionId: 1,
+        levelId: 1,
       };
     },
     getUserById(id) {
