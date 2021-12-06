@@ -54,3 +54,6 @@ If you see a message at your console saying 'ATLAS EDUCATION - BACKEND :: 3001',
 `npm run serve`
 
 10. Go to 'http://localhost:8080/' in your browser.
+
+## SQL Tweaks
+`SET GLOBAL sql_mode = '';`

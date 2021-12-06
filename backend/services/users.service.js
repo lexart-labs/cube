@@ -16,7 +16,7 @@ let User = {
 			INNER JOIN users u ON uc.id = u.idPosition
 			INNER JOIN careers c ON uc.idPosition = c.id
 			INNER JOIN levels l ON uc.idLevel = l.id
-			WHERE u.idUser = ? OR u.id = ?
+			WHERE u.idUser = ? OR u.idLextracking = ?
 		`
 		let response = []
 
@@ -50,7 +50,7 @@ let User = {
 				INNER JOIN users u ON uc.id = u.idPosition
 				INNER JOIN careers c ON uc.idPosition = c.id
 				INNER JOIN levels l ON uc.idLevel = l.id
-				WHERE u.id = ?;
+				WHERE u.idLextracking = ?;
 			`
 		// alterado o where, antes estava WHERE u.idLextraking = ? AND u.token = ?;
 		// E ele nunca encontrava o usuário, pois quando se cria um, ele não é criado com o token;
