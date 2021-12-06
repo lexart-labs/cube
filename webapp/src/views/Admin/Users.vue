@@ -94,13 +94,12 @@
                 <div class="row">
                   <div class="col">
                     <label for="career">Cargo</label>
-                    <select
-                      class="form-control" v-model="user.positionId" id="career">
-                      <option value="" disabled selected>Selecione...</option>
+                    <select class="form-control" v-model="user.positionId" id="career">
                       <option
                         v-for="(career, i) in careers"
                         :value="career.id"
                         :key="`car${i}`"
+                        :selected="career.id == user.positionId"
                       >
                         {{ career.position }}
                       </option>
@@ -108,12 +107,12 @@
                   </div>
                   <div class="col">
                     <label for="lvl">Nível</label>
-                    <select class="form-control" v-model="user.idLevel" id="lvl">
-                      <option value="" disabled selected>Selecione...</option>
+                    <select class="form-control" v-model="user.levelId" id="lvl">
                       <option
                         v-for="(level, i) in levels"
                         :value="level.id"
                         :key="`lev${i}`"
+                        :selected="level.id == user.levelId"
                       >
                         {{ level.level }}
                       </option>

@@ -44,9 +44,15 @@ let User = {
 		let response = [];
 		let stack;
 
-		// Obtener los usuari
+		// Obtener los usuario
 			const sql = `
-				SELECT c.position as position, l.level AS level, u.* FROM user_position_level uc
+				SELECT
+					c.position AS position,
+					c.id AS positionId,
+					l.level AS level,
+					l.id AS levelId,
+					u.*
+				FROM user_position_level uc
 				INNER JOIN users u ON uc.id = u.idPosition
 				INNER JOIN careers c ON uc.idPosition = c.id
 				INNER JOIN levels l ON uc.idLevel = l.id
