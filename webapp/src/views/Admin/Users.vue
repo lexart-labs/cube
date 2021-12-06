@@ -48,7 +48,7 @@
                 class="btn btn-info"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
-                v-on:click="getUserById(user.id)"
+                v-on:click="getUserById(user.idLextracking)"
               >
                 Editar
               </button>
