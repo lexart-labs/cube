@@ -12,10 +12,10 @@ let User = {
 
 		// Obtener los usuarios
 		const sql = `
-			SELECT c.position AS position, l.level AS level, u.* FROM user_position_level uc
-			INNER JOIN users u ON uc.id = u.idPosition
-			INNER JOIN careers c ON uc.idPosition = c.id
-			INNER JOIN levels l ON uc.idLevel = l.id
+			SELECT c.position AS position, l.level AS level, u.* FROM users u
+			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			LEFT JOIN careers c ON uc.idPosition = c.id
+			LEFT JOIN levels l ON uc.idLevel = l.id
 			WHERE u.idUser = ? OR u.idLextracking = ?
 		`
 		let response = []
@@ -52,10 +52,10 @@ let User = {
 					l.level AS level,
 					l.id AS levelId,
 					u.*
-				FROM user_position_level uc
-				INNER JOIN users u ON uc.id = u.idPosition
-				INNER JOIN careers c ON uc.idPosition = c.id
-				INNER JOIN levels l ON uc.idLevel = l.id
+				FROM users u
+				LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+				LEFT JOIN careers c ON uc.idPosition = c.id
+				LEFT JOIN levels l ON uc.idLevel = l.id
 				WHERE u.idLextracking = ?;
 			`
 		// alterado o where, antes estava WHERE u.idLextraking = ? AND u.token = ?;
@@ -168,7 +168,9 @@ let User = {
 				password = md5(usuario.passwordCopy);
 			}
 
-			const idPosition = await this.updatePosition(usuario);
+			const result = await this.updatePosition(usuario);
+			const idPosition = result.error ? null : result;
+			
 
 			// Insertar usuario
 			sql = `
@@ -247,7 +249,7 @@ let User = {
 				uc.idPosition,
 				uc.idLevel
 			FROM ${tablaNombre} u
-			INNER JOIN user_position_level uc ON u.idPosition = uc.id
+			LEFT JOIN user_position_level uc ON u.idPosition = uc.id
 			WHERE u.email = ?
 				AND u.active = 1
 			;
