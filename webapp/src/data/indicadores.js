@@ -1,4 +1,4 @@
-{
+export default {
     "desempeño":[
         {
             "name":"Responsabilidad",
