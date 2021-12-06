@@ -1,3 +1,4 @@
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 CREATE DATABASE `lexart_cube`;
@@ -5,7 +6,7 @@ CREATE DATABASE `lexart_cube`;
 USE lexart_cube;
 
 ALTER TABLE users
-ADD idPosition int(11) NOT NULL DEFAULT 1;
+ADD idPosition int(11) DEFAULT NULL;
 
 CREATE TABLE careers (
   id int(11) NOT NULL AUTO_INCREMENT,

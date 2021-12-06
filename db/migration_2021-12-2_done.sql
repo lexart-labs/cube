@@ -1,4 +1,3 @@
-SET GLOBAL sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 START TRANSACTION;
 SET time_zone = "+00:00";
 CREATE DATABASE `lexart_cube`;
@@ -16,7 +15,7 @@ CREATE TABLE users (
   password text NOT NULL,
   token text DEFAULT NULL,
   active tinyint(2) DEFAULT 1,
-  idPosition int(11),
+  idPosition int(11) NOT NULL DEFAULT 1,
   dateCreated datetime DEFAULT current_timestamp(),
   dateEdited datetime DEFAULT current_timestamp(),
   PRIMARY KEY (id),
@@ -116,7 +115,8 @@ CREATE TABLE user_position_level (
   KEY idPosition (idPosition),
   KEY idLevel (idLevel),
   CONSTRAINT user_position_level_ibfk_1 FOREIGN KEY (idPosition) REFERENCES careers (id),
-  CONSTRAINT user_position_level_ibfk_2 FOREIGN KEY (idLevel) REFERENCES levels (id)
+  -- CONSTRAINT user_position_level_ibfk_2 FOREIGN KEY (idUser) REFERENCES users (idLextracking),
+  CONSTRAINT user_position_level_ibfk_3 FOREIGN KEY (idLevel) REFERENCES levels (id)
 );
 
 ALTER TABLE users ADD FOREIGN KEY (idPosition) REFERENCES user_position_level (id);
