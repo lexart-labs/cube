@@ -36,9 +36,10 @@
               <p>{{ success }}</p>
             </div>
           </div>
-          <timeline
-            v-show="show === 'Dashboard'"
-          ></timeline>
+          <div v-show="show === 'Dashboard'">
+            <timeline />
+            <graphic v-if="resources.length" :evaluations="resources" />
+          </div>
           <!-- General -->
           <div class="dashboard--resources" v-show="show === 'Evaluaciones'">
             <input
@@ -87,10 +88,11 @@ import UserService from '../services/user.service';
 import { verifyToken } from '../services/helpers';
 import Spinner from '../components/Spinner.vue';
 import Timeline from '../components/Timeline.vue';
+import Graphic from '../components/graphicEvaluation.vue';
 
 export default {
   name: 'Dashboard',
-  components: { Spinner, Timeline },
+  components: { Spinner, Timeline, Graphic },
   data() {
     return {
       title: 'Dashboard',
