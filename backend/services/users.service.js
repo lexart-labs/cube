@@ -111,7 +111,10 @@ let User = {
 		const cubeUser = await this.loginCube(usuario.email);
 
 		if (cubeUser.response) {
-			shouldCreateNewPosition = cubeUser.response.idPosition == usuario.positionId
+			shouldCreateNewPosition = (
+				cubeUser.response.idPosition == usuario.positionId
+				&& cubeUser.response.idLevel == usuario.levelId
+			)
 				? false : true;
 			usuario.sync = false
 		}
@@ -233,7 +236,16 @@ let User = {
 	},
 	loginCube: async function (email) {
 		const sql = `
-			SELECT u.id, u.name, u.email, u.type, u.active, u.idUser, u.idLextracking, uc.idPosition
+			SELECT
+				u.id,
+				u.name,
+				u.email,
+				u.type,
+				u.active,
+				u.idUser,
+				u.idLextracking,
+				uc.idPosition,
+				uc.idLevel
 			FROM ${tablaNombre} u
 			INNER JOIN user_position_level uc ON u.idPosition = uc.id
 			WHERE u.email = ?
@@ -312,7 +324,7 @@ let User = {
 		}
 		return { response: userCorrect }
 	},
-	updatePosition: async function({ id, positionId, idLevel }) {
+	updatePosition: async function({ id, positionId, levelId }) {
 		const sql = `
 			INSERT INTO user_position_level (idPosition, idLevel, idUser)
 			VALUES (?, ?, ?)
@@ -320,7 +332,7 @@ let User = {
 		const error = { error: '¡No fue posible actualizar la posición!' };
 
 		try {
-			const { insertId } = await conn.query(sql, [positionId, idLevel, id]);
+			const { insertId } = await conn.query(sql, [positionId, levelId, id]);
 			return insertId ? insertId : error;
 		} catch (e) {
 			console.log(e.message);
