@@ -42,6 +42,7 @@
           </div>
           <!-- General -->
           <div class="dashboard--resources" v-show="show === 'Evaluaciones'">
+            <evaluation-viewer v-if="resources.length" :course="resources[showEvaluation]" />
             <input
               type="search"
               placeholder="Buscar evaluaciones"
@@ -54,9 +55,12 @@
             <div
               class="alert alert-primary"
               :key="`resource${index}`"
+              data-toggle="modal"
+              data-target="#staticBackdrop"
               role="alert"
-              v-if="success && resultQuery.length > 0"
+              v-show="success && resultQuery.length > 0"
               v-for="(resource, index) in resultQuery"
+              v-on:click="() => { showEvaluation = index }"
             >
               <div>
                 <p>
@@ -89,10 +93,11 @@ import { verifyToken } from '../services/helpers';
 import Spinner from '../components/Spinner.vue';
 import Timeline from '../components/Timeline.vue';
 import Graphic from '../components/graphicEvaluation.vue';
+import EvaluationViewer from '../components/evaluationsViewer.vue';
 
 export default {
   name: 'Dashboard',
-  components: { Spinner, Timeline, Graphic },
+  components: { Spinner, Timeline, Graphic, EvaluationViewer },
   data() {
     return {
       title: 'Dashboard',
@@ -112,6 +117,7 @@ export default {
           hasIcon: true,
         },
       ],
+      showEvaluation: 0,
     };
   },
   methods: {
