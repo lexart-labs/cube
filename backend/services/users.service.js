@@ -310,12 +310,12 @@ let User = {
 		// Obtener los usuarios
 		const sql = `
 			SELECT * FROM ${tablaNombre}
-			WHERE token = ?
+			WHERE token = ? OR id = ?
 		`
 		let response = []
 
 		try {
-			response = await conn.query(sql, [token]);
+			response = await conn.query(sql, [token, id]);
 		} catch (e) { }
 
 		if (response.length > 0) {
