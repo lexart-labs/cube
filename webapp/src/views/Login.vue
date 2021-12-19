@@ -54,7 +54,7 @@
               v-bind:disabled="isLoading"
               v-on:click="loginUser"
             >
-              <span>{{ !isLoading ? "Login con" : "Login in" }}</span>
+              <span>{{ !isLoading ? "Login con" : "Login in" }} </span>
               <img src="../assets/lextracking-logo.svg" alt="" />
             </button>
             <div v-if="error" class="alert alert-danger">
