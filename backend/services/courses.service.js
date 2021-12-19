@@ -162,7 +162,7 @@ let Course = {
 
 		const sql = `
 			SELECT 
-				users.name AS lead, 
+				users.name AS 'lead', 
 				evaluations.id, 
 				evaluations.name, 
 				evaluations.json_data, 
