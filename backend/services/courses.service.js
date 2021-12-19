@@ -171,6 +171,7 @@ let Course = {
 			INNER JOIN users ON users.idUser = evaluations.idUser
 			WHERE evaluations.idLextracking = ?
 			GROUP BY evaluations.id
+			ORDER BY evaluations.id ASC
 		`
 		let response = []
 		
