@@ -428,7 +428,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-unused-vars */
-import axios from 'axios';
 import Spinner from '../../components/Spinner.vue';
 import { verifyToken, copy } from '../../services/helpers';
 import CourseService from '../../services/course.service';
