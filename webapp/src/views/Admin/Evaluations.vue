@@ -428,12 +428,12 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-unused-vars */
-import axios from 'axios';
 import Spinner from '../../components/Spinner.vue';
 import { verifyToken, copy } from '../../services/helpers';
 import CourseService from '../../services/course.service';
 import UserService from '../../services/user.service';
 import { APP_NAME } from '../../../env';
+import Indicadores from '../../data/indicadores';
 
 export default {
   name: 'EvaluationsAdmin',
@@ -818,11 +818,8 @@ export default {
     });
 
     // Obtengo indicadores desde el JSON
-    axios.get('src/data/indicadores.json').then((res) => {
-      // console.log("cargo los indicadores: ", res)
-      this.indicadores = res.data;
-      this.course.indicadores = res.data;
-    });
+      this.indicadores = Indicadores;
+      this.course.indicadores = Indicadores;
   },
   computed: {
     resultQuery() {

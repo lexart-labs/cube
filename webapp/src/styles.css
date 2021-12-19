@@ -213,3 +213,7 @@
   gap: 1.5rem !important;
   width: fit-content !important;
 }
+
+.grafic-evaluation {
+  height: 300px;
+}

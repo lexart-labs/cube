@@ -12,10 +12,10 @@ let User = {
 
 		// Obtener los usuarios
 		const sql = `
-			SELECT c.position AS position, l.level AS level, u.* FROM user_position_level uc
-			INNER JOIN users u ON uc.id = u.idPosition
-			INNER JOIN careers c ON uc.idPosition = c.id
-			INNER JOIN levels l ON uc.idLevel = l.id
+			SELECT c.position AS position, l.level AS level, u.* FROM users u
+			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			LEFT JOIN careers c ON uc.idPosition = c.id
+			LEFT JOIN levels l ON uc.idLevel = l.id
 			WHERE u.idUser = ? OR u.idLextracking = ?
 		`
 		let response = []
@@ -44,12 +44,18 @@ let User = {
 		let response = [];
 		let stack;
 
-		// Obtener los usuari
+		// Obtener los usuario
 			const sql = `
-				SELECT c.position as position, l.level AS level, u.* FROM user_position_level uc
-				INNER JOIN users u ON uc.id = u.idPosition
-				INNER JOIN careers c ON uc.idPosition = c.id
-				INNER JOIN levels l ON uc.idLevel = l.id
+				SELECT
+					c.position AS position,
+					c.id AS positionId,
+					l.level AS level,
+					l.id AS levelId,
+					u.*
+				FROM users u
+				LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+				LEFT JOIN careers c ON uc.idPosition = c.id
+				LEFT JOIN levels l ON uc.idLevel = l.id
 				WHERE u.idLextracking = ?;
 			`
 		// alterado o where, antes estava WHERE u.idLextraking = ? AND u.token = ?;
@@ -105,7 +111,10 @@ let User = {
 		const cubeUser = await this.loginCube(usuario.email);
 
 		if (cubeUser.response) {
-			shouldCreateNewPosition = cubeUser.response.idPosition == usuario.positionId
+			shouldCreateNewPosition = (
+				cubeUser.response.idPosition == usuario.positionId
+				&& cubeUser.response.idLevel == usuario.levelId
+			)
 				? false : true;
 			usuario.sync = false
 		}
@@ -159,7 +168,9 @@ let User = {
 				password = md5(usuario.passwordCopy);
 			}
 
-			const idPosition = await this.updatePosition(usuario);
+			const result = await this.updatePosition(usuario);
+			const idPosition = result.error ? null : result;
+			
 
 			// Insertar usuario
 			sql = `
@@ -227,9 +238,18 @@ let User = {
 	},
 	loginCube: async function (email) {
 		const sql = `
-			SELECT u.id, u.name, u.email, u.type, u.active, u.idUser, u.idLextracking, uc.idPosition
+			SELECT
+				u.id,
+				u.name,
+				u.email,
+				u.type,
+				u.active,
+				u.idUser,
+				u.idLextracking,
+				uc.idPosition,
+				uc.idLevel
 			FROM ${tablaNombre} u
-			INNER JOIN user_position_level uc ON u.idPosition = uc.id
+			LEFT JOIN user_position_level uc ON u.idPosition = uc.id
 			WHERE u.email = ?
 				AND u.active = 1
 			;
@@ -290,12 +310,12 @@ let User = {
 		// Obtener los usuarios
 		const sql = `
 			SELECT * FROM ${tablaNombre}
-			WHERE token = ?
+			WHERE token = ? OR id = ?
 		`
 		let response = []
 
 		try {
-			response = await conn.query(sql, [token]);
+			response = await conn.query(sql, [token, id]);
 		} catch (e) { }
 
 		if (response.length > 0) {
@@ -306,7 +326,7 @@ let User = {
 		}
 		return { response: userCorrect }
 	},
-	updatePosition: async function({ id, positionId, idLevel }) {
+	updatePosition: async function({ id, positionId, levelId }) {
 		const sql = `
 			INSERT INTO user_position_level (idPosition, idLevel, idUser)
 			VALUES (?, ?, ?)
@@ -314,7 +334,7 @@ let User = {
 		const error = { error: '¡No fue posible actualizar la posición!' };
 
 		try {
-			const { insertId } = await conn.query(sql, [positionId, idLevel, id]);
+			const { insertId } = await conn.query(sql, [positionId, levelId, id]);
 			return insertId ? insertId : error;
 		} catch (e) {
 			console.log(e.message);
