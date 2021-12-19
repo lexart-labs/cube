@@ -168,7 +168,7 @@ let Course = {
 				evaluations.json_data, 
 				evaluations.idLextracking 
 			FROM evaluations
-			LEFT JOIN users ON users.idUser = evaluations.idUser
+			INNER JOIN users ON users.idUser = evaluations.idUser
 			WHERE evaluations.idLextracking = ?
 			GROUP BY evaluations.id
 		`
