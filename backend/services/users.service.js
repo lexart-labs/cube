@@ -346,7 +346,7 @@ let User = {
 	},
 	countResults: async function (idAdmin) {
 		const sql = `
-			SELECT COUNT(*) FROM users
+			SELECT COUNT(*) FROM users AS u
 			WHERE u.idUser = ? OR u.idLextracking = ?
 		`;
 		const error = { "error": "Error al obtener usuarios" };
