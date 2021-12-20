@@ -22,7 +22,7 @@
       style="margin-bottom: 1rem"
     />
     <div class="courseContainer" v-if="!isLoading">
-      <table class="table">
+      <table class="table table-admin">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -393,5 +393,9 @@ export default {
   .not-allowed {
     cursor: none;
     opacity: 0.2;
+    pointer-events: none;
+  }
+  .table-admin {
+    height: 50vh;
   }
 </style>
