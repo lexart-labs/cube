@@ -7,7 +7,6 @@ const PAGE_SIZE = 2;
 
 let User = {
 	all: async function (idAdmin, page) {
-
 		let error = { "error": "Error al obtener usuarios" }
 
 		const tablaNombre = 'users'
@@ -30,7 +29,6 @@ let User = {
 		return response.length > 0 ? { response: response } : error;
 	},
 	allUserLextracking: async function (req) {
-
 		let error = { "error": "Error al obtener usuarios" }
 		let model = 'user/all'
 		const response = await axios.get(API_LEXTRACKING + model,
@@ -207,7 +205,6 @@ let User = {
 		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
 	loginLextracking: async function (email, password) {
-
 		let error = { "error": "Error al obtener usuarios" }
 		let model = 'login'
 		const res = await axios.post(API_LEXTRACKING + model, { email: email, password: password })
@@ -346,19 +343,20 @@ let User = {
 	},
 	countResults: async function (idAdmin) {
 		const sql = `
-			SELECT COUNT(*) FROM users AS u
+			SELECT COUNT(*) AS total FROM users AS u
 			WHERE u.idUser = ? OR u.idLextracking = ?
 		`;
 		const error = { "error": "Error al obtener usuarios" };
-		let response = [];
+		let response = 0;
 
 		try {
-			response = await conn.query(sql, [idAdmin, idAdmin]);
+			const result = await conn.query(sql, [idAdmin, idAdmin]);
+			response = result[0].total;
 		} catch (e) {
 			console.log(e.message);
 		}
-
-		return response.length > 0 ? { response } : error;
+		
+		return response > 0 ? { response } : error;
 	},
 }
 module.exports = User;
