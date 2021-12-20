@@ -351,7 +351,7 @@ let User = {
 
 		try {
 			const result = await conn.query(sql, [idAdmin, idAdmin]);
-			response = result[0].total;
+			response = Math.ceil(result[0].total / PAGE_SIZE);
 		} catch (e) {
 			console.log(e.message);
 		}

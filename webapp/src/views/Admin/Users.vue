@@ -153,10 +153,26 @@
         </div>
       </div>
       <nav class="pages-nav">
-        <span v-on:click="navigate('-')">Back</span>
-        <span :class="page === 0 ? 'current' : ''">1</span>
-        <span>2</span>
-        <span v-on:click="navigate('+')">Next</span>
+        <span
+          v-on:click="navigate('-')"
+          :class="page == 1 ? 'not-allowed' : ''"
+        >
+          Back
+        </span>
+        <span
+          :class="page == index ? 'current' : ''"
+          v-for="index in pagesLength"
+          :key="index"
+          v-on:click="navigate(index)"
+        >
+          {{ index }}
+        </span>
+        <span
+          v-on:click="navigate('+')"
+          :class="page == pagesLength ? 'not-allowed' : ''"
+        >
+          Next
+        </span>
       </nav>
     </div>
   </div>
@@ -192,8 +208,8 @@ export default {
       usersLextracking: [],
       levels: [],
       careers: [],
-      pagesLength: 2,
-      page: 0,
+      pagesLength: 1,
+      page: 1,
     };
   },
   methods: {
@@ -291,7 +307,7 @@ export default {
         operator === '+' ? this.page += 1 : this.page -= 1;
       }
 
-      UserService().getAllUsers(this.page, (res) => {
+      UserService().getAllUsers(this.page - 1, (res) => {
         this.isLoading = false;
         if (!res.error) {
           const users = res.response;
@@ -367,10 +383,15 @@ export default {
     display: flex;
     gap: 1rem;
     justify-content: center;
+    margin-top: 2rem;
     width: 100%;
   }
   .pages-nav span:hover, .current {
     text-decoration: underline;
     color: black;
+  }
+  .not-allowed {
+    cursor: none;
+    opacity: 0.2;
   }
 </style>
