@@ -3,7 +3,7 @@ const axios = require('axios')
 
 const tablaNombre = 'users';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 2;
 
 let User = {
 	all: async function (idAdmin, page) {

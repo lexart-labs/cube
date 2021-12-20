@@ -186,6 +186,7 @@ export default {
       usersLextracking: [],
       levels: [],
       careers: [],
+      page: 0,
     };
   },
   methods: {
@@ -276,6 +277,23 @@ export default {
       console.log(this.$refs.logo.files);
       console.log(this.$refs.background.files);
     },
+    navigate(operator) {
+      if (typeof operator === 'number') {
+        this.page = operator;
+      } else {
+        operator === '+' ? this.page += 1 : this.page -= 1;
+      }
+
+      UserService().getAllUsers(this.page, (res) => {
+        this.isLoading = false;
+        if (!res.error) {
+          const users = res.response;
+          this.users = users;
+        } else {
+          this.error = res.error;
+        }
+      });
+    },
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
@@ -290,7 +308,7 @@ export default {
       .getAll()
       .then((res) => (this.levels = res.response));
 
-    UserService().getAllUsers((res) => {
+    UserService().getAllUsers(0, (res) => {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
