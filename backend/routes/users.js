@@ -44,6 +44,12 @@ router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
     res.send(response);
 })
 
+router.get('/count', async function (req, res) {
+	let response = await User.countResults(req.headers['user-id']);
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
 router.get('/:id', Mdl.middleware, async function (req, res) {
 	let response = await User.one(req.params.id, req.headers['token']);
 
@@ -54,13 +60,6 @@ router.get('/:id', Mdl.middleware, async function (req, res) {
 router.post('/upsert', Mdl.middleware, async function (req, res) {
 	let post 	 = req.body;
 	let response = await User.upsert(post, req.headers['user-id']);
-
-	res.set(['Content-Type', 'application/json']);
-    res.send(response);
-})
-
-router.get('/count', Mdl.middleware, async function (req, res) {
-	let response = await User.countResults(req.headers['user-id']);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
