@@ -152,6 +152,12 @@
           </div>
         </div>
       </div>
+      <nav class="pages-nav">
+        <span v-on:click="navigate('-')">Back</span>
+        <span :class="page === 0 ? 'current' : ''">1</span>
+        <span>2</span>
+        <span v-on:click="navigate('+')">Next</span>
+      </nav>
     </div>
   </div>
 </template>
@@ -186,6 +192,7 @@ export default {
       usersLextracking: [],
       levels: [],
       careers: [],
+      pagesLength: 2,
       page: 0,
     };
   },
@@ -327,6 +334,15 @@ export default {
         this.error = res.error;
       }
     });
+
+    UserService().getPagesLength((res) => {
+      this.isLoading = false;
+      if (!res.error) {
+        this.pagesLength = res.response;
+      } else {
+        this.error = res.error;
+      }
+    });
   },
   computed: {
     resultQuery() {
@@ -343,3 +359,18 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  .pages-nav {
+    color: rgb(138, 138, 138);
+    cursor: pointer;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+  }
+  .pages-nav span:hover, .current {
+    text-decoration: underline;
+    color: black;
+  }
+</style>
