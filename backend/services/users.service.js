@@ -3,6 +3,8 @@ const axios = require('axios')
 
 const tablaNombre = 'users';
 
+const PAGE_SIZE = 10;
+
 let User = {
 	all: async function (idAdmin) {
 
@@ -17,6 +19,7 @@ let User = {
 			LEFT JOIN careers c ON uc.idPosition = c.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
 			WHERE u.idUser = ? OR u.idLextracking = ?
+			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * 1}
 		`
 		let response = []
 
@@ -340,6 +343,22 @@ let User = {
 			console.log(e.message);
 			return error;
 		}
-	}
+	},
+	countResults: async function (idAdmin) {
+		const sql = `
+			SELECT COUNT(*) FROM users
+			WHERE u.idUser = ? OR u.idLextracking = ?
+		`;
+		const error = { "error": "Error al obtener usuarios" };
+		let response = [];
+
+		try {
+			response = await conn.query(sql, [idAdmin, idAdmin]);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.length > 0 ? { response } : error;
+	},
 }
 module.exports = User;
