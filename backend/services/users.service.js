@@ -6,7 +6,7 @@ const tablaNombre = 'users';
 const PAGE_SIZE = 10;
 
 let User = {
-	all: async function (idAdmin) {
+	all: async function (idAdmin, page) {
 
 		let error = { "error": "Error al obtener usuarios" }
 
@@ -19,7 +19,7 @@ let User = {
 			LEFT JOIN careers c ON uc.idPosition = c.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
 			WHERE u.idUser = ? OR u.idLextracking = ?
-			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * 1}
+			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []
 

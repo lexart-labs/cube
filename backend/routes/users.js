@@ -28,7 +28,8 @@ router.post('/check-type', Mdl.middleware, async function (req, res) {
 })
 
 router.get('/all', Mdl.middleware, async function (req, res) {
-	let response = await User.all(req.headers['user-id']);
+	const { page } = req.body;
+	let response = await User.all(req.headers['user-id'], page);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
@@ -53,6 +54,13 @@ router.get('/:id', Mdl.middleware, async function (req, res) {
 router.post('/upsert', Mdl.middleware, async function (req, res) {
 	let post 	 = req.body;
 	let response = await User.upsert(post, req.headers['user-id']);
+
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
+router.get('/count', Mdl.middleware, async function (req, res) {
+	let response = await User.countResults(req.headers['user-id']);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
