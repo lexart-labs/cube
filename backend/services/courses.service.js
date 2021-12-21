@@ -162,15 +162,16 @@ let Course = {
 
 		const sql = `
 			SELECT 
-				users.name AS lead, 
+				users.name AS 'lead', 
 				evaluations.id, 
 				evaluations.name, 
 				evaluations.json_data, 
 				evaluations.idLextracking 
 			FROM evaluations
-			LEFT JOIN users ON users.idUser = evaluations.idUser
+			INNER JOIN users ON users.idUser = evaluations.idUser
 			WHERE evaluations.idLextracking = ?
 			GROUP BY evaluations.id
+			ORDER BY evaluations.id ASC
 		`
 		let response = []
 		
