@@ -28,7 +28,11 @@ const UserService = function () {
         'user-id': userId,
       };
 
-      axios.get(`${API + model}all?page=${page}`, { headers }).then((res) => {
+      const sql = page == null
+        ? `${API + model}all`
+        : `${API + model}all?page=${page}`
+
+      axios.get(sql, { headers }).then((res) => {
         cb(res.data);
       });
     },

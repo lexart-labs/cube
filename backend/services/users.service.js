@@ -18,8 +18,9 @@ let User = {
 			LEFT JOIN careers c ON uc.idPosition = c.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
 			WHERE u.idUser = ? OR u.idLextracking = ?
-			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
+			${page ? `LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}` : ''}
 		`
+		
 		let response = []
 
 		try {
