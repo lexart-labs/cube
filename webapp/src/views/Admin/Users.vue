@@ -204,11 +204,29 @@ export default {
         }
       });
     },
+    actulizeUsers(usr) {
+      const position = this.careers.find(el => el.id == usr.positionId).position;
+      const level = this.levels.find(el => el.id == usr.levelId).level;
+      usr.position = position;
+      usr.level = level;
+
+      if (this.users.some(el => el.id == usr.id)) {
+        const result = this.users.reduce((acc, cur) => {
+        acc = Number(cur.id) === Number(usr.id) ? [...acc, usr] : [...acc, cur];
+        return acc;
+        }, []);
+        this.users = result;
+      } else {
+        this.users = [...this.users, usr];
+      }
+    },
     upsertUser() {
       // Agrego usuarios nuevos con el sync desde el front
       this.user.token = "";
       this.user.sync = true;
       this.user.type = this.user.role || this.user.type;
+
+      this.actulizeUsers(this.user);
 
       UserService().upsertUser(this.user, (res) => {
         if (!res.error) {
@@ -218,10 +236,6 @@ export default {
             type: "success",
             duration: 2000,
           });
-
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
         } else {
           this.error = res.error;
         }
