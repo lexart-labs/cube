@@ -376,7 +376,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
   .pages-nav {
     color: rgb(138, 138, 138);
     cursor: pointer;
@@ -396,6 +396,6 @@ export default {
     pointer-events: none;
   }
   .table-admin {
-    height: 50vh;
+    min-height: 50vh;
   }
 </style>

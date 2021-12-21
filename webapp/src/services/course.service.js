@@ -19,7 +19,7 @@ const CourseService = function () {
         cb(res.data);
       });
     },
-    getAllCourses(cb) {
+    getAllCourses(page, cb) {
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
 
@@ -28,7 +28,7 @@ const CourseService = function () {
         'user-id': userId,
       };
 
-      axios.get(`${API + model}all`, { headers }).then((res) => {
+      axios.get(`${API + model}all?page=${page}`, { headers }).then((res) => {
         cb(res.data);
       });
     },
@@ -42,6 +42,19 @@ const CourseService = function () {
       };
 
       axios.post(`${API + model}upsert`, user, { headers }).then((res) => {
+        cb(res.data);
+      });
+    },
+    getPagesLength(cb) {
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const userId = localStorage.getItem(`id-${APP_NAME}`);
+
+      const headers = {
+        token,
+        'user-id': userId,
+      };
+
+      axios.get(`${API + model}count`, { headers }).then((res) => {
         cb(res.data);
       });
     },

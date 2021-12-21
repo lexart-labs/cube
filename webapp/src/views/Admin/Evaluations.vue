@@ -22,7 +22,7 @@
       style="margin-bottom: 1rem"
     />
     <div class="courseContainer" v-if="!isLoading">
-      <table class="table">
+      <table class="table table-admin">
         <thead>
           <tr>
             <th>Id</th>
@@ -303,6 +303,29 @@
         </div>
       </div>
 
+      <nav class="pages-nav">
+        <span
+          v-on:click="navigate('-')"
+          :class="page == 1 ? 'not-allowed' : ''"
+        >
+          Back
+        </span>
+        <span
+          :class="page == index ? 'current' : ''"
+          v-for="index in pagesLength"
+          :key="index"
+          v-on:click="navigate(index)"
+        >
+          {{ index }}
+        </span>
+        <span
+          v-on:click="navigate('+')"
+          :class="page == pagesLength ? 'not-allowed' : ''"
+        >
+          Next
+        </span>
+      </nav>
+
       <!-- User / Asitencias -->
       <div
         class="modal fade"
@@ -486,6 +509,8 @@ export default {
       indicadores: {},
       MAX_EVALUACION: 135,
       MAX_POINTS: 5,
+      pagesLength: 1,
+      page: 1,
     };
   },
   methods: {
@@ -780,6 +805,23 @@ export default {
     deleteEvaluacion(item, key) {
       this.course.evaluaciones.splice(key, 1);
     },
+    navigate(operator) {
+      if (typeof operator === 'number') {
+        this.page = operator;
+      } else {
+        operator === '+' ? this.page += 1 : this.page -= 1;
+      }
+
+      CourseService().getAllCourses(this.page - 1, (res) => {
+        this.isLoading = false;
+        if (!res.error) {
+          const courses = res.response;
+          this.courses = courses;
+        } else {
+          this.error = res.error;
+        }
+      });
+    },
   },
   mounted() {
     const id = this.$route.params.id ? this.$route.params.id : undefined;
@@ -797,7 +839,7 @@ export default {
     // Verifico el token
     verifyToken(token);
 
-    CourseService().getAllCourses((res) => {
+    CourseService().getAllCourses(0, (res) => {
       this.isLoading = false;
       if (!res.error) {
         const courses = res.response;
@@ -807,11 +849,20 @@ export default {
       }
     });
 
-    UserService().getAllUsers((res) => {
+    UserService().getAllUsers(null, (res) => {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
         this.users = users;
+      } else {
+        this.error = res.error;
+      }
+    });
+
+    CourseService().getPagesLength((res) => {
+      this.isLoading = false;
+      if (!res.error) {
+        this.pagesLength = res.response;
       } else {
         this.error = res.error;
       }
