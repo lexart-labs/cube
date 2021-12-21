@@ -669,7 +669,7 @@ export default {
         if (res.response) {
           $('#staticBackdrop').modal('hide');
           // Disparo el toast
-          this.$toast.show(res.response, {
+          this.$toasted.show(res.response, {
             type: 'success',
             duration: 2000,
           });
