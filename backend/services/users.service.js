@@ -311,7 +311,7 @@ let User = {
 		// Obtener los usuarios
 		const sql = `
 			SELECT * FROM ${tablaNombre}
-			WHERE token = ? OR id = ?
+			WHERE token = ? OR idLextracking = ?
 		`
 		let response = []
 
