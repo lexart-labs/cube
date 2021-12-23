@@ -250,8 +250,6 @@ export default {
       this.user.sync = true;
       this.user.type = this.user.role || this.user.type;
 
-      this.actulizeUsers(this.user);
-
       UserService().upsertUser(this.user, (res) => {
         if (!res.error) {
           $("#staticBackdrop").modal("hide");
@@ -260,6 +258,12 @@ export default {
             type: "success",
             duration: 2000,
           });
+
+          if(this.users.length < 5) {
+            this.actulizeUsers(this.user);
+          } else {
+            this.handlePagination(this.page);
+          }
         } else {
           this.error = res.error;
         }
@@ -331,6 +335,27 @@ export default {
         }
       });
     },
+    handlePagination(page = 0) {
+      this.isLoading = true;
+      UserService().getAllUsers(page, (res) => {
+        if (!res.error) {
+          const users = res.response;
+          this.users = users;
+        } else {
+          this.error = res.error;
+        }
+      });
+
+      UserService().getPagesLength((res) => {
+        this.isLoading = false;
+        if (!res.error) {
+          this.pagesLength = res.response;
+        } else {
+          this.error = res.error;
+        }
+      });
+      this.page = page + 1 || 1;
+    },
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
@@ -345,16 +370,6 @@ export default {
       .getAll()
       .then((res) => (this.levels = res.response));
 
-    UserService().getAllUsers(0, (res) => {
-      this.isLoading = false;
-      if (!res.error) {
-        const users = res.response;
-        this.users = users;
-      } else {
-        this.error = res.error;
-      }
-    });
-
     UserService().getAllUsersLextracking((res) => {
       this.isLoading = false;
       if (!res.error) {
@@ -365,14 +380,7 @@ export default {
       }
     });
 
-    UserService().getPagesLength((res) => {
-      this.isLoading = false;
-      if (!res.error) {
-        this.pagesLength = res.response;
-      } else {
-        this.error = res.error;
-      }
-    });
+    this.handlePagination();
   },
   computed: {
     resultQuery() {
