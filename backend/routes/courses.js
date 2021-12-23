@@ -27,8 +27,17 @@ router.post('/upsert', Mdl.middleware, async function (req, res) {
 
 router.get('/by-user/:id', Mdl.middleware, async function (req, res) {
 	let id   = req.params.id;
+	const { year } = req.query;
 
-	let response = await Course.courses(id);
+	let response = await Course.courses(id, year);
+
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
+router.get('/years/:id', Mdl.middleware, async function (req, res) {
+	const { id } = req.params;
+	let response = await Course.getYears(id);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);

@@ -5,7 +5,6 @@ const tablaNombre = 'evaluations';
 
 let Course = {
 	all: async function (idAdmin){
-		
 		let error = {"error":"Error al obtener cursos"}
 
 		// Obtener los usuarios
@@ -158,8 +157,7 @@ let Course = {
 
 		return response.length > 0 ? {response: response[0]} : {error: 'Usuario y/o clave incorrecta.'};
 	},
-	courses: async function (id) {
-
+	courses: async function (id, year) {
 		const sql = `
 			SELECT 
 				users.name AS 'lead', 
@@ -169,14 +167,14 @@ let Course = {
 				evaluations.idLextracking 
 			FROM evaluations
 			INNER JOIN users ON users.idUser = evaluations.idUser
-			WHERE evaluations.idLextracking = ?
+			WHERE evaluations.idLextracking = ? AND YEAR(evaluations.dateCreated) = ?
 			GROUP BY evaluations.id
 			ORDER BY evaluations.id ASC
 		`
 		let response = []
 		
 		try {
-			response = await conn.query(sql, [parseInt(id)]);
+			response = await conn.query(sql, [parseInt(id), parseInt(year)]);
 			// console.log("response: ", response, id)
 		} catch(e){
 			console.log("e: ", e)
@@ -246,6 +244,24 @@ let Course = {
 			})
 		}
 		return {response: userCorrect}
-	}
+	},
+	getYears: async function (idAdmin) {
+		const sql = `
+			SELECT DISTINCT YEAR(dateCreated) AS 'year'
+			FROM evaluations WHERE idLextracking = ?
+		`;
+
+		let response = [];
+
+		try {
+			response = await conn.query(sql, [parseInt(idAdmin)]);
+		} catch (error) {
+			console.log(e.message);
+		}
+
+		return response.length > 0	
+			? response.map((el) => el.year)
+			: { err: 'No fue possible encuentrar evaluaciones'};
+	},
 }
 module.exports = Course;
