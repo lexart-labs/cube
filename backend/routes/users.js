@@ -29,7 +29,7 @@ router.post('/check-type', Mdl.middleware, async function (req, res) {
 
 router.get('/all', async function (req, res) {
 	const { page } = req.query;
-	let response = await User.all(req.headers['user-id'], page || 0);
+	let response = await User.all(req.headers['user-id'], page || null);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
