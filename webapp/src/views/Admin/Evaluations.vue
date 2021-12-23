@@ -700,15 +700,11 @@ export default {
           });
 
           // Get all courses again
-          CourseService().getAllCourses((resp) => {
-            this.isLoading = false;
-            if (!res.error) {
-              const courses = resp.response;
-              this.courses = courses;
-            } else {
-              this.error = resp.error;
-            }
-          });
+          if (this.courses.length <= 4) {
+            this.paginate(this.page - 1);
+          } else {
+            this.paginate(this.pagesLength);
+          }
         }
       });
     },
@@ -812,15 +808,36 @@ export default {
         operator === '+' ? this.page += 1 : this.page -= 1;
       }
 
-      CourseService().getAllCourses(this.page - 1, (res) => {
+      // CourseService().getAllCourses(this.page - 1, (res) => {
+      //   this.isLoading = false;
+      //   if (!res.error) {
+      //     const courses = res.response;
+      //     this.courses = courses;
+      //   } else {
+      //     this.error = res.error;
+      //   }
+      // });
+      this.paginate(this.page - 1);
+    },
+    paginate: async function (page = 0) {
+      const { data: res } = await CourseService().getAllCourses(page);
         this.isLoading = false;
+
         if (!res.error) {
           const courses = res.response;
           this.courses = courses;
         } else {
           this.error = res.error;
         }
-      });
+
+      const { data: resp } = await CourseService().getPagesLength();
+      this.isLoading = false;
+        if (!resp.error) {
+          this.pagesLength = resp.response;
+        } else {
+          this.error = resp.error;
+        }
+        this.page = page + 1 || 1;
     },
   },
   mounted() {
@@ -839,30 +856,13 @@ export default {
     // Verifico el token
     verifyToken(token);
 
-    CourseService().getAllCourses(0, (res) => {
-      this.isLoading = false;
-      if (!res.error) {
-        const courses = res.response;
-        this.courses = courses;
-      } else {
-        this.error = res.error;
-      }
-    });
+    this.paginate();
 
     UserService().getAllUsers(null, (res) => {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
         this.users = users;
-      } else {
-        this.error = res.error;
-      }
-    });
-
-    CourseService().getPagesLength((res) => {
-      this.isLoading = false;
-      if (!res.error) {
-        this.pagesLength = res.response;
       } else {
         this.error = res.error;
       }
