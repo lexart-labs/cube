@@ -3,9 +3,10 @@ const axios = require('axios')
 
 const tablaNombre = 'users';
 
-let User = {
-	all: async function (idAdmin) {
+const PAGE_SIZE = 5;
 
+let User = {
+	all: async function (idAdmin, page) {
 		let error = { "error": "Error al obtener usuarios" }
 
 		const tablaNombre = 'users'
@@ -17,6 +18,7 @@ let User = {
 			LEFT JOIN careers c ON uc.idPosition = c.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
 			WHERE u.idUser = ? OR u.idLextracking = ?
+			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []
 
@@ -27,7 +29,6 @@ let User = {
 		return response.length > 0 ? { response: response } : error;
 	},
 	allUserLextracking: async function (req) {
-
 		let error = { "error": "Error al obtener usuarios" }
 		let model = 'user/all'
 		const response = await axios.get(API_LEXTRACKING + model,
@@ -204,7 +205,6 @@ let User = {
 		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
 	loginLextracking: async function (email, password) {
-
 		let error = { "error": "Error al obtener usuarios" }
 		let model = 'login'
 		const res = await axios.post(API_LEXTRACKING + model, { email: email, password: password })
@@ -340,6 +340,23 @@ let User = {
 			console.log(e.message);
 			return error;
 		}
-	}
+	},
+	countResults: async function (idAdmin) {
+		const sql = `
+			SELECT COUNT(*) AS total FROM users AS u
+			WHERE u.idUser = ? OR u.idLextracking = ?
+		`;
+		const error = { "error": "Error al obtener usuarios" };
+		let response = 0;
+
+		try {
+			const result = await conn.query(sql, [idAdmin, idAdmin]);
+			response = Math.ceil(result[0].total / PAGE_SIZE);
+		} catch (e) {
+			console.log(e.message);
+		}
+		
+		return response > 0 ? { response } : error;
+	},
 }
 module.exports = User;
