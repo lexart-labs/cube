@@ -21,7 +21,7 @@
       class="form-control"
       style="margin-bottom: 1rem"
     />
-    <div class="courseContainer" v-if="!isLoading">
+    <div class="courseContainer">
       <table class="table table-admin">
         <thead>
           <tr>
@@ -820,24 +820,25 @@ export default {
       this.paginate(this.page - 1);
     },
     paginate: async function (page = 0) {
+      this.isLoading = true;
       const { data: res } = await CourseService().getAllCourses(page);
-        this.isLoading = false;
 
-        if (!res.error) {
-          const courses = res.response;
-          this.courses = courses;
-        } else {
-          this.error = res.error;
-        }
+      if (!res.error) {
+        const courses = res.response;
+        this.courses = courses;
+      } else {
+        this.error = res.error;
+      }
 
       const { data: resp } = await CourseService().getPagesLength();
       this.isLoading = false;
-        if (!resp.error) {
-          this.pagesLength = resp.response;
-        } else {
-          this.error = resp.error;
-        }
-        this.page = page + 1 || 1;
+
+      if (!resp.error) {
+        this.pagesLength = resp.response;
+      } else {
+        this.error = resp.error;
+      }
+      this.page = page + 1 || 1;
     },
   },
   mounted() {
@@ -856,6 +857,8 @@ export default {
     // Verifico el token
     verifyToken(token);
 
+
+    this.isLoading = true;
     this.paginate();
 
     UserService().getAllUsers(null, (res) => {
