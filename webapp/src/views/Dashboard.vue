@@ -36,6 +36,20 @@
               <p>{{ success }}</p>
             </div>
           </div>
+
+          <!-- Select year filter here -->
+          <div class="left-select">
+            <select id="year-filter" class="form-control" v-model="year" v-on:change="obtenerEvaluaciones">
+              <option
+                v-for="(yr, i) in years"
+                :key="i"
+                :selected="yr === year"
+              >
+                {{ yr }}
+              </option>
+            </select>
+          </div>
+
           <div v-show="show === 'Dashboard'">
             <timeline />
             <graphic v-if="resources.length" :evaluations="resources" />
@@ -94,6 +108,7 @@ import Spinner from '../components/Spinner.vue';
 import Timeline from '../components/Timeline.vue';
 import Graphic from '../components/graphicEvaluation.vue';
 import EvaluationViewer from '../components/evaluationsViewer.vue';
+import CourseService from '../services/course.service';
 
 export default {
   name: 'Dashboard',
@@ -118,6 +133,8 @@ export default {
         },
       ],
       showEvaluation: 0,
+      year: new Date().getFullYear(),
+      years: [],
     };
   },
   methods: {
@@ -155,7 +172,8 @@ export default {
         }
       });
     },
-    obtenerEvaluaciones(id) {
+    obtenerEvaluaciones() {
+      const id = localStorage.getItem(`id-${APP_NAME}`);
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
 
@@ -164,7 +182,7 @@ export default {
         'user-id': userId,
       };
       axios
-        .get(`${API}courses/by-user/${id}`, { headers })
+        .get(`${API}courses/by-user/${id}?year=${this.year}`, { headers })
         .then((res) => {
           this.isLoading = false;
           if (!res.data.error) {
@@ -195,6 +213,18 @@ export default {
     setShow(abaName) {
       this.show = abaName;
     },
+    getYears: async function(id) {
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const userId = localStorage.getItem(`id-${APP_NAME}`);
+
+      const headers = {
+        token,
+        'user-id': userId,
+      };
+
+      const {data} = await axios.get(`${API}courses/years/${id}`, { headers });
+      this.years = data;
+    },
   },
   mounted() {
     const id = localStorage.getItem(`id-${APP_NAME}`);
@@ -219,7 +249,8 @@ export default {
           this.success = 'Usuario sincronizado 👏';
 
           // Obtenemos evaluaciones de un usuario
-          this.obtenerEvaluaciones(id);
+          this.getYears(id);
+          this.obtenerEvaluaciones(id, this.year);
         } else {
           // Si no obtengo el usuario en la base, deberíamos cargarnos
           this.error = '¡Tu usuario no está sincronizado!';
@@ -240,3 +271,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  .left-select{
+    width: 10vw;
+    margin: 1rem 0;
+  }
+</style>
