@@ -1,16 +1,20 @@
 const utils 	  = require('./utils.service')
 const Resource    = require('../services/resources.service')
 const User 		  = require('../services/users.service')
+
 const tablaNombre = 'evaluations';
+const PAGE_SIZE = 5;
 
 let Course = {
-	all: async function (idAdmin){
+	all: async function (idAdmin, page){
+		
 		let error = {"error":"Error al obtener cursos"}
 
 		// Obtener los usuarios
 		const sql = `
 			SELECT id, name, active, json_data FROM ${tablaNombre}
 			WHERE idUser = ?
+			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []
 		
@@ -41,6 +45,23 @@ let Course = {
 		}
 		// console.log("total: ", total)
 		return Math.round((total * 100)/MAX_EVALUACION)
+	},
+	countResults: async function (idAdmin) {
+		const sql = `
+			SELECT COUNT(*) AS total FROM ${tablaNombre} AS e
+			WHERE e.idUser = ? OR e.idLextracking = ?
+		`;
+		const error = { "error": "Error al obtener usuarios" };
+		let response = 0;
+
+		try {
+			const result = await conn.query(sql, [idAdmin, idAdmin]);
+			response = Math.ceil(result[0].total / PAGE_SIZE);
+		} catch (e) {
+			console.log(e.message);
+		}
+		
+		return response > 0 ? { response } : error;
 	},
 	one: async function (id){
 		

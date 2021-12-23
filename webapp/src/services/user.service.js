@@ -19,7 +19,7 @@ const UserService = function () {
         cb(res.data);
       });
     },
-    getAllUsers(cb) {
+    getAllUsers(page, cb) {
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
 
@@ -28,7 +28,11 @@ const UserService = function () {
         'user-id': userId,
       };
 
-      axios.get(`${API + model}all`, { headers }).then((res) => {
+      const sql = page == null
+        ? `${API + model}all`
+        : `${API + model}all?page=${page}`
+
+      axios.get(sql, { headers }).then((res) => {
         cb(res.data);
       });
     },
@@ -58,6 +62,19 @@ const UserService = function () {
         cb(res.data);
       });
     },
+    getPagesLength(cb) {
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const userId = localStorage.getItem(`id-${APP_NAME}`);
+
+      const headers = {
+        token,
+        'user-id': userId,
+      };
+
+      axios.get(`${API + model}count`, { headers }).then((res) => {
+        cb(res.data);
+      });
+    }
   };
 };
 
