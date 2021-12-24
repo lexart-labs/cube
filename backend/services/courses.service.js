@@ -1,10 +1,12 @@
 const utils 	  = require('./utils.service')
 const Resource    = require('../services/resources.service')
 const User 		  = require('../services/users.service')
+
 const tablaNombre = 'evaluations';
+const PAGE_SIZE = 5;
 
 let Course = {
-	all: async function (idAdmin){
+	all: async function (idAdmin, page){
 		
 		let error = {"error":"Error al obtener cursos"}
 
@@ -12,6 +14,7 @@ let Course = {
 		const sql = `
 			SELECT id, name, active, json_data FROM ${tablaNombre}
 			WHERE idUser = ?
+			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []
 		
@@ -42,6 +45,23 @@ let Course = {
 		}
 		// console.log("total: ", total)
 		return Math.round((total * 100)/MAX_EVALUACION)
+	},
+	countResults: async function (idAdmin) {
+		const sql = `
+			SELECT COUNT(*) AS total FROM ${tablaNombre} AS e
+			WHERE e.idUser = ? OR e.idLextracking = ?
+		`;
+		const error = { "error": "Error al obtener usuarios" };
+		let response = 0;
+
+		try {
+			const result = await conn.query(sql, [idAdmin, idAdmin]);
+			response = Math.ceil(result[0].total / PAGE_SIZE);
+		} catch (e) {
+			console.log(e.message);
+		}
+		
+		return response > 0 ? { response } : error;
 	},
 	one: async function (id){
 		
@@ -158,8 +178,7 @@ let Course = {
 
 		return response.length > 0 ? {response: response[0]} : {error: 'Usuario y/o clave incorrecta.'};
 	},
-	courses: async function (id) {
-
+	courses: async function (id, year) {
 		const sql = `
 			SELECT 
 				users.name AS 'lead', 
@@ -169,14 +188,14 @@ let Course = {
 				evaluations.idLextracking 
 			FROM evaluations
 			INNER JOIN users ON users.idUser = evaluations.idUser
-			WHERE evaluations.idLextracking = ?
+			WHERE evaluations.idLextracking = ? AND YEAR(evaluations.dateCreated) = ?
 			GROUP BY evaluations.id
 			ORDER BY evaluations.id ASC
 		`
 		let response = []
 		
 		try {
-			response = await conn.query(sql, [parseInt(id)]);
+			response = await conn.query(sql, [parseInt(id), parseInt(year)]);
 			// console.log("response: ", response, id)
 		} catch(e){
 			console.log("e: ", e)
@@ -246,6 +265,24 @@ let Course = {
 			})
 		}
 		return {response: userCorrect}
-	}
+	},
+	getYears: async function (idAdmin) {
+		const sql = `
+			SELECT DISTINCT YEAR(dateCreated) AS 'year'
+			FROM evaluations WHERE idLextracking = ?
+		`;
+
+		let response = [];
+
+		try {
+			response = await conn.query(sql, [parseInt(idAdmin)]);
+		} catch (error) {
+			console.log(e.message);
+		}
+
+		return response.length > 0	
+			? response.map((el) => el.year)
+			: { err: 'No fue possible encuentrar evaluaciones'};
+	},
 }
 module.exports = Course;

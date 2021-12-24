@@ -22,7 +22,7 @@
       style="margin-bottom: 1rem"
     />
     <div class="courseContainer" v-if="!isLoading">
-      <table class="table">
+      <table class="table table-admin">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -83,6 +83,7 @@
               </button>
             </div>
             <div class="modal-body">
+              <Spinner v-if="isFeching" />
               <form enctype="multipart/form-data">
                 <label for="">Usuario de LexTracking</label>
                 <v-select
@@ -152,6 +153,28 @@
           </div>
         </div>
       </div>
+      <nav class="pages-nav">
+        <span
+          v-on:click="navigate('-')"
+          :class="page == 1 ? 'not-allowed' : ''"
+        >
+          Back
+        </span>
+        <span
+          :class="page == index ? 'current' : ''"
+          v-for="index in pagesLength"
+          :key="index"
+          v-on:click="navigate(index)"
+        >
+          {{ index }}
+        </span>
+        <span
+          v-on:click="navigate('+')"
+          :class="page == pagesLength ? 'not-allowed' : ''"
+        >
+          Next
+        </span>
+      </nav>
     </div>
   </div>
 </template>
@@ -176,6 +199,7 @@ export default {
       users: [],
       error: "",
       isLoading: true,
+      isFeching: false,
       searchQuery: null,
       curso: null,
       user: {
@@ -186,6 +210,8 @@ export default {
       usersLextracking: [],
       levels: [],
       careers: [],
+      pagesLength: 1,
+      page: 1,
     };
   },
   methods: {
@@ -198,10 +224,13 @@ export default {
       };
     },
     getUserById(id) {
+      this.user = { name: '', active: '1' };
+      this.isFeching = true;
       UserService().getUserById(id, (res) => {
         if (!res.error) {
           this.user = res.response;
         }
+        this.isFeching = false;
       });
     },
     actulizeUsers(usr) {
@@ -226,8 +255,6 @@ export default {
       this.user.sync = true;
       this.user.type = this.user.role || this.user.type;
 
-      this.actulizeUsers(this.user);
-
       UserService().upsertUser(this.user, (res) => {
         if (!res.error) {
           $("#staticBackdrop").modal("hide");
@@ -236,6 +263,12 @@ export default {
             type: "success",
             duration: 2000,
           });
+
+          if(this.users.length < 5) {
+            this.actulizeUsers(this.user);
+          } else {
+            this.handlePagination(this.page);
+          }
         } else {
           this.error = res.error;
         }
@@ -290,6 +323,44 @@ export default {
       console.log(this.$refs.logo.files);
       console.log(this.$refs.background.files);
     },
+    navigate(operator) {
+      if (typeof operator === 'number') {
+        this.page = operator;
+      } else {
+        operator === '+' ? this.page += 1 : this.page -= 1;
+      }
+
+      UserService().getAllUsers(this.page - 1, (res) => {
+        this.isLoading = false;
+        if (!res.error) {
+          const users = res.response;
+          this.users = users;
+        } else {
+          this.error = res.error;
+        }
+      });
+    },
+    handlePagination(page = 0) {
+      this.isLoading = true;
+      UserService().getAllUsers(page, (res) => {
+        if (!res.error) {
+          const users = res.response;
+          this.users = users;
+        } else {
+          this.error = res.error;
+        }
+      });
+
+      UserService().getPagesLength((res) => {
+        this.isLoading = false;
+        if (!res.error) {
+          this.pagesLength = res.response;
+        } else {
+          this.error = res.error;
+        }
+      });
+      this.page = page + 1 || 1;
+    },
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
@@ -304,16 +375,6 @@ export default {
       .getAll()
       .then((res) => (this.levels = res.response));
 
-    UserService().getAllUsers((res) => {
-      this.isLoading = false;
-      if (!res.error) {
-        const users = res.response;
-        this.users = users;
-      } else {
-        this.error = res.error;
-      }
-    });
-
     UserService().getAllUsersLextracking((res) => {
       this.isLoading = false;
       if (!res.error) {
@@ -323,6 +384,8 @@ export default {
         this.error = res.error;
       }
     });
+
+    this.handlePagination();
   },
   computed: {
     resultQuery() {
@@ -339,3 +402,27 @@ export default {
   },
 };
 </script>
+
+<style>
+  .pages-nav {
+    color: rgb(138, 138, 138);
+    cursor: pointer;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    width: 100%;
+  }
+  .pages-nav span:hover, .current {
+    text-decoration: underline;
+    color: black;
+  }
+  .not-allowed {
+    cursor: none;
+    opacity: 0.2;
+    pointer-events: none;
+  }
+  .table-admin {
+    min-height: 50vh;
+  }
+</style>
