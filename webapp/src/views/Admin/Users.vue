@@ -83,6 +83,7 @@
               </button>
             </div>
             <div class="modal-body">
+              <Spinner v-if="isFeching" />
               <form enctype="multipart/form-data">
                 <label for="">Usuario de LexTracking</label>
                 <v-select
@@ -198,6 +199,7 @@ export default {
       users: [],
       error: "",
       isLoading: true,
+      isFeching: false,
       searchQuery: null,
       curso: null,
       user: {
@@ -222,10 +224,13 @@ export default {
       };
     },
     getUserById(id) {
+      this.user = { name: '', active: '1' };
+      this.isFeching = true;
       UserService().getUserById(id, (res) => {
         if (!res.error) {
           this.user = res.response;
         }
+        this.isFeching = false;
       });
     },
     actulizeUsers(usr) {
