@@ -13,7 +13,7 @@ let Course = {
 		// Obtener los usuarios
 		const sql = `
 			SELECT id, name, active, json_data FROM ${tablaNombre}
-			WHERE idUser = ?
+			WHERE idUser = ? AND active = 1
 			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []
@@ -49,7 +49,7 @@ let Course = {
 	countResults: async function (idAdmin) {
 		const sql = `
 			SELECT COUNT(*) AS total FROM ${tablaNombre} AS e
-			WHERE e.idUser = ? OR e.idLextracking = ?
+			WHERE e.idUser = ? OR e.idLextracking = ? AND active = 1
 		`;
 		const error = { "error": "Error al obtener usuarios" };
 		let response = 0;
@@ -188,7 +188,7 @@ let Course = {
 				evaluations.idLextracking 
 			FROM evaluations
 			INNER JOIN users ON users.idUser = evaluations.idUser
-			WHERE evaluations.idLextracking = ? AND YEAR(evaluations.dateCreated) = ?
+			WHERE evaluations.idLextracking = ? AND YEAR(evaluations.dateCreated) = ? AND active = 1
 			GROUP BY evaluations.id
 			ORDER BY evaluations.id ASC
 		`
@@ -269,7 +269,7 @@ let Course = {
 	getYears: async function (idAdmin) {
 		const sql = `
 			SELECT DISTINCT YEAR(dateCreated) AS 'year'
-			FROM evaluations WHERE idLextracking = ?
+			FROM evaluations WHERE idLextracking = ? AND active = 1
 		`;
 
 		let response = [];

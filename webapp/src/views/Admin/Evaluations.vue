@@ -53,10 +53,6 @@
               >
                 Editar
               </button>
-
-              <button class="btn btn-danger" disabled style="opacity: 0.3">
-                Eliminar
-              </button>
             </td>
           </tr>
         </tbody>
