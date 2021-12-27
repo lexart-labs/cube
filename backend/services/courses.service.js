@@ -188,7 +188,7 @@ let Course = {
 				evaluations.idLextracking 
 			FROM evaluations
 			INNER JOIN users ON users.idUser = evaluations.idUser
-			WHERE evaluations.idLextracking = ? AND YEAR(evaluations.dateCreated) = ? AND active = 1
+			WHERE evaluations.idLextracking = ? AND YEAR(evaluations.dateCreated) = ? AND evaluations.active = 1
 			GROUP BY evaluations.id
 			ORDER BY evaluations.id ASC
 		`
