@@ -13,7 +13,7 @@ let Course = {
 		// Obtener los usuarios
 		const sql = `
 			SELECT id, name, active, json_data FROM ${tablaNombre}
-			WHERE idUser = ? AND active = 1
+			WHERE idUser = ?
 			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []
@@ -28,7 +28,9 @@ let Course = {
 					let json_data = JSON.parse(item.json_data)
 					json_data.id  = item.id
 					json_data.total = this.calcTotal(json_data.indicadores)
-					response[i] = json_data
+					response[i] = json_data;
+					// after do the parse, the json method turns 0 in 1 at active field
+					response[i].active = item.active;
 				} catch (e){}
 			})
 		}
