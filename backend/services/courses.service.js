@@ -28,7 +28,9 @@ let Course = {
 					let json_data = JSON.parse(item.json_data)
 					json_data.id  = item.id
 					json_data.total = this.calcTotal(json_data.indicadores)
-					response[i] = json_data
+					response[i] = json_data;
+					// after do the parse, the json method turns 0 in 1 at active field
+					response[i].active = item.active;
 				} catch (e){}
 			})
 		}
@@ -49,7 +51,7 @@ let Course = {
 	countResults: async function (idAdmin) {
 		const sql = `
 			SELECT COUNT(*) AS total FROM ${tablaNombre} AS e
-			WHERE e.idUser = ? OR e.idLextracking = ?
+			WHERE e.idUser = ? OR e.idLextracking = ? AND active = 1
 		`;
 		const error = { "error": "Error al obtener usuarios" };
 		let response = 0;
@@ -188,7 +190,7 @@ let Course = {
 				evaluations.idLextracking 
 			FROM evaluations
 			INNER JOIN users ON users.idUser = evaluations.idUser
-			WHERE evaluations.idLextracking = ? AND YEAR(evaluations.dateCreated) = ?
+			WHERE evaluations.idLextracking = ? AND YEAR(evaluations.dateCreated) = ? AND evaluations.active = 1
 			GROUP BY evaluations.id
 			ORDER BY evaluations.id ASC
 		`
@@ -269,7 +271,7 @@ let Course = {
 	getYears: async function (idAdmin) {
 		const sql = `
 			SELECT DISTINCT YEAR(dateCreated) AS 'year'
-			FROM evaluations WHERE idLextracking = ?
+			FROM evaluations WHERE idLextracking = ? AND active = 1
 		`;
 
 		let response = [];

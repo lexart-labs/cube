@@ -43,7 +43,7 @@
             <td>
               <b>{{ course.total }}%</b>
             </td>
-            <td>{{ course.active == 1 ? "SI" : "NO" }}</td>
+            <td>{{ course.active === 1 ? "SI" : "NO" }}</td>
             <td>
               <button
                 class="btn btn-info"
@@ -52,10 +52,6 @@
                 data-target="#staticBackdrop"
               >
                 Editar
-              </button>
-
-              <button class="btn btn-danger" disabled style="opacity: 0.3">
-                Eliminar
               </button>
             </td>
           </tr>
@@ -815,15 +811,6 @@ export default {
         operator === '+' ? this.page += 1 : this.page -= 1;
       }
 
-      // CourseService().getAllCourses(this.page - 1, (res) => {
-      //   this.isLoading = false;
-      //   if (!res.error) {
-      //     const courses = res.response;
-      //     this.courses = courses;
-      //   } else {
-      //     this.error = res.error;
-      //   }
-      // });
       this.paginate(this.page - 1);
     },
     paginate: async function (page = 0) {
