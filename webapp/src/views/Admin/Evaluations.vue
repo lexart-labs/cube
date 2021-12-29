@@ -72,7 +72,10 @@
         aria-labelledby="staticBackdropLabel"
         aria-hidden="true"
       >
-        <div class="modal-dialog modal-xl">
+        <div :class="isFeching ? 'loading-cover' : ''">
+          <Spinner v-if="isFeching" />
+        </div>
+        <div class="modal-dialog modal-xl modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
               <h4 class="courseTitle" id="staticBackdropLabel">
@@ -511,6 +514,7 @@ export default {
       MAX_POINTS: 5,
       pagesLength: 1,
       page: 1,
+      isFeching: false,
     };
   },
   methods: {
@@ -560,6 +564,7 @@ export default {
       }, 10);
     },
     getCourseById(id) {
+      this.isFeching = true;
       this.course = {
         clases: [],
         users: [],
@@ -672,6 +677,8 @@ export default {
             });
           }
         }
+
+        this.isFeching = false;
       });
     },
     upsertCourse() {

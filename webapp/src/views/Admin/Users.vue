@@ -21,6 +21,7 @@
       class="form-control"
       style="margin-bottom: 1rem"
     />
+
     <div class="courseContainer" v-if="!isLoading">
       <table class="table table-admin">
         <thead>
@@ -67,7 +68,10 @@
         aria-labelledby="staticBackdropLabel"
         aria-hidden="true"
       >
-        <div class="modal-dialog modal-lg">
+        <div :class="isFeching ? 'loading-cover' : ''">
+          <Spinner v-if="isFeching" />
+        </div>
+        <div class="modal-dialog modal-lg modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
               <h4 class="courseTitle" id="staticBackdropLabel">
@@ -83,7 +87,6 @@
               </button>
             </div>
             <div class="modal-body">
-              <Spinner v-if="isFeching" />
               <form enctype="multipart/form-data">
                 <label for="">Usuario de LexTracking</label>
                 <v-select
@@ -424,5 +427,17 @@ export default {
   }
   .table-admin {
     min-height: 50vh;
+  }
+  .loading-cover {
+    background-color: rgba(71, 71, 71, 0.842);
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 </style>
