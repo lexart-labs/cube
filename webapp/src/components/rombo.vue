@@ -198,6 +198,11 @@ export default {
       height: auto;
       width: 100%;
     }
+
+    #chartdiv {
+      height: auto;
+      min-height: 200px;
+    }
   }
 
 </style>
