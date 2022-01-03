@@ -1,7 +1,6 @@
 <template>
-  <div>
-    <br />
-    <h4>Vision General por año</h4>
+  <div class="ctl-card">
+    <h4>Vision general por año</h4>
     <br />
     <div id="chartdiv"></div>
   </div>
@@ -17,6 +16,11 @@ import { APP_NAME } from '../../env';
 export default {
   name: 'Rombo',
   props: ['evaluations'],
+  watch: {
+    evaluations: function(newVal, oldVal) {
+      this.setUpData();
+    }
+  },
   data() {
     return {
       graphData: [],
@@ -42,7 +46,8 @@ export default {
     getMonthHours: async function(idLextracking, year) {
       this.isLoading = true;
 
-      const ENDPOINT_BASE = 'http://localhost/lextracking/api/public/tracks-by-year';
+      // Para teste local:
+      const ENDPOINT_BASE = `http://localhost/lextracking/api/public/tracks-by-year`;
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
 
       const headers = { token };
@@ -82,9 +87,8 @@ export default {
       series.fillOpacity = 0.2;
       series.fill = am4core.color('#2bc4a7');
     },
-  },
-  async mounted() {
-    // Calculo el factor de conversion para decimal, horas / cien por ciento;
+    async setUpData() {
+      // Calculo el factor de conversion para decimal, horas / cien por ciento;
     const MAX_MONTH_HOURS_CONV_FACTOR = 200 / 100;
     const SECOND_TO_HOURS = (60 * 60);
 
@@ -142,13 +146,23 @@ export default {
     ];
 
     this.buildGraphic();
+    },
+  },
+  mounted() {
+    this.setUpData();
   },
 }
 </script>
 
 <style scoped>
   #chartdiv {
-  width: 100%;
-  height: 400px;
-}
+    width: 100%;
+    height: calc(100% - 3.9rem)
+  }
+
+  .ctl-card {
+    max-height: 100%;
+    width: 40%;
+  }
+
 </style>
