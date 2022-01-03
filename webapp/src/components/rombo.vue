@@ -23,7 +23,28 @@ export default {
   },
   data() {
     return {
-      graphData: [],
+      graphData: [
+      {
+        label: 'humanFactor',
+        value: 0
+      },
+      {
+        label: 'performance',
+        value: 0
+      },
+      {
+        label: 'ability',
+        value: 0
+      },
+      {
+        label: 'evolution',
+        value: 0
+      },
+      {
+        label: 'continuity',
+        value: 0
+      }
+    ],
       isLoading: false,
       monthlyHours: [],
     };
