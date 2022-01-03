@@ -15,7 +15,7 @@ import { APP_NAME } from '../../env';
 
 export default {
   name: 'Rombo',
-  props: ['evaluations'],
+  props: ['evaluations', 'year'],
   watch: {
     evaluations: function(newVal, oldVal) {
       this.setUpData();
@@ -47,6 +47,7 @@ export default {
     ],
       isLoading: false,
       monthlyHours: [],
+      id: JSON.parse(localStorage.getItem('_lextracking_user-lexart-cube-v1')).idLextracking,
     };
   },
   methods: {
@@ -116,15 +117,20 @@ export default {
 
 
     // Busco las horas menuales por año
-    const monthlyHours = await this.getMonthHours(19, 2021);
+    const monthlyHours = await this.getMonthHours(this.id, this.year);
   
 
     // Calculo los datos para armar el grafico
     const evolutionAvg = this.sumAll(this.evaluations, 'total') / this.evaluations.length;
-    const continuityAvg = (
+    let continuityAvg = 0;
+
+    if (monthlyHours) {
+      continuityAvg = (
         this.sumAll(monthlyHours, 'tracks') /
         (SECOND_TO_HOURS * monthlyHours.length * MAX_MONTH_HOURS_CONV_FACTOR)
-    );
+      );
+    }
+
     const humanFactorAvg = (
       this.evaluations.reduce((acc, cur) => {
         acc += this.parseEvaluation(cur,'factorHumano')
