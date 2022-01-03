@@ -185,30 +185,18 @@ export default {
 <style scoped>
   #chartdiv {
     width: 100%;
-    height: calc(100% - 3.9rem)
+    height: 400px;
   }
 
   .ctl-card {
     max-height: 100%;
-    width: 40%;
+    width: 100%;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     padding: 1rem;
   }
 
   .ctl-card:hover {
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-  }
-
-  @media (max-width: 700px) {
-    .ctl-card {
-      height: auto;
-      width: 100%;
-    }
-
-    #chartdiv {
-      height: auto;
-      min-height: 200px;
-    }
   }
 
 </style>
