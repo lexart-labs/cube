@@ -1,5 +1,10 @@
 <template>
-  <div id="chartdiv"></div>
+  <div>
+    <br />
+    <h4>Vision General por año</h4>
+    <br />
+    <div id="chartdiv"></div>
+  </div>
 </template>
 
 <script>
