@@ -91,6 +91,7 @@ export default {
       // Calculo el factor de conversion para decimal, horas / cien por ciento;
     const MAX_MONTH_HOURS_CONV_FACTOR = 200 / 100;
     const SECOND_TO_HOURS = (60 * 60);
+    const EVALUATION_LENGTH = this.evaluations.length;
 
 
     // Busco las horas menuales por año
@@ -107,19 +108,19 @@ export default {
       this.evaluations.reduce((acc, cur) => {
         acc += this.parseEvaluation(cur,'factorHumano')
         return acc;
-      }, 0)
+      }, 0) / EVALUATION_LENGTH
     );
     const performanceAvg = (
       this.evaluations.reduce((acc, cur) => {
         acc += this.parseEvaluation(cur,'desempeño')
         return acc;
-      }, 0)
+      }, 0) / EVALUATION_LENGTH
     );
     const abilityAvg = (
       this.evaluations.reduce((acc, cur) => {
         acc += this.parseEvaluation(cur,'habilidades')
         return acc;
-      }, 0)
+      }, 0) / EVALUATION_LENGTH
     );
 
     this.graphData = [
@@ -163,6 +164,13 @@ export default {
   .ctl-card {
     max-height: 100%;
     width: 40%;
+  }
+
+  @media (max-width: 700px) {
+    .ctl-card {
+      height: auto;
+      width: 100%;
+    }
   }
 
 </style>
