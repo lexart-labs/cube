@@ -53,6 +53,7 @@
           <div v-show="show === 'Dashboard'">
             <timeline />
             <graphic v-if="resources.length" :evaluations="resources" />
+            <Rombo v-if="resources.length" :evaluations="resources" />
           </div>
           <!-- General -->
           <div class="dashboard--resources" v-show="show === 'Evaluaciones'">
@@ -94,7 +95,6 @@
           </div>
         </div>
       </div>
-      <Rombo v-if="resources.length" :evaluations="resources" />
     </div>
   </div>
 </template>
