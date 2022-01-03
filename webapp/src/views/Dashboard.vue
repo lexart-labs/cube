@@ -94,6 +94,7 @@
           </div>
         </div>
       </div>
+      <Rombo v-if="resources.length" :evaluations="resources" />
     </div>
   </div>
 </template>
@@ -108,11 +109,12 @@ import Spinner from '../components/Spinner.vue';
 import Timeline from '../components/Timeline.vue';
 import Graphic from '../components/graphicEvaluation.vue';
 import EvaluationViewer from '../components/evaluationsViewer.vue';
+import Rombo from '../components/rombo.vue';
 import CourseService from '../services/course.service';
 
 export default {
   name: 'Dashboard',
-  components: { Spinner, Timeline, Graphic, EvaluationViewer },
+  components: { Spinner, Timeline, Graphic, EvaluationViewer, Rombo },
   data() {
     return {
       title: 'Dashboard',
