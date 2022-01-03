@@ -64,6 +64,8 @@ export default {
 
       let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
       valueAxis.renderer.gridType = "polygons";
+      valueAxis.min = 0;
+      valueAxis.max = 100;
 
       /* Create and configure series */
       let series = chart.series.push(new am4charts.RadarSeries());
