@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="ctl-card">
     <h4>Historico de evaluaciones</h4>
     <br />
     <div class="grafic-evaluation" ref="chartdiv2" />
@@ -89,3 +89,18 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  .ctl-card {
+    max-height: 100%;
+    width: 55%;
+  }
+
+  @media (max-width: 700px) {
+    .ctl-card {
+      height: auto;
+      width: 100%;
+    }
+  }
+
+</style>

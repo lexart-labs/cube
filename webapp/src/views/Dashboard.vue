@@ -52,8 +52,14 @@
 
           <div v-show="show === 'Dashboard'">
             <timeline />
-            <graphic v-if="resources.length" :evaluations="resources" />
-            <Rombo v-if="resources.length" :evaluations="resources" />
+            <div class="graphics-ctl">
+              <graphic v-if="resources.length" :evaluations="resources" />
+              <Rombo
+                v-if="resources.length"
+                :evaluations="resources"
+                :year="year"
+              />
+            </div>
           </div>
           <!-- General -->
           <div class="dashboard--resources" v-show="show === 'Evaluaciones'">
@@ -279,4 +285,14 @@ export default {
     width: 10vw;
     margin: 1rem 0;
   }
+
+  .graphics-ctl {
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    gap: 2rem;
+    align-content: center;
+    justify-content: center;
+  }
+
 </style>
