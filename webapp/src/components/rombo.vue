@@ -69,7 +69,7 @@ export default {
       this.isLoading = true;
 
       // Para teste local:
-      const ENDPOINT_BASE = `${API_LEXTRACKING}/public/tracks-by-year`;
+      const ENDPOINT_BASE = `${API_LEXTRACKING}public/tracks-by-year`;
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
 
       const headers = { token };
