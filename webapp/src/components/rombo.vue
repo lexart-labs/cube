@@ -53,6 +53,7 @@ export default {
   methods: {
     parseEvaluation(evaluation, key) {
       const MAX_VALUE = 5;
+      if(!evaluation.indicadores || !evaluation.indicadores[key]) return 0;
 
       const valuesArray = evaluation.indicadores[key];
       const maxTotal = valuesArray.length * MAX_VALUE;
