@@ -25,23 +25,23 @@ export default {
     return {
       graphData: [
       {
-        label: 'humanFactor',
+        label: 'Human Factor',
         value: 0
       },
       {
-        label: 'performance',
+        label: 'Performance',
         value: 0
       },
       {
-        label: 'ability',
+        label: 'Ability',
         value: 0
       },
       {
-        label: 'evolution',
+        label: 'Evolution',
         value: 0
       },
       {
-        label: 'continuity',
+        label: 'Continuity',
         value: 0
       }
     ],
@@ -153,23 +153,23 @@ export default {
 
     this.graphData = [
       {
-        label: 'humanFactor',
+        label: 'Human Factor',
         value: humanFactorAvg.toFixed(2)
       },
       {
-        label: 'performance',
+        label: 'Performance',
         value: performanceAvg.toFixed(2)
       },
       {
-        label: 'ability',
+        label: 'Ability',
         value: abilityAvg.toFixed(2)
       },
       {
-        label: 'evolution',
+        label: 'Evolution',
         value: evolutionAvg.toFixed(2)
       },
       {
-        label: 'continuity',
+        label: 'Continuity',
         value: continuityAvg.toFixed(2)
       }
     ];
