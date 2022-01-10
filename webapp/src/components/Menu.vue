@@ -12,13 +12,13 @@
         v-if="isAdmin"
         to="/app/administration/users"
         class="nav-link"
-        >Administración</router-link
+        >{{ $t("dashboard.administration")}}</router-link
       >
       <router-link
         v-bind:to="setting.token ? '/' + setting.token : '/'"
         class="nav-link"
       >
-        <small>Cerrar sesión</small>
+        <small>{{ $t("generic.exit")}}</small>
       </router-link>
       <!-- BRAND -->
       <a v-bind:href="setting.web" class="nav-link" target="_new">
