@@ -5,7 +5,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Atribuiciones</h5>
+            <h5 class="modal-title">{{ $t('generic.asignments')}}</h5>
             <button
               type="button"
               class="close"
@@ -42,6 +42,7 @@ import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 import assignments from "../data/jobAssignments";
+import translations from '../data/translate';
 import { APP_NAME, API } from "../../env";
 
 export default {
@@ -54,7 +55,7 @@ export default {
   },
   methods: {
     showJobDetails(charge) {
-      this.jobAssignments = assignments[charge];
+      this.jobAssignments = translations['en'].positionAssignments[charge];
 
       $('#myModal').modal()
     },
