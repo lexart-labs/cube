@@ -59,7 +59,7 @@
             <evaluation-viewer v-if="resources.length" :course="resources[showEvaluation]" />
             <input
               type="search"
-              placeholder="Buscar evaluaciones"
+              placeholder="Search Evaluations"
               v-model="searchQuery"
               v-if="success && resultQuery.length > 0"
               class="form-control"
@@ -109,6 +109,7 @@ import Timeline from '../components/Timeline.vue';
 import Graphic from '../components/graphicEvaluation.vue';
 import EvaluationViewer from '../components/evaluationsViewer.vue';
 import CourseService from '../services/course.service';
+import translations from '../data/translate';
 
 export default {
   name: 'Dashboard',
@@ -150,13 +151,13 @@ export default {
       UserService().upsertUser(userLextracking, (res) => {
         this.isSync = false;
         if (!res.error) {
-          Vue.toasted.show('Usuario sincronizado correctamente', {
+          Vue.toasted.show(translations['en'].dashboard.messageSync, {
             type: 'success',
             duration: 2000,
           });
 
           this.error = '';
-          this.success = 'Usuario sincronizado 👏';
+          this.success = translations['en'].dashboard.messageSyncStatus;
           // const id = localStorage.getItem(`id-${APP_NAME}`);
 
           // Obtenemos evaluaciones de un usuario
@@ -165,7 +166,7 @@ export default {
         } else {
           this.error = res.error;
 
-          Vue.toasted.show('Error al sincronizar el usuario', {
+          Vue.toasted.show(translations['en'].dashboard.messageNotSync, {
             type: 'error',
             duration: 2000,
           });
@@ -189,7 +190,7 @@ export default {
             const data = res.data.response;
             this.resources = data;
           } else {
-            Vue.toasted.show('Error no se encontró evaluaciones', {
+            Vue.toasted.show(translations['en'].dashboard.evaluationNotFound, {
               type: 'error',
               duration: 2000,
             });
@@ -246,14 +247,14 @@ export default {
         if (!res.data.error) {
           // let courses  = res.data.response;
           // this.courses = courses;
-          this.success = 'Usuario sincronizado 👏';
+          this.success = translations['en'].dashboard.messageSyncStatus;
 
           // Obtenemos evaluaciones de un usuario
           this.getYears(id);
           this.obtenerEvaluaciones(id, this.year);
         } else {
           // Si no obtengo el usuario en la base, deberíamos cargarnos
-          this.error = '¡Tu usuario no está sincronizado!';
+          this.error = translations['en'].dashboard.messageNotSyncStatus;
         }
       });
     }

@@ -1,4 +1,4 @@
-export default translations = {
+const translations = {
   es: {
     dashboard: {
       messageSyncStatus: 'Usuario sincronizado 👏',
@@ -85,6 +85,7 @@ export default translations = {
       evaluationNotFound: 'Error no reviews found',
       histogramTitle: 'Evaluation history',
       pentagramGraph: 'Overview by year',
+      searchPlaceholder: 'Search Evaluations',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
@@ -155,3 +156,5 @@ export default translations = {
   },
   pt: {},
 }
+
+export default  translations;
