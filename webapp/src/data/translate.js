@@ -8,6 +8,8 @@ const translations = {
       evaluationNotFound: 'Error no se encontró evaluaciones',
       histogramTitle: 'Historico de evaluaciones',
       pentagramGraph: 'Vision general por año',
+      searchPlaceholder: 'Buscar Evaluaciones',
+      administration: 'Administración',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -68,6 +70,8 @@ const translations = {
     generic: {
       cancel: 'Cancelar',
       save: 'Guardar',
+      date: 'Fecha',
+      edit: 'Editar',
       topic: 'Topico',
       score: 'Puntaje',
       observations: 'Observaciones',

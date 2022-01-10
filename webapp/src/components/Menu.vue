@@ -1,29 +1,38 @@
 <template>
   <div id="menu--component" class="navbar navbar-dark bg-dark">
-    <div class="row">
-      <img
-        v-if="setting.logo"
-        v-bind:src="setting.logo ? api + setting.logo : ''"
-        width="32"
-        class="brand--logo"
-      />
-      <router-link to="/app/dashboard" class="nav-link">Dashboard</router-link>
-      <router-link
-        v-if="isAdmin"
-        to="/app/administration/users"
-        class="nav-link"
-        >{{ $t("dashboard.administration")}}</router-link
-      >
-      <router-link
-        v-bind:to="setting.token ? '/' + setting.token : '/'"
-        class="nav-link"
-      >
-        <small>{{ $t("generic.exit")}}</small>
-      </router-link>
-      <!-- BRAND -->
-      <a v-bind:href="setting.web" class="nav-link" target="_new">
-        <small>{{ setting.escuela }}</small></a
-      >
+    <div class="menu">
+      <div>
+        <img
+          v-if="setting.logo"
+          v-bind:src="setting.logo ? api + setting.logo : ''"
+          width="32"
+          class="brand--logo"
+        />
+        <router-link to="/app/dashboard" class="nav-link">Dashboard</router-link>
+        <router-link
+          v-if="isAdmin"
+          to="/app/administration/users"
+          class="nav-link"
+          >{{ $t("dashboard.administration")}}</router-link
+        >
+        <router-link
+          v-bind:to="setting.token ? '/' + setting.token : '/'"
+          class="nav-link"
+        >
+          <small>{{ $t("generic.exit")}}</small>
+        </router-link>
+        <!-- BRAND -->
+        <a v-bind:href="setting.web" class="nav-link" target="_new">
+          <small>{{ setting.escuela }}</small></a
+        >
+      </div>
+      <div class="locale-changer">
+        <select v-model="$i18n.locale" class="form-control">
+          <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang.value">
+            {{ lang.label }}
+          </option>
+        </select>
+      </div>
     </div>
   </div>
 </template>
@@ -44,6 +53,10 @@ export default {
         logo: '',
       },
       api: API,
+      langs: [
+        {value:'es', label: 'español'},
+        {value:'en', label: 'english'}
+      ],
     };
   },
   methods: {},
@@ -68,3 +81,23 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  .menu {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  div:first-child {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .locale-changer {
+    justify-self: flex-end;
+  }
+</style>
