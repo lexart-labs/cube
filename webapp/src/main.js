@@ -11,12 +11,12 @@ import translations from './data/translate';
 Vue.config.productionTip = false;
 
 Vue.use(Toasted, { router });
-Vue.use(VueRouter);
 Vue.use(VueI18n);
+Vue.use(VueRouter);
 
 const i18n = new VueI18n({
   locale: 'en',
-  translations,
+  messages: translations,
 });
 
 new Vue({
