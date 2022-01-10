@@ -10,7 +10,7 @@
           </li>
           <li class="nav-item">
             <router-link to="/app/administration/evaluaciones" class="nav-link"
-              >Evaluaciones</router-link
+              >{{ $t('AdminEvaluations.evaluations') }}</router-link
             >
           </li>
         </ul>
