@@ -11,7 +11,7 @@
           v-on:click="() => setShow(aba.name)"
         >
           <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
-          {{ aba.name }}
+          {{ $t(`generic.${aba.name}`) }}
           <spinner v-if="isLoading"></spinner>
         </h4>
       </nav>
@@ -62,7 +62,7 @@
             </div>
           </div>
           <!-- General -->
-          <div class="dashboard--resources" v-show="show === 'Evaluaciones'">
+          <div class="dashboard--resources" v-show="show === 'Evaluations'">
             <evaluation-viewer v-if="resources.length" :course="resources[showEvaluation]" />
             <input
               type="search"
@@ -135,7 +135,7 @@
         abas: [
           { name: 'Dashboard', class: 'bi bi-clipboard-data', hasIcon: true },
           {
-            name: 'Evaluaciones',
+            name: 'Evaluations',
             class: 'bi bi-calendar-check-fill',
             hasIcon: true,
           },

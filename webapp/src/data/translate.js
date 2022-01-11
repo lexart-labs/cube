@@ -97,6 +97,11 @@ const translations = {
       ],
       asignments: 'Atribuiciones',
       searchPlaceholderEvaluations: 'Buscar evaluaciones',
+      Evaluations: 'Evaluaciones',
+      Dashboard: 'Dashboard',
+      performance: 'Desempeño',
+      humanFactor: 'Factor humano',
+      skills: 'Habilidades',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -282,6 +287,11 @@ const translations = {
       ],
       asignments: 'Asignments',
       searchPlaceholderEvaluations: 'Search evaluations',
+      Evaluations: 'Evaluations',
+      Dashboard: 'Dashboard',
+      performance: 'Performance',
+      humanFactor: 'Human Factor',
+      skills: 'Skills',
     },
     positionAssignments: {
       'EntryLevel Developer': [

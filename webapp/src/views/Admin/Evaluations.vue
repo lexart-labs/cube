@@ -107,7 +107,7 @@
                     class="nav-link"
                     v-bind:class="{ active: tabs[tab.tab] }"
                     v-on:click="activeTab(tab.tab)"
-                    >{{ tab.name }}</a
+                    >{{ $t(`generic.${tab.name}`) }}</a
                   >
                 </li>
               </ul>
@@ -490,9 +490,9 @@ export default {
         examenes: false,
       },
       tabItems: [
-        { name: translations[this.$store.state.language].AdminEvaluations.abaPerformance, tab: 'clases' },
-        { name: translations[this.$store.state.language].AdminEvaluations.abaHumanFactor, tab: 'pagos' },
-        { name: translations[this.$store.state.language].AdminEvaluations.abaSkills, tab: 'evaluaciones' },
+        { name: 'performance', tab: 'clases' },
+        { name: 'humanFactor', tab: 'pagos' },
+        { name: 'skills', tab: 'evaluaciones' },
       ],
       clase: {},
       claseAsiste: {},
