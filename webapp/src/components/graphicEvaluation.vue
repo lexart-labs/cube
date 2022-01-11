@@ -15,10 +15,19 @@ import translations from '../data/translate';
 export default {
   name: "Graphic",
   props: ["evaluations"],
+  data() {
+    return {
+      months: translations[this.$store.state.language].generic.months,
+    };
+  },
   watch: {
     evaluations: function(newVal, oldVal) {
       this.createGraphic();
-    }
+    },
+    '$store.state.language': function(newVal, oldVal) {
+      this.months = translations[this.$store.state.language].generic.months;
+      this.createGraphic();
+    },
   },
   methods: {
     createGraphic() {
@@ -28,7 +37,7 @@ export default {
       const generateData = (array) =>
         array.reduce((acc, cur) => {
           const docTemplate = {
-            x: translations[this.$store.state.language].generic.months[new Date(cur.fecha).getMonth()],
+            x: this.months[new Date(cur.fecha).getMonth()],
             y: cur.total,
             text: `${cur.total} %`,
           };

@@ -145,6 +145,13 @@
         years: [],
       };
     },
+    watch: {
+      '$store.state.language': function(newVal, oldVal) {
+        this.success = this.success
+          ? translations[this.$store.state.language].dashboard.messageSyncStatus
+          : translations[this.$store.state.language].dashboard.messageNotSync;
+      },
+    },
     methods: {
       syncUsuario() {
         // Obtener los datos del lextracking
@@ -173,7 +180,7 @@
           } else {
             this.error = res.error;
 
-            Vue.toasted.show('Error al sincronizar el usuario', {
+            Vue.toasted.show(translations[this.$store.state.language].dashboard.messageNotSync, {
               type: 'error',
               duration: 2000,
             });
