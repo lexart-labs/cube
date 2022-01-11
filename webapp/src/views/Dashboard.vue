@@ -151,13 +151,13 @@ export default {
       UserService().upsertUser(userLextracking, (res) => {
         this.isSync = false;
         if (!res.error) {
-          Vue.toasted.show(translations['en'].dashboard.messageSync, {
+          Vue.toasted.show(translations[this.$store.state.language].dashboard.messageSync, {
             type: 'success',
             duration: 2000,
           });
 
           this.error = '';
-          this.success = translations['en'].dashboard.messageSyncStatus;
+          this.success = translations[this.$store.state.language].dashboard.messageSyncStatus;
           // const id = localStorage.getItem(`id-${APP_NAME}`);
 
           // Obtenemos evaluaciones de un usuario
@@ -166,7 +166,7 @@ export default {
         } else {
           this.error = res.error;
 
-          Vue.toasted.show(translations['en'].dashboard.messageNotSync, {
+          Vue.toasted.show(translations[this.$store.state.language].dashboard.messageNotSync, {
             type: 'error',
             duration: 2000,
           });
@@ -190,7 +190,7 @@ export default {
             const data = res.data.response;
             this.resources = data;
           } else {
-            Vue.toasted.show(translations['en'].dashboard.evaluationNotFound, {
+            Vue.toasted.show(translations[this.$store.state.language].dashboard.evaluationNotFound, {
               type: 'error',
               duration: 2000,
             });
@@ -247,14 +247,14 @@ export default {
         if (!res.data.error) {
           // let courses  = res.data.response;
           // this.courses = courses;
-          this.success = translations['en'].dashboard.messageSyncStatus;
+          this.success = translations[this.$store.state.language].dashboard.messageSyncStatus;
 
           // Obtenemos evaluaciones de un usuario
           this.getYears(id);
           this.obtenerEvaluaciones(id, this.year);
         } else {
           // Si no obtengo el usuario en la base, deberíamos cargarnos
-          this.error = translations['en'].dashboard.messageNotSyncStatus;
+          this.error = translations[this.$store.state.language].dashboard.messageNotSyncStatus;
         }
       });
     }

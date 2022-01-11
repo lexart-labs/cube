@@ -490,9 +490,9 @@ export default {
         examenes: false,
       },
       tabItems: [
-        { name: translations['en'].AdminEvaluations.abaPerformance, tab: 'clases' },
-        { name: translations['en'].AdminEvaluations.abaHumanFactor, tab: 'pagos' },
-        { name: translations['en'].AdminEvaluations.abaSkills, tab: 'evaluaciones' },
+        { name: translations[this.$store.state.language].AdminEvaluations.abaPerformance, tab: 'clases' },
+        { name: translations[this.$store.state.language].AdminEvaluations.abaHumanFactor, tab: 'pagos' },
+        { name: translations[this.$store.state.language].AdminEvaluations.abaSkills, tab: 'evaluaciones' },
       ],
       clase: {},
       claseAsiste: {},

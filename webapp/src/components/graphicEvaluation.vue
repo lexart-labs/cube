@@ -28,7 +28,7 @@ export default {
       const generateData = (array) =>
         array.reduce((acc, cur) => {
           const docTemplate = {
-            x: translations['en'].generic.months[new Date(cur.fecha).getMonth()],
+            x: translations[this.$store.state.language].generic.months[new Date(cur.fecha).getMonth()],
             y: cur.total,
             text: `${cur.total} %`,
           };

@@ -55,7 +55,7 @@ export default {
   },
   methods: {
     showJobDetails(charge) {
-      this.jobAssignments = translations['en'].positionAssignments[charge];
+      this.jobAssignments = translations[this.$store.state.language].positionAssignments[charge];
 
       $('#myModal').modal()
     },

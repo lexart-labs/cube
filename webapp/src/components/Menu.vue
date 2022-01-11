@@ -27,7 +27,7 @@
         >
       </div>
       <div class="locale-changer">
-        <select v-model="$i18n.locale" class="form-control">
+        <select v-model="$i18n.locale" class="form-control form-control-sm">
           <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang.value">
             {{ lang.label }}
           </option>
