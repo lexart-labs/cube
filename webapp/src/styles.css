@@ -3,6 +3,11 @@
   #app--component {
     margin-bottom: 5rem;
   }
+
+  html {
+    overflow: -moz-scrollbars-vertical; 
+    overflow-y: scroll;
+  }
   /* Componente: Login form */
   #login--form {
     height: 100vh;

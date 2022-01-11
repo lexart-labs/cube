@@ -37,7 +37,6 @@
             </div>
           </div>
 
-          <!-- Select year filter here -->
           <div class="left-select">
             <select id="year-filter" class="form-control" v-model="year" v-on:change="obtenerEvaluaciones">
               <option
@@ -49,53 +48,58 @@
               </option>
             </select>
           </div>
-
-          <div v-show="show === 'Dashboard'">
-            <timeline />
-            <div class="graphics-ctl">
-              <graphic v-if="resources.length" :evaluations="resources" />
-              <Rombo
-                v-if="resources.length"
-                :evaluations="resources"
-                :year="year"
-              />
-            </div>
+          
+          <div v-show="isFetching" class="spinner-border text-info window-centered" role="status">
+            <span class="sr-only">Loading...</span>
           </div>
-          <!-- General -->
-          <div class="dashboard--resources" v-show="show === 'Evaluations'">
-            <evaluation-viewer v-if="resources.length" :course="resources[showEvaluation]" />
-            <input
-              type="search"
-              :placeholder="$t('generic.searchPlaceholderEvaluations')"
-              v-model="searchQuery"
-              v-if="success && resultQuery.length > 0"
-              class="form-control"
-              style="margin-bottom: 1rem"
-            />
-            <div class="courseContainer" v-if="!isLoading"></div>
-            <div
-              class="alert alert-primary"
-              :key="`resource${index}`"
-              data-toggle="modal"
-              data-target="#staticBackdrop"
-              role="alert"
-              v-show="success && resultQuery.length > 0"
-              v-for="(resource, index) in resultQuery"
-              v-on:click="() => { showEvaluation = index }"
-            >
-              <div>
-                <p>
-                  <i class="bi bi-calendar-check-fill"></i> {{ resource.name }}
-                </p>
-                <p class="smallText">
-                  <b>Tech Lead:</b> {{ resource.lead }} -
-                  {{ formatDate(resource.fecha) }}
-                </p>
-                <hr />
-                <p class="smallText" v-html="resource.observaciones"></p>
+          <div v-show="!isFetching">
+            <div v-show="show === 'Dashboard'">
+              <timeline />
+              <div class="graphics-ctl">
+                <graphic v-if="resources.length" :evaluations="resources" />
+                <Rombo
+                  v-if="resources.length"
+                  :evaluations="resources"
+                  :year="year"
+                />
               </div>
-              <div class="text-right">
-                <b>{{ resource.total }}%</b>
+            </div>
+            <!-- General -->
+            <div class="dashboard--resources" v-show="show === 'Evaluations'">
+              <evaluation-viewer v-if="resources.length" :course="resources[showEvaluation]" />
+              <input
+                type="search"
+                :placeholder="$t('generic.searchPlaceholderEvaluations')"
+                v-model="searchQuery"
+                v-if="success && resultQuery.length > 0"
+                class="form-control"
+                style="margin-bottom: 1rem"
+              />
+              <div class="courseContainer" v-if="!isLoading"></div>
+              <div
+                class="alert alert-primary"
+                :key="`resource${index}`"
+                data-toggle="modal"
+                data-target="#staticBackdrop"
+                role="alert"
+                v-show="success && resultQuery.length > 0"
+                v-for="(resource, index) in resultQuery"
+                v-on:click="() => { showEvaluation = index }"
+              >
+                <div>
+                  <p>
+                    <i class="bi bi-calendar-check-fill"></i> {{ resource.name }}
+                  </p>
+                  <p class="smallText">
+                    <b>Tech Lead:</b> {{ resource.lead }} -
+                    {{ formatDate(resource.fecha) }}
+                  </p>
+                  <hr />
+                  <p class="smallText" v-html="resource.observaciones"></p>
+                </div>
+                <div class="text-right">
+                  <b>{{ resource.total }}%</b>
+                </div>
               </div>
             </div>
           </div>
@@ -126,6 +130,7 @@
         title: 'Dashboard',
         courses: [],
         isLoading: true,
+        isFetching: false,
         isSync: false,
         searchQuery: null,
         error: '',
@@ -188,6 +193,8 @@
         });
       },
       obtenerEvaluaciones() {
+        this.isFetching = true;
+
         const id = localStorage.getItem(`id-${APP_NAME}`);
         const token = localStorage.getItem(`token-app-${APP_NAME}`);
         const userId = localStorage.getItem(`id-${APP_NAME}`);
@@ -199,11 +206,12 @@
         axios
           .get(`${API}courses/by-user/${id}?year=${this.year}`, { headers })
           .then((res) => {
-            this.isLoading = false;
+            this.isFetching = false;
             if (!res.data.error) {
               const data = res.data.response;
               this.resources = data;
             } else {
+              this.isFetching = false;
               Vue.toasted.show(translations[this.$store.state.language].dashboard.evaluationNotFound, {
                 type: 'error',
                 duration: 2000,
@@ -290,7 +298,7 @@
 <style scoped>
   .left-select{
     width: 10vw;
-    margin: 1rem 0;
+    margin: 1rem 0rem;
   }
 
   .graphics-ctl {
@@ -300,6 +308,12 @@
     gap: 2rem;
     align-content: center;
     justify-content: center;
+  }
+
+  .window-centered {
+    position: fixed;
+    top: 50%;
+    left: 50%;
   }
 
 </style>
