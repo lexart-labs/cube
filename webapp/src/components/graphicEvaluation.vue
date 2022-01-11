@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="ctl-card">
     <h4>{{ $t('dashboard.pentagramGraph') }}</h4>
     <br />
     <div class="grafic-evaluation" ref="chartdiv2" />
@@ -75,3 +75,17 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  .ctl-card {
+    max-height: 100%;
+    width: 100%;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    padding: 1rem;
+  }
+
+  .ctl-card:hover {
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  }
+
+</style>

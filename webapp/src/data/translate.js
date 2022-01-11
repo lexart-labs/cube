@@ -10,6 +10,7 @@ const translations = {
       pentagramGraph: 'Vision general por año',
       searchPlaceholder: 'Buscar Evaluaciones',
       administration: 'Administración',
+      romboTitle: 'Vision general por año',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -193,6 +194,7 @@ const translations = {
       pentagramGraph: 'Overview by year',
       searchPlaceholder: 'Search Evaluations',
       administration: 'Administration',
+      romboTitle: 'Overview by year',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
