@@ -29,7 +29,12 @@ const store = new Vuex.Store({
     SET_LANGUAGE (state, lang) {
       state.language = lang;
     }
-  }
+  },
+  actions: {
+    changeLang({ commit }, lang) {
+      commit('SET_LANGUAGE', lang);
+    },
+  },
 });
 
 new Vue({

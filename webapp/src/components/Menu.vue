@@ -27,7 +27,11 @@
         >
       </div>
       <div class="locale-changer">
-        <select v-model="$i18n.locale" class="form-control form-control-sm">
+        <select
+          v-model="$i18n.locale"
+          class="form-control form-control-sm"
+          v-on:change="changeLangOnState"
+        >
           <option v-for="(lang, i) in langs" :key="`Lang${i}`" :value="lang.value">
             {{ lang.label }}
           </option>
@@ -59,7 +63,12 @@ export default {
       ],
     };
   },
-  methods: {},
+  methods: {
+    changeLangOnState(e) {
+      const lang = e.target.value;
+      this.$store.dispatch('changeLang', lang);
+    },
+  },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
     try {
