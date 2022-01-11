@@ -27,7 +27,7 @@
                 v-on:click="syncUsuario()"
                 v-bind:disabled="isSync"
               >
-                Sync del usuario
+                Sync user
               </button>
             </div>
           </div>
@@ -66,7 +66,7 @@
             <evaluation-viewer v-if="resources.length" :course="resources[showEvaluation]" />
             <input
               type="search"
-              placeholder="Search Evaluations"
+              :placeholder="$t('generic.searchPlaceholderEvaluations')"
               v-model="searchQuery"
               v-if="success && resultQuery.length > 0"
               class="form-control"

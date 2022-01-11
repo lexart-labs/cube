@@ -96,6 +96,7 @@ const translations = {
         "Diciembre",
       ],
       asignments: 'Atribuiciones',
+      searchPlaceholderEvaluations: 'Buscar evaluaciones',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -280,6 +281,7 @@ const translations = {
         "December",
       ],
       asignments: 'Asignments',
+      searchPlaceholderEvaluations: 'Search evaluations',
     },
     positionAssignments: {
       'EntryLevel Developer': [

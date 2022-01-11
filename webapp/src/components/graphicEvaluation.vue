@@ -1,6 +1,6 @@
 <template>
   <div class="ctl-card">
-    <h4>{{ $t('dashboard.pentagramGraph') }}</h4>
+    <h4>{{ $t('dashboard.histogramTitle') }}</h4>
     <br />
     <div class="grafic-evaluation" ref="chartdiv2" />
   </div>
