@@ -1,7 +1,7 @@
 <template>
   <div id="users--component" style="margin-top: 1rem">
     <h4 class="courseTitle">
-      <span>{{ title }}</span>
+      <span>{{ $t('AdminUsers.title') }}</span>
       <spinner v-if="isLoading"></spinner>
       <button
         type="button"

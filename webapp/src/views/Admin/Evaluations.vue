@@ -1,7 +1,7 @@
 <template>
   <div id="courses--component" style="margin-top: 1rem">
     <h4 class="courseTitle">
-      {{ title }}
+      {{ $t('AdminEvaluations.title') }}
       <spinner v-if="isLoading"></spinner>
       <button
         type="button"
