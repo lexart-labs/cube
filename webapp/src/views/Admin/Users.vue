@@ -149,8 +149,9 @@
                 type="button"
                 class="btn btn-success"
                 v-on:click="upsertUser"
+                :disabled="isLoading"
               >
-                {{$t('generic.save')}}
+                {{ isLoading ? 'Loading...' : $t('generic.save') }}
               </button>
             </div>
           </div>

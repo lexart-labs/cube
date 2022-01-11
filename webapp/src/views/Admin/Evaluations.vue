@@ -294,8 +294,9 @@
                 type="button"
                 class="btn btn-success"
                 v-on:click="upsertCourse"
+                :disabled="isLoading"
               >
-                {{$t('generic.save')}}
+                {{ isLoading? 'Loading...' : $t('generic.save') }}
               </button>
             </div>
           </div>
@@ -456,7 +457,6 @@ import CourseService from '../../services/course.service';
 import UserService from '../../services/user.service';
 import { APP_NAME } from '../../../env';
 import Indicadores from '../../data/indicadores';
-import translations from '../../data/translate';
 
 export default {
   name: 'EvaluationsAdmin',
