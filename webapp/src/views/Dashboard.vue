@@ -11,7 +11,7 @@
           v-on:click="() => setShow(aba.name)"
         >
           <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
-          {{ aba.name }}
+          {{ $t(`generic.${aba.name}`) }}
           <spinner v-if="isLoading"></spinner>
         </h4>
       </nav>
@@ -27,7 +27,7 @@
                 v-on:click="syncUsuario()"
                 v-bind:disabled="isSync"
               >
-                Sync del usuario
+                Sync user
               </button>
             </div>
           </div>
@@ -52,14 +52,21 @@
 
           <div v-show="show === 'Dashboard'">
             <timeline />
-            <graphic v-if="resources.length" :evaluations="resources" />
+            <div class="graphics-ctl">
+              <graphic v-if="resources.length" :evaluations="resources" />
+              <Rombo
+                v-if="resources.length"
+                :evaluations="resources"
+                :year="year"
+              />
+            </div>
           </div>
           <!-- General -->
-          <div class="dashboard--resources" v-show="show === 'Evaluaciones'">
+          <div class="dashboard--resources" v-show="show === 'Evaluations'">
             <evaluation-viewer v-if="resources.length" :course="resources[showEvaluation]" />
             <input
               type="search"
-              placeholder="Buscar evaluaciones"
+              :placeholder="$t('generic.searchPlaceholderEvaluations')"
               v-model="searchQuery"
               v-if="success && resultQuery.length > 0"
               class="form-control"
@@ -99,177 +106,185 @@
 </template>
 
 <script>
-import axios from 'axios';
-import Vue from 'vue';
-import { API, APP_NAME } from '../../env';
-import UserService from '../services/user.service';
-import { verifyToken } from '../services/helpers';
-import Spinner from '../components/Spinner.vue';
-import Timeline from '../components/Timeline.vue';
-import Graphic from '../components/graphicEvaluation.vue';
-import EvaluationViewer from '../components/evaluationsViewer.vue';
-import CourseService from '../services/course.service';
+  import axios from 'axios';
+  import Vue from 'vue';
+  import { API, APP_NAME } from '../../env';
+  import UserService from '../services/user.service';
+  import { verifyToken } from '../services/helpers';
+  import Spinner from '../components/Spinner.vue';
+  import Timeline from '../components/Timeline.vue';
+  import Graphic from '../components/graphicEvaluation.vue';
+  import EvaluationViewer from '../components/evaluationsViewer.vue';
+  import Rombo from '../components/rombo.vue';
+  import translations from '../data/translate';
 
-export default {
-  name: 'Dashboard',
-  components: { Spinner, Timeline, Graphic, EvaluationViewer },
-  data() {
-    return {
-      title: 'Dashboard',
-      courses: [],
-      isLoading: true,
-      isSync: false,
-      searchQuery: null,
-      error: '',
-      success: '',
-      resources: [],
-      show: 'Dashboard',
-      abas: [
-        { name: 'Dashboard', class: 'bi bi-clipboard-data', hasIcon: true },
-        {
-          name: 'Evaluaciones',
-          class: 'bi bi-calendar-check-fill',
-          hasIcon: true,
-        },
-      ],
-      showEvaluation: 0,
-      year: new Date().getFullYear(),
-      years: [],
-    };
-  },
-  methods: {
-    syncUsuario() {
-      // Obtener los datos del lextracking
-      const userLextracking = JSON.parse(
-        localStorage.getItem(`_lextracking_user-${APP_NAME}`),
-      );
-      userLextracking.type = userLextracking.role;
-      userLextracking.sync = !(userLextracking.cubeExist && userLextracking.cubeExist === true);
-
-      this.isSync = true;
-      UserService().upsertUser(userLextracking, (res) => {
-        this.isSync = false;
-        if (!res.error) {
-          Vue.toasted.show('Usuario sincronizado correctamente', {
-            type: 'success',
-            duration: 2000,
-          });
-
-          this.error = '';
-          this.success = 'Usuario sincronizado 👏';
-          // const id = localStorage.getItem(`id-${APP_NAME}`);
-
-          // Obtenemos evaluaciones de un usuario
-          // this.obtenerEvaluaciones(id)
-          window.location.reload();
-        } else {
-          this.error = res.error;
-
-          Vue.toasted.show('Error al sincronizar el usuario', {
-            type: 'error',
-            duration: 2000,
-          });
-        }
-      });
-    },
-    obtenerEvaluaciones() {
-      const id = localStorage.getItem(`id-${APP_NAME}`);
-      const token = localStorage.getItem(`token-app-${APP_NAME}`);
-      const userId = localStorage.getItem(`id-${APP_NAME}`);
-
-      const headers = {
-        token,
-        'user-id': userId,
+  export default {
+    name: 'Dashboard',
+    components: { Spinner, Timeline, Graphic, EvaluationViewer, Rombo },
+    data() {
+      return {
+        title: 'Dashboard',
+        courses: [],
+        isLoading: true,
+        isSync: false,
+        searchQuery: null,
+        error: '',
+        success: '',
+        resources: [],
+        show: 'Dashboard',
+        abas: [
+          { name: 'Dashboard', class: 'bi bi-clipboard-data', hasIcon: true },
+          {
+            name: 'Evaluations',
+            class: 'bi bi-calendar-check-fill',
+            hasIcon: true,
+          },
+        ],
+        showEvaluation: 0,
+        year: new Date().getFullYear(),
+        years: [],
       };
-      axios
-        .get(`${API}courses/by-user/${id}?year=${this.year}`, { headers })
-        .then((res) => {
-          this.isLoading = false;
-          if (!res.data.error) {
-            const data = res.data.response;
-            this.resources = data;
+    },
+    watch: {
+      '$store.state.language': function(newVal, oldVal) {
+        this.success = this.success
+          ? translations[this.$store.state.language].dashboard.messageSyncStatus
+          : translations[this.$store.state.language].dashboard.messageNotSync;
+      },
+    },
+    methods: {
+      syncUsuario() {
+        // Obtener los datos del lextracking
+        const userLextracking = JSON.parse(
+          localStorage.getItem(`_lextracking_user-${APP_NAME}`),
+        );
+        userLextracking.type = userLextracking.role;
+        userLextracking.sync = !(userLextracking.cubeExist && userLextracking.cubeExist === true);
+
+        this.isSync = true;
+        UserService().upsertUser(userLextracking, (res) => {
+          this.isSync = false;
+          if (!res.error) {
+            Vue.toasted.show(translations[this.$store.state.language].dashboard.messageSync, {
+              type: 'success',
+              duration: 2000,
+            });
+
+            this.error = '';
+            this.success = translations[this.$store.state.language].dashboard.messageSyncStatus;
+            // const id = localStorage.getItem(`id-${APP_NAME}`);
+
+            // Obtenemos evaluaciones de un usuario
+            // this.obtenerEvaluaciones(id)
+            window.location.reload();
           } else {
-            Vue.toasted.show('Error no se encontró evaluaciones', {
+            this.error = res.error;
+
+            Vue.toasted.show(translations[this.$store.state.language].dashboard.messageNotSync, {
               type: 'error',
               duration: 2000,
             });
           }
         });
-    },
-    formatDate(date) {
-      // Format SQL to UY date
-      const newDate = date.split('T');
-      // 0 index correspond to raw date after split
-      let uyDate = newDate[0].split('-');
-      // 2 index - year
-      // 1 index - month
-      // 0 index - day
-      uyDate = `${uyDate[2]}/${uyDate[1]}/${uyDate[0]}`;
-      // sum full year UY format with hour after split - index 0
-      uyDate = `${uyDate} ${newDate[1]}`;
+      },
+      obtenerEvaluaciones() {
+        const id = localStorage.getItem(`id-${APP_NAME}`);
+        const token = localStorage.getItem(`token-app-${APP_NAME}`);
+        const userId = localStorage.getItem(`id-${APP_NAME}`);
 
-      return uyDate;
+        const headers = {
+          token,
+          'user-id': userId,
+        };
+        axios
+          .get(`${API}courses/by-user/${id}?year=${this.year}`, { headers })
+          .then((res) => {
+            this.isLoading = false;
+            if (!res.data.error) {
+              const data = res.data.response;
+              this.resources = data;
+            } else {
+              Vue.toasted.show(translations[this.$store.state.language].dashboard.evaluationNotFound, {
+                type: 'error',
+                duration: 2000,
+              });
+            }
+          });
+      },
+      formatDate(date) {
+        // Format SQL to UY date
+        const newDate = date.split('T');
+        // 0 index correspond to raw date after split
+        let uyDate = newDate[0].split('-');
+        // 2 index - year
+        // 1 index - month
+        // 0 index - day
+        uyDate = `${uyDate[2]}/${uyDate[1]}/${uyDate[0]}`;
+        // sum full year UY format with hour after split - index 0
+        uyDate = `${uyDate} ${newDate[1]}`;
+
+        return uyDate;
+      },
+      setShow(abaName) {
+        this.show = abaName;
+      },
+      getYears: async function(id) {
+        const token = localStorage.getItem(`token-app-${APP_NAME}`);
+        const userId = localStorage.getItem(`id-${APP_NAME}`);
+
+        const headers = {
+          token,
+          'user-id': userId,
+        };
+
+        const {data} = await axios.get(`${API}courses/years/${id}`, { headers });
+        this.years = data;
+      },
     },
-    setShow(abaName) {
-      this.show = abaName;
-    },
-    getYears: async function(id) {
+    mounted() {
+      const id = localStorage.getItem(`id-${APP_NAME}`);
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
+
+      // Verifico el token
+      verifyToken(token);
 
       const headers = {
         token,
         'user-id': userId,
       };
 
-      const {data} = await axios.get(`${API}courses/years/${id}`, { headers });
-      this.years = data;
-    },
-  },
-  mounted() {
-    const id = localStorage.getItem(`id-${APP_NAME}`);
-    const token = localStorage.getItem(`token-app-${APP_NAME}`);
-    const userId = localStorage.getItem(`id-${APP_NAME}`);
+      if (id) {
+        axios.get(`${API}users/${id}`, { headers }).then((res) => {
+          this.isLoading = false;
 
-    // Verifico el token
-    verifyToken(token);
+          if (!res.data.error) {
+            // let courses  = res.data.response;
+            // this.courses = courses;
+            this.success = translations[this.$store.state.language].dashboard.messageSyncStatus;
 
-    const headers = {
-      token,
-      'user-id': userId,
-    };
-
-    if (id) {
-      axios.get(`${API}users/${id}`, { headers }).then((res) => {
-        this.isLoading = false;
-
-        if (!res.data.error) {
-          // let courses  = res.data.response;
-          // this.courses = courses;
-          this.success = 'Usuario sincronizado 👏';
-
-          // Obtenemos evaluaciones de un usuario
-          this.getYears(id);
-          this.obtenerEvaluaciones(id, this.year);
-        } else {
-          // Si no obtengo el usuario en la base, deberíamos cargarnos
-          this.error = '¡Tu usuario no está sincronizado!';
-        }
-      });
-    }
-  },
-  computed: {
-    resultQuery() {
-      if (this.searchQuery) {
-        return this.resources.filter((item) => this.searchQuery
-          .toLowerCase()
-          .split(' ')
-          .every((v) => item.name.toLowerCase().includes(v)));
+            // Obtenemos evaluaciones de un usuario
+            this.getYears(id);
+            this.obtenerEvaluaciones(id, this.year);
+          } else {
+            // Si no obtengo el usuario en la base, deberíamos cargarnos
+            this.error = translations[this.$store.state.language].dashboard.messageNotSyncStatus;
+          }
+        });
       }
-      return this.resources;
     },
-  },
-};
+    computed: {
+      resultQuery() {
+        if (this.searchQuery) {
+          return this.resources.filter((item) => this.searchQuery
+            .toLowerCase()
+            .split(' ')
+            .every((v) => item.name.toLowerCase().includes(v)));
+        }
+        return this.resources;
+      },
+    },
+  };
 </script>
 
 <style scoped>
@@ -277,4 +292,14 @@ export default {
     width: 10vw;
     margin: 1rem 0;
   }
+
+  .graphics-ctl {
+    width: 100%;
+    display: flex;
+    flex-flow: column;
+    gap: 2rem;
+    align-content: center;
+    justify-content: center;
+  }
+
 </style>

@@ -1,4 +1,8 @@
 @media all {
+  /* general */
+  #app--component {
+    margin-bottom: 5rem;
+  }
   /* Componente: Login form */
   #login--form {
     height: 100vh;

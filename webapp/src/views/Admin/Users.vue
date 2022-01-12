@@ -1,7 +1,7 @@
 <template>
   <div id="users--component" style="margin-top: 1rem">
     <h4 class="courseTitle">
-      <span>{{ title }}</span>
+      <span>{{ $t('AdminUsers.title') }}</span>
       <spinner v-if="isLoading"></spinner>
       <button
         type="button"
@@ -16,21 +16,22 @@
     </h4>
     <input
       type="search"
-      placeholder="Buscar developers"
+      :placeholder="$t('AdminUsers.searchPlaceholder')"
       v-model="searchQuery"
       class="form-control"
       style="margin-bottom: 1rem"
     />
+
     <div class="courseContainer" v-if="!isLoading">
       <table class="table table-admin">
         <thead>
           <tr>
-            <th>Nombre</th>
+            <th>{{ $t('AdminUsers.columnName') }}</th>
             <th>Email</th>
-            <th>Tipo</th>
-            <th>Cargo</th>
-            <th>Nível</th>
-            <th>Activo</th>
+            <th>{{$t('AdminUsers.columnType')}}</th>
+            <th>{{$t('AdminUsers.columnCharge')}}</th>
+            <th>{{$t('AdminUsers.columnLevel')}}</th>
+            <th>{{$t('AdminUsers.columnActive')}}</th>
             <th></th>
           </tr>
         </thead>
@@ -41,7 +42,7 @@
             <td>{{ user.type }}</td>
             <td>{{ user.position }}</td>
             <td>{{ user.level }}</td>
-            <td>{{ user.active == 1 ? "SI" : "NO" }}</td>
+            <td>{{ user.active == 1 ? $t('generic.yes') : $t('generic.no') }}</td>
             <td>
               <!-- Trigger modal -->
               <button
@@ -50,7 +51,7 @@
                 data-target="#staticBackdrop"
                 v-on:click="getUserById(user.idLextracking)"
               >
-                Editar
+                {{ $t('generic.edit')}}
               </button>
             </td>
           </tr>
@@ -67,11 +68,14 @@
         aria-labelledby="staticBackdropLabel"
         aria-hidden="true"
       >
-        <div class="modal-dialog modal-lg">
+        <div :class="isFeching ? 'loading-cover' : ''">
+          <Spinner v-if="isFeching" />
+        </div>
+        <div class="modal-dialog modal-lg modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
               <h4 class="courseTitle" id="staticBackdropLabel">
-                Usuario {{ user.id ? "#" + user.id : "" }}
+                User {{ user.id ? "#" + user.id : "" }}
               </h4>
               <button
                 type="button"
@@ -83,9 +87,8 @@
               </button>
             </div>
             <div class="modal-body">
-              <Spinner v-if="isFeching" />
               <form enctype="multipart/form-data">
-                <label for="">Usuario de LexTracking</label>
+                <label for="">LexTracking user</label>
                 <v-select
                   v-model="user"
                   label="name"
@@ -94,7 +97,7 @@
                 <br />
                 <div class="row">
                   <div class="col">
-                    <label for="career">Cargo</label>
+                    <label for="career">{{ $t('AdminUsers.columnCharge')}}</label>
                     <select class="form-control" v-model="user.positionId" id="career">
                       <option
                         v-for="(career, i) in careers"
@@ -107,7 +110,7 @@
                     </select>
                   </div>
                   <div class="col">
-                    <label for="lvl">Nível</label>
+                    <label for="lvl">{{ $t('AdminUsers.columnLevel')}}</label>
                     <select class="form-control" v-model="user.levelId" id="lvl">
                       <option
                         v-for="(level, i) in levels"
@@ -122,8 +125,8 @@
                 </div>
                 <br />
                 <select class="form-control" v-model="user.active">
-                  <option value="1">Activo</option>
-                  <option value="0">Inactivo</option>
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
                 </select>
               </form>
               <div
@@ -140,14 +143,14 @@
                 class="btn btn-secondary"
                 data-dismiss="modal"
               >
-                Cancelar
+                {{$t('generic.cancel')}}
               </button>
               <button
                 type="button"
                 class="btn btn-success"
                 v-on:click="upsertUser"
               >
-                Guardar
+                {{$t('generic.save')}}
               </button>
             </div>
           </div>
@@ -195,7 +198,7 @@ export default {
   components: { Spinner },
   data() {
     return {
-      title: "Mis developers",
+      title: "My developers",
       users: [],
       error: "",
       isLoading: true,
@@ -424,5 +427,17 @@ export default {
   }
   .table-admin {
     min-height: 50vh;
+  }
+  .loading-cover {
+    background-color: rgba(71, 71, 71, 0.842);
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 </style>

@@ -12,7 +12,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="courseTitle" id="staticBackdropLabel">
-            Evaluación {{ course.id ? "#" + course.id : "" }}
+            {{ $t('AdminEvaluations.evaluation') }} {{ course.id ? "#" + course.id : "" }}
           </h4>
           <button
             type="button"
@@ -36,7 +36,7 @@
                 class="nav-link"
                 v-bind:class="{ active: tabs[tab.tab] }"
                 v-on:click="activeTab(tab.tab)"
-                >{{ tab.name }}</a
+                >{{ $t(`generic.${tab.name}`) }}</a
               >
             </li>
           </ul>
@@ -50,8 +50,8 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Tópico</th>
-                    <th>Puntaje</th>
+                    <th>{{ $t('generic.topic')}}</th>
+                    <th>{{ $t('generic.score')}}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -60,7 +60,7 @@
                     v-for="(item, key) in course.indicadores['desempeño']"
                     :key="key"
                   >
-                    <td>{{ item.name }}</td>
+                    <td>{{ $t('AdminEvaluations.performanceArray')[key] }}</td>
                     <td>
                       <input
                         type="range"
@@ -88,8 +88,8 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Tópico</th>
-                    <th>Puntaje</th>
+                    <th>{{ $t('generic.topic')}}</th>
+                    <th>{{ $t('generic.score')}}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -98,7 +98,7 @@
                     v-for="(item, key) in course.indicadores['factorHumano']"
                     :key="key"
                   >
-                    <td>{{ item.name }}</td>
+                    <td>{{ $t('AdminEvaluations.HumanFactorArray')[key] }}</td>
                     <td>
                       <input
                         type="range"
@@ -127,8 +127,8 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Tópico</th>
-                    <th>Puntaje</th>
+                    <th>{{ $t('generic.topic')}}</th>
+                    <th>{{ $t('generic.score')}}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -137,7 +137,7 @@
                     v-for="(item, key) in course.indicadores['habilidades']"
                     :key="key"
                   >
-                    <td>{{ item.name }}</td>
+                    <td>{{ $t('AdminEvaluations.skillsArray')[key] }}</td>
                     <td>
                       <input
                         type="range"
@@ -163,14 +163,15 @@
 </template>
 
 <script>
+
 export default {
   name: 'EvaluationViewer',
   data() {
     return {
       tabItems: [
-        { name: 'Desempeño', tab: 'clases' },
-        { name: 'Factor Humano', tab: 'pagos' },
-        { name: 'Habilidades', tab: 'evaluaciones' },
+        { name: 'performance', tab: 'clases' },
+        { name: 'humanFactor', tab: 'pagos' },
+        { name: 'skills', tab: 'evaluaciones' },
       ],
       tabs: {
         clases: true,
