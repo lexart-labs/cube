@@ -103,7 +103,7 @@ const Technologies = {
     return response.affectedRows === 1 ? { response: 'ok' } : { error: response.sqlMessage };
   },
   deleteRelation: async (idUser, idTech) => {
-    const sql = `DELETE FROM ${TABLE_RELATION_NAME} WHERE idUser = ? AND idTech = ?`;
+    const sql = `DELETE FROM ${TABLE_RELATION_NAME} WHERE idUser = ? AND idTechnology = ?`;
     let error = { error: 'It wasn\'t possible to delete this element'};
     let response = '';
     try {
@@ -111,18 +111,18 @@ const Technologies = {
     } catch (e) {
       console.log(e.message);
     }
+
     return (response.affectedRows === 1) ? { response: 'Succesfully removed'} : error;
   },
   getByUser: async (idUser) => {
     const sql = `
       SELECT
-        u.name AS user,
-        t.name AS technology,
+        u.name AS 'user',
+        t.name AS 'technology'
       FROM ${TABLE_RELATION_NAME} AS us
       INNER JOIN users AS u ON us.idUser = u.id
       INNER JOIN ${TABLE_NAME} AS t on us.idTechnology = t.id
       WHERE us.idUser = ?
-      GROUP BY user
     `;
     let response;
 
@@ -132,18 +132,23 @@ const Technologies = {
       console.log(e.message);
     }
 
-    return response.length ? { response } : { error: 'no results found'};
+    result = response.reduce((acc, cur) => {
+      acc[cur.user]  = acc[cur.user] ? acc[cur.user] : [];
+      acc[cur.user] = [...acc[cur.user], cur.technology];
+      return acc;
+    }, {});
+
+    return result;
   },
   getByLead: async (idLead) => {
     const sql = `
       SELECT
         u.name AS user,
-        t.name AS technology,
+        t.name AS technology
       FROM ${TABLE_RELATION_NAME} AS us
       INNER JOIN users AS u ON us.idUser = u.id
       INNER JOIN ${TABLE_NAME} AS t on us.idTechnology = t.id
       WHERE u.idUser = ?
-      GROUP BY user
     `;
     let response;
 
@@ -153,7 +158,13 @@ const Technologies = {
       console.log(e.message);
     }
 
-    return response.length ? { response } : { error: 'no results found'};
+    result = response.reduce((acc, cur) => {
+      acc[cur.user]  = acc[cur.user] ? acc[cur.user] : [];
+      acc[cur.user] = [...acc[cur.user], cur.technology];
+      return acc;
+    }, {});
+
+    return result;
   },
 }
 
