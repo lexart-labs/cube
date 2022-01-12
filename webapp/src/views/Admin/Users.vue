@@ -261,9 +261,10 @@ export default {
       this.user.type = this.user.role || this.user.type;
 
       UserService().upsertUser(this.user, (res) => {
+        this.isLoading = false;
+
         if (!res.error) {
           $("#staticBackdrop").modal("hide");
-          // $('body').removeClass('modal-open');
           $('.modal-backdrop').remove();
 
           Vue.toasted.show("Usuario editado/creado correctamente", {
@@ -279,8 +280,6 @@ export default {
         } else {
           this.error = res.error;
         }
-
-        this.isLoading = false;
       });
     },
     uploadFile() {
