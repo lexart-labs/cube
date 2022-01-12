@@ -1,24 +1,25 @@
 const TABLE_NAME = 'technologies';
 const ERROR = { error: 'No results found' };
 
-const technologies = {
-  getColumns: async () => {
-    const sql = `
-      SELECT COLUMN_NAME
-      FROM INFORMATION_SCHEMA.COLUMNS
-      WHERE TABLE_NAME = '${TABLE_NAME}'
-      ORDER BY ORDINAL_POSITION
-    `;
-    let response = [];
+const getColumns = async () => {
+  const sql = `
+    SELECT COLUMN_NAME
+    FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_NAME = '${TABLE_NAME}'
+    ORDER BY ORDINAL_POSITION
+  `;
+  let response = [];
 
-    try {
-      response = await conn.query(sql);
-    } catch (e) {
-      console.log(e.message);
-    }
+  try {
+    response = await conn.query(sql);
+  } catch (e) {
+    console.log(e.message);
+  }
 
-    return response.length ? { response } : ERROR;
-  },
+  return response.map(el => el.COLUMN_NAME);
+};
+
+const Technologies = {
   get: async (id) => {
     const sql = id
       ? `SELECT * FROM ${TABLE_NAME} WHERE id = ?`
@@ -32,9 +33,9 @@ const technologies = {
     return response.length > 0 ? { response } : ERROR;
   },
   insert: async (payload) => {
-    const { response: columns} = await this.getColumns();
+    const columns = await getColumns();
     const fixedColumns = columns.filter(el => el !== 'id').join(', ');
-    const values = fixedColumns.map(el => payload[el]);
+    const values = fixedColumns.split(', ').map(el => payload[el]);
     const preparators = values.map((_el) => '?').join(', ');
 
     let response = '';
@@ -49,13 +50,13 @@ const technologies = {
     } catch (e) {
       console.log(e.message);
     }
-    return { response };
+    return response.affectedRows === 1 ? { response: 'ok' } : { error: response.sqlMessage };
   },
   update: async (id, payload) => {
-    const { response: columns} = await this.getColumns();
+    const columns = await getColumns();
     const fixedColumns = columns.filter(el => el !== 'id').join(', ');
-    const values = fixedColumns.map(el => payload[el]);
-    const preparators = fixedColumns.map(el => `${el} = ?`).join(', ');
+    const values = fixedColumns.split(', ').map(el => payload[el]);
+    const preparators = fixedColumns.split(', ').map(el => `${el} = ?`).join(', ');
     let response = '';
 
     const sql = `
@@ -70,16 +71,19 @@ const technologies = {
       console.log(e.message);
     }
 
-    return { response };
+    return response.affectedRows === 1 ? { response: 'ok' } : { error: response.sqlMessage };
   },
   remove: async (id) => {
     const sql = `DELETE FROM ${TABLE_NAME} WHERE id = ?`;
     let error = { error: 'It wasn\'t possible to delete this element'};
+    let response = '';
     try {
-      const response = await conn.query(sql, [id]);
+      response = await conn.query(sql, [id]);
     } catch (e) {
-     console.log(e.message);
+      console.log(e.message);
     }
-    return (response.changedRows === 1) ? { response: 'Succesfully removed'} : error;
+    return (response.affectedRows === 1) ? { response: 'Succesfully removed'} : error;
   },
 }
+
+module.exports = Technologies;
