@@ -1,6 +1,6 @@
 <template>
   <div class="ctl-card">
-    <h4>Vision general por año</h4>
+    <h4>{{ $t('dashboard.romboTitle')}}</h4>
     <br />
     <div id="chartdiv"></div>
   </div>

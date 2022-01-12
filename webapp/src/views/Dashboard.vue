@@ -11,7 +11,7 @@
           v-on:click="() => setShow(aba.name)"
         >
           <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
-          {{ aba.name }}
+          {{ $t(`generic.${aba.name}`) }}
           <spinner v-if="isLoading"></spinner>
         </h4>
       </nav>
@@ -27,7 +27,7 @@
                 v-on:click="syncUsuario()"
                 v-bind:disabled="isSync"
               >
-                Sync del usuario
+                Sync user
               </button>
             </div>
           </div>
@@ -62,11 +62,11 @@
             </div>
           </div>
           <!-- General -->
-          <div class="dashboard--resources" v-show="show === 'Evaluaciones'">
+          <div class="dashboard--resources" v-show="show === 'Evaluations'">
             <evaluation-viewer v-if="resources.length" :course="resources[showEvaluation]" />
             <input
               type="search"
-              placeholder="Buscar evaluaciones"
+              :placeholder="$t('generic.searchPlaceholderEvaluations')"
               v-model="searchQuery"
               v-if="success && resultQuery.length > 0"
               class="form-control"
@@ -116,7 +116,7 @@
   import Graphic from '../components/graphicEvaluation.vue';
   import EvaluationViewer from '../components/evaluationsViewer.vue';
   import Rombo from '../components/rombo.vue';
-  import CourseService from '../services/course.service';
+  import translations from '../data/translate';
 
   export default {
     name: 'Dashboard',
@@ -135,7 +135,7 @@
         abas: [
           { name: 'Dashboard', class: 'bi bi-clipboard-data', hasIcon: true },
           {
-            name: 'Evaluaciones',
+            name: 'Evaluations',
             class: 'bi bi-calendar-check-fill',
             hasIcon: true,
           },
@@ -144,6 +144,13 @@
         year: new Date().getFullYear(),
         years: [],
       };
+    },
+    watch: {
+      '$store.state.language': function(newVal, oldVal) {
+        this.success = this.success
+          ? translations[this.$store.state.language].dashboard.messageSyncStatus
+          : translations[this.$store.state.language].dashboard.messageNotSync;
+      },
     },
     methods: {
       syncUsuario() {
@@ -158,13 +165,13 @@
         UserService().upsertUser(userLextracking, (res) => {
           this.isSync = false;
           if (!res.error) {
-            Vue.toasted.show('Usuario sincronizado correctamente', {
+            Vue.toasted.show(translations[this.$store.state.language].dashboard.messageSync, {
               type: 'success',
               duration: 2000,
             });
 
             this.error = '';
-            this.success = 'Usuario sincronizado 👏';
+            this.success = translations[this.$store.state.language].dashboard.messageSyncStatus;
             // const id = localStorage.getItem(`id-${APP_NAME}`);
 
             // Obtenemos evaluaciones de un usuario
@@ -173,7 +180,7 @@
           } else {
             this.error = res.error;
 
-            Vue.toasted.show('Error al sincronizar el usuario', {
+            Vue.toasted.show(translations[this.$store.state.language].dashboard.messageNotSync, {
               type: 'error',
               duration: 2000,
             });
@@ -197,7 +204,7 @@
               const data = res.data.response;
               this.resources = data;
             } else {
-              Vue.toasted.show('Error no se encontró evaluaciones', {
+              Vue.toasted.show(translations[this.$store.state.language].dashboard.evaluationNotFound, {
                 type: 'error',
                 duration: 2000,
               });
@@ -254,14 +261,14 @@
           if (!res.data.error) {
             // let courses  = res.data.response;
             // this.courses = courses;
-            this.success = 'Usuario sincronizado 👏';
+            this.success = translations[this.$store.state.language].dashboard.messageSyncStatus;
 
             // Obtenemos evaluaciones de un usuario
             this.getYears(id);
             this.obtenerEvaluaciones(id, this.year);
           } else {
             // Si no obtengo el usuario en la base, deberíamos cargarnos
-            this.error = '¡Tu usuario no está sincronizado!';
+            this.error = translations[this.$store.state.language].dashboard.messageNotSyncStatus;
           }
         });
       }

@@ -1,6 +1,6 @@
 <template>
   <div class="ctl-card">
-    <h4>Historico de evaluaciones</h4>
+    <h4>{{ $t('dashboard.histogramTitle') }}</h4>
     <br />
     <div class="grafic-evaluation" ref="chartdiv2" />
   </div>
@@ -10,39 +10,34 @@
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
+import translations from '../data/translate';
 
 export default {
   name: "Graphic",
   props: ["evaluations"],
+  data() {
+    return {
+      months: translations[this.$store.state.language].generic.months,
+    };
+  },
   watch: {
     evaluations: function(newVal, oldVal) {
       this.createGraphic();
-    }
+    },
+    '$store.state.language': function(newVal, oldVal) {
+      this.months = translations[this.$store.state.language].generic.months;
+      this.createGraphic();
+    },
   },
   methods: {
     createGraphic() {
-      const months = [
-        "Enero",
-        "febrero",
-        "marzo",
-        "abril",
-        "mayo",
-        "junio",
-        "julio",
-        "agosto",
-        "septiembre",
-        "octubre",
-        "noviembre",
-        "diciembre",
-      ];
-
       am4core.useTheme(am4themes_animated);
       const chart = am4core.create(this.$refs.chartdiv2, am4charts.XYChart);
 
       const generateData = (array) =>
         array.reduce((acc, cur) => {
           const docTemplate = {
-            x: months[new Date(cur.fecha).getMonth()],
+            x: this.months[new Date(cur.fecha).getMonth()],
             y: cur.total,
             text: `${cur.total} %`,
           };

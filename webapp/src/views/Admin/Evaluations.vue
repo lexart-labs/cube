@@ -1,7 +1,7 @@
 <template>
   <div id="courses--component" style="margin-top: 1rem">
     <h4 class="courseTitle">
-      {{ title }}
+      {{ $t('AdminEvaluations.title') }}
       <spinner v-if="isLoading"></spinner>
       <button
         type="button"
@@ -11,12 +11,12 @@
         data-target="#staticBackdrop"
         v-on:click="newCourse"
       >
-        + Evaluación
+        + {{$t('AdminEvaluations.evaluation')}}
       </button>
     </h4>
     <input
       type="search"
-      placeholder="Buscar evaluaciones"
+      :placeholder="$t('AdminEvaluations.searchPlaceholder')"
       v-model="searchQuery"
       class="form-control"
       style="margin-bottom: 1rem"
@@ -26,11 +26,11 @@
         <thead>
           <tr>
             <th>Id</th>
-            <th>Nombre</th>
+            <th>{{$t('AdminEvaluations.columnName')}}</th>
             <th>Developer</th>
-            <th>Fecha</th>
-            <th>Evaluación</th>
-            <th>Activo</th>
+            <th>{{$t('AdminEvaluations.columnDate')}}</th>
+            <th>{{$t('AdminEvaluations.columnEvaluation')}}</th>
+            <th>{{$t('AdminEvaluations.columnActive')}}</th>
             <th></th>
           </tr>
         </thead>
@@ -43,7 +43,7 @@
             <td>
               <b>{{ course.total }}%</b>
             </td>
-            <td>{{ course.active === 1 ? "SI" : "NO" }}</td>
+            <td>{{ course.active === 1 ? $t('generic.yes') : $t('generic.no') }}</td>
             <td>
               <button
                 class="btn btn-info"
@@ -51,7 +51,7 @@
                 data-toggle="modal"
                 data-target="#staticBackdrop"
               >
-                Editar
+                {{$t('generic.edit')}}
               </button>
             </td>
           </tr>
@@ -75,7 +75,7 @@
           <div class="modal-content">
             <div class="modal-header">
               <h4 class="courseTitle" id="staticBackdropLabel">
-                Evaluación {{ course.id ? "#" + course.id : "" }}
+                {{$t('AdminEvaluations.evaluation')}} {{ course.id ? "#" + course.id : "" }}
               </h4>
               <button
                 type="button"
@@ -107,7 +107,7 @@
                     class="nav-link"
                     v-bind:class="{ active: tabs[tab.tab] }"
                     v-on:click="activeTab(tab.tab)"
-                    >{{ tab.name }}</a
+                    >{{ $t(`generic.${tab.name}`) }}</a
                   >
                 </li>
               </ul>
@@ -126,7 +126,7 @@
                 <div class="col-3">
                   <input
                     type="datetime-local"
-                    placeholder="Fecha"
+                    :placeholder="$t('generic.date')"
                     class="form-control"
                     v-model="course.fecha"
                   />
@@ -140,14 +140,14 @@
                 </div>
                 <div class="col-3">
                   <select class="form-control" v-model="course.active">
-                    <option value="1">Activo</option>
-                    <option value="0">Inactivo</option>
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
                   </select>
                 </div>
               </div>
               <div class="row">
                 <div class="col-12">
-                  <label for="" class="obs--title">Observaciones</label>
+                  <label for="" class="obs--title">{{$t('generic.observations')}}</label>
                   <textarea
                     name=""
                     id=""
@@ -176,8 +176,8 @@
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>Tópico</th>
-                        <th>Puntaje</th>
+                        <th>{{ $t('generic.topic')}}</th>
+                        <th>{{ $t('generic.score')}}</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -186,7 +186,7 @@
                         v-for="(item, key) in course.indicadores['desempeño']"
                         :key="key"
                       >
-                        <td>{{ item.name }}</td>
+                        <td>{{ $t('AdminEvaluations.performanceArray')[key] }}</td>
                         <td>
                           <input
                             type="range"
@@ -213,8 +213,8 @@
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>Tópico</th>
-                        <th>Puntaje</th>
+                        <th>{{ $t('generic.topic')}}</th>
+                        <th>{{ $t('generic.score')}}</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -225,7 +225,7 @@
                         ]"
                         :key="key"
                       >
-                        <td>{{ item.name }}</td>
+                        <td>{{ $t('AdminEvaluations.HumanFactorArray')[key] }}</td>
                         <td>
                           <input
                             type="range"
@@ -253,8 +253,8 @@
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>Tópico</th>
-                        <th>Puntaje</th>
+                        <th>{{ $t('generic.topic')}}</th>
+                        <th>{{ $t('generic.score')}}</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -263,7 +263,7 @@
                         v-for="(item, key) in course.indicadores['habilidades']"
                         :key="key"
                       >
-                        <td>{{ item.name }}</td>
+                        <td>{{ $t('AdminEvaluations.skillsArray')[key] }}</td>
                         <td>
                           <input
                             type="range"
@@ -288,14 +288,14 @@
                 class="btn btn-secondary"
                 data-dismiss="modal"
               >
-                Cancelar
+                {{$t('generic.cancel')}}
               </button>
               <button
                 type="button"
                 class="btn btn-success"
                 v-on:click="upsertCourse"
               >
-                Guardar
+                {{$t('generic.save')}}
               </button>
             </div>
           </div>
@@ -456,13 +456,14 @@ import CourseService from '../../services/course.service';
 import UserService from '../../services/user.service';
 import { APP_NAME } from '../../../env';
 import Indicadores from '../../data/indicadores';
+import translations from '../../data/translate';
 
 export default {
   name: 'EvaluationsAdmin',
   components: { Spinner },
   data() {
     return {
-      title: 'Administración de evaluaciones',
+      title: 'Evaluations management',
       courses: [],
       error: '',
       isLoading: true,
@@ -489,9 +490,9 @@ export default {
         examenes: false,
       },
       tabItems: [
-        { name: 'Desempeño', tab: 'clases' },
-        { name: 'Factor Humano', tab: 'pagos' },
-        { name: 'Habilidades', tab: 'evaluaciones' },
+        { name: 'performance', tab: 'clases' },
+        { name: 'humanFactor', tab: 'pagos' },
+        { name: 'skills', tab: 'evaluaciones' },
       ],
       clase: {},
       claseAsiste: {},
