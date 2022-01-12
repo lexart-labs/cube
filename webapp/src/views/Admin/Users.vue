@@ -1,7 +1,7 @@
 <template>
   <div id="users--component" style="margin-top: 1rem">
     <h4 class="courseTitle">
-      <span>{{ $t('AdminUsers.title') }}</span>
+      <span>{{ $t("AdminUsers.title") }}</span>
       <spinner v-if="isLoading"></spinner>
       <button
         type="button"
@@ -26,12 +26,12 @@
       <table class="table table-admin">
         <thead>
           <tr>
-            <th>{{ $t('AdminUsers.columnName') }}</th>
+            <th>{{ $t("AdminUsers.columnName") }}</th>
             <th>Email</th>
-            <th>{{$t('AdminUsers.columnType')}}</th>
-            <th>{{$t('AdminUsers.columnCharge')}}</th>
-            <th>{{$t('AdminUsers.columnLevel')}}</th>
-            <th>{{$t('AdminUsers.columnActive')}}</th>
+            <th>{{ $t("AdminUsers.columnType") }}</th>
+            <th>{{ $t("AdminUsers.columnCharge") }}</th>
+            <th>{{ $t("AdminUsers.columnLevel") }}</th>
+            <th>{{ $t("AdminUsers.columnActive") }}</th>
             <th></th>
           </tr>
         </thead>
@@ -42,7 +42,9 @@
             <td>{{ user.type }}</td>
             <td>{{ user.position }}</td>
             <td>{{ user.level }}</td>
-            <td>{{ user.active == 1 ? $t('generic.yes') : $t('generic.no') }}</td>
+            <td>
+              {{ user.active == 1 ? $t("generic.yes") : $t("generic.no") }}
+            </td>
             <td>
               <!-- Trigger modal -->
               <button
@@ -51,111 +53,13 @@
                 data-target="#staticBackdrop"
                 v-on:click="getUserById(user.idLextracking)"
               >
-                {{ $t('generic.edit')}}
+                {{ $t("generic.edit") }}
               </button>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <!-- User / Modal -->
-      <div
-        class="modal fade"
-        id="staticBackdrop"
-        data-backdrop="static"
-        data-keyboard="false"
-        tabindex="-1"
-        aria-labelledby="staticBackdropLabel"
-        aria-hidden="true"
-      >
-        <div :class="isFeching ? 'loading-cover' : ''">
-          <Spinner v-if="isFeching" />
-        </div>
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="courseTitle" id="staticBackdropLabel">
-                User {{ user.id ? "#" + user.id : "" }}
-              </h4>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <form enctype="multipart/form-data">
-                <label for="">LexTracking user</label>
-                <v-select
-                  v-model="user"
-                  label="name"
-                  :options="usersLextracking"
-                ></v-select>
-                <br />
-                <div class="row">
-                  <div class="col">
-                    <label for="career">{{ $t('AdminUsers.columnCharge')}}</label>
-                    <select class="form-control" v-model="user.positionId" id="career">
-                      <option
-                        v-for="(career, i) in careers"
-                        :value="career.id"
-                        :key="`car${i}`"
-                        :selected="career.id == user.positionId"
-                      >
-                        {{ career.position }}
-                      </option>
-                    </select>
-                  </div>
-                  <div class="col">
-                    <label for="lvl">{{ $t('AdminUsers.columnLevel')}}</label>
-                    <select class="form-control" v-model="user.levelId" id="lvl">
-                      <option
-                        v-for="(level, i) in levels"
-                        :value="level.id"
-                        :key="`lev${i}`"
-                        :selected="level.id == user.levelId"
-                      >
-                        {{ level.level }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-                <br />
-                <select class="form-control" v-model="user.active">
-                  <option value="1">Active</option>
-                  <option value="0">Inactive</option>
-                </select>
-              </form>
-              <div
-                v-if="error"
-                class="alert alert-danger"
-                style="margin-top: 1rem"
-              >
-                {{ error }}
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-dismiss="modal"
-              >
-                {{$t('generic.cancel')}}
-              </button>
-              <button
-                type="button"
-                class="btn btn-success"
-                v-on:click="upsertUser"
-              >
-                {{$t('generic.save')}}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
       <nav class="pages-nav">
         <span
           v-on:click="navigate('-')"
@@ -178,6 +82,112 @@
           Next
         </span>
       </nav>
+    </div>
+
+    <!-- User / Modal -->
+    <div
+      class="modal fade"
+      id="staticBackdrop"
+      data-backdrop="static"
+      data-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    >
+      <div :class="isFeching ? 'loading-cover' : ''">
+        <Spinner v-if="isFeching" />
+      </div>
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="courseTitle" id="staticBackdropLabel">
+              User {{ user.id ? "#" + user.id : "" }}
+            </h4>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form enctype="multipart/form-data">
+              <label for="">LexTracking user</label>
+              <v-select
+                v-model="user"
+                label="name"
+                :options="usersLextracking"
+              ></v-select>
+              <br />
+              <div class="row">
+                <div class="col">
+                  <label for="career">{{
+                    $t("AdminUsers.columnCharge")
+                  }}</label>
+                  <select
+                    class="form-control"
+                    v-model="user.positionId"
+                    id="career"
+                  >
+                    <option
+                      v-for="(career, i) in careers"
+                      :value="career.id"
+                      :key="`car${i}`"
+                      :selected="career.id == user.positionId"
+                    >
+                      {{ career.position }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col">
+                  <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
+                  <select class="form-control" v-model="user.levelId" id="lvl">
+                    <option
+                      v-for="(level, i) in levels"
+                      :value="level.id"
+                      :key="`lev${i}`"
+                      :selected="level.id == user.levelId"
+                    >
+                      {{ level.level }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <br />
+              <select class="form-control" v-model="user.active">
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+              </select>
+            </form>
+            <div
+              v-if="error"
+              class="alert alert-danger"
+              style="margin-top: 1rem"
+            >
+              {{ error }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              {{ $t("generic.cancel") }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              v-on:click="upsertUser"
+              :disabled="isLoading"
+            >
+              {{ isLoading ? "Loading..." : $t("generic.save") }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -206,8 +216,8 @@ export default {
       searchQuery: null,
       curso: null,
       user: {
-        name: '',
-        active: '1',
+        name: "",
+        active: "1",
       },
       api: API,
       usersLextracking: [],
@@ -227,7 +237,7 @@ export default {
       };
     },
     getUserById(id) {
-      this.user = { name: '', active: '1' };
+      this.user = { name: "", active: "1" };
       this.isFeching = true;
       UserService().getUserById(id, (res) => {
         if (!res.error) {
@@ -237,15 +247,18 @@ export default {
       });
     },
     actulizeUsers(usr) {
-      const position = this.careers.find(el => el.id == usr.positionId).position;
-      const level = this.levels.find(el => el.id == usr.levelId).level;
+      const position = this.careers.find(
+        (el) => el.id == usr.positionId
+      ).position;
+      const level = this.levels.find((el) => el.id == usr.levelId).level;
       usr.position = position;
       usr.level = level;
 
-      if (this.users.some(el => el.id == usr.id)) {
+      if (this.users.some((el) => el.id == usr.id)) {
         const result = this.users.reduce((acc, cur) => {
-        acc = Number(cur.id) === Number(usr.id) ? [...acc, usr] : [...acc, cur];
-        return acc;
+          acc =
+            Number(cur.id) === Number(usr.id) ? [...acc, usr] : [...acc, cur];
+          return acc;
         }, []);
         this.users = result;
       } else {
@@ -253,21 +266,25 @@ export default {
       }
     },
     upsertUser() {
+      this.isLoading = true;
       // Agrego usuarios nuevos con el sync desde el front
       this.user.token = "";
       this.user.sync = true;
       this.user.type = this.user.role || this.user.type;
 
       UserService().upsertUser(this.user, (res) => {
+        this.isLoading = false;
+
         if (!res.error) {
           $("#staticBackdrop").modal("hide");
+          $(".modal-backdrop").remove();
 
           Vue.toasted.show("Usuario editado/creado correctamente", {
             type: "success",
             duration: 2000,
           });
 
-          if(this.users.length < 5) {
+          if (this.users.length < 5) {
             this.actulizeUsers(this.user);
           } else {
             this.handlePagination(this.page);
@@ -327,10 +344,11 @@ export default {
       console.log(this.$refs.background.files);
     },
     navigate(operator) {
-      if (typeof operator === 'number') {
+      this.isLoading = true;
+      if (typeof operator === "number") {
         this.page = operator;
       } else {
-        operator === '+' ? this.page += 1 : this.page -= 1;
+        operator === "+" ? (this.page += 1) : (this.page -= 1);
       }
 
       UserService().getAllUsers(this.page - 1, (res) => {
@@ -407,37 +425,38 @@ export default {
 </script>
 
 <style>
-  .pages-nav {
-    color: rgb(138, 138, 138);
-    cursor: pointer;
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 2rem;
-    width: 100%;
-  }
-  .pages-nav span:hover, .current {
-    text-decoration: underline;
-    color: black;
-  }
-  .not-allowed {
-    cursor: none;
-    opacity: 0.2;
-    pointer-events: none;
-  }
-  .table-admin {
-    min-height: 50vh;
-  }
-  .loading-cover {
-    background-color: rgba(71, 71, 71, 0.842);
-    height: 100%;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+.pages-nav {
+  color: rgb(138, 138, 138);
+  cursor: pointer;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  width: 100%;
+}
+.pages-nav span:hover,
+.current {
+  text-decoration: underline;
+  color: black;
+}
+.not-allowed {
+  cursor: none;
+  opacity: 0.2;
+  pointer-events: none;
+}
+.table-admin {
+  min-height: 50vh;
+}
+.loading-cover {
+  background-color: rgba(71, 71, 71, 0.842);
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 </style>
