@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const User 	 = require('../services/users.service')
+const User 	 = require('../services/users.service');
+const Technologies = require('../services/technologies.service');
 
 
 router.post('/login', async function (req, res) {
@@ -64,5 +65,38 @@ router.post('/upsert', Mdl.middleware, async function (req, res) {
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
 })
+
+router.get('/skills/:id', async function (req, res) {
+	const {id} = req.params;
+	const { isManager } = req.query;
+	let response;
+
+	if(isManager) {
+		response = await Technologies.getByLead(id);
+	} else {
+		response = await Technologies.getByUser(id);
+	}
+
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+});
+
+router.post('/skills/:id/:idTech', async function (req, res) {
+	const { id, idTech} = req.params;
+
+	const response = await Technologies.createRelation(id, idTech);
+
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+});
+
+router.delete('/skills/:id/:idTech', async function (req, res) {
+	const { id, idTech} = req.params;
+
+	const response = await Technologies.deleteRelation(id, idTech);
+
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+});
 
 module.exports = router;
