@@ -294,9 +294,9 @@
                 type="button"
                 class="btn btn-success"
                 v-on:click="upsertCourse"
-                :disabled="isLoading"
+                :disabled="isFeching"
               >
-                {{ isLoading? 'Loading...' : $t('generic.save') }}
+                {{ isFeching? 'Loading...' : $t('generic.save') }}
               </button>
             </div>
           </div>
@@ -679,6 +679,7 @@ export default {
       });
     },
     upsertCourse() {
+      this.isFeching = true;
       // Verifico que los usuarios estén dentro del curso sino los agrego
       const activeUsers = [];
 
@@ -695,6 +696,7 @@ export default {
       this.course.users = activeUsers;
 
       CourseService().upsertCourse(this.course, (res) => {
+        this.isFeching = false;
         if (res.response) {
           $('#staticBackdrop').modal('hide');
           // Disparo el toast

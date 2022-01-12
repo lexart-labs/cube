@@ -149,9 +149,9 @@
                 type="button"
                 class="btn btn-success"
                 v-on:click="upsertUser"
-                :disabled="isLoading"
+                :disabled="isFeching"
               >
-                {{ isLoading ? 'Loading...' : $t('generic.save') }}
+                {{ isFeching ? 'Loading...' : $t('generic.save') }}
               </button>
             </div>
           </div>
@@ -254,6 +254,7 @@ export default {
       }
     },
     upsertUser() {
+      this.isFeching = true;
       // Agrego usuarios nuevos con el sync desde el front
       this.user.token = "";
       this.user.sync = true;
@@ -261,6 +262,7 @@ export default {
 
       UserService().upsertUser(this.user, (res) => {
         if (!res.error) {
+          this.isFeching = false;
           $("#staticBackdrop").modal("hide");
 
           Vue.toasted.show("Usuario editado/creado correctamente", {
@@ -274,6 +276,7 @@ export default {
             this.handlePagination(this.page);
           }
         } else {
+          this.isFeching = false;
           this.error = res.error;
         }
       });
@@ -328,6 +331,7 @@ export default {
       console.log(this.$refs.background.files);
     },
     navigate(operator) {
+      this.isLoading = true;
       if (typeof operator === 'number') {
         this.page = operator;
       } else {
