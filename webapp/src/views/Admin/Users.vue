@@ -94,17 +94,21 @@
       aria-labelledby="staticBackdropLabel"
       aria-hidden="true"
     >
-      <div>
-        <ul class="nav nav-tabs">
-          <li class="nav-item"> Isto é uma aba</li>
-          <li class="nav-item"> Isto tbm é uma aba</li>
-        </ul>
-      </div>
       <div :class="isFeching ? 'loading-cover' : ''">
         <Spinner v-if="isFeching" />
       </div>
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
+          <div>
+              <ul class="nav nav-tabs">
+                <li class="nav-item">
+                  <span class="nav-link">Perfil</span>
+                </li>
+                <li class="nav-item">
+                  <span class="nav-link">Roadmap</span>
+                </li>
+              </ul>
+            </div>
           <div class="modal-header">
             <h4 class="courseTitle" id="staticBackdropLabel">
               User {{ user.id ? "#" + user.id : "" }}
