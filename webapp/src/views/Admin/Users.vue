@@ -94,6 +94,12 @@
       aria-labelledby="staticBackdropLabel"
       aria-hidden="true"
     >
+      <div>
+        <ul class="nav nav-tabs">
+          <li class="nav-item"> Isto é uma aba</li>
+          <li class="nav-item"> Isto tbm é uma aba</li>
+        </ul>
+      </div>
       <div :class="isFeching ? 'loading-cover' : ''">
         <Spinner v-if="isFeching" />
       </div>

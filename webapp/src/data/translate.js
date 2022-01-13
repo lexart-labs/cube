@@ -81,6 +81,7 @@ const translations = {
       next: 'Próximo',
       back: 'Atrás',
       exit: 'Cerrar sección',
+      technologies: 'Tecnologías',
       months: [
         "Enero",
         "Febrero",
@@ -271,6 +272,7 @@ const translations = {
       next: 'Next',
       back: 'Bcak',
       exit: 'Log out',
+      technologies: 'Technologies',
       months: [
         "January",
         "February",
