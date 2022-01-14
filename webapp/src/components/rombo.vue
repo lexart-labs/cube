@@ -47,7 +47,7 @@ export default {
     ],
       isLoading: false,
       monthlyHours: [],
-      id: JSON.parse(localStorage.getItem('_lextracking_user-lexart-cube-v1')).idLextracking,
+      id: JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`)).idLextracking,
     };
   },
   methods: {
