@@ -17,7 +17,11 @@
           {{ plataform }}
         </option>
       </select>
-      <button type="button" class="btn btn-primary col-1">
+      <button
+        type="button"
+        class="btn btn-primary col-1"
+        v-on:click="isEditing ? updateTech() : addTech()"
+      >
         {{ $t("generic.save") }}
       </button>
     </div>
@@ -56,6 +60,7 @@
 
 <script>
 import axios from 'axios';
+import Vue from "vue";
 import { API, APP_NAME } from "../../../env";
 
 export default {
@@ -64,6 +69,7 @@ export default {
     return {
       isEditing: false,
       isLoading: false,
+      error: '',
       technologies: [],
       newTechnologie: {
         name: "",
@@ -83,9 +89,52 @@ export default {
       this.technologies = response;
       this.isLoading = false;
     },
-    updateTech: async (id) => {},
-    deleteTech: async () => {},
-    addTech: async () => {},
+    updateTech: async function() {
+      this.isLoading = true;
+      const { id } = this.newTechnologie;
+      const endpoint = `${API}technologies/${id}`;
+
+      const { data } = await axios.put(endpoint, {...this.newTechnologie}, { headers: { token: this.token }});
+      
+      if(data.response) {
+        Vue.toasted.show('Technology edited sucessfully', {
+            type: "success",
+            duration: 2000,
+        });
+      } else {
+        this.error = data.error;
+        Vue.toasted.show('Error when editing technology', {
+            type: "error",
+            duration: 2000,
+        });
+
+        this.isLoading = false;
+      }
+    },
+    deleteTech: async function() {
+
+    },
+    addTech: async function() {
+      this.isLoading = true;
+      const endpoint = `${API}technologies/`;
+
+      const { data } = await axios.post(endpoint, {...this.newTechnologie}, { headers: { token: this.token }});
+      
+      if(data.response) {
+        await this.getTechs();
+
+        Vue.toasted.show('Technology created sucessfully', {
+            type: "success",
+            duration: 2000,
+        });
+      } else {
+        this.error = data.error;
+        Vue.toasted.show('Error when creating technology', {
+            type: "error",
+            duration: 2000,
+        });
+      }
+    },
     setEditing(tech) {
       this.isEditing = true;
       this.newTechnologie = tech;
