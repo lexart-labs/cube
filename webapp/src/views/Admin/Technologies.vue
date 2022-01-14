@@ -47,7 +47,7 @@
               <button class="btn btn-info" data-toggle="modal" v-on:click="setEditing(tech)">
                 {{ $t("generic.edit") }}
               </button>
-              <button class="btn btn-danger" data-toggle="modal">
+              <button class="btn btn-danger" data-toggle="modal" v-on:click="deleteTech(tech)">
                 {{ $t("generic.remove") }}
               </button>
             </td>
@@ -111,8 +111,27 @@ export default {
         this.isLoading = false;
       }
     },
-    deleteTech: async function() {
+    deleteTech: async function(tech) {
+      this.isLoading = true;
+      const { id } = tech;
+      const endpoint = `${API}technologies/${id}`;
 
+      const { data } = await axios.delete(endpoint, { headers: { token: this.token }});
+      
+      if(data.response) {
+        Vue.toasted.show('Technology removed sucessfully', {
+            type: "success",
+            duration: 2000,
+        });
+      } else {
+        this.error = data.error;
+        Vue.toasted.show('Error when removing technology', {
+            type: "error",
+            duration: 2000,
+        });
+
+        this.isLoading = false;
+      }
     },
     addTech: async function() {
       this.isLoading = true;
