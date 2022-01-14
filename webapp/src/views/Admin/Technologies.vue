@@ -3,11 +3,11 @@
     <div class="row" style="gap: 1rem; margin: 1rem auto 3rem;">
       <input
         type="text"
-        v-model="newTechnologie.name"
+        v-model="newTechnology.name"
         :placeholder="$t('AdminTechnologies.placeholder')"
         class="form-control col-8"
       />
-      <select v-model="newTechnologie.plataform" class="form-control col-2">
+      <select v-model="newTechnology.plataform" class="form-control col-2">
         <option value="" disabled>Selecione</option>
         <option
           v-for="(plataform, i) in plataforms"
@@ -55,26 +55,35 @@
         </tbody>
       </table>
     </div>
+
+    <div v-if="isLoading" class="loading-cover">
+      <Spinner />
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import Vue from "vue";
+import Spinner from "../../components/Spinner.vue";
 import { API, APP_NAME } from "../../../env";
+
+const DEFAULT_VALUE = {
+  id: 0,
+  name: "",
+  plataform: 'Web',
+};
 
 export default {
   name: "Technologies",
+  components: { Spinner },
   data() {
     return {
       isEditing: false,
       isLoading: false,
       error: '',
       technologies: [],
-      newTechnologie: {
-        name: "",
-        plataform: "",
-      },
+      newTechnology: { ...DEFAULT_VALUE},
       plataforms: ["Web", "Mobile", "Desktop"],
       token: localStorage.getItem(`token-app-${APP_NAME}`),
     };
@@ -91,24 +100,26 @@ export default {
     },
     updateTech: async function() {
       this.isLoading = true;
-      const { id } = this.newTechnologie;
+      this.isEditing = false;
+      const { id } = this.newTechnology;
       const endpoint = `${API}technologies/${id}`;
 
-      const { data } = await axios.put(endpoint, {...this.newTechnologie}, { headers: { token: this.token }});
+      const { data } = await axios.put(endpoint, {...this.newTechnology}, { headers: { token: this.token }});
       
       if(data.response) {
+        await this.getTechs();
+        this.newTechnology = {...DEFAULT_VALUE};
         Vue.toasted.show('Technology edited sucessfully', {
             type: "success",
             duration: 2000,
         });
       } else {
+        this.isLoading = false;
         this.error = data.error;
         Vue.toasted.show('Error when editing technology', {
             type: "error",
             duration: 2000,
         });
-
-        this.isLoading = false;
       }
     },
     deleteTech: async function(tech) {
@@ -119,35 +130,37 @@ export default {
       const { data } = await axios.delete(endpoint, { headers: { token: this.token }});
       
       if(data.response) {
+        await this.getTechs();
         Vue.toasted.show('Technology removed sucessfully', {
             type: "success",
             duration: 2000,
         });
       } else {
+        this.isLoading = false;
+
         this.error = data.error;
         Vue.toasted.show('Error when removing technology', {
             type: "error",
             duration: 2000,
         });
-
-        this.isLoading = false;
       }
     },
     addTech: async function() {
       this.isLoading = true;
       const endpoint = `${API}technologies/`;
 
-      const { data } = await axios.post(endpoint, {...this.newTechnologie}, { headers: { token: this.token }});
+      const { data } = await axios.post(endpoint, {...this.newTechnology}, { headers: { token: this.token }});
       
       if(data.response) {
+        console.log('cheguei aqui');
+        this.newTechnology = {...DEFAULT_VALUE};
         await this.getTechs();
-
         Vue.toasted.show('Technology created sucessfully', {
             type: "success",
             duration: 2000,
         });
       } else {
-        this.error = data.error;
+        this.isLoading = false;
         Vue.toasted.show('Error when creating technology', {
             type: "error",
             duration: 2000,
@@ -156,7 +169,7 @@ export default {
     },
     setEditing(tech) {
       this.isEditing = true;
-      this.newTechnologie = tech;
+      this.newTechnology = {...tech};
     },
   },
   mounted: async function () {
@@ -164,3 +177,13 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+  .courseContainer {
+    display: flex;
+    justify-content: center;
+    height: 50vh;
+    overflow-y: scroll;
+  }
+
+</style>
