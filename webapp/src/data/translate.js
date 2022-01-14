@@ -68,11 +68,16 @@ const translations = {
         'Potencialidad',
       ],
     },
+    AdminTechnologies: {
+      placeholder:'Adicionar nueva tecnología',
+      tableHeaders: ['id', 'nombre', 'plataforma', ''],
+    },
     generic: {
       cancel: 'Cancelar',
       save: 'Guardar',
       date: 'Fecha',
       edit: 'Editar',
+      remove: 'Borrar',
       topic: 'Topico',
       score: 'Puntaje',
       observations: 'Observaciones',
@@ -259,11 +264,16 @@ const translations = {
         'Potentiality',
       ],
     },
+    AdminTechnologies: {
+      placeholder:'Add a new technology',
+      tableHeaders: ['id', 'name', 'plataform', ''],
+    },
     generic: {
       cancel: 'Cancel',
       save: 'Save',
       date: 'Date',
       edit: 'Edit',
+      remove: 'Delete',
       topic: 'Topic',
       score: 'Score',
       observations: 'Observations',
