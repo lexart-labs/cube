@@ -1,5 +1,10 @@
 <template>
   <div>
+    <h4 class="courseTitle">
+      <span>{{ $t("AdminTechnologies.title") }}</span>
+      <spinner v-if="isLoading"></spinner>
+    </h4>
+
     <div class="row" style="gap: 1rem; margin: 1rem auto 3rem;">
       <input
         type="text"
@@ -67,6 +72,7 @@ import axios from 'axios';
 import Vue from "vue";
 import Spinner from "../../components/Spinner.vue";
 import { API, APP_NAME } from "../../../env";
+import translations from '../../data/translate';
 
 const DEFAULT_VALUE = {
   id: 0,
@@ -109,14 +115,14 @@ export default {
       if(data.response) {
         await this.getTechs();
         this.newTechnology = {...DEFAULT_VALUE};
-        Vue.toasted.show('Technology edited sucessfully', {
+        Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
             type: "success",
             duration: 2000,
         });
       } else {
         this.isLoading = false;
         this.error = data.error;
-        Vue.toasted.show('Error when editing technology', {
+        Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.error, {
             type: "error",
             duration: 2000,
         });
@@ -131,7 +137,7 @@ export default {
       
       if(data.response) {
         await this.getTechs();
-        Vue.toasted.show('Technology removed sucessfully', {
+        Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
             type: "success",
             duration: 2000,
         });
@@ -139,7 +145,7 @@ export default {
         this.isLoading = false;
 
         this.error = data.error;
-        Vue.toasted.show('Error when removing technology', {
+        Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.error, {
             type: "error",
             duration: 2000,
         });
@@ -155,13 +161,13 @@ export default {
         console.log('cheguei aqui');
         this.newTechnology = {...DEFAULT_VALUE};
         await this.getTechs();
-        Vue.toasted.show('Technology created sucessfully', {
+        Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
             type: "success",
             duration: 2000,
         });
       } else {
         this.isLoading = false;
-        Vue.toasted.show('Error when creating technology', {
+        Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.error, {
             type: "error",
             duration: 2000,
         });
@@ -184,6 +190,11 @@ export default {
     justify-content: center;
     height: 50vh;
     overflow-y: scroll;
+  }
+
+  h4 {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
   }
 
 </style>

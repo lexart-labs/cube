@@ -71,6 +71,9 @@ const translations = {
     AdminTechnologies: {
       placeholder:'Adicionar nueva tecnología',
       tableHeaders: ['id', 'nombre', 'plataforma', ''],
+      title: 'Tecnologías en Lexart',
+      success: '¡Operación completada con suceso!',
+      error: 'No fue possible completar la operación.',
     },
     generic: {
       cancel: 'Cancelar',
@@ -267,6 +270,9 @@ const translations = {
     AdminTechnologies: {
       placeholder:'Add a new technology',
       tableHeaders: ['id', 'name', 'plataform', ''],
+      title: 'Lexart stack',
+      success: 'Operation ran sucessfully',
+      error: 'Error when saving this operation',
     },
     generic: {
       cancel: 'Cancel',
