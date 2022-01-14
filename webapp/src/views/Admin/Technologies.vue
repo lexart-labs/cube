@@ -190,11 +190,11 @@ export default {
     justify-content: center;
     height: 50vh;
     overflow-y: scroll;
+    box-shadow: rgba(0, 0, 0, 0.109) 0px 2px 4px 0px inset;
   }
 
   h4 {
     margin-top: 1rem;
     margin-bottom: 2rem;
   }
-
 </style>
