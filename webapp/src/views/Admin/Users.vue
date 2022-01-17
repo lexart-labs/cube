@@ -173,9 +173,10 @@
                   :options="technologies"
                   id="techs"
                   style="width: 95%;"
+                  v-model="currentTech"
                 >
                 </v-select>
-                <i class="fas fa-plus-circle" style="font-size: 1.5rem;" />
+                <i class="fas fa-plus-circle" style="font-size: 1.5rem;" v-on:click="addSkill()"/>
               </div>
               <ul class="list-group list-group-flush">
                 <li
@@ -184,7 +185,7 @@
                   :key="`usrtchg${i}`"
                 >
                   {{ item.name }}
-                  <i class="far fa-times-circle" />
+                  <i class="far fa-times-circle" v-on:click="removeSkill(item)" />
                 </li>
               </ul>
               <br />
@@ -263,6 +264,7 @@ export default {
         { name: 'Python', plataform: 'Web'},
         { name: 'php', plataform: 'Web'},
       ],
+      currentTech: {},
     };
   },
   methods: {
@@ -419,6 +421,15 @@ export default {
         }
       });
       this.page = page + 1 || 1;
+    },
+    addSkill() {
+      const exists = this.userTechs.some(el => el.name === this.currentTech.name);
+
+      if(!exists) return this.userTechs.push(this.currentTech);
+      return;
+    },
+    removeSkill(skill) {
+      this.userTechs = this.userTechs.filter(el => el.name !== skill.name);
     },
   },
   mounted() {
