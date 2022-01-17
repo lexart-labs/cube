@@ -172,10 +172,10 @@
                   label="name"
                   :options="technologies"
                   id="techs"
-                  class="col-11"
+                  style="width: 95%;"
                 >
                 </v-select>
-                <i class="fas fa-plus-circle col-1 is-big" style="font-size: 1.5rem;" />
+                <i class="fas fa-plus-circle" style="font-size: 1.5rem;" />
               </div>
               <ul class="list-group list-group-flush">
                 <li
@@ -502,5 +502,6 @@ export default {
   width: 100%;
   justify-content: space-between;
   gap: 1rem;
+  align-items: center;
 }
 </style>
