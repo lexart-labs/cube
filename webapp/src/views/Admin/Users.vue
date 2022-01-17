@@ -286,12 +286,14 @@ export default {
         levelId: 1,
       };
     },
-    getUserById(id) {
+    getUserById: async function(id) {
       this.user = { name: "", active: "1" };
       this.isFeching = true;
-      UserService().getUserById(id, (res) => {
+      UserService().getUserById(id, async (res) => {
         if (!res.error) {
           this.user = res.response;
+          const resp = await TechnologiesService.getByUser(res.response.id);
+          this.managerUserTechs.userTechs = Object.values(resp)[0];
         }
         this.isFeching = false;
       });
@@ -344,7 +346,7 @@ export default {
         }
       });
 
-      // this.updateUserSkill();
+      this.handleSkillChanges();
     },
     uploadFile() {
       const logoFile = this.$refs.logo.files[0];
@@ -451,13 +453,15 @@ export default {
 
       this.managerUserTechs = { toAdd, toRemove, userTechs };
     },
-    updateUserSkill() {
-      const idUser = localStorage.getItem(`id-${APP_NAME}`)
-      Promise.all(
-        this.userTechs.map(item => {
-          TechnologiesService.asignNew(idUser, item.id);
-        })
-      )
+    handleSkillChanges: async function() {
+      const idUser = this.user.id;
+      const { toRemove, toAdd } = this.managerUserTechs;
+      await Promise.all(
+        toAdd.map(item => {TechnologiesService.asignNew(idUser, item.id);})
+      );
+      await Promise.all(
+        toRemove.map(item => {TechnologiesService.remove(idUser, item.id);})
+      );
     },
   },
   mounted() {
