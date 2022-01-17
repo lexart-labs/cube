@@ -118,7 +118,9 @@ const Technologies = {
     const sql = `
       SELECT
         u.name AS 'user',
-        t.name AS 'technology'
+        t.name AS 'name',
+        t.id AS 'id',
+        t.plataform AS 'plataform'
       FROM ${TABLE_RELATION_NAME} AS us
       INNER JOIN users AS u ON us.idUser = u.id
       INNER JOIN ${TABLE_NAME} AS t on us.idTechnology = t.id
@@ -134,7 +136,8 @@ const Technologies = {
 
     result = response.reduce((acc, cur) => {
       acc[cur.user]  = acc[cur.user] ? acc[cur.user] : [];
-      acc[cur.user] = [...acc[cur.user], cur.technology];
+      const {name, id, plataform} = cur;
+      acc[cur.user] = [...acc[cur.user], {name, id, plataform}];
       return acc;
     }, {});
 
