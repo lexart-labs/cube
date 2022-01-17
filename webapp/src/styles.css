@@ -4,10 +4,10 @@
     margin-bottom: 5rem;
   }
 
-  #dashboard--component {
+  /* #dashboard--component {
     overflow: -moz-scrollbars-vertical; 
     overflow-y: scroll;
-  }
+  } */
   /* Componente: Login form */
   #login--form {
     height: 100vh;

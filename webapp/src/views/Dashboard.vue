@@ -125,7 +125,7 @@
                 >
                   {{ item.name }}
                   <i
-                    class="far fa-times-circle"
+                    class="far fa-times-circle remove-icon"
                     v-on:click="removeSkill(item)"
                     style="cursor: pointer; font-size: 1rem"
                   />
@@ -377,4 +377,5 @@
     align-items: center;
     justify-content: space-between;
   }
+
 </style>
