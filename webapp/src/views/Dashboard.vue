@@ -102,7 +102,22 @@
               </div>
             </div>
             <div v-show="show === 'technologies'">
-              <h2 style="display: flex; gap: 1rem;">
+              <div class="new-tech-ctl">
+                <vue-select
+                  :options="technologies"
+                  id="techs"
+                  style="width: 95%;"
+                  v-model="currentTech"
+                  :getOptionLabel="el => el.name"
+                >
+                </vue-select>
+                <i
+                  class="fas fa-plus-circle"
+                  style="font-size: 1.5rem; cursor: pointer;"
+                  v-on:click="addSkill()"
+                />
+              </div>
+              <h2 style="display: flex; gap: 1rem; margin-top: 2rem;">
                 <span
                   class="badge badge-info badge-secondary"
                   v-for="(item, i) in userStack"
@@ -122,6 +137,7 @@
 <script>
   import axios from 'axios';
   import Vue from 'vue';
+  import vueSelect from 'vue-select';
   import { API, APP_NAME } from '../../env';
   import UserService from '../services/user.service';
   import { verifyToken } from '../services/helpers';
@@ -135,7 +151,7 @@
 
   export default {
     name: 'Dashboard',
-    components: { Spinner, Timeline, Graphic, EvaluationViewer, Rombo },
+    components: { Spinner, Timeline, Graphic, EvaluationViewer, Rombo, vueSelect },
     data() {
       return {
         title: 'Dashboard',
@@ -155,12 +171,14 @@
             class: 'bi bi-calendar-check-fill',
             hasIcon: true,
           },
-          { name: 'technologies', class: '', hasIcon: false },
+          { name: 'technologies', class: 'fas fa-code', hasIcon: true },
         ],
         showEvaluation: 0,
         year: new Date().getFullYear(),
         years: [],
         userStack: [],
+        technologies: [],
+        currentTech: {},
       };
     },
     watch: {
@@ -261,6 +279,15 @@
         const {data} = await axios.get(`${API}courses/years/${id}`, { headers });
         this.years = data;
       },
+      addSkill: async function() {
+        const idUser = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`)).id;
+        const exists = this.userStack.some(el => el.name === this.currentTech.name);
+        if (!exists) {
+          this.userStack.push(this.currentTech);
+          TechnologiesService.asignNew(idUser, this.currentTech.id);
+          this.currentTech = {};
+        };
+      },
     },
     mounted() {
       const id = localStorage.getItem(`id-${APP_NAME}`);
@@ -293,6 +320,8 @@
             // Si no obtengo el usuario en la base, deberíamos cargarnos
             this.error = translations[this.$store.state.language].dashboard.messageNotSyncStatus;
           }
+
+          TechnologiesService.getAll().then(res => this.technologies = res.response);
         });
       }
     },
@@ -329,6 +358,14 @@
     position: fixed;
     top: 50%;
     left: 50%;
+  }
+
+  .new-tech-ctl {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
   }
 
 </style>
