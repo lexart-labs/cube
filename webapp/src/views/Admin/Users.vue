@@ -166,6 +166,28 @@
                 </div>
               </div>
               <br />
+              <label for="techs">{{ $t('generic.technologies')}}</label>
+              <div class="tech-ctl">
+                <v-select
+                  label="name"
+                  :options="technologies"
+                  id="techs"
+                  class="col-11"
+                >
+                </v-select>
+                <i class="fas fa-plus-circle col-1 is-big" style="font-size: 1.5rem;" />
+              </div>
+              <ul class="list-group list-group-flush">
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                  v-for="(item, i) in userTechs"
+                  :key="`usrtchg${i}`"
+                >
+                  {{ item.name }}
+                  <i class="far fa-times-circle" />
+                </li>
+              </ul>
+              <br />
               <select class="form-control" v-model="user.active">
                 <option value="1">Active</option>
                 <option value="0">Inactive</option>
@@ -235,6 +257,12 @@ export default {
       careers: [],
       pagesLength: 1,
       page: 1,
+      technologies: [{ name: 'JavaScript', plataform: 'Web'}],
+      userTechs: [
+        { name: 'JavaScript', plataform: 'Web'},
+        { name: 'Python', plataform: 'Web'},
+        { name: 'php', plataform: 'Web'},
+      ],
     };
   },
   methods: {
@@ -468,5 +496,11 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.tech-ctl {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 1rem;
 }
 </style>
