@@ -38,7 +38,7 @@
           </div>
 
           <div class="left-select">
-            <select id="year-filter" class="form-control" v-model="year" v-on:change="obtenerEvaluaciones">
+            <select id="year-filter" class="form-control" v-model="year" v-on:change="obtenerEvaluaciones" v-show="show !== 'technologies'">
               <option
                 v-for="(yr, i) in years"
                 :key="i"
@@ -64,7 +64,6 @@
                 />
               </div>
             </div>
-            <!-- General -->
             <div class="dashboard--resources" v-show="show === 'Evaluations'">
               <evaluation-viewer v-if="resources.length" :course="resources[showEvaluation]" />
               <input
@@ -102,6 +101,17 @@
                 </div>
               </div>
             </div>
+            <div v-show="show === 'technologies'">
+              <h2 style="display: flex; gap: 1rem;">
+                <span
+                  class="badge badge-info badge-secondary"
+                  v-for="(item, i) in userStack"
+                  :key="`usrStk${i}`"
+                >
+                  {{ item.name }}
+                </span>
+              </h2>
+            </div>
           </div>
         </div>
       </div>
@@ -121,6 +131,7 @@
   import EvaluationViewer from '../components/evaluationsViewer.vue';
   import Rombo from '../components/rombo.vue';
   import translations from '../data/translate';
+  import TechnologiesService from '../services/technologies.service';
 
   export default {
     name: 'Dashboard',
@@ -144,10 +155,12 @@
             class: 'bi bi-calendar-check-fill',
             hasIcon: true,
           },
+          { name: 'technologies', class: '', hasIcon: false },
         ],
         showEvaluation: 0,
         year: new Date().getFullYear(),
         years: [],
+        userStack: [],
       };
     },
     watch: {
@@ -253,6 +266,7 @@
       const id = localStorage.getItem(`id-${APP_NAME}`);
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
+      const idCube = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`)).id;
 
       // Verifico el token
       verifyToken(token);
@@ -274,6 +288,7 @@
             // Obtenemos evaluaciones de un usuario
             this.getYears(id);
             this.obtenerEvaluaciones(id, this.year);
+            TechnologiesService.getByUser(idCube).then(resp => this.userStack = Object.values(resp)[0]);
           } else {
             // Si no obtengo el usuario en la base, deberíamos cargarnos
             this.error = translations[this.$store.state.language].dashboard.messageNotSyncStatus;
