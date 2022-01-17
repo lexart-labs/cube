@@ -125,11 +125,11 @@
           <div class="modal-body">
             <form enctype="multipart/form-data">
               <label for="">LexTracking user</label>
-              <v-select
+              <vue-select
                 v-model="user"
                 label="name"
                 :options="usersLextracking"
-              ></v-select>
+              ></vue-select>
               <br />
               <div class="row">
                 <div class="col">
@@ -168,24 +168,32 @@
               <br />
               <label for="techs">{{ $t('generic.technologies')}}</label>
               <div class="tech-ctl">
-                <v-select
-                  label="name"
+                <vue-select
                   :options="technologies"
                   id="techs"
                   style="width: 95%;"
                   v-model="currentTech"
+                  :getOptionLabel="el => el.name"
                 >
-                </v-select>
-                <i class="fas fa-plus-circle" style="font-size: 1.5rem;" v-on:click="addSkill()"/>
+                </vue-select>
+                <i
+                  class="fas fa-plus-circle"
+                  style="font-size: 1.5rem; cursor: pointer;"
+                  v-on:click="addSkill()"
+                />
               </div>
               <ul class="list-group list-group-flush">
                 <li
                   class="list-group-item d-flex justify-content-between align-items-center"
-                  v-for="(item, i) in userTechs"
+                  v-for="(item, i) in managerUserTechs.userTechs"
                   :key="`usrtchg${i}`"
                 >
                   {{ item.name }}
-                  <i class="far fa-times-circle" v-on:click="removeSkill(item)" />
+                  <i
+                    class="far fa-times-circle"
+                    v-on:click="removeSkill(item)"
+                    style="cursor: pointer;"
+                  />
                 </li>
               </ul>
               <br />
@@ -230,15 +238,17 @@
 import axios from "axios";
 import Vue from "vue";
 import Spinner from "../../components/Spinner.vue";
+import vueSelect from 'vue-select';
 import UserService from "../../services/user.service";
 import CareerService from "../../services/career.service";
 import LevelService from "../../services/level.service";
+import TechnologiesService from '../../services/technologies.service';
 import { verifyToken } from "../../services/helpers";
 import { API, APP_NAME } from "../../../env";
 
 export default {
   name: "Users",
-  components: { Spinner },
+  components: { Spinner, vueSelect },
   data() {
     return {
       title: "My developers",
@@ -258,12 +268,12 @@ export default {
       careers: [],
       pagesLength: 1,
       page: 1,
-      technologies: [{ name: 'JavaScript', plataform: 'Web'}],
-      userTechs: [
-        { name: 'JavaScript', plataform: 'Web'},
-        { name: 'Python', plataform: 'Web'},
-        { name: 'php', plataform: 'Web'},
-      ],
+      technologies: [],
+      managerUserTechs: {
+        userTechs: [],
+        toAdd: [],
+        toRemove: [],
+      },
       currentTech: {},
     };
   },
@@ -333,6 +343,8 @@ export default {
           this.error = res.error;
         }
       });
+
+      // this.updateUserSkill();
     },
     uploadFile() {
       const logoFile = this.$refs.logo.files[0];
@@ -423,13 +435,29 @@ export default {
       this.page = page + 1 || 1;
     },
     addSkill() {
-      const exists = this.userTechs.some(el => el.name === this.currentTech.name);
+      const exists = this.managerUserTechs.userTechs.some(el => el.name === this.currentTech.name);
 
-      if(!exists) return this.userTechs.push(this.currentTech);
+      if(!exists) {
+        this.managerUserTechs.toRemove = this.managerUserTechs.toRemove.filter(el => el != this.currentTech);
+        this.managerUserTechs.toAdd.push(this.currentTech);
+        this.managerUserTechs.userTechs.push(this.currentTech);
+      }
       return;
     },
     removeSkill(skill) {
-      this.userTechs = this.userTechs.filter(el => el.name !== skill.name);
+      const toAdd = this.managerUserTechs.toAdd.filter(({name}) => name !== skill.name);
+      const toRemove = [...this.managerUserTechs.toRemove, skill];
+      const userTechs = this.managerUserTechs.userTechs.filter(({name}) => name !== skill.name);
+
+      this.managerUserTechs = { toAdd, toRemove, userTechs };
+    },
+    updateUserSkill() {
+      const idUser = localStorage.getItem(`id-${APP_NAME}`)
+      Promise.all(
+        this.userTechs.map(item => {
+          TechnologiesService.asignNew(idUser, item.id);
+        })
+      )
     },
   },
   mounted() {
@@ -454,6 +482,11 @@ export default {
         this.error = res.error;
       }
     });
+    
+    TechnologiesService.getAll()
+      .then(res => { this.technologies = res.response; });
+    TechnologiesService.getByUser(localStorage.getItem(`id-${APP_NAME}`))
+      .then(res => { this.userTechs = res; });
 
     this.handlePagination();
   },
