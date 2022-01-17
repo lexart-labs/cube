@@ -124,6 +124,11 @@
                   :key="`usrStk${i}`"
                 >
                   {{ item.name }}
+                  <i
+                    class="far fa-times-circle"
+                    v-on:click="removeSkill(item)"
+                    style="cursor: pointer; font-size: 1rem"
+                  />
                 </span>
               </h2>
             </div>
@@ -279,7 +284,7 @@
         const {data} = await axios.get(`${API}courses/years/${id}`, { headers });
         this.years = data;
       },
-      addSkill: async function() {
+      addSkill() {
         const idUser = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`)).id;
         const exists = this.userStack.some(el => el.name === this.currentTech.name);
         if (!exists) {
@@ -287,6 +292,11 @@
           TechnologiesService.asignNew(idUser, this.currentTech.id);
           this.currentTech = {};
         };
+      },
+      removeSkill(skill) {
+        const idUser = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`)).id;
+        this.userStack = this.userStack.filter(el => el !== skill);
+        TechnologiesService.remove(idUser, skill.id);
       },
     },
     mounted() {
@@ -367,5 +377,4 @@
     align-items: center;
     justify-content: space-between;
   }
-
 </style>
