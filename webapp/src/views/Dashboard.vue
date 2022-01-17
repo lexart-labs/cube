@@ -38,7 +38,7 @@
           </div>
 
           <div class="left-select">
-            <select id="year-filter" class="form-control" v-model="year" v-on:change="obtenerEvaluaciones">
+            <select id="year-filter" class="form-control" v-model="year" v-on:change="obtenerEvaluaciones" v-if="years.length > 0">
               <option
                 v-for="(yr, i) in years"
                 :key="i"
@@ -48,13 +48,14 @@
               </option>
             </select>
           </div>
-          
+
           <div v-show="isFetching" class="spinner-border text-info window-centered" role="status">
             <span class="sr-only">Loading...</span>
           </div>
           <div v-show="!isFetching">
             <div v-show="show === 'Dashboard'">
               <timeline />
+              <h4 class="text-center" v-if="years.length === 0">{{ translations[$store.state.language].dashboard.userHaventEvaluations }}</h4>
               <div class="graphics-ctl">
                 <graphic v-if="resources.length" :evaluations="resources" />
                 <Rombo
@@ -66,6 +67,7 @@
             </div>
             <!-- General -->
             <div class="dashboard--resources" v-show="show === 'Evaluations'">
+              <h4 class="text-center" v-if="years.length === 0">{{ translations[$store.state.language].dashboard.userHaventEvaluations }}</h4>
               <evaluation-viewer v-if="resources.length" :course="resources[showEvaluation]" />
               <input
                 type="search"
@@ -146,8 +148,9 @@
           },
         ],
         showEvaluation: 0,
-        year: new Date().getFullYear(),
+        year: null,
         years: [],
+        translations: translations
       };
     },
     watch: {
@@ -246,7 +249,17 @@
         };
 
         const {data} = await axios.get(`${API}courses/years/${id}`, { headers });
-        this.years = data;
+        if(!data.err) {
+          this.years = data;
+          this.year = data[data.length - 1];
+          this.obtenerEvaluaciones(id, this.year);
+        } else {
+          console.log('ENTER')
+          Vue.toasted.show(translations[this.$store.state.language].dashboard.userHaventEvaluations, {
+            type: 'info',
+            duration: 2000,
+          });
+        }
       },
     },
     mounted() {
@@ -273,7 +286,6 @@
 
             // Obtenemos evaluaciones de un usuario
             this.getYears(id);
-            this.obtenerEvaluaciones(id, this.year);
           } else {
             // Si no obtengo el usuario en la base, deberíamos cargarnos
             this.error = translations[this.$store.state.language].dashboard.messageNotSyncStatus;
