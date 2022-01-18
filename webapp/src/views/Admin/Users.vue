@@ -157,9 +157,9 @@
               </div>
               <br />
               <label for="lead-select">{{ $t('generic.lead')}}</label>
-              <select v-model="user.idLead" class="form-control" id="lead-select">
+              <select v-model="user.lead" class="form-control" id="lead-select">
                 <option
-                  :value="lead.id"
+                  :value="{id: lead.idLextracking, name: lead.name }"
                   :key="`lead${i}`"
                   v-for="(lead, i) in leaders"
                 >
@@ -220,6 +220,7 @@ export default {
   data() {
     return {
       title: "My developers",
+      mySelfieCube: JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`)).cubeUser,
       users: [],
       error: "",
       isLoading: true,
@@ -241,19 +242,31 @@ export default {
   },
   methods: {
     newUser() {
+      const lead = {
+        id: this.mySelfieCube.idLextracking,
+        name: this.mySelfieCube.name,
+      };
+
       this.user = {
         name: "",
         active: "1",
         positionId: 1,
         levelId: 1,
+        lead,
       };
     },
     getUserById(id) {
+      const lead = {
+        id: this.mySelfieCube.idLextracking,
+        name: this.mySelfieCube.name,
+      };
+
       this.user = { name: "", active: "1" };
       this.isFeching = true;
       UserService().getUserById(id, (res) => {
         if (!res.error) {
           this.user = res.response;
+          this.user.lead = lead;
         }
         this.isFeching = false;
       });
