@@ -420,7 +420,7 @@ export default {
       }
     });
 
-    User.getLeaders().then(res => {
+    User.getLeaders().then(({data: res}) => {
       this.leaders = res.response ? res.response : [];
     });
 
