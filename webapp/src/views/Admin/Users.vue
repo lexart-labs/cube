@@ -156,7 +156,8 @@
                 </div>
               </div>
               <br />
-              <select v-model="user.idLead">
+              <label for="lead-select">{{ $t('geenric.lead')}}</label>
+              <select v-model="user.idLead" class="form-control" id="lead-select">
                 <option
                   :value="lead.id"
                   :key="`lead${i}`"
