@@ -100,8 +100,6 @@ let User = {
 
 		const tablaNombre = 'users'
 
-		// console.log("usuario.type: ", usuario.type)
-
 		// Verifico si no es admin
 		if (usuario.idUser && (idAdmin != usuario.idUser)) {
 			idAdmin = usuario.idUser
@@ -159,7 +157,6 @@ let User = {
 				usuario.password,
 				parseInt(usuario.active),
 				usuario.lead.id,
-				// idAdmin,
 				usuario.token,
 				idPosition,
 				usuario.id,
