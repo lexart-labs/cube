@@ -156,7 +156,7 @@
                 </div>
               </div>
               <br />
-              <label for="lead-select">{{ $t('geenric.lead')}}</label>
+              <label for="lead-select">{{ $t('generic.lead')}}</label>
               <select v-model="user.idLead" class="form-control" id="lead-select">
                 <option
                   :value="lead.id"
