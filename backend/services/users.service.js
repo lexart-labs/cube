@@ -120,7 +120,7 @@ let User = {
 		}
 
 		//Si Hay que cambiar el lead
-		if (usuario.idLead) {
+		if (usuario.idLead.id !== usuario.idAdmin) {
 			await this.changeLeader(usuario.idLead.id, usuario.id);
 		}
 
