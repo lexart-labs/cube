@@ -359,16 +359,16 @@ let User = {
 		
 		return response > 0 ? { response } : error;
 	},
-	changeLeader: async function (idLead, idUser) {
+	changeLeader: async function (idLead, idDev) {
 		const TABLE_NAME = 'lead_dev_logs';
 		const sql = `
-			INSERT INTO ${TABLE_NAME} (idUser, idLead)
+			INSERT INTO ${TABLE_NAME} (idDev, idLead)
 			VALUES (?, ?)
 		`;
 		let response;
 
 		try {
-			response = conn.query(sql, [idLead, idUser]);
+			response = conn.query(sql, [idDev, idLead]);
 		} catch (e) {
 			console.log(e.message);
 		}
@@ -376,6 +376,23 @@ let User = {
 		return response.affectedRows === 1
 			? { response: 'ok' }
 			: { error: 'Not possible to asign new user'};
+	},
+	getLeadersLog: async function(idDev) {
+		const TABLE_NAME = 'lead_dev_logs';
+		const sql = `
+			SELECT * FROM ${TABLE_NAME} WHERE idDev = ?
+		`;
+		let response;
+
+		try {
+			response = conn.query(sql, [idDev]);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.length
+			? { response }
+			: { error: 'No leaders found for this user'};
 	},
 }
 module.exports = User;
