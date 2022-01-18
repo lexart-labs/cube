@@ -109,7 +109,6 @@ let User = {
 
 		// Si ya existe
 		const cubeUser = await this.loginCube(usuario.email);
-
 		if (cubeUser.response) {
 			shouldCreateNewPosition = (
 				cubeUser.response.idPosition == usuario.positionId
@@ -120,8 +119,9 @@ let User = {
 		}
 
 		//Si Hay que cambiar el lead
-		if (usuario.lead.id !== usuario.idAdmin) {
-			await this.changeLeader(usuario.lead.id, usuario.id);
+		if (usuario.lead.id != usuario.idAdmin) {
+			const {lead, id} = usuario;
+			const resultLead = await this.changeLeader(Number(lead.id), Number(id));
 		}
 
 		const idPosition = shouldCreateNewPosition
@@ -150,7 +150,7 @@ let User = {
 					token = ?,
 					idPosition = ?,
 					dateEdited = NOW()
-				WHERE id = ? 
+				WHERE id = ? OR idLextracking = ?
 			`
 			arr = [
 				usuario.name,
@@ -158,9 +158,11 @@ let User = {
 				usuario.type,
 				usuario.password,
 				parseInt(usuario.active),
-				(usuario.lead.id || idAdmin),
+				usuario.lead.id,
+				// idAdmin,
 				usuario.token,
 				idPosition,
+				usuario.id,
 				usuario.id,
 			]
 
@@ -205,7 +207,7 @@ let User = {
 			console.log("e: ", e)
 			stack = e
 		}
-		error.stack = { stack: stack, tail: response, sql: sql, arr: arr }
+		error.stack = { stack, tail: response, sql, arr }
 		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
 	loginLextracking: async function (email, password) {
