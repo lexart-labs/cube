@@ -50,13 +50,6 @@ router.get('/count', Mdl.middleware, async function (req, res) {
     res.send(response);
 })
 
-router.get('/:id', Mdl.middleware, async function (req, res) {
-	let response = await User.one(req.params.id, req.headers['token']);
-
-	res.set(['Content-Type', 'application/json']);
-    res.send(response);
-})
-
 router.post('/upsert', Mdl.middleware, async function (req, res) {
 	let post 	 = req.body;
 	let response = await User.upsert(post, req.headers['user-id']);
@@ -67,6 +60,13 @@ router.post('/upsert', Mdl.middleware, async function (req, res) {
 
 router.get('/leads', Mdl.middleware, async function (_req, res) {
 	let response = await User.getLeads();
+
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
+router.get('/:id', Mdl.middleware, async function (req, res) {
+	let response = await User.one(req.params.id, req.headers['token']);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
