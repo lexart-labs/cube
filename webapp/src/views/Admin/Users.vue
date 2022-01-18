@@ -271,24 +271,8 @@ export default {
         this.isFeching = false;
       });
     },
-    actulizeUsers(usr) {
-      const position = this.careers.find(
-        (el) => el.id == usr.positionId
-      ).position;
-      const level = this.levels.find((el) => el.id == usr.levelId).level;
-      usr.position = position;
-      usr.level = level;
-
-      if (this.users.some((el) => el.id == usr.id)) {
-        const result = this.users.reduce((acc, cur) => {
-          acc =
-            Number(cur.id) === Number(usr.id) ? [...acc, usr] : [...acc, cur];
-          return acc;
-        }, []);
-        this.users = result;
-      } else {
-        this.users = [...this.users, usr];
-      }
+    actulizeUsers() {
+      this.handlePagination(this.page - 1);
     },
     upsertUser() {
       this.isLoading = true;
@@ -302,7 +286,6 @@ export default {
 
         if (!res.error) {
           $("#staticBackdrop").modal("hide");
-          $(".modal-backdrop").remove();
 
           Vue.toasted.show("Usuario editado/creado correctamente", {
             type: "success",
