@@ -271,9 +271,6 @@ export default {
         this.isFeching = false;
       });
     },
-    actulizeUsers() {
-      this.handlePagination(this.page - 1);
-    },
     upsertUser() {
       this.isLoading = true;
       // Agrego usuarios nuevos con el sync desde el front
@@ -293,7 +290,7 @@ export default {
           });
 
           if (this.users.length < 5) {
-            this.actulizeUsers(this.user);
+            this.handlePagination(this.page - 1);
           } else {
             this.handlePagination(this.page);
           }
