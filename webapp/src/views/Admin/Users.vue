@@ -156,6 +156,16 @@
                 </div>
               </div>
               <br />
+              <select v-model="user.idLead">
+                <option
+                  :value="lead.id"
+                  :key="`lead${i}`"
+                  v-for="(lead, i) in leaders"
+                >
+                  {{ lead.name }}
+                </option>
+              </select>
+              <br />
               <select class="form-control" v-model="user.active">
                 <option value="1">Active</option>
                 <option value="0">Inactive</option>
@@ -225,6 +235,7 @@ export default {
       careers: [],
       pagesLength: 1,
       page: 1,
+      leaders: [],
     };
   },
   methods: {
@@ -363,7 +374,9 @@ export default {
     },
     handlePagination(page = 0) {
       this.isLoading = true;
-      UserService().getAllUsers(page, (res) => {
+      const Users = UserService();
+
+      Users.getAllUsers(page, (res) => {
         if (!res.error) {
           const users = res.response;
           this.users = users;
@@ -372,7 +385,7 @@ export default {
         }
       });
 
-      UserService().getPagesLength((res) => {
+      Users.getPagesLength((res) => {
         this.isLoading = false;
         if (!res.error) {
           this.pagesLength = res.response;
@@ -385,6 +398,7 @@ export default {
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
+    const User = UserService();
 
     // Verifico el token
     verifyToken(token);
@@ -396,7 +410,7 @@ export default {
       .getAll()
       .then((res) => (this.levels = res.response));
 
-    UserService().getAllUsersLextracking((res) => {
+    User.getAllUsersLextracking((res) => {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
@@ -404,6 +418,10 @@ export default {
       } else {
         this.error = res.error;
       }
+    });
+
+    User.getLeaders().then(res => {
+      this.leaders = res.response ? res.response : [];
     });
 
     this.handlePagination();
