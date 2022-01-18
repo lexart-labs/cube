@@ -9,8 +9,6 @@ let User = {
 	all: async function (idAdmin, page) {
 		let error = { "error": "Error al obtener usuarios" }
 
-		const tablaNombre = 'users'
-
 		// Obtener los usuarios
 		const sql = `
 			SELECT c.position AS position, l.level AS level, u.* FROM users u
