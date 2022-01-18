@@ -359,5 +359,23 @@ let User = {
 		
 		return response > 0 ? { response } : error;
 	},
+	changeLeader: async function (idLead, idUser) {
+		const TABLE_NAME = 'lead_dev_logs';
+		const sql = `
+			INSERT INTO ${TABLE_NAME} (idUser, idLead)
+			VALUES (?, ?)
+		`;
+		let response;
+
+		try {
+			response = conn.query(sql, [idLead, idUser]);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.affectedRows === 1
+			? { response: 'ok' }
+			: { error: 'Not possible to asign new user'};
+	},
 }
 module.exports = User;
