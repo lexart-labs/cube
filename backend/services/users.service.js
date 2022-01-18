@@ -121,6 +121,11 @@ let User = {
 			usuario.sync = false
 		}
 
+		//Si Hay que cambiar el lead
+		if (usuario.idLead) {
+			await this.changeLeader( usuario.id, usuario.idLead);
+		}
+
 		const idPosition = shouldCreateNewPosition
 				? await this.updatePosition(usuario)
 				: usuario.idPosition;
@@ -155,7 +160,7 @@ let User = {
 				usuario.type,
 				usuario.password,
 				parseInt(usuario.active),
-				idAdmin,
+				(usuario.idLead || idAdmin),
 				usuario.token,
 				idPosition,
 				usuario.id,
