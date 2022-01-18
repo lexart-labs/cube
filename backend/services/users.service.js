@@ -359,6 +359,20 @@ let User = {
 		
 		return response > 0 ? { response } : error;
 	},
+	getLeads: async function () {
+		const sql = `
+			SELECT * FROM ${tablaNombre} WHERE type IN ('admin', 'pm')
+		`;
+		let response = [];
+
+		try {
+			response = await conn.query(sql);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.length ? { response } : { error: 'No leads found.'}
+	},
 	changeLeader: async function (idLead, idDev) {
 		const TABLE_NAME = 'lead_dev_logs';
 		const sql = `
@@ -368,7 +382,7 @@ let User = {
 		let response;
 
 		try {
-			response = conn.query(sql, [idDev, idLead]);
+			response = await conn.query(sql, [idDev, idLead]);
 		} catch (e) {
 			console.log(e.message);
 		}
@@ -385,7 +399,7 @@ let User = {
 		let response;
 
 		try {
-			response = conn.query(sql, [idDev]);
+			response = await conn.query(sql, [idDev]);
 		} catch (e) {
 			console.log(e.message);
 		}
