@@ -18,7 +18,7 @@ const TechnologiesService = {
   },
   getByUser: async function (idUser) {
     const { data } = await axios.get(`${API}users/skills/${idUser}`, { headers });
-    return data || [];
+    return data;
   },
   asignNew: async function (idUser, idTech) {
     const { data } = await axios.post(`${API}users/skills/${idUser}/${idTech}`, {}, { headers });

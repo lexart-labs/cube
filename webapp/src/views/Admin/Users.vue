@@ -283,7 +283,7 @@ export default {
         if (!res.error) {
           this.user = res.response;
           const resp = await TechnologiesService.getByUser(res.response.id);
-          this.managerUserTechs.userTechs = Object.values(resp)[0];
+          this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
         }
         this.isFeching = false;
       });
