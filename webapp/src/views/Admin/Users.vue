@@ -230,6 +230,7 @@ export default {
       user: {
         name: "",
         active: "1",
+        lead: {},
       },
       api: API,
       usersLextracking: [],
@@ -265,8 +266,7 @@ export default {
       this.isFeching = true;
       UserService().getUserById(id, (res) => {
         if (!res.error) {
-          this.user = res.response;
-          this.user.lead = lead;
+          this.user = {...res.response, lead };
         }
         this.isFeching = false;
       });
