@@ -65,4 +65,11 @@ router.post('/upsert', Mdl.middleware, async function (req, res) {
     res.send(response);
 })
 
+router.get('/leads', Mdl.middleware, async function (_req, res) {
+	let response = await User.getLeads();
+
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
 module.exports = router;
