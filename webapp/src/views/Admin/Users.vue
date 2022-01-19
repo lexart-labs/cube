@@ -411,7 +411,7 @@ export default {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
-        this.usersLextracking = users;
+        this.usersLextracking = users.map(el => ({...el, idLextracking: el.id }));
       } else {
         this.error = res.error;
       }

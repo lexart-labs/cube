@@ -119,7 +119,7 @@ let User = {
 		//Si Hay que cambiar el lead
 		if (usuario.lead.id != usuario.idAdmin) {
 			const {lead, id} = usuario;
-			const resultLead = await this.changeLeader(Number(lead.id), Number(id));
+			await this.changeLeader(Number(lead.id), Number(id));
 		}
 
 		const idPosition = shouldCreateNewPosition
@@ -160,7 +160,7 @@ let User = {
 				usuario.token,
 				idPosition,
 				usuario.id,
-				usuario.id,
+				usuario.idLextracking,
 			]
 
 		} else {
