@@ -53,7 +53,8 @@ let User = {
 				c.id AS positionId,
 				l.level AS level,
 				l.id AS levelId,
-					usp.skills AS 'skills',
+				usp.skills AS 'skills',
+				DATEDIFF(CURRENT_DATE, usp.createdAt) AS 'since',
 				u.*
 			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
