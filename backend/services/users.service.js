@@ -1,4 +1,5 @@
-const utils = require('./utils.service')
+const utils = require('./utils.service');
+const UserSkills = require('./userSkills.service');
 const axios = require('axios')
 
 const tablaNombre = 'users';
@@ -60,7 +61,7 @@ let User = {
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
 			LEFT JOIN careers c ON uc.idPosition = c.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
-			LEFT JOIN user_skills_per_position usp ON u.id = usp.idUser AND usp.idPosition = uc.id
+			LEFT JOIN user_skills_per_position usp ON u.idLextracking = usp.idUser AND usp.idPosition = uc.id
 			WHERE u.idLextracking = ?;
 			`
 		// alterado o where, antes estava WHERE u.idLextraking = ? AND u.token = ?;
@@ -96,7 +97,7 @@ let User = {
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
 	},
-	updateOne: async function (usuario, {idAdmin, idPosition}) {
+	updateOne: async function (usuario, {idAdmin, idPosition, shouldCreateNewPosition}) {
 		const tablaNombre = 'users';
 		let response;
 		let stack;
@@ -116,7 +117,7 @@ let User = {
 				token = ?,
 				idPosition = ?,
 				dateEdited = NOW()
-			WHERE id = ?
+			WHERE id = ? OR idLextracking = ?
 		`;
 		const arr = [
 			usuario.name,
@@ -128,10 +129,16 @@ let User = {
 			usuario.token,
 			idPosition,
 			usuario.id,
+			usuario.idLextracking,
 		];
 
 		try {
 			response = await conn.query(sql, arr);
+			if(shouldCreateNewPosition) {
+				await UserSkills.insert({idUser: usuario.idLextracking, skills: usuario.skills, idPosition});
+			} else {
+				await UserSkills.update({idUser: usuario.idLextracking, skills: usuario.skills, idPosition});
+			};
 		} catch (e) {
 			console.log("e: ", e)
 			stack = e
@@ -159,7 +166,7 @@ let User = {
 		`;
 		const arr = [
 			usuario.name,
-			parseInt(usuario.id),
+			parseInt(usuario.idLextracking),
 			idAdmin,
 			usuario.email,
 			usuario.type,
@@ -170,6 +177,13 @@ let User = {
 
 		try {
 			response = await conn.query(sql, arr);
+			await UserSkills.insert(
+				{
+					idUser: usuario.idLextracking,
+					skills: usuario.skills,
+					idPosition
+				}
+			);
 		} catch (e) {
 			console.log("e: ", e)
 			stack = e
@@ -188,11 +202,11 @@ let User = {
 		}
 
 		// Si ya existe
-		const cubeUser = await this.loginCube(usuario.email);
+		const cubeUser = await this.one(usuario.idLextracking, '');
 		if (cubeUser.response) {
 			shouldCreateNewPosition = (
-				cubeUser.response.idPosition == usuario.positionId
-				&& cubeUser.response.idLevel == usuario.levelId
+				cubeUser.response.positionId == usuario.positionId
+				&& cubeUser.response.levelId == usuario.levelId
 			)
 				? false : true;
 			usuario.sync = false
@@ -202,7 +216,7 @@ let User = {
 				: usuario.idPosition;
 
 		if (usuario.id && !usuario.sync) {
-			result = await this.updateOne(usuario, {idPosition, idAdmin});
+			result = await this.updateOne(usuario, {idPosition, idAdmin, shouldCreateNewPosition});
 		} else {
 			result = await this.insertOne(usuario, {idAdmin});
 		}
@@ -246,27 +260,24 @@ let User = {
 	},
 	loginCube: async function (email) {
 		const sql = `
-			SELECT
-				u.id,
-				u.name,
-				u.email,
-				u.type,
-				u.active,
-				u.idUser,
-				u.idLextracking,
-				uc.idPosition,
-				uc.idLevel
-			FROM ${tablaNombre} u
-			LEFT JOIN user_position_level uc ON u.idPosition = uc.id
-			WHERE u.email = ?
-				AND u.active = 1
-			;
+		SELECT
+			u.id,
+			u.name,
+			u.email,
+			u.type,
+			u.active,
+			u.idUser,
+			u.idLextracking,
+			uc.idPosition,
+			uc.idLevel
+		FROM ${tablaNombre} u
+		LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+		WHERE u.email = ? AND u.active = 1
 		`
-		let response = []
+		let response = [];
 
 		try {
 			response = await conn.query(sql, [email]);
-
 		} catch (e) { }
 
 		return response.length > 0 ? { response: response[0] } : { error: 'Usuario y/o clave incorrecta.' };

@@ -14,25 +14,25 @@ const UserSkills = {
     try {
       response = await conn.query(sql, [idUser, JSON.stringify(skills), idPosition]);
     } catch (e) {
-      e.message
+      console.log(e.message);
     }
 
     return response.changedRows ? { resposne: 'ok' } : { error: response.sqlMessage };
   },
-  update: async function(idUser, payload) {
-    const {skills, idUser} = payload;
+  update: async function(payload) {
+    const {skills, idUser, idPosition} = payload;
     const sql = `
     UPDATE ${MODEL}
       SET
         skills = ?,
         updatedAt= CURRENT_TIMESTAMP
-      WHERE idUser = ?
+      WHERE idUser = ? AND idPosition = ?
     `;
 
     let response;
 
     try {
-      response = await conn.query(sql, [JSON.stringify(skills), idUser]);
+      response = await conn.query(sql, [JSON.stringify(skills), idUser, idPosition]);
     } catch (e) {
       e.message
     }
