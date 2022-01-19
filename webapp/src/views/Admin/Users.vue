@@ -234,6 +234,7 @@ import CareerService from "../../services/career.service";
 import LevelService from "../../services/level.service";
 import TechnologiesService from '../../services/technologies.service';
 import { verifyToken } from "../../services/helpers";
+import translations from '../../data/translate';
 import { API, APP_NAME } from "../../../env";
 
 export default {
@@ -433,6 +434,12 @@ export default {
         this.managerUserTechs.toRemove = this.managerUserTechs.toRemove.filter(el => el != this.currentTech);
         this.managerUserTechs.toAdd.push(this.currentTech);
         this.managerUserTechs.userTechs.push(this.currentTech);
+      } else {
+        Vue.toasted.show(translations[this.$store.state.language].dashboard.alreadyExists, {
+            type: 'info',
+            duration: 2000,
+          });
+          this.currentTech = {};
       }
       return;
     },
