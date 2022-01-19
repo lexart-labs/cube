@@ -96,16 +96,91 @@ let User = {
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
 	},
+	updateOne: async function (usuario, {idAdmin, idPosition}) {
+		const tablaNombre = 'users';
+		let response;
+		let stack;
+		if (usuario.passwordCopy) {
+			usuario.password = md5(usuario.passwordCopy);
+		}
+		usuario.token = utils.makeToken(usuario.email, usuario.id, 'public');
+
+		const sql = `
+			UPDATE ${tablaNombre}
+			SET name = ?,
+				email  = ?,
+				type   = ?,
+				password = ?,
+				active = ?,
+				idUser = ?,
+				token = ?,
+				idPosition = ?,
+				dateEdited = NOW()
+			WHERE id = ?
+		`;
+		const arr = [
+			usuario.name,
+			usuario.email,
+			usuario.type,
+			usuario.password,
+			parseInt(usuario.active),
+			idAdmin,
+			usuario.token,
+			idPosition,
+			usuario.id,
+		];
+
+		try {
+			response = await conn.query(sql, arr);
+		} catch (e) {
+			console.log("e: ", e)
+			stack = e
+		}
+
+		return {response, stack, arr, sql };
+	},
+	insertOne: async function (usuario, {idAdmin}) {
+		const tablaNombre = 'users';
+		let response;
+		let stack;
+		let password = usuario.password;
+		if (usuario.passwordCopy) {
+			password = md5(usuario.passwordCopy);
+		}
+
+		const result = await this.updatePosition(usuario);
+		const idPosition = result.error ? null : result;
+
+		const sql = `
+			INSERT INTO ${tablaNombre}
+				(name, idLextracking, idUser, email, type, password, token, idPosition)
+			VALUES
+				(?, ?, ?, ?, ?, ?, ?, ?)
+		`;
+		const arr = [
+			usuario.name,
+			parseInt(usuario.id),
+			idAdmin,
+			usuario.email,
+			usuario.type,
+			password,
+			usuario.token,
+			idPosition,
+		];
+
+		try {
+			response = await conn.query(sql, arr);
+		} catch (e) {
+			console.log("e: ", e)
+			stack = e
+		}
+
+		return {response, stack, arr, sql };
+	},
 	upsert: async function (usuario, idAdmin) {
-
-		let error = { "error": "Error al ingresar/editar usuario" }
-		let sql = ``;
-		let arr = [];
+		let error = { "error": "Error al ingresar/editar usuario" };
 		let shouldCreateNewPosition = false;
-
-		const tablaNombre = 'users'
-
-		// console.log("usuario.type: ", usuario.type)
+		let result = [];
 
 		// Verifico si no es admin
 		if (usuario.idUser && (idAdmin != usuario.idUser)) {
@@ -114,7 +189,6 @@ let User = {
 
 		// Si ya existe
 		const cubeUser = await this.loginCube(usuario.email);
-
 		if (cubeUser.response) {
 			shouldCreateNewPosition = (
 				cubeUser.response.idPosition == usuario.positionId
@@ -123,89 +197,19 @@ let User = {
 				? false : true;
 			usuario.sync = false
 		}
-
 		const idPosition = shouldCreateNewPosition
 				? await this.updatePosition(usuario)
 				: usuario.idPosition;
 
 		if (usuario.id && !usuario.sync) {
-
-			// Si viene clave nueva
-			if (usuario.passwordCopy) {
-				usuario.password = md5(usuario.passwordCopy);
-			}
-
-			// Generate token in update
-			usuario.token = utils.makeToken(usuario.email, usuario.id, 'public')
-
-			// Actualizar usuario
-			sql = `
-				UPDATE ${tablaNombre}
-				SET name = ?,
-					email  = ?,
-					type   = ?,
-					password = ?,
-					active = ?,
-					idUser = ?,
-					token = ?,
-					idPosition = ?,
-					dateEdited = NOW()
-				WHERE id = ? 
-			`
-			arr = [
-				usuario.name,
-				usuario.email,
-				usuario.type,
-				usuario.password,
-				parseInt(usuario.active),
-				idAdmin,
-				usuario.token,
-				idPosition,
-				usuario.id,
-			]
-
+			result = await this.updateOne(usuario, {idPosition, idAdmin});
 		} else {
-			// Hasheo con MD5
-			// Si viene el sync del lextracking
-			let password = usuario.password
-
-			if (usuario.passwordCopy) {
-				password = md5(usuario.passwordCopy);
-			}
-
-			const result = await this.updatePosition(usuario);
-			const idPosition = result.error ? null : result;
-			
-
-			// Insertar usuario
-			sql = `
-				INSERT INTO ${tablaNombre}
-					(name, idLextracking, idUser, email, type, password, token, idPosition)
-				VALUES
-				 	(?, ?, ?, ?, ?, ?, ?, ?)
-			`
-			arr = [
-				usuario.name,
-				parseInt(usuario.id),
-				idAdmin,
-				usuario.email,
-				usuario.type,
-				password,
-				usuario.token,
-				idPosition,
-			]
+			result = await this.insertOne(usuario, {idAdmin});
 		}
 
-		let response = [];
+		const { arr, sql, stack, response } = result;
 
-		let stack
-		try {
-			response = await conn.query(sql, arr);
-		} catch (e) {
-			console.log("e: ", e)
-			stack = e
-		}
-		error.stack = { stack: stack, tail: response, sql: sql, arr: arr }
+		error.stack = { stack, tail: response, sql, arr }
 		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
 	loginLextracking: async function (email, password) {
