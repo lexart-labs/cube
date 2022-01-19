@@ -48,17 +48,19 @@ let User = {
 
 		// Obtener los usuario
 			const sql = `
-				SELECT
-					c.position AS position,
-					c.id AS positionId,
-					l.level AS level,
-					l.id AS levelId,
-					u.*
-				FROM users u
-				LEFT JOIN user_position_level uc ON uc.id = u.idPosition
-				LEFT JOIN careers c ON uc.idPosition = c.id
-				LEFT JOIN levels l ON uc.idLevel = l.id
-				WHERE u.idLextracking = ?;
+			SELECT
+				c.position AS position,
+				c.id AS positionId,
+				l.level AS level,
+				l.id AS levelId,
+					usp.skills AS 'skills',
+				u.*
+			FROM users u
+			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			LEFT JOIN careers c ON uc.idPosition = c.id
+			LEFT JOIN levels l ON uc.idLevel = l.id
+			LEFT JOIN user_skills_per_position usp ON u.id = usp.idUser AND usp.idPosition = uc.id
+			WHERE u.idLextracking = ?;
 			`
 		// alterado o where, antes estava WHERE u.idLextraking = ? AND u.token = ?;
 		// E ele nunca encontrava o usuário, pois quando se cria um, ele não é criado com o token;
