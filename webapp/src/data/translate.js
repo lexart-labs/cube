@@ -12,6 +12,7 @@ const translations = {
       searchPlaceholder: 'Buscar Evaluaciones',
       administration: 'Administración',
       romboTitle: 'Vision general por año',
+      alreadyExists: '¡El elemente ya existe!',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -212,6 +213,7 @@ const translations = {
       searchPlaceholder: 'Search Evaluations',
       administration: 'Administration',
       romboTitle: 'Overview by year',
+      alreadyExists: 'This item already exists!',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',

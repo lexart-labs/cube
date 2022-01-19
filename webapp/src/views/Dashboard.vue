@@ -311,6 +311,12 @@
           this.userStack.push(this.currentTech);
           TechnologiesService.asignNew(idUser, this.currentTech.id);
           this.currentTech = {};
+        } else {
+          Vue.toasted.show(translations[this.$store.state.language].dashboard.alreadyExists, {
+            type: 'info',
+            duration: 2000,
+          });
+          this.currentTech = {};
         };
       },
       removeSkill(skill) {
