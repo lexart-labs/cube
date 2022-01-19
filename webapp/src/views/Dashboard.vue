@@ -345,7 +345,7 @@
             // Obtenemos evaluaciones de un usuario
             this.getYears(id);
             this.obtenerEvaluaciones(id, this.year);
-            TechnologiesService.getByUser(idCube).then(resp => this.userStack = Object.values(resp)[0]);
+            TechnologiesService.getByUser(idCube).then(resp => this.userStack = Object.values(resp)[0] || []);
           } else {
             // Si no obtengo el usuario en la base, deberíamos cargarnos
             this.error = translations[this.$store.state.language].dashboard.messageNotSyncStatus;
