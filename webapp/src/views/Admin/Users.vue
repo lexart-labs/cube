@@ -246,25 +246,6 @@ export default {
         this.isFeching = false;
       });
     },
-    actulizeUsers(usr) {
-      const position = this.careers.find(
-        (el) => el.id == usr.positionId
-      ).position;
-      const level = this.levels.find((el) => el.id == usr.levelId).level;
-      usr.position = position;
-      usr.level = level;
-
-      if (this.users.some((el) => el.id == usr.id)) {
-        const result = this.users.reduce((acc, cur) => {
-          acc =
-            Number(cur.id) === Number(usr.id) ? [...acc, usr] : [...acc, cur];
-          return acc;
-        }, []);
-        this.users = result;
-      } else {
-        this.users = [...this.users, usr];
-      }
-    },
     upsertUser() {
       this.isLoading = true;
       // Agrego usuarios nuevos con el sync desde el front
@@ -285,7 +266,8 @@ export default {
           });
 
           if (this.users.length < 5) {
-            this.actulizeUsers(this.user);
+            const page = this.page - 1;
+            this.handlePagination(page);
           } else {
             this.handlePagination(this.page);
           }
