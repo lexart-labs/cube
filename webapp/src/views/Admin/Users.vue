@@ -113,54 +113,84 @@
             </button>
           </div>
           <div class="modal-body">
-            <form enctype="multipart/form-data">
-              <label for="">LexTracking user</label>
-              <v-select
-                v-model="user"
-                label="name"
-                :options="usersLextracking"
-              ></v-select>
-              <br />
-              <div class="row">
-                <div class="col">
-                  <label for="career">{{
-                    $t("AdminUsers.columnCharge")
-                  }}</label>
-                  <select
-                    class="form-control"
-                    v-model="user.positionId"
-                    id="career"
+            <div class="coursesTab">
+              <ul class="nav nav-tabs">
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    v-bind:class="{ active: tabs.perfil }"
+                    v-on:click="activeTab('perfil')"
+                    >Perfil</a
                   >
-                    <option
-                      v-for="(career, i) in careers"
-                      :value="career.id"
-                      :key="`car${i}`"
-                      :selected="career.id == user.positionId"
+                </li>
+                <li class="nav-item">
+                  <a
+                    v-bind:class="{ active: tabs.roadmap }"
+                    v-on:click="activeTab('roadmap')"
+                    class="nav-link"
+                    >Roadmap</a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div class="perfil">
+              <form enctype="multipart/form-data" v-show="tabs.perfil">
+                <label for="">LexTracking user</label>
+                <v-select
+                  v-model="user"
+                  label="name"
+                  :options="usersLextracking"
+                ></v-select>
+                <br />
+                <div class="row">
+                  <div class="col">
+                    <label for="career">{{
+                      $t("AdminUsers.columnCharge")
+                    }}</label>
+                    <select
+                      class="form-control"
+                      v-model="user.positionId"
+                      id="career"
                     >
-                      {{ career.position }}
-                    </option>
-                  </select>
+                      <option
+                        v-for="(career, i) in careers"
+                        :value="career.id"
+                        :key="`car${i}`"
+                        :selected="career.id == user.positionId"
+                      >
+                        {{ career.position }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col">
+                    <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
+                    <select class="form-control" v-model="user.levelId" id="lvl">
+                      <option
+                        v-for="(level, i) in levels"
+                        :value="level.id"
+                        :key="`lev${i}`"
+                        :selected="level.id == user.levelId"
+                      >
+                        {{ level.level }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
-                <div class="col">
-                  <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
-                  <select class="form-control" v-model="user.levelId" id="lvl">
-                    <option
-                      v-for="(level, i) in levels"
-                      :value="level.id"
-                      :key="`lev${i}`"
-                      :selected="level.id == user.levelId"
-                    >
-                      {{ level.level }}
-                    </option>
-                  </select>
-                </div>
+                <br />
+                <select class="form-control" v-model="user.active">
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+              </form>
+            </div>
+            <div class="roadmap" v-show="tabs.roadmap">
+              <div class="list-group">
+                <label class="list-group-item">
+                  <input class="form-check-input me-1" type="checkbox" value="">
+                  First checkbox
+                </label>
               </div>
-              <br />
-              <select class="form-control" v-model="user.active">
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
-              </select>
-            </form>
+            </div>
             <div
               v-if="error"
               class="alert alert-danger"
@@ -225,6 +255,10 @@ export default {
       careers: [],
       pagesLength: 1,
       page: 1,
+      tabs: {
+        perfil: true,
+        roadmap: false,
+      },
     };
   },
   methods: {
@@ -235,6 +269,12 @@ export default {
         positionId: 1,
         levelId: 1,
       };
+    },
+    activeTab(tab) {
+      // Set all to false
+      Object.keys(this.tabs)
+        .forEach((key) => { this.tabs[key] = false; });
+      this.tabs[tab] = true;
     },
     getUserById(id) {
       this.user = { name: "", active: "1" };
