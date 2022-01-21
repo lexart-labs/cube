@@ -409,7 +409,7 @@ export default {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
-        this.usersLextracking = users.map(el => ({...el, idLextracking: el.id }));
+        this.usersLextracking = users;
       } else {
         this.error = res.error;
       }

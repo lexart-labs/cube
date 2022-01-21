@@ -117,8 +117,8 @@ let User = {
 
 		//Si Hay que cambiar el lead
 		if (usuario.lead && usuario.lead.id != usuario.idAdmin) {
-			const {lead, id} = usuario;
-			await this.changeLeader(Number(lead.id), Number(id));
+			const {lead, id, idLextracking } = usuario;
+			await this.changeLeader(Number(lead.id), (Number(idLextracking) || Number(id)));
 		}
 
 		const idPosition = shouldCreateNewPosition
