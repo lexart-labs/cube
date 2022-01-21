@@ -168,7 +168,7 @@
                 </vue-select>
                 <i
                   class="fas fa-plus-circle"
-                  style="font-size: 1.5rem; cursor: pointer;"
+                  :style="`font-size: 1.5rem; cursor: pointer;${currentTech.name ? '' : 'pointer-events: none;'}`"
                   v-on:click="addSkill()"
                 />
               </div>
@@ -441,6 +441,7 @@ export default {
       await Promise.all(
         toRemove.map(item => {TechnologiesService.remove(idUser, item.id);})
       );
+      this.currentTech = {};
     },
   },
   mounted() {
