@@ -105,6 +105,7 @@ let User = {
 			usuario.password = md5(usuario.passwordCopy);
 		}
 		usuario.token = utils.makeToken(usuario.email, usuario.id, 'public');
+		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 
 		const sql = `
 			UPDATE ${tablaNombre}
@@ -117,7 +118,7 @@ let User = {
 				token = ?,
 				idPosition = ?,
 				dateEdited = NOW()
-			WHERE id = ? OR idLextracking = ?
+			WHERE idLextracking = ?
 		`;
 		const arr = [
 			usuario.name,
@@ -128,8 +129,7 @@ let User = {
 			idAdmin,
 			usuario.token,
 			idPosition,
-			usuario.id,
-			usuario.idLextracking,
+			idLextracking,
 		];
 
 		try {
@@ -200,7 +200,6 @@ let User = {
 		if (usuario.idUser && (idAdmin != usuario.idUser)) {
 			idAdmin = usuario.idUser
 		}
-
 		// Si ya existe
 		const cubeUser = await this.one(usuario.idLextracking, '');
 		if (cubeUser.response) {
@@ -215,7 +214,7 @@ let User = {
 				? await this.updatePosition(usuario)
 				: usuario.idPosition;
 
-		if (usuario.id && !usuario.sync) {
+		if (cubeUser.response && !usuario.sync) {
 			result = await this.updateOne(usuario, {idPosition, idAdmin, shouldCreateNewPosition});
 		} else {
 			result = await this.insertOne(usuario, {idAdmin});
