@@ -193,10 +193,9 @@
                   <input
                     class="form-check-input me-1"
                     type="checkbox"
-                    value=""
                     v-model="user.skills[item]"
                   >
-                  {{ item }}
+                  {{ $t(`positionAssignments.${user.position}[${i}]`) }}
                 </label>
               </div>
             </div>
@@ -241,7 +240,7 @@ import CareerService from "../../services/career.service";
 import LevelService from "../../services/level.service";
 import { verifyToken } from "../../services/helpers";
 import { API, APP_NAME } from "../../../env";
-import assignments from '../../data/jobAssignments';
+import translations from '../../data/translate';
 
 export default {
   name: "Users",
@@ -447,7 +446,7 @@ export default {
       this.isFeching = true;
       if (!res.error) {
         this.myself = res.response;
-        this.jobAssignments = assignments['Solution Architect'];
+        this.jobAssignments = translations.en.positionAssignments['Solution Architect'];
       }
       this.isFeching = false;
     });
