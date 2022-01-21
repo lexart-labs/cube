@@ -26,6 +26,7 @@
         type="button"
         class="btn btn-primary col-1"
         v-on:click="isEditing ? updateTech() : addTech()"
+        :disabled="!newTechnology.name"
       >
         {{ $t("generic.save") }}
       </button>

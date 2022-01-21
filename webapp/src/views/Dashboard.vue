@@ -123,7 +123,7 @@
                 <i
                   class="fas fa-plus-circle"
                   style="font-size: 1.5rem; cursor: pointer;"
-                  :style="currentTech.name ? '' : 'pointer-events: none;'"
+                  :style="currentTech.name ? '' : 'pointer-events: none; color: #d3d3d3;'"
                   v-on:click="addSkill()"
                 />
               </div>
