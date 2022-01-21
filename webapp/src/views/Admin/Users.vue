@@ -184,6 +184,8 @@
               </form>
             </div>
             <div class="roadmap" v-show="tabs.roadmap">
+              {{ $t('AdminUsers.daysLeftMessage')}}
+              <span>{{changePositionTime}} d.</span>
               <div class="list-group" v-if="user.skills">
                 <label
                   class="list-group-item"
@@ -195,7 +197,7 @@
                     type="checkbox"
                     v-model="user.skills[item]"
                   >
-                  {{ $t(`positionAssignments.${user.position}[${i}]`) }}
+                  {{ $t(`positionAssignments['${user.position}'][${i}]`) }}
                 </label>
               </div>
             </div>
@@ -293,12 +295,13 @@ export default {
       this.isFeching = true;
       UserService().getUserById(id, (res) => {
         if (!res.error) {
+          const { skills, position, since } = res.response;
           this.user = res.response;
-          this.user.skills = res.response.skills
-            ? JSON.parse(JSON.parse(res.response.skills)) : {};
-          this.jobAssignments = translations.en.positionAssignments[res.response.position] || [];
+          this.user.skills = skills
+            ? JSON.parse(skills) : {};
+          this.jobAssignments = translations.en.positionAssignments[position] || [];
           this.changePositionTime = (
-            minimunTimes[res.response.position] - (res.response.since || 0)
+            minimunTimes[position] - (since || 0)
           )
           if (this.changePositionTime < 0) {
             this.changePositionTime = 0;
@@ -331,6 +334,7 @@ export default {
             this.handlePagination(page);
           } else {
             this.handlePagination(this.page);
+            this.cleanStates();
           }
         } else {
           this.error = res.error;
@@ -425,10 +429,25 @@ export default {
       });
       this.page = page + 1 || 1;
     },
+    cleanStates() {
+      this.user = 
+      this.changePositionTime = 0;
+      this.error = "",
+      this.isLoading = false,
+      this.isFeching = false,
+      this.user = {
+        name: "",
+        active: "1",
+      };
+      this.tabs = {
+        perfil: true,
+        roadmap: false,
+      };
+      this.jobAssignments = [];
+    },
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
-    const thisUser = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`));
 
     // Verifico el token
     verifyToken(token);

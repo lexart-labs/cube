@@ -21,6 +21,7 @@ const translations = {
       columnCharge: 'Cargo',
       columnLevel: 'Nível',
       columnActive: 'Activo',
+      daysLeftMessage: 'Proximo cambio de funcción disponible en: ',
     },
     AdminEvaluations: {
       evaluations: 'Evaluaciones',
@@ -212,6 +213,7 @@ const translations = {
       columnCharge: 'Position',
       columnLevel: 'Level',
       columnActive: 'Active',
+      daysLeftMessage: 'Next job change available in: ',
     },
     AdminEvaluations: {
       evaluations: 'Evaluations',
