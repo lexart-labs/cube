@@ -114,10 +114,13 @@ let User = {
 		const currentPosition = await conn.query(
 			'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
 		);
-		shouldCreatePosition = (
-			currentPosition[0].idPosition == positionId
-			&& currentPosition[0].idLevel == levelId
-		) ? false : true;
+
+		if(currentPosition[0]) {
+			shouldCreatePosition = (
+				currentPosition[0].idPosition == positionId
+				&& currentPosition[0].idLevel == levelId
+			) ? false : true;
+		}
 
 		const idPosition = shouldCreatePosition
 			? await this.updatePosition(idLextracking, positionId, levelId)
