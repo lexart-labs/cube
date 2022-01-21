@@ -184,8 +184,13 @@
               </form>
             </div>
             <div class="roadmap" v-show="tabs.roadmap">
-              {{ $t('AdminUsers.daysLeftMessage')}}
-              <span>{{changePositionTime}} d.</span>
+              <header>
+                <h3>Habilidades</h3>
+                <span>
+                  {{ $t('AdminUsers.daysLeftMessage')}}
+                  <b>{{changePositionTime}} d.</b>
+                </span>
+              </header>              
               <div class="list-group" v-if="user.skills">
                 <label
                   class="list-group-item"
@@ -488,38 +493,52 @@ export default {
 </script>
 
 <style>
-.pages-nav {
-  color: rgb(138, 138, 138);
-  cursor: pointer;
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
-  width: 100%;
-}
-.pages-nav span:hover,
-.current {
-  text-decoration: underline;
-  color: black;
-}
-.not-allowed {
-  cursor: none;
-  opacity: 0.2;
-  pointer-events: none;
-}
-.table-admin {
-  min-height: 50vh;
-}
-.loading-cover {
-  background-color: rgba(71, 71, 71, 0.842);
-  height: 100%;
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  .pages-nav {
+    color: rgb(138, 138, 138);
+    cursor: pointer;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    width: 100%;
+  }
+  .pages-nav span:hover,
+  .current {
+    text-decoration: underline;
+    color: black;
+  }
+  .not-allowed {
+    cursor: none;
+    opacity: 0.2;
+    pointer-events: none;
+  }
+  .table-admin {
+    min-height: 50vh;
+  }
+  .loading-cover {
+    background-color: rgba(71, 71, 71, 0.842);
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .roadmap > header {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 100%;
+  }
 </style>
