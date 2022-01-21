@@ -294,7 +294,8 @@ export default {
         if (!res.error) {
           this.user = res.response;
           this.user.skills = res.response.skills
-            ? res.response.skills : {};
+            ? JSON.parse(JSON.parse(res.response.skills)) : {};
+          this.jobAssignments = translations.en.positionAssignments[res.response.position] || [];
         }
         this.isFeching = false;
       });
@@ -440,15 +441,6 @@ export default {
       } else {
         this.error = res.error;
       }
-    });
-
-    UserService().getUserById(thisUser.id, (res) => {
-      this.isFeching = true;
-      if (!res.error) {
-        this.myself = res.response;
-        this.jobAssignments = translations.en.positionAssignments['Solution Architect'];
-      }
-      this.isFeching = false;
     });
 
     this.handlePagination();

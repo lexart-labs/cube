@@ -98,6 +98,7 @@ let User = {
 		return response.length > 0 ? { response: response[0] } : error;
 	},
 	updateOne: async function (usuario, {idAdmin, idPosition, shouldCreateNewPosition}) {
+		console.log(shouldCreateNewPosition);
 		const tablaNombre = 'users';
 		let response;
 		let stack;
