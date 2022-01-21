@@ -113,7 +113,7 @@
             </button>
           </div>
           <div class="modal-body">
-            <div class="coursesTab">
+            <div class="coursesTab" style="margin-bottom: 1rem;">
               <ul class="nav nav-tabs">
                 <li class="nav-item">
                   <a
@@ -184,10 +184,19 @@
               </form>
             </div>
             <div class="roadmap" v-show="tabs.roadmap">
-              <div class="list-group">
-                <label class="list-group-item">
-                  <input class="form-check-input me-1" type="checkbox" value="">
-                  First checkbox
+              <div class="list-group" v-if="user.skills">
+                <label
+                  class="list-group-item"
+                  v-for="(item, i) in jobAssignments"
+                  :key="`asgn${i}`"
+                >
+                  <input
+                    class="form-check-input me-1"
+                    type="checkbox"
+                    value=""
+                    v-model="user.skills[item]"
+                  >
+                  {{ item }}
                 </label>
               </div>
             </div>
@@ -232,6 +241,7 @@ import CareerService from "../../services/career.service";
 import LevelService from "../../services/level.service";
 import { verifyToken } from "../../services/helpers";
 import { API, APP_NAME } from "../../../env";
+import assignments from '../../data/jobAssignments';
 
 export default {
   name: "Users",
@@ -239,6 +249,7 @@ export default {
   data() {
     return {
       title: "My developers",
+      myself: {},
       users: [],
       error: "",
       isLoading: true,
@@ -259,6 +270,7 @@ export default {
         perfil: true,
         roadmap: false,
       },
+      jobAssignments: [],
     };
   },
   methods: {
@@ -282,6 +294,8 @@ export default {
       UserService().getUserById(id, (res) => {
         if (!res.error) {
           this.user = res.response;
+          this.user.skills = res.response.skills
+            ? res.response.skills : {};
         }
         this.isFeching = false;
       });
@@ -407,6 +421,7 @@ export default {
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
+    const thisUser = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`));
 
     // Verifico el token
     verifyToken(token);
@@ -426,6 +441,15 @@ export default {
       } else {
         this.error = res.error;
       }
+    });
+
+    UserService().getUserById(thisUser.id, (res) => {
+      this.isFeching = true;
+      if (!res.error) {
+        this.myself = res.response;
+        this.jobAssignments = assignments['Solution Architect'];
+      }
+      this.isFeching = false;
     });
 
     this.handlePagination();
