@@ -156,6 +156,17 @@
                 </div>
               </div>
               <br />
+              <label for="lead-select">{{ $t('generic.lead')}}</label>
+              <select v-model="user.lead" class="form-control" id="lead-select">
+                <option
+                  :value="{id: lead.idLextracking, name: lead.name }"
+                  :key="`lead${i}`"
+                  v-for="(lead, i) in leaders"
+                >
+                  {{ lead.name }}
+                </option>
+              </select>
+              <br />
               <select class="form-control" v-model="user.active">
                 <option value="1">Active</option>
                 <option value="0">Inactive</option>
@@ -209,6 +220,7 @@ export default {
   data() {
     return {
       title: "My developers",
+      mySelfieCube: JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`)).cubeUser,
       users: [],
       error: "",
       isLoading: true,
@@ -218,6 +230,7 @@ export default {
       user: {
         name: "",
         active: "1",
+        lead: {},
       },
       api: API,
       usersLextracking: [],
@@ -225,23 +238,35 @@ export default {
       careers: [],
       pagesLength: 1,
       page: 1,
+      leaders: [],
     };
   },
   methods: {
     newUser() {
+      const lead = {
+        id: this.mySelfieCube.idLextracking,
+        name: this.mySelfieCube.name,
+      };
+
       this.user = {
         name: "",
         active: "1",
         positionId: 1,
         levelId: 1,
+        lead,
       };
     },
     getUserById(id) {
+      const lead = {
+        id: this.mySelfieCube.idLextracking,
+        name: this.mySelfieCube.name,
+      };
+
       this.user = { name: "", active: "1" };
       this.isFeching = true;
       UserService().getUserById(id, (res) => {
         if (!res.error) {
-          this.user = res.response;
+          this.user = {...res.response, lead };
         }
         this.isFeching = false;
       });
@@ -258,7 +283,6 @@ export default {
 
         if (!res.error) {
           $("#staticBackdrop").modal("hide");
-          $(".modal-backdrop").remove();
 
           Vue.toasted.show("Usuario editado/creado correctamente", {
             type: "success",
@@ -345,7 +369,9 @@ export default {
     },
     handlePagination(page = 0) {
       this.isLoading = true;
-      UserService().getAllUsers(page, (res) => {
+      const Users = UserService();
+
+      Users.getAllUsers(page, (res) => {
         if (!res.error) {
           const users = res.response;
           this.users = users;
@@ -354,7 +380,7 @@ export default {
         }
       });
 
-      UserService().getPagesLength((res) => {
+      Users.getPagesLength((res) => {
         this.isLoading = false;
         if (!res.error) {
           this.pagesLength = res.response;
@@ -367,6 +393,7 @@ export default {
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
+    const User = UserService();
 
     // Verifico el token
     verifyToken(token);
@@ -378,7 +405,7 @@ export default {
       .getAll()
       .then((res) => (this.levels = res.response));
 
-    UserService().getAllUsersLextracking((res) => {
+    User.getAllUsersLextracking((res) => {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
@@ -386,6 +413,10 @@ export default {
       } else {
         this.error = res.error;
       }
+    });
+
+    User.getLeaders().then(({data: res}) => {
+      this.leaders = res.response ? res.response : [];
     });
 
     this.handlePagination();

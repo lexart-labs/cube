@@ -15,7 +15,7 @@ CREATE TABLE users (
   password text NOT NULL,
   token text DEFAULT NULL,
   active tinyint(2) DEFAULT 1,
-  idPosition int(11) NOT NULL DEFAULT 1,
+  idPosition int(11) DEFAULT NULL,
   dateCreated datetime DEFAULT current_timestamp(),
   dateEdited datetime DEFAULT current_timestamp(),
   PRIMARY KEY (id),
