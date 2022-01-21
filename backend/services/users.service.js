@@ -98,13 +98,12 @@ let User = {
 		let arr = [];
 		let shouldCreateNewPosition = false;
 
-		const tablaNombre = 'users'
+		const tablaNombre = 'users';
 
 		// Verifico si no es admin
 		if (usuario.idUser && (idAdmin != usuario.idUser)) {
 			idAdmin = usuario.idUser
 		}
-
 		// Si ya existe
 		const cubeUser = await this.loginCube(usuario.email);
 		if (cubeUser.response) {
@@ -126,13 +125,12 @@ let User = {
 				? await this.updatePosition(usuario)
 				: usuario.idPosition;
 
-		if (usuario.id && !usuario.sync) {
-
+		if (cubeUser.response && !usuario.sync) {
+			idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 			// Si viene clave nueva
 			if (usuario.passwordCopy) {
 				usuario.password = md5(usuario.passwordCopy);
 			}
-
 			// Generate token in update
 			usuario.token = utils.makeToken(usuario.email, usuario.id, 'public')
 
@@ -148,7 +146,7 @@ let User = {
 					token = ?,
 					idPosition = ?,
 					dateEdited = NOW()
-				WHERE id = ? OR idLextracking = ?
+				WHERE idLextracking = ? 
 			`
 			arr = [
 				usuario.name,
@@ -159,8 +157,7 @@ let User = {
 				usuario.lead.id,
 				usuario.token,
 				idPosition,
-				usuario.id,
-				usuario.idLextracking,
+				idLextracking,
 			]
 
 		} else {

@@ -290,9 +290,7 @@ export default {
           });
 
           if (this.users.length < 5) {
-            const page = this.users.length === 1
-              ? this.page - 2
-              : this.page - 1;
+            const page = this.page - 1;
             this.handlePagination(page);
           } else {
             this.handlePagination(this.page);
