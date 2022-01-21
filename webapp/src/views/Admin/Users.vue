@@ -241,6 +241,7 @@ import LevelService from "../../services/level.service";
 import { verifyToken } from "../../services/helpers";
 import { API, APP_NAME } from "../../../env";
 import translations from '../../data/translate';
+import minimunTimes from '../../data/positionMinimunTimes';
 
 export default {
   name: "Users",
@@ -248,8 +249,8 @@ export default {
   data() {
     return {
       title: "My developers",
-      myself: {},
       users: [],
+      changePositionTime: 0,
       error: "",
       isLoading: true,
       isFeching: false,
@@ -296,6 +297,12 @@ export default {
           this.user.skills = res.response.skills
             ? JSON.parse(JSON.parse(res.response.skills)) : {};
           this.jobAssignments = translations.en.positionAssignments[res.response.position] || [];
+          this.changePositionTime = (
+            minimunTimes[res.response.position] - (res.response.since || 0)
+          )
+          if (this.changePositionTime < 0) {
+            this.changePositionTime = 0;
+          }
         }
         this.isFeching = false;
       });
