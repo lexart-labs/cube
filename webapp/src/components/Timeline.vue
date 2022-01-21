@@ -17,7 +17,14 @@
           </div>
           <div class="modal-body">
             <ul class="list-group list-group-flush">
-              <li v-for="(atb, i) in jobAssignments" :key="i" class="list-group-item">{{ atb }}</li>
+              <li
+                v-for="(atb, i) in jobAssignments"
+                :key="i"
+                class="list-group-item"
+              >
+                <i class="fas fa-check" v-show="user.skills[atb]"></i>
+                {{ atb }}
+              </li>
             </ul>
           </div>
           <div class="modal-footer">
@@ -41,12 +48,12 @@ import axios from "axios";
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
-import assignments from "../data/jobAssignments";
 import translations from '../data/translate';
 import { APP_NAME, API } from "../../env";
 
 export default {
   name: "Timeline",
+  props: ['user'],
   data() {
     return {
       isLoading: false,

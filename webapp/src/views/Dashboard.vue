@@ -54,7 +54,7 @@
           </div>
           <div v-show="!isFetching">
             <div v-show="show === 'Dashboard'">
-              <timeline />
+              <timeline :user="myUser" />
               <h4 class="text-center" v-if="years.length === 0">{{ translations[$store.state.language].dashboard.userHaventEvaluations }}</h4>
               <div class="graphics-ctl">
                 <graphic v-if="resources.length" :evaluations="resources" />
@@ -150,7 +150,8 @@
         showEvaluation: 0,
         year: null,
         years: [],
-        translations: translations
+        translations: translations,
+        myUser: {},
       };
     },
     watch: {
@@ -280,6 +281,8 @@
           this.isLoading = false;
 
           if (!res.data.error) {
+            this.myUser = res.data.response;
+            this.myUser.skills = JSON.parse(res.data.response.skills);
             // let courses  = res.data.response;
             // this.courses = courses;
             this.success = translations[this.$store.state.language].dashboard.messageSyncStatus;
