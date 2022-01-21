@@ -55,7 +55,7 @@ let User = {
 				l.level AS level,
 				l.id AS levelId,
 				usp.skills AS 'skills',
-				DATEDIFF(CURRENT_DATE, usp.createdAt) AS 'since',
+				DATEDIFF(CURRENT_DATE, uc.dateCreated) AS 'since',
 				u.*
 			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
@@ -97,16 +97,31 @@ let User = {
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
 	},
-	updateOne: async function (usuario, {idAdmin, idPosition, shouldCreateNewPosition}) {
-		console.log(shouldCreateNewPosition);
+	updateOne: async function (usuario, {idAdmin}) {
 		const tablaNombre = 'users';
 		let response;
 		let stack;
-		if (usuario.passwordCopy) {
-			usuario.password = md5(usuario.passwordCopy);
-		}
-		usuario.token = utils.makeToken(usuario.email, usuario.id, 'public');
+		let shouldCreatePosition = true;
+
+		// Defino en cual clave esta el id de lextracking
 		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
+
+		const { positionId, levelId } = usuario;
+		usuario.token = utils.makeToken(usuario.email, usuario.id, 'public');
+		if (usuario.passwordCopy) { usuario.password = md5(usuario.passwordCopy); }
+
+		// Compara los ids de cargo y nível, si los nuevos son iguales a los atuales
+		const currentPosition = await conn.query(
+			'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
+		);
+		shouldCreatePosition = (
+			currentPosition[0].idPosition == positionId
+			&& currentPosition[0].idLevel == levelId
+		) ? false : true;
+
+		const idPosition = shouldCreatePosition
+			? await this.updatePosition(idLextracking, positionId, levelId)
+			: usuario.idPosition;
 
 		const sql = `
 			UPDATE ${tablaNombre}
@@ -135,7 +150,7 @@ let User = {
 
 		try {
 			response = await conn.query(sql, arr);
-			if(shouldCreateNewPosition) {
+			if(shouldCreatePosition) {
 				await UserSkills.insert({idUser: usuario.idLextracking, skills: usuario.skills, idPosition});
 			} else {
 				await UserSkills.update({idUser: usuario.idLextracking, skills: usuario.skills, idPosition});
@@ -155,8 +170,9 @@ let User = {
 		if (usuario.passwordCopy) {
 			password = md5(usuario.passwordCopy);
 		}
+		const {id, positionId, levelId} = usuario;
 
-		const result = await this.updatePosition(usuario);
+		const result = await this.updatePosition(id, positionId, levelId);
 		const idPosition = result.error ? null : result;
 
 		const sql = `
@@ -194,29 +210,21 @@ let User = {
 	},
 	upsert: async function (usuario, idAdmin) {
 		let error = { "error": "Error al ingresar/editar usuario" };
-		let shouldCreateNewPosition = false;
 		let result = [];
+		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 
 		// Verifico si no es admin
 		if (usuario.idUser && (idAdmin != usuario.idUser)) {
 			idAdmin = usuario.idUser
 		}
 		// Si ya existe
-		const cubeUser = await this.one(usuario.idLextracking, '');
+		const cubeUser = await this.one(idLextracking, '');
 		if (cubeUser.response) {
-			shouldCreateNewPosition = (
-				cubeUser.response.positionId == usuario.positionId
-				&& cubeUser.response.levelId == usuario.levelId
-			)
-				? false : true;
 			usuario.sync = false
 		}
-		const idPosition = shouldCreateNewPosition
-				? await this.updatePosition(usuario)
-				: usuario.idPosition;
 
 		if (cubeUser.response && !usuario.sync) {
-			result = await this.updateOne(usuario, {idPosition, idAdmin, shouldCreateNewPosition});
+			result = await this.updateOne(usuario, {idAdmin});
 		} else {
 			result = await this.insertOne(usuario, {idAdmin});
 		}
@@ -345,7 +353,7 @@ let User = {
 		}
 		return { response: userCorrect }
 	},
-	updatePosition: async function({ id, positionId, levelId }) {
+	updatePosition: async function(id, positionId, levelId) {
 		const sql = `
 			INSERT INTO user_position_level (idPosition, idLevel, idUser)
 			VALUES (?, ?, ?)
