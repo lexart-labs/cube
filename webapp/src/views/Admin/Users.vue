@@ -168,7 +168,7 @@
                 </vue-select>
                 <i
                   class="fas fa-plus-circle"
-                  :style="`font-size: 1.5rem; cursor: pointer;${currentTech.name ? '' : 'pointer-events: none; color: #d3d3d3;'}`"
+                  :style="`font-size: 1.5rem; cursor: pointer;${currentTech && currentTech.name ? '' : 'pointer-events: none; color: #d3d3d3;'}`"
                   v-on:click="addSkill()"
                 />
               </div>
@@ -421,8 +421,8 @@ export default {
             type: 'info',
             duration: 2000,
           });
-          this.currentTech = {};
       }
+      this.currentTech = {};
       return;
     },
     removeSkill(skill) {
