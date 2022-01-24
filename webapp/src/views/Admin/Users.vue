@@ -136,11 +136,11 @@
             <div class="perfil">
               <form enctype="multipart/form-data" v-show="tabs.perfil">
                 <label for="">LexTracking user</label>
-                <v-select
+                <vue-select
                   v-model="user"
                   label="name"
                   :options="usersLextracking"
-                ></v-select>
+                ></vue-select>
                 <br />
                 <div class="row">
                   <div class="col">
@@ -253,6 +253,7 @@
 import axios from "axios";
 import Vue from "vue";
 import Spinner from "../../components/Spinner.vue";
+import vueSelect from "vue-select";
 import UserService from "../../services/user.service";
 import CareerService from "../../services/career.service";
 import LevelService from "../../services/level.service";
@@ -263,7 +264,7 @@ import minimunTimes from '../../data/positionMinimunTimes';
 
 export default {
   name: "Users",
-  components: { Spinner },
+  components: { Spinner, vueSelect },
   data() {
     return {
       title: "My developers",
@@ -310,7 +311,6 @@ export default {
       };
     },
     activeTab(tab) {
-      // Set all to false
       Object.keys(this.tabs)
         .forEach((key) => { this.tabs[key] = false; });
       this.tabs[tab] = true;
@@ -327,10 +327,12 @@ export default {
         if (!res.error) {
           const { skills, position, since } = res.response;
           this.user = this.user = {...res.response, lead };
-          this.user.skills = skills
-            ? JSON.parse(skills) : {};
           this.jobAssignments = translations.en.positionAssignments[position] || [];
-          if(since && since < minimunTimes[position]) {
+          this.user.skills = skills
+            ? JSON.parse(skills)
+            : {};
+
+          if(since !== null && since < minimunTimes[position]) {
             this.changePositionTime = minimunTimes[position] - (since)
           }
         }
@@ -411,10 +413,6 @@ export default {
             });
           });
       }
-    },
-    silentFunction() {
-      console.log(this.$refs.logo.files);
-      console.log(this.$refs.background.files);
     },
     navigate(operator) {
       this.isLoading = true;
