@@ -9,8 +9,6 @@ let User = {
 	all: async function (idAdmin, page) {
 		let error = { "error": "Error al obtener usuarios" }
 
-		const tablaNombre = 'users'
-
 		// Obtener los usuarios
 		const sql = `
 			SELECT c.position AS position, l.level AS level, u.* FROM users u
@@ -108,7 +106,6 @@ let User = {
 		}
 		// Si ya existe
 		const cubeUser = await this.loginCube(usuario.email);
-
 		if (cubeUser.response) {
 			shouldCreateNewPosition = (
 				cubeUser.response.idPosition == usuario.positionId
@@ -116,6 +113,12 @@ let User = {
 			)
 				? false : true;
 			usuario.sync = false
+		}
+
+		//Si Hay que cambiar el lead
+		if (usuario.lead && usuario.lead.id != usuario.idAdmin) {
+			const {lead, id, idLextracking } = usuario;
+			await this.changeLeader(Number(lead.id), (Number(idLextracking) || Number(id)));
 		}
 
 		const idPosition = shouldCreateNewPosition
@@ -151,7 +154,7 @@ let User = {
 				usuario.type,
 				usuario.password,
 				parseInt(usuario.active),
-				idAdmin,
+				usuario.lead.id,
 				usuario.token,
 				idPosition,
 				idLextracking,
@@ -198,7 +201,7 @@ let User = {
 			console.log("e: ", e)
 			stack = e
 		}
-		error.stack = { stack: stack, tail: response, sql: sql, arr: arr }
+		error.stack = { stack, tail: response, sql, arr }
 		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
 	loginLextracking: async function (email, password) {
@@ -354,6 +357,55 @@ let User = {
 		}
 		
 		return response > 0 ? { response } : error;
+	},
+	getLeads: async function () {
+		const sql = `
+			SELECT * FROM ${tablaNombre} WHERE type IN ('admin', 'pm')
+		`;
+		let response = [];
+
+		try {
+			response = await conn.query(sql);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.length ? { response } : { error: 'No leads found.'}
+	},
+	changeLeader: async function (idLead, idDev) {
+		const TABLE_NAME = 'lead_dev_logs';
+		const sql = `
+			INSERT INTO ${TABLE_NAME} (idDev, idLead)
+			VALUES (?, ?)
+		`;
+		let response;
+
+		try {
+			response = await conn.query(sql, [idDev, idLead]);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.affectedRows === 1
+			? { response: 'ok' }
+			: { error: 'Not possible to asign new user'};
+	},
+	getLeadersLog: async function(idDev) {
+		const TABLE_NAME = 'lead_dev_logs';
+		const sql = `
+			SELECT * FROM ${TABLE_NAME} WHERE idDev = ?
+		`;
+		let response;
+
+		try {
+			response = await conn.query(sql, [idDev]);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.length
+			? { response }
+			: { error: 'No leaders found for this user'};
 	},
 }
 module.exports = User;
