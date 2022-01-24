@@ -30,7 +30,7 @@
                 class="list-group-item d-flex justify-content-between align-items-center"
               >
                 {{ jobAssignmentsTranslated[i] }}
-                <i class="fas fa-check" v-show="user.skills[atb]"></i>
+                <i class="fas fa-check" v-show="user.skills && user.skills[atb]"></i>
               </span>
             </div>
           </div>
