@@ -61,7 +61,7 @@
           </div>
           <div v-show="!isFetching">
             <div v-show="show === 'Dashboard'">
-              <timeline :user="myUser" />
+              <timeline :user="myUser" v-if="myUser" />
               <h4 class="text-center" v-if="years.length === 0">
                 {{
                   translations[$store.state.language].dashboard
