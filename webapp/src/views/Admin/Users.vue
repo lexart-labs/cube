@@ -340,6 +340,14 @@ export default {
       });
     },
     upsertUser() {
+      if (!this.validateChecks()) {
+        Vue.toasted.show("A user can not be saved with all skills checked before the minimum trading position time", {
+            type: "error",
+            duration: 2500,
+          });
+        return;
+      };
+
       this.isLoading = true;
       // Agrego usuarios nuevos con el sync desde el front
       this.user.token = "";
@@ -470,6 +478,12 @@ export default {
         roadmap: false,
       };
       this.jobAssignments = [];
+    },
+    validateChecks() {
+      const cannotChange = this.changePositionTime !== 0;
+      const allChecked = Object.values(this.user.skills).every(el => el === true);
+
+      return cannotChange && allChecked ? false : true;
     },
   },
   mounted() {
