@@ -157,6 +157,17 @@
               </div>
               <br />
               <label for="techs">{{ $t('generic.technologies')}}</label>
+              <label for="lead-select">{{ $t('generic.lead')}}</label>
+              <select v-model="user.lead" class="form-control" id="lead-select">
+                <option
+                  :value="{id: lead.idLextracking, name: lead.name }"
+                  :key="`lead${i}`"
+                  v-for="(lead, i) in leaders"
+                >
+                  {{ lead.name }}
+                </option>
+              </select>
+              <br />
               <div class="tech-ctl">
                 <vue-select
                   :options="technologies"
@@ -186,17 +197,6 @@
                   />
                 </li>
               </ul>
-              <label for="lead-select">{{ $t('generic.lead')}}</label>
-              <select v-model="user.lead" class="form-control" id="lead-select">
-                <option
-                  :value="{id: lead.idLextracking, name: lead.name }"
-                  :key="`lead${i}`"
-                  v-for="(lead, i) in leaders"
-                >
-                  {{ lead.name }}
-                </option>
-              </select>
-              <br />
               <select class="form-control" v-model="user.active">
                 <option value="1">Active</option>
                 <option value="0">Inactive</option>
