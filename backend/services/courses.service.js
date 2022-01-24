@@ -51,14 +51,15 @@ let Course = {
 	countResults: async function (idAdmin) {
 		const sql = `
 			SELECT COUNT(*) AS total FROM ${tablaNombre} AS e
-			WHERE e.idUser = ? OR e.idLextracking = ? AND active = 1
+			WHERE e.idUser = ? AND active = 1
 		`;
-		const error = { "error": "Error al obtener usuarios" };
+		const error = { "error": "Error getting total evaluations page" };
 		let response = 0;
 
 		try {
-			const result = await conn.query(sql, [idAdmin, idAdmin]);
-			response = Math.ceil(result[0].total / PAGE_SIZE);
+			const result = await conn.query(sql, [idAdmin]);
+			const totalOfPages = result[0].total / PAGE_SIZE
+			response = Number.isInteger(totalOfPages) ? totalOfPages : Math.ceil(totalOfPages);
 		} catch (e) {
 			console.log(e.message);
 		}
@@ -182,18 +183,19 @@ let Course = {
 	},
 	courses: async function (id, year) {
 		const sql = `
-			SELECT 
-				users.name AS 'lead', 
-				evaluations.id, 
-				evaluations.name, 
-				evaluations.json_data, 
-				evaluations.idLextracking 
+			SELECT
+				users.name AS 'lead',
+				evaluations.id,
+				evaluations.name,
+				evaluations.json_data,
+				evaluations.idLextracking
 			FROM evaluations
-			INNER JOIN users ON users.idUser = evaluations.idUser
+			INNER JOIN users ON users.idLextracking = evaluations.idUser
 			WHERE evaluations.idLextracking = ? AND evaluations.json_data LIKE '%"fecha": "?%' AND evaluations.active = 1
 			GROUP BY evaluations.id
 			ORDER BY evaluations.id ASC
 		`
+
 		let response = []
 		
 		try {

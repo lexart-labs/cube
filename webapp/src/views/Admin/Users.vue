@@ -113,15 +113,16 @@
             </button>
           </div>
           <div class="modal-body">
-            <div class="coursesTab" style="margin-bottom: 1rem;">
+            <div class="coursesTab" style="margin-bottom: 1rem">
               <ul class="nav nav-tabs">
                 <li class="nav-item">
                   <a
                     class="nav-link"
                     v-bind:class="{ active: tabs.perfil }"
                     v-on:click="activeTab('perfil')"
-                    >Perfil</a
                   >
+                    Perfil
+                  </a>
                 </li>
                 <li class="nav-item">
                   <a
@@ -164,7 +165,11 @@
                   </div>
                   <div class="col">
                     <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
-                    <select class="form-control" v-model="user.levelId" id="lvl">
+                    <select
+                      class="form-control"
+                      v-model="user.levelId"
+                      id="lvl"
+                    >
                       <option
                         v-for="(level, i) in levels"
                         :value="level.id"
@@ -177,17 +182,61 @@
                   </div>
                 </div>
                 <br />
-              <label for="lead-select">{{ $t('generic.lead')}}</label>
-              <select v-model="user.lead" class="form-control" id="lead-select">
-                <option
-                  :value="{id: lead.idLextracking, name: lead.name }"
-                  :key="`lead${i}`"
-                  v-for="(lead, i) in leaders"
+                <label for="lead-select">{{ $t("generic.lead") }}</label>
+                <select
+                  v-model="user.lead"
+                  class="form-control"
+                  id="lead-select"
                 >
-                  {{ lead.name }}
-                </option>
-              </select>
-              <br />
+                  <option
+                    :value="{ id: lead.idLextracking, name: lead.name }"
+                    :key="`lead${i}`"
+                    v-for="(lead, i) in leaders"
+                  >
+                    {{ lead.name }}
+                  </option>
+                </select>
+                <br />
+                <label for="techs">{{ $t("generic.technologies") }}</label>
+                <div class="tech-ctl">
+                  <vue-select
+                    :options="technologies"
+                    id="techs"
+                    style="width: 95%"
+                    v-model="currentTech"
+                    :getOptionLabel="(el) => el.name"
+                  >
+                  </vue-select>
+                  <i
+                    class="fas fa-plus-circle"
+                    :style="`font-size: 1.5rem; cursor: pointer;${
+                      currentTech && currentTech.name
+                        ? ''
+                        : 'pointer-events: none; color: #d3d3d3;'
+                    }`"
+                    v-on:click="addSkill()"
+                  />
+                </div>
+                <ul class="list-group list-group-flush">
+                  <li
+                    class="
+                      list-group-item
+                      d-flex
+                      justify-content-between
+                      align-items-center
+                    "
+                    v-for="(item, i) in managerUserTechs.userTechs"
+                    :key="`usrtchg${i}`"
+                  >
+                    {{ item.name }}
+                    <i
+                      class="far fa-times-circle"
+                      v-on:click="removeSkill(item)"
+                      style="cursor: pointer"
+                    />
+                  </li>
+                </ul>
+                <br />
                 <select class="form-control" v-model="user.active">
                   <option value="1">Active</option>
                   <option value="0">Inactive</option>
@@ -198,10 +247,10 @@
               <header>
                 <h3>Habilidades</h3>
                 <span>
-                  {{ $t('AdminUsers.daysLeftMessage')}}
-                  <b>{{changePositionTime}} d.</b>
+                  {{ $t("AdminUsers.daysLeftMessage") }}
+                  <b>{{ changePositionTime }} d.</b>
                 </span>
-              </header>              
+              </header>
               <div class="list-group" v-if="user.skills">
                 <label
                   class="list-group-item"
@@ -212,7 +261,7 @@
                     class="form-check-input me-1"
                     type="checkbox"
                     v-model="user.skills[item]"
-                  >
+                  />
                   {{ $t(`positionAssignments['${user.position}'][${i}]`) }}
                 </label>
               </div>
@@ -257,10 +306,11 @@ import vueSelect from "vue-select";
 import UserService from "../../services/user.service";
 import CareerService from "../../services/career.service";
 import LevelService from "../../services/level.service";
+import TechnologiesService from "../../services/technologies.service";
 import { verifyToken } from "../../services/helpers";
+import translations from "../../data/translate";
 import { API, APP_NAME } from "../../../env";
-import translations from '../../data/translate';
-import minimunTimes from '../../data/positionMinimunTimes';
+import minimunTimes from "../../data/positionMinimunTimes";
 
 export default {
   name: "Users",
@@ -268,7 +318,9 @@ export default {
   data() {
     return {
       title: "My developers",
-      mySelfieCube: JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`)).cubeUser,
+      mySelfieCube: JSON.parse(
+        localStorage.getItem(`_lextracking_user-${APP_NAME}`)
+      ).cubeUser,
       users: [],
       changePositionTime: 0,
       error: "",
@@ -292,6 +344,13 @@ export default {
         roadmap: false,
       },
       jobAssignments: [],
+      technologies: [],
+      managerUserTechs: {
+        userTechs: [],
+        toAdd: [],
+        toRemove: [],
+      },
+      currentTech: {},
       leaders: [],
     };
   },
@@ -311,8 +370,9 @@ export default {
       };
     },
     activeTab(tab) {
-      Object.keys(this.tabs)
-        .forEach((key) => { this.tabs[key] = false; });
+      Object.keys(this.tabs).forEach((key) => {
+        this.tabs[key] = false;
+      });
       this.tabs[tab] = true;
     },
     getUserById(id) {
@@ -323,30 +383,36 @@ export default {
 
       this.user = { name: "", active: "1" };
       this.isFeching = true;
-      UserService().getUserById(id, (res) => {
+      UserService().getUserById(id, async (res) => {
         if (!res.error) {
           const { skills, position, since } = res.response;
-          this.user = this.user = {...res.response, lead };
-          this.jobAssignments = translations.en.positionAssignments[position] || [];
-          this.user.skills = skills
-            ? JSON.parse(skills)
-            : {};
+          this.user = { ...res.response, lead };
+          this.jobAssignments =
+            translations.en.positionAssignments[position] || [];
+          this.user.skills = skills ? JSON.parse(skills) : {};
 
-          if(since !== null && since < minimunTimes[position]) {
-            this.changePositionTime = minimunTimes[position] - (since)
+          if (since !== null && since < minimunTimes[position]) {
+            this.changePositionTime = minimunTimes[position] - since;
           }
+
+          const resp = await TechnologiesService.getByUser(res.response.id);
+          this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
         }
         this.isFeching = false;
       });
     },
     upsertUser() {
       if (!this.validateChecks()) {
-        Vue.toasted.show(translations[this.$store.state.language].AdminUsers.allChecksNotAllowedMsg, {
+        Vue.toasted.show(
+          translations[this.$store.state.language].AdminUsers
+            .allChecksNotAllowedMsg,
+          {
             type: "error",
             duration: 2500,
-          });
+          }
+        );
         return;
-      };
+      }
 
       this.isLoading = true;
       // Agrego usuarios nuevos con el sync desde el front
@@ -376,6 +442,8 @@ export default {
           this.error = res.error;
         }
       });
+
+      this.handleSkillChanges();
     },
     uploadFile() {
       const logoFile = this.$refs.logo.files[0];
@@ -464,15 +532,14 @@ export default {
       this.page = page + 1 || 1;
     },
     cleanStates() {
-      this.user = 
-      this.changePositionTime = 0;
-      this.error = "",
-      this.isLoading = false,
-      this.isFeching = false,
-      this.user = {
-        name: "",
-        active: "1",
-      };
+      this.user = this.changePositionTime = 0;
+      (this.error = ""),
+        (this.isLoading = false),
+        (this.isFeching = false),
+        (this.user = {
+          name: "",
+          active: "1",
+        });
       this.tabs = {
         perfil: true,
         roadmap: false,
@@ -481,9 +548,60 @@ export default {
     },
     validateChecks() {
       const cannotChange = this.changePositionTime !== 0;
-      const allChecked = Object.values(this.user.skills).every(el => el === true);
+      const allChecked = Object.values(this.user.skills).every(
+        (el) => el === true
+      );
 
       return cannotChange && allChecked ? false : true;
+    },
+    addSkill() {
+      const exists = this.managerUserTechs.userTechs.some(
+        (el) => el.name === this.currentTech.name
+      );
+
+      if (!exists) {
+        this.managerUserTechs.toRemove = this.managerUserTechs.toRemove.filter(
+          (el) => el != this.currentTech
+        );
+        this.managerUserTechs.toAdd.push(this.currentTech);
+        this.managerUserTechs.userTechs.push(this.currentTech);
+      } else {
+        Vue.toasted.show(
+          translations[this.$store.state.language].dashboard.alreadyExists,
+          {
+            type: "info",
+            duration: 2000,
+          }
+        );
+      }
+      this.currentTech = {};
+      return;
+    },
+    removeSkill(skill) {
+      const toAdd = this.managerUserTechs.toAdd.filter(
+        ({ name }) => name !== skill.name
+      );
+      const toRemove = [...this.managerUserTechs.toRemove, skill];
+      const userTechs = this.managerUserTechs.userTechs.filter(
+        ({ name }) => name !== skill.name
+      );
+
+      this.managerUserTechs = { toAdd, toRemove, userTechs };
+    },
+    handleSkillChanges: async function () {
+      const idUser = this.user.id;
+      const { toRemove, toAdd } = this.managerUserTechs;
+      await Promise.all(
+        toAdd.map((item) => {
+          TechnologiesService.asignNew(idUser, item.id);
+        })
+      );
+      await Promise.all(
+        toRemove.map((item) => {
+          TechnologiesService.remove(idUser, item.id);
+        })
+      );
+      this.currentTech = {};
     },
   },
   mounted() {
@@ -504,13 +622,25 @@ export default {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
-        this.usersLextracking = users.map(el => ({...el, idLextracking: el.id}));
+        this.usersLextracking = users.map((el) => ({
+          ...el,
+          idLextracking: el.id,
+        }));
       } else {
         this.error = res.error;
       }
     });
 
-    User.getLeaders().then(({data: res}) => {
+    TechnologiesService.getAll().then((res) => {
+      this.technologies = res.response;
+    });
+    TechnologiesService.getByUser(localStorage.getItem(`id-${APP_NAME}`)).then(
+      (res) => {
+        this.userTechs = res;
+      }
+    );
+
+    User.getLeaders().then(({ data: res }) => {
       this.leaders = res.response ? res.response : [];
     });
 
@@ -533,52 +663,58 @@ export default {
 </script>
 
 <style>
-  .pages-nav {
-    color: rgb(138, 138, 138);
-    cursor: pointer;
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 2rem;
-    width: 100%;
-  }
-  .pages-nav span:hover,
-  .current {
-    text-decoration: underline;
-    color: black;
-  }
-  .not-allowed {
-    cursor: none;
-    opacity: 0.2;
-    pointer-events: none;
-  }
-  .table-admin {
-    min-height: 50vh;
-  }
-  .loading-cover {
-    background-color: rgba(71, 71, 71, 0.842);
-    height: 100%;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .roadmap {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-  }
-
-  .roadmap > header {
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    width: 100%;
-  }
+.pages-nav {
+  color: rgb(138, 138, 138);
+  cursor: pointer;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  width: 100%;
+}
+.pages-nav span:hover,
+.current {
+  text-decoration: underline;
+  color: black;
+}
+.not-allowed {
+  cursor: none;
+  opacity: 0.2;
+  pointer-events: none;
+}
+.table-admin {
+  min-height: 50vh;
+}
+.loading-cover {
+  background-color: rgba(71, 71, 71, 0.842);
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.roadmap {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+.roadmap > header {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+}
+.tech-ctl {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
 </style>

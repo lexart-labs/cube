@@ -19,7 +19,7 @@ let User = {
 			WHERE u.idUser = ? OR u.idLextracking = ?
 			${page ? `LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}` : ''}
 		`
-		
+
 		let response = []
 
 		try {
@@ -46,7 +46,7 @@ let User = {
 		let stack;
 
 		// Obtener los usuario
-			const sql = `
+		const sql = `
 			SELECT
 				c.position AS position,
 				c.id AS positionId,
@@ -95,7 +95,7 @@ let User = {
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
 	},
-	updateOne: async function (usuario, {idAdmin}) {
+	updateOne: async function (usuario, { idAdmin }) {
 		const tablaNombre = 'users';
 		let response;
 		let stack;
@@ -113,7 +113,7 @@ let User = {
 			'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
 		);
 
-		if(currentPosition[0]) {
+		if (currentPosition[0]) {
 			shouldCreatePosition = (
 				currentPosition[0].idPosition == positionId
 				&& currentPosition[0].idLevel == levelId
@@ -151,19 +151,19 @@ let User = {
 
 		try {
 			response = await conn.query(sql, arr);
-			if(shouldCreatePosition) {
-				await UserSkills.insert({idUser: usuario.idLextracking, skills: usuario.skills, idPosition});
+			if (shouldCreatePosition) {
+				await UserSkills.insert({ idUser: usuario.idLextracking, skills: usuario.skills, idPosition });
 			} else {
-				await UserSkills.update({idUser: usuario.idLextracking, skills: usuario.skills, idPosition});
+				await UserSkills.update({ idUser: usuario.idLextracking, skills: usuario.skills, idPosition });
 			};
 		} catch (e) {
 			console.log("e: ", e)
 			stack = e
 		}
 
-		return {response, stack, arr, sql };
+		return { response, stack, arr, sql };
 	},
-	insertOne: async function (usuario, {idAdmin}) {
+	insertOne: async function (usuario, { idAdmin }) {
 		const tablaNombre = 'users';
 		let response;
 		let stack;
@@ -171,7 +171,7 @@ let User = {
 		if (usuario.passwordCopy) {
 			password = md5(usuario.passwordCopy);
 		}
-		const {id, positionId, levelId} = usuario;
+		const { id, positionId, levelId } = usuario;
 
 		const result = await this.updatePosition(id, positionId, levelId);
 		const idPosition = result.error ? null : result;
@@ -207,7 +207,7 @@ let User = {
 			stack = e
 		}
 
-		return {response, stack, arr, sql };
+		return { response, stack, arr, sql };
 	},
 	upsert: async function (usuario, idAdmin) {
 		let error = { "error": "Error al ingresar/editar usuario" };
@@ -225,9 +225,9 @@ let User = {
 		}
 
 		if (cubeUser.response && !usuario.sync) {
-			result = await this.updateOne(usuario, {idAdmin});
+			result = await this.updateOne(usuario, { idAdmin });
 		} else {
-			result = await this.insertOne(usuario, {idAdmin});
+			result = await this.insertOne(usuario, { idAdmin });
 		}
 
 		const { arr, sql, stack, response } = result;
@@ -354,7 +354,7 @@ let User = {
 		}
 		return { response: userCorrect }
 	},
-	updatePosition: async function(id, positionId, levelId) {
+	updatePosition: async function (id, positionId, levelId) {
 		const sql = `
 			INSERT INTO user_position_level (idPosition, idLevel, idUser)
 			VALUES (?, ?, ?)
@@ -383,7 +383,7 @@ let User = {
 		} catch (e) {
 			console.log(e.message);
 		}
-		
+
 		return response > 0 ? { response } : error;
 	},
 	getLeads: async function () {
@@ -398,7 +398,7 @@ let User = {
 			console.log(e.message);
 		}
 
-		return response.length ? { response } : { error: 'No leads found.'}
+		return response.length ? { response } : { error: 'No leads found.' }
 	},
 	changeLeader: async function (idLead, idDev) {
 		const TABLE_NAME = 'lead_dev_logs';
@@ -416,9 +416,9 @@ let User = {
 
 		return response.affectedRows === 1
 			? { response: 'ok' }
-			: { error: 'Not possible to asign new user'};
+			: { error: 'Not possible to asign new user' };
 	},
-	getLeadersLog: async function(idDev) {
+	getLeadersLog: async function (idDev) {
 		const TABLE_NAME = 'lead_dev_logs';
 		const sql = `
 			SELECT * FROM ${TABLE_NAME} WHERE idDev = ?
@@ -433,7 +433,7 @@ let User = {
 
 		return response.length
 			? { response }
-			: { error: 'No leaders found for this user'};
+			: { error: 'No leaders found for this user' };
 	},
 }
 module.exports = User;

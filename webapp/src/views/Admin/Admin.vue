@@ -13,6 +13,11 @@
               >{{ $t('AdminEvaluations.evaluations') }}</router-link
             >
           </li>
+          <li class="nav-item">
+            <router-link to="/app/administration/technologies" class="nav-link"
+              >{{ $t('generic.technologies') }}</router-link
+            >
+          </li>
         </ul>
       </div>
       <router-view></router-view>

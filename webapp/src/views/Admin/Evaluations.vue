@@ -82,6 +82,7 @@
                 class="close"
                 data-dismiss="modal"
                 aria-label="Close"
+                @click="cancelEvaluation"
               >
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -169,7 +170,7 @@
             </div>
 
             <!-- Clases -->
-            <div class="modal-body" v-if="tabs.clases">
+            <div class="modal-body" v-if="tabs.clases && course.indicadores">
               <div class="row" style="margin-top: 1rem">
                 <!-- Tabla de clases -->
                 <div class="col-12">
@@ -287,6 +288,7 @@
                 type="button"
                 class="btn btn-secondary"
                 data-dismiss="modal"
+                @click="cancelEvaluation"
               >
                 {{$t('generic.cancel')}}
               </button>
@@ -455,6 +457,7 @@ import Spinner from '../../components/Spinner.vue';
 import { verifyToken, copy } from '../../services/helpers';
 import CourseService from '../../services/course.service';
 import UserService from '../../services/user.service';
+import UtilsServices from '../../services/utils.service';
 import { APP_NAME } from '../../../env';
 import Indicadores from '../../data/indicadores';
 
@@ -523,6 +526,7 @@ export default {
       };
       this.error = '';
       // console.log("evaluación :: ", this.course)
+      this.activeTab('general')
     },
     activeTab(tab) {
       // Set all to false
@@ -588,7 +592,7 @@ export default {
           }
 
           if (!this.course.indicadores) {
-            this.course.indicadores = this.indicadores;
+            this.course.indicadores = UtilsServices.copy(this.indicadores);
           }
 
           if (!this.course.pagos) {
@@ -673,6 +677,13 @@ export default {
               user.inCourse = false;
             });
           }
+        } else {
+          this.course = {};
+          this.$toasted.show('Error when trying to get the evaluation', {
+            type: 'error',
+            duration: 2000,
+          });
+          $('#staticBackdrop').modal('hide');
         }
 
         this.isFeching = false;
@@ -695,7 +706,7 @@ export default {
       });
       this.course.users = activeUsers;
 
-      CourseService().upsertCourse(this.course, (res) => {
+      CourseService().upsertCourse(this.course, async (res) => {
         this.isLoading = false;
         if (res.response) {
           $('#staticBackdrop').modal('hide');
@@ -706,11 +717,22 @@ export default {
           });
 
           // Get all courses again
-          if (this.courses.length <= 4) {
-            this.paginate(this.page - 1);
-          } else {
-            this.paginate(this.pagesLength);
+          let pageToGet = null;
+
+          if (this.course.indicadores) pageToGet = this.page - 1;
+          else {
+            const { data: totalOfPages } = await CourseService().getPagesLength();
+            this.pagesLength = totalOfPages.response;
+            pageToGet = this.pagesLength - 1;
           }
+          
+          this.paginate(pageToGet);
+
+        } else {
+          this.$toasted.show('Error when trying to create / edit a evaluation', {
+            type: 'error',
+            duration: 2000,
+          });
         }
       });
     },
@@ -816,29 +838,38 @@ export default {
 
       this.paginate(this.page - 1);
     },
-    paginate: async function (page = 0) {
+    paginate: async function (page = 0, isCreatingNewEvaluation = false) {
       this.isLoading = true;
+      this.courses = [];
+      this.page = page + 1;
       const { data: res } = await CourseService().getAllCourses(page);
 
       if (!res.error) {
         const courses = res.response;
         this.courses = courses;
       } else {
+        this.$toasted.show('Error when trying to get the evaluations, refresh your screen to try again', {
+          type: 'error',
+          duration: 5000,
+        });
         this.error = res.error;
       }
 
-      const { data: resp } = await CourseService().getPagesLength();
+      // const { data: resp } = await CourseService().getPagesLength();
       this.isLoading = false;
 
-      if (!resp.error) {
-        this.pagesLength = resp.response;
-      } else {
-        this.error = resp.error;
-      }
-      this.page = page + 1 || 1;
+      // if (!resp.error) {
+      //   this.pagesLength = resp.response;
+      // } else {
+      //   this.error = resp.error;
+      // }
+      // this.course = {};
     },
+    cancelEvaluation: function () {
+      this.course = {}
+    }
   },
-  mounted() {
+  async mounted() {
     const id = this.$route.params.id ? this.$route.params.id : undefined;
     this.curso = this.$route.params.curso
       ? decodeURIComponent(this.$route.params.curso)
@@ -857,6 +888,8 @@ export default {
 
     this.isLoading = true;
     this.paginate();
+    const { data: totalOfPages } = await CourseService().getPagesLength();
+    this.pagesLength = !totalOfPages.error ? totalOfPages.response : '';
 
     UserService().getAllUsers(null, (res) => {
       this.isLoading = false;
