@@ -6,6 +6,7 @@ import Evaluations from '../views/Evaluations.vue';
 import Admin from '../views/Admin/Admin.vue';
 import Users from '../views/Admin/Users.vue';
 import EvaluationsAdmin from '../views/Admin/Evaluations.vue';
+import Technologies from '../views/Admin/Technologies.vue';
 import AppComponent from '../views/AppComponent.vue';
 
 const routes = [
@@ -27,6 +28,10 @@ const routes = [
           {
             path: 'evaluaciones',
             component: EvaluationsAdmin,
+          },
+          {
+            path: 'technologies',
+            component: Technologies,
           },
         ],
       },

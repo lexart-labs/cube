@@ -126,7 +126,7 @@ let User = {
 				: usuario.idPosition;
 
 		if (cubeUser.response && !usuario.sync) {
-			idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
+			const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 			// Si viene clave nueva
 			if (usuario.passwordCopy) {
 				usuario.password = md5(usuario.passwordCopy);

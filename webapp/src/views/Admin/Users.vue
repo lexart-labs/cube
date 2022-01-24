@@ -115,11 +115,11 @@
           <div class="modal-body">
             <form enctype="multipart/form-data">
               <label for="">LexTracking user</label>
-              <v-select
+              <vue-select
                 v-model="user"
                 label="name"
                 :options="usersLextracking"
-              ></v-select>
+              ></vue-select>
               <br />
               <div class="row">
                 <div class="col">
@@ -156,10 +156,11 @@
                 </div>
               </div>
               <br />
-              <label for="lead-select">{{ $t('generic.lead')}}</label>
+              <label for="techs">{{ $t("generic.technologies") }}</label>
+              <label for="lead-select">{{ $t("generic.lead") }}</label>
               <select v-model="user.lead" class="form-control" id="lead-select">
                 <option
-                  :value="{id: lead.idLextracking, name: lead.name }"
+                  :value="{ id: lead.idLextracking, name: lead.name }"
                   :key="`lead${i}`"
                   v-for="(lead, i) in leaders"
                 >
@@ -167,6 +168,44 @@
                 </option>
               </select>
               <br />
+              <div class="tech-ctl">
+                <vue-select
+                  :options="technologies"
+                  id="techs"
+                  style="width: 95%"
+                  v-model="currentTech"
+                  :getOptionLabel="(el) => el.name"
+                >
+                </vue-select>
+                <i
+                  class="fas fa-plus-circle"
+                  :style="`font-size: 1.5rem; cursor: pointer;${
+                    currentTech && currentTech.name
+                      ? ''
+                      : 'pointer-events: none; color: #d3d3d3;'
+                  }`"
+                  v-on:click="addSkill()"
+                />
+              </div>
+              <ul class="list-group list-group-flush">
+                <li
+                  class="
+                    list-group-item
+                    d-flex
+                    justify-content-between
+                    align-items-center
+                  "
+                  v-for="(item, i) in managerUserTechs.userTechs"
+                  :key="`usrtchg${i}`"
+                >
+                  {{ item.name }}
+                  <i
+                    class="far fa-times-circle"
+                    v-on:click="removeSkill(item)"
+                    style="cursor: pointer"
+                  />
+                </li>
+              </ul>
               <select class="form-control" v-model="user.active">
                 <option value="1">Active</option>
                 <option value="0">Inactive</option>
@@ -208,19 +247,24 @@
 import axios from "axios";
 import Vue from "vue";
 import Spinner from "../../components/Spinner.vue";
+import vueSelect from "vue-select";
 import UserService from "../../services/user.service";
 import CareerService from "../../services/career.service";
 import LevelService from "../../services/level.service";
+import TechnologiesService from "../../services/technologies.service";
 import { verifyToken } from "../../services/helpers";
+import translations from "../../data/translate";
 import { API, APP_NAME } from "../../../env";
 
 export default {
   name: "Users",
-  components: { Spinner },
+  components: { Spinner, vueSelect },
   data() {
     return {
       title: "My developers",
-      mySelfieCube: JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`)).cubeUser,
+      mySelfieCube: JSON.parse(
+        localStorage.getItem(`_lextracking_user-${APP_NAME}`)
+      ).cubeUser,
       users: [],
       error: "",
       isLoading: true,
@@ -238,6 +282,13 @@ export default {
       careers: [],
       pagesLength: 1,
       page: 1,
+      technologies: [],
+      managerUserTechs: {
+        userTechs: [],
+        toAdd: [],
+        toRemove: [],
+      },
+      currentTech: {},
       leaders: [],
     };
   },
@@ -256,7 +307,7 @@ export default {
         lead,
       };
     },
-    getUserById(id) {
+    getUserById: async function (id) {
       const lead = {
         id: this.mySelfieCube.idLextracking,
         name: this.mySelfieCube.name,
@@ -264,9 +315,11 @@ export default {
 
       this.user = { name: "", active: "1" };
       this.isFeching = true;
-      UserService().getUserById(id, (res) => {
+      UserService().getUserById(id, async (res) => {
         if (!res.error) {
-          this.user = {...res.response, lead };
+          this.user = { ...res.response, lead };
+          const resp = await TechnologiesService.getByUser(res.response.id);
+          this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
         }
         this.isFeching = false;
       });
@@ -299,6 +352,8 @@ export default {
           this.error = res.error;
         }
       });
+
+      this.handleSkillChanges();
     },
     uploadFile() {
       const logoFile = this.$refs.logo.files[0];
@@ -390,6 +445,55 @@ export default {
       });
       this.page = page + 1 || 1;
     },
+    addSkill() {
+      const exists = this.managerUserTechs.userTechs.some(
+        (el) => el.name === this.currentTech.name
+      );
+
+      if (!exists) {
+        this.managerUserTechs.toRemove = this.managerUserTechs.toRemove.filter(
+          (el) => el != this.currentTech
+        );
+        this.managerUserTechs.toAdd.push(this.currentTech);
+        this.managerUserTechs.userTechs.push(this.currentTech);
+      } else {
+        Vue.toasted.show(
+          translations[this.$store.state.language].dashboard.alreadyExists,
+          {
+            type: "info",
+            duration: 2000,
+          }
+        );
+      }
+      this.currentTech = {};
+      return;
+    },
+    removeSkill(skill) {
+      const toAdd = this.managerUserTechs.toAdd.filter(
+        ({ name }) => name !== skill.name
+      );
+      const toRemove = [...this.managerUserTechs.toRemove, skill];
+      const userTechs = this.managerUserTechs.userTechs.filter(
+        ({ name }) => name !== skill.name
+      );
+
+      this.managerUserTechs = { toAdd, toRemove, userTechs };
+    },
+    handleSkillChanges: async function () {
+      const idUser = this.user.id;
+      const { toRemove, toAdd } = this.managerUserTechs;
+      await Promise.all(
+        toAdd.map((item) => {
+          TechnologiesService.asignNew(idUser, item.id);
+        })
+      );
+      await Promise.all(
+        toRemove.map((item) => {
+          TechnologiesService.remove(idUser, item.id);
+        })
+      );
+      this.currentTech = {};
+    },
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
@@ -415,7 +519,16 @@ export default {
       }
     });
 
-    User.getLeaders().then(({data: res}) => {
+    TechnologiesService.getAll().then((res) => {
+      this.technologies = res.response;
+    });
+    TechnologiesService.getByUser(localStorage.getItem(`id-${APP_NAME}`)).then(
+      (res) => {
+        this.userTechs = res;
+      }
+    );
+
+    User.getLeaders().then(({ data: res }) => {
       this.leaders = res.response ? res.response : [];
     });
 
@@ -470,6 +583,13 @@ export default {
   z-index: 10;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+.tech-ctl {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 1rem;
   align-items: center;
 }
 </style>
