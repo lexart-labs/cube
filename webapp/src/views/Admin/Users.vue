@@ -341,7 +341,7 @@ export default {
     },
     upsertUser() {
       if (!this.validateChecks()) {
-        Vue.toasted.show("A user can not be saved with all skills checked before the minimum trading position time", {
+        Vue.toasted.show(translations[this.$store.state.language].AdminUsers.allChecksNotAllowedMsg, {
             type: "error",
             duration: 2500,
           });

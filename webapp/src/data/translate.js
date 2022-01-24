@@ -22,6 +22,7 @@ const translations = {
       columnLevel: 'Nível',
       columnActive: 'Activo',
       daysLeftMessage: 'Proximo cambio de funcción disponible en: ',
+      allChecksNotAllowedMsg: '¡Solo se puede chequear todas las skills si el tiempo minimo de permanencia se ha cumprido!',
     },
     AdminEvaluations: {
       evaluations: 'Evaluaciones',
@@ -215,6 +216,7 @@ const translations = {
       columnLevel: 'Level',
       columnActive: 'Active',
       daysLeftMessage: 'Next job change available in: ',
+      allChecksNotAllowedMsg: 'A user can not be saved with all skills checked before the minimum trading position time',
     },
     AdminEvaluations: {
       evaluations: 'Evaluations',
