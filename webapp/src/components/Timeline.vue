@@ -29,7 +29,7 @@
                 :key="i"
                 class="list-group-item d-flex justify-content-between align-items-center"
               >
-                {{ atb }}
+                {{ jobAssignmentsTranslated[i] }}
                 <i class="fas fa-check" v-show="user.skills[atb]"></i>
               </span>
             </div>
@@ -67,11 +67,13 @@ export default {
       isLoading: false,
       jobAssignments: [],
       changePositionTime: 0,
+      jobAssignmentsTranslated: [],
     };
   },
   methods: {
     showJobDetails(charge) {
-      this.jobAssignments = translations[this.$store.state.language].positionAssignments[charge];
+      this.jobAssignments = translations.en.positionAssignments[charge];
+      this.jobAssignmentsTranslated = translations[this.$store.state.language].positionAssignments[charge];
 
       $('#myModal').modal()
     },
