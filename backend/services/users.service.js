@@ -10,8 +10,6 @@ let User = {
 	all: async function (idAdmin, page) {
 		let error = { "error": "Error al obtener usuarios" }
 
-		const tablaNombre = 'users'
-
 		// Obtener los usuarios
 		const sql = `
 			SELECT c.position AS position, l.level AS level, u.* FROM users u
@@ -387,6 +385,55 @@ let User = {
 		}
 		
 		return response > 0 ? { response } : error;
+	},
+	getLeads: async function () {
+		const sql = `
+			SELECT * FROM ${tablaNombre} WHERE type IN ('admin', 'pm')
+		`;
+		let response = [];
+
+		try {
+			response = await conn.query(sql);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.length ? { response } : { error: 'No leads found.'}
+	},
+	changeLeader: async function (idLead, idDev) {
+		const TABLE_NAME = 'lead_dev_logs';
+		const sql = `
+			INSERT INTO ${TABLE_NAME} (idDev, idLead)
+			VALUES (?, ?)
+		`;
+		let response;
+
+		try {
+			response = await conn.query(sql, [idDev, idLead]);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.affectedRows === 1
+			? { response: 'ok' }
+			: { error: 'Not possible to asign new user'};
+	},
+	getLeadersLog: async function(idDev) {
+		const TABLE_NAME = 'lead_dev_logs';
+		const sql = `
+			SELECT * FROM ${TABLE_NAME} WHERE idDev = ?
+		`;
+		let response;
+
+		try {
+			response = await conn.query(sql, [idDev]);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.length
+			? { response }
+			: { error: 'No leaders found for this user'};
 	},
 }
 module.exports = User;

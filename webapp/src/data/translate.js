@@ -104,6 +104,7 @@ const translations = {
       performance: 'Desempeño',
       humanFactor: 'Factor humano',
       skills: 'Habilidades',
+      lead: 'Liderazgo',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -296,6 +297,7 @@ const translations = {
       performance: 'Performance',
       humanFactor: 'Human Factor',
       skills: 'Skills',
+      lead: 'Lead',
     },
     positionAssignments: {
       'EntryLevel Developer': [
