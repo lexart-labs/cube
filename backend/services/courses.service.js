@@ -58,7 +58,6 @@ let Course = {
 
 		try {
 			const result = await conn.query(sql, [idAdmin]);
-			console.log(result[0].total)
 			const totalOfPages = result[0].total / PAGE_SIZE
 			response = Number.isInteger(totalOfPages) ? totalOfPages : Math.ceil(totalOfPages);
 		} catch (e) {
