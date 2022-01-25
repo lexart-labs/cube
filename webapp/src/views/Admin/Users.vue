@@ -547,12 +547,13 @@ export default {
       this.jobAssignments = [];
     },
     validateChecks() {
-      const cannotChange = this.changePositionTime !== 0;
-      const allChecked = Object.values(this.user.skills).every(
-        (el) => el === true
+      const canChange = this.changePositionTime === 0;
+      const allChecked = translations.en.positionAssignments[this.user.position]
+        .every(
+          (el) => this.user.skills[el] === true
       );
 
-      return cannotChange && allChecked ? false : true;
+      return !canChange && allChecked ? false : true;
     },
     addSkill() {
       const exists = this.managerUserTechs.userTechs.some(
