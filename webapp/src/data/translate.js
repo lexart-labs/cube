@@ -22,6 +22,8 @@ const translations = {
       columnCharge: 'Cargo',
       columnLevel: 'Nível',
       columnActive: 'Activo',
+      daysLeftMessage: 'Proximo cambio de funcción disponible en: ',
+      allChecksNotAllowedMsg: '¡Solo se puede chequear todas las skills si el tiempo minimo de permanencia se ha cumprido!',
     },
     AdminEvaluations: {
       evaluations: 'Evaluaciones',
@@ -114,6 +116,7 @@ const translations = {
       humanFactor: 'Factor humano',
       skills: 'Habilidades',
       lead: 'Liderazgo',
+      minimumTimeReached: '¡Nuevo cargo disponible!',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -224,6 +227,8 @@ const translations = {
       columnCharge: 'Position',
       columnLevel: 'Level',
       columnActive: 'Active',
+      daysLeftMessage: 'Next job change available in: ',
+      allChecksNotAllowedMsg: 'A user can not be saved with all skills checked before the minimum trading position time',
     },
     AdminEvaluations: {
       evaluations: 'Evaluations',
@@ -316,6 +321,7 @@ const translations = {
       humanFactor: 'Human Factor',
       skills: 'Skills',
       lead: 'Lead',
+      minimumTimeReached: 'New position available!',
     },
     positionAssignments: {
       'EntryLevel Developer': [
