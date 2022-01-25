@@ -411,15 +411,22 @@ let User = {
 		const sql = `
 			SELECT
 				lead.name AS 'name',
-				GROUP_CONCAT(dev.name) AS 'devs'
-			FROM users lead, users dev
-			WHERE lead.type IN ('admin', 'pm') AND dev.idUser = lead.idLextracking
-			GROUP BY 'name';
+				dev.name AS 'dev'
+			FROM users lead
+			INNER JOIN users AS dev ON dev.idUser = lead.idLextracking
+			WHERE lead.type IN ('admin', 'pm');
 		`;
 
 		const response = await conn.query(sql);
-		const toArray = response.map(el => ({ ...el, devs: el.devs.split(',')}));
-		return toArray;
+		const groupedByLead = response.reduce((acc, {name, dev}) => {
+			acc[name] = acc[name]
+				? acc[name]
+				: [];
+			acc[name].push(dev);
+			return acc;
+		}, {});
+		const toArray = Object.keys(groupedByLead).map(el => ({name: el, devs: groupedByLead[el]}));
+		return { response: toArray };
 	},
 }
 module.exports = User;
