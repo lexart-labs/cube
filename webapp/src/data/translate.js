@@ -13,6 +13,8 @@ const translations = {
       administration: 'Administración',
       romboTitle: 'Vision general por año',
       alreadyExists: '¡El elemente ya existe!',
+      unasigned: 'No asignados',
+      golbalView: 'Visión general',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -216,6 +218,8 @@ const translations = {
       administration: 'Administration',
       romboTitle: 'Overview by year',
       alreadyExists: 'This item already exists!',
+      unasigned: 'Unasigneds',
+      golbalView: 'Global Overview',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
@@ -317,7 +321,7 @@ const translations = {
       humanFactor: 'Human Factor',
       skills: 'Skills',
       lead: 'Lead',
-      leadTree: 'Leads Tree',
+      leadTree: 'Lead\'s Tree',
     },
     positionAssignments: {
       'EntryLevel Developer': [
