@@ -9,7 +9,11 @@
           "
           v-for="(aba, index) in abas"
           v-on:click="() => setShow(aba.name)"
-          v-show="aba.name === 'leadTree' ? ['admin', 'pm'].includes(myUser.role) : true"
+          v-show="
+            aba.name === 'leadTree'
+              ? ['admin', 'pm'].includes(myUser.role)
+              : true
+          "
         >
           <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
           {{ $t(`generic.${aba.name}`) }}
@@ -165,7 +169,10 @@
                 </span>
               </h2>
             </div>
-            <div v-show="show === 'leadTree'" v-if="['admin', 'pm'].includes(myUser.role)">
+            <div
+              v-show="show === 'leadTree'"
+              v-if="['admin', 'pm'].includes(myUser.role)"
+            >
               <ul class="nav nav-tabs">
                 <li class="nav-item">
                   <a
@@ -173,7 +180,7 @@
                     v-bind:class="{ active: tabs.globalView }"
                     v-on:click="activeTab('globalView')"
                   >
-                    {{ $t('dashboard.golbalView')}}
+                    {{ $t("dashboard.golbalView") }}
                   </a>
                 </li>
                 <li class="nav-item">
@@ -182,7 +189,7 @@
                     v-bind:class="{ active: tabs.unasigned }"
                     v-on:click="activeTab('unasigned')"
                   >
-                    {{ $t('dashboard.unasigned')}}
+                    {{ $t("dashboard.unasigned") }}
                   </a>
                 </li>
               </ul>
@@ -207,6 +214,13 @@
                     </tr>
                   </tbody>
                 </table>
+              </div>
+              <div v-show="tabs.unasigned">
+                <ul>
+                  <li v-for="(dev, i) in unasignedDevs" :key="`usgDev${i}`">
+                    {{ dev.name }}
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
@@ -438,18 +452,23 @@ export default {
       TechnologiesService.remove(idUser, skill.id);
     },
     activeTab(tab) {
-      Object.keys(this.tabs)
-        .forEach((key) => { this.$set(this.tabs, key, false); });
+      Object.keys(this.tabs).forEach((key) => {
+        this.$set(this.tabs, key, false);
+      });
       this.$set(this.tabs, tab, true);
     },
-    findUnasignedDevs: async function() {
+    findUnasignedDevs: async function () {
       this.isLoading = true;
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
-      const headers = {token, 'user-id': userId};
+      const headers = { token, "user-id": userId };
 
-      const { data: { response: trckUsrs} } = await axios.get(`${API}users/lextracking/all`, { headers });
-      const { data: { response: cubeIds} } = await axios.get(`${API}users/lextracking-ids`, { headers });
+      const {
+        data: { response: trckUsrs },
+      } = await axios.get(`${API}users/lextracking/all`, { headers });
+      const {
+        data: { response: cubeIds },
+      } = await axios.get(`${API}users/lextracking-ids`, { headers });
 
       this.isLoading = false;
       return compareDBUsers(cubeIds, trckUsrs);
@@ -459,7 +478,9 @@ export default {
     const id = localStorage.getItem(`id-${APP_NAME}`);
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
     const userId = localStorage.getItem(`id-${APP_NAME}`);
-    this.myUser = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`));
+    this.myUser = JSON.parse(
+      localStorage.getItem(`_lextracking_user-${APP_NAME}`)
+    );
     const idCube = this.myUser.id;
 
     // Verifico el token
@@ -500,13 +521,21 @@ export default {
           (res) => (this.technologies = res.response)
         );
 
-        UserService().listLeadDevs().then(
-          ({data}) => this.developersByLead = data.response
-        );
+        UserService()
+          .listLeadDevs()
+          .then(({ data }) => (this.developersByLead = data.response));
 
-        this.findUnasignedDevs().then(
-          (res) => this.unsignedDevs = res
-        );
+        this.findUnasignedDevs().then((res) => {
+          this.unasignedDevs = res.sort((a, b) => {
+            if (a.name > b.name) {
+              return 1;
+            }
+            if (a.name < b.name) {
+              return -1;
+            }
+            return 0;
+          });
+        });
       });
     }
   },
