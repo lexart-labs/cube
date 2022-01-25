@@ -548,11 +548,12 @@ export default {
     },
     validateChecks() {
       const canChange = this.changePositionTime === 0;
-      const allChecked = translations.en.positionAssignments[this.user.position]
-        .every(
-          (el) => this.user.skills[el] === true
-      );
+      let allChecked = false;
+      const skillArray = translations.en.positionAssignments[this.user.position];
 
+      if(skillArray) {
+        allChecked = skillArray.every((el) => this.user.skills[el] === true);
+      }
       return !canChange && allChecked ? false : true;
     },
     addSkill() {
