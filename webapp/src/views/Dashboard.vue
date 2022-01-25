@@ -142,6 +142,9 @@
                 </span>
               </h2>
             </div>
+            <div v-show="show === 'leadTree'">
+              
+            </div>
           </div>
         </div>
       </div>
@@ -187,6 +190,7 @@
             hasIcon: true,
           },
           { name: 'technologies', class: 'fas fa-code', hasIcon: true },
+          { name: 'leadTree', class: 'fas fa-sitemap', hasIcon: true },
         ],
         showEvaluation: 0,
         year: null,

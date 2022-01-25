@@ -114,6 +114,7 @@ const translations = {
       humanFactor: 'Factor humano',
       skills: 'Habilidades',
       lead: 'Liderazgo',
+      leadTree: 'Mapa de Liderazgo',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -316,6 +317,7 @@ const translations = {
       humanFactor: 'Human Factor',
       skills: 'Skills',
       lead: 'Lead',
+      leadTree: 'Leads Tree',
     },
     positionAssignments: {
       'EntryLevel Developer': [
