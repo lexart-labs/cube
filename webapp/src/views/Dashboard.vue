@@ -486,6 +486,10 @@ export default {
         TechnologiesService.getAll().then(
           (res) => (this.technologies = res.response)
         );
+
+        UserService().listLeadDevs().then(
+          ({data}) => this.developersByLead = data.response
+        )
       });
     }
   },
