@@ -428,5 +428,13 @@ let User = {
 		const toArray = Object.keys(groupedByLead).map(el => ({name: el, devs: groupedByLead[el]}));
 		return { response: toArray };
 	},
+	devIds: async function() {
+		const sql = `
+			SELECT idLextracking AS 'id' FROM users WHERE type = 'developer';
+		`;
+
+		const response = await conn.query(sql);
+		return { response };
+	},
 }
 module.exports = User;

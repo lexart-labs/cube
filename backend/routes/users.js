@@ -51,6 +51,12 @@ router.get('/count', Mdl.middleware, async function (req, res) {
     res.send(response);
 })
 
+router.get('/lextracking-ids', async function (_req, res) {
+	const response = await User.devIds();
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
 router.post('/upsert', Mdl.middleware, async function (req, res) {
 	let post 	 = req.body;
 	let response = await User.upsert(post, req.headers['user-id']);

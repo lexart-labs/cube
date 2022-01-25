@@ -222,7 +222,7 @@ import Vue from "vue";
 import vueSelect from "vue-select";
 import { API, APP_NAME } from "../../env";
 import UserService from "../services/user.service";
-import { verifyToken } from "../services/helpers";
+import { verifyToken, compareDBUsers } from "../services/helpers";
 import Spinner from "../components/Spinner.vue";
 import Timeline from "../components/Timeline.vue";
 import Graphic from "../components/graphicEvaluation.vue";
@@ -276,6 +276,7 @@ export default {
         globalView: true,
       },
       developersByLead: [],
+      unasignedDevs: [],
     };
   },
   watch: {
@@ -441,6 +442,18 @@ export default {
         .forEach((key) => { this.$set(this.tabs, key, false); });
       this.$set(this.tabs, tab, true);
     },
+    findUnasignedDevs: async function() {
+      this.isLoading = true;
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const userId = localStorage.getItem(`id-${APP_NAME}`);
+      const headers = {token, 'user-id': userId};
+
+      const { data: { response: trckUsrs} } = await axios.get(`${API}users/lextracking/all`, { headers });
+      const { data: { response: cubeIds} } = await axios.get(`${API}users/lextracking-ids`, { headers });
+
+      this.isLoading = false;
+      return compareDBUsers(cubeIds, trckUsrs);
+    },
   },
   mounted() {
     const id = localStorage.getItem(`id-${APP_NAME}`);
@@ -489,7 +502,11 @@ export default {
 
         UserService().listLeadDevs().then(
           ({data}) => this.developersByLead = data.response
-        )
+        );
+
+        this.findUnasignedDevs().then(
+          (res) => this.unsignedDevs = res
+        );
       });
     }
   },
