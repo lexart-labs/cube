@@ -129,6 +129,7 @@
                     v-bind:class="{ active: tabs.roadmap }"
                     v-on:click="activeTab('roadmap')"
                     class="nav-link"
+                    v-show="user.idLextracking"
                     >Roadmap</a
                   >
                 </li>
@@ -248,7 +249,9 @@
                 <h3>Habilidades</h3>
                 <span>
                   {{ $t("AdminUsers.daysLeftMessage") }}
-                  <b>{{ changePositionTime }} d.</b>
+                  <b>
+                    {{ changePositionTime }} d.
+                  </b>
                 </span>
               </header>
               <div class="list-group" v-if="user.skills">
@@ -356,6 +359,8 @@ export default {
   },
   methods: {
     newUser() {
+      this.activeTab('perfil');
+
       const lead = {
         id: this.mySelfieCube.idLextracking,
         name: this.mySelfieCube.name,

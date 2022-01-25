@@ -116,6 +116,7 @@ const translations = {
       humanFactor: 'Factor humano',
       skills: 'Habilidades',
       lead: 'Liderazgo',
+      minimumTimeReached: '¡Nuevo cargo disponible!',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -320,6 +321,7 @@ const translations = {
       humanFactor: 'Human Factor',
       skills: 'Skills',
       lead: 'Lead',
+      minimumTimeReached: 'New position available!',
     },
     positionAssignments: {
       'EntryLevel Developer': [
