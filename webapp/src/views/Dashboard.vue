@@ -216,8 +216,8 @@
                 </table>
               </div>
               <div v-show="tabs.unasigned">
-                <ul>
-                  <li v-for="(dev, i) in unasignedDevs" :key="`usgDev${i}`">
+                <ul class="list-group">
+                  <li v-for="(dev, i) in unasignedDevs" :key="`usgDev${i}`" class="list-group-item">
                     {{ dev.name }}
                   </li>
                 </ul>
