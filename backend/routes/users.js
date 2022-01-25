@@ -66,6 +66,13 @@ router.get('/leads', Mdl.middleware, async function (_req, res) {
     res.send(response);
 })
 
+router.get('/lead-tree', async (_req, res) => {
+	const response = await User.getLeaderDevTree();
+	
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+})
+
 router.get('/:id', Mdl.middleware, async function (req, res) {
 	let response = await User.one(req.params.id, req.headers['token']);
 

@@ -407,5 +407,19 @@ let User = {
 			? { response }
 			: { error: 'No leaders found for this user'};
 	},
+	getLeaderDevTree: async function() {
+		const sql = `
+			SELECT
+				lead.name AS 'name',
+				GROUP_CONCAT(dev.name) AS 'devs'
+			FROM users lead, users dev
+			WHERE lead.type IN ('admin', 'pm') AND dev.idUser = lead.idLextracking
+			GROUP BY 'name';
+		`;
+
+		const response = await conn.query(sql);
+		const toArray = response.map(el => ({ ...el, devs: el.devs.split(',')}));
+		return toArray;
+	},
 }
 module.exports = User;
