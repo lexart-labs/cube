@@ -11,7 +11,7 @@
           v-on:click="() => setShow(aba.name)"
           v-show="
             aba.name === 'leadTree'
-              ? ['admin', 'pm'].includes(myUser.role)
+              ? ['admin', 'pm'].includes(myUser.type)
               : true
           "
         >
@@ -171,7 +171,7 @@
             </div>
             <div
               v-show="show === 'leadTree'"
-              v-if="['admin', 'pm'].includes(myUser.role)"
+              v-if="['admin', 'pm'].includes(myUser.type)"
             >
               <ul class="nav nav-tabs">
                 <li class="nav-item">
@@ -478,12 +478,6 @@ export default {
     const id = localStorage.getItem(`id-${APP_NAME}`);
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
     const userId = localStorage.getItem(`id-${APP_NAME}`);
-    this.myUser = JSON.parse(
-      localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-    );
-    const idCube = this.myUser.id;
-
-    // Verifico el token
     verifyToken(token);
 
     const headers = {
@@ -506,7 +500,7 @@ export default {
           // Obtenemos evaluaciones de un usuario
           this.getYears(id);
           this.obtenerEvaluaciones(id, this.year);
-          TechnologiesService.getByUser(idCube).then(
+          TechnologiesService.getByUser(this.myUser.id).then(
             (resp) => (this.userStack = Object.values(resp)[0] || [])
           );
         } else {
