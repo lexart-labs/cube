@@ -434,7 +434,8 @@ let User = {
 		`;
 
 		const response = await conn.query(sql);
-		return { response };
+		const ids = response.map(el => el.id);
+		return { response: ids };
 	},
 }
 module.exports = User;
