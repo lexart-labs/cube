@@ -113,104 +113,162 @@
             </button>
           </div>
           <div class="modal-body">
-            <form enctype="multipart/form-data">
-              <label for="">LexTracking user</label>
-              <vue-select
-                v-model="user"
-                label="name"
-                :options="usersLextracking"
-              ></vue-select>
-              <br />
-              <div class="row">
-                <div class="col">
-                  <label for="career">{{
-                    $t("AdminUsers.columnCharge")
-                  }}</label>
-                  <select
-                    class="form-control"
-                    v-model="user.positionId"
-                    id="career"
+            <div class="coursesTab" style="margin-bottom: 1rem">
+              <ul class="nav nav-tabs">
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    v-bind:class="{ active: tabs.perfil }"
+                    v-on:click="activeTab('perfil')"
                   >
-                    <option
-                      v-for="(career, i) in careers"
-                      :value="career.id"
-                      :key="`car${i}`"
-                      :selected="career.id == user.positionId"
-                    >
-                      {{ career.position }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col">
-                  <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
-                  <select class="form-control" v-model="user.levelId" id="lvl">
-                    <option
-                      v-for="(level, i) in levels"
-                      :value="level.id"
-                      :key="`lev${i}`"
-                      :selected="level.id == user.levelId"
-                    >
-                      {{ level.level }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-              <br />
-              <label for="techs">{{ $t("generic.technologies") }}</label>
-              <label for="lead-select">{{ $t("generic.lead") }}</label>
-              <select v-model="user.lead" class="form-control" id="lead-select">
-                <option
-                  :value="{ id: lead.idLextracking, name: lead.name }"
-                  :key="`lead${i}`"
-                  v-for="(lead, i) in leaders"
-                >
-                  {{ lead.name }}
-                </option>
-              </select>
-              <br />
-              <div class="tech-ctl">
-                <vue-select
-                  :options="technologies"
-                  id="techs"
-                  style="width: 95%"
-                  v-model="currentTech"
-                  :getOptionLabel="(el) => el.name"
-                >
-                </vue-select>
-                <i
-                  class="fas fa-plus-circle"
-                  :style="`font-size: 1.5rem; cursor: pointer;${
-                    currentTech && currentTech.name
-                      ? ''
-                      : 'pointer-events: none; color: #d3d3d3;'
-                  }`"
-                  v-on:click="addSkill()"
-                />
-              </div>
-              <ul class="list-group list-group-flush">
-                <li
-                  class="
-                    list-group-item
-                    d-flex
-                    justify-content-between
-                    align-items-center
-                  "
-                  v-for="(item, i) in managerUserTechs.userTechs"
-                  :key="`usrtchg${i}`"
-                >
-                  {{ item.name }}
-                  <i
-                    class="far fa-times-circle"
-                    v-on:click="removeSkill(item)"
-                    style="cursor: pointer"
-                  />
+                    Perfil
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    v-bind:class="{ active: tabs.roadmap }"
+                    v-on:click="activeTab('roadmap')"
+                    class="nav-link"
+                    v-show="user.idLextracking"
+                    >Roadmap</a
+                  >
                 </li>
               </ul>
-              <select class="form-control" v-model="user.active">
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
-              </select>
-            </form>
+            </div>
+            <div class="perfil">
+              <form enctype="multipart/form-data" v-show="tabs.perfil">
+                <label for="">LexTracking user</label>
+                <vue-select
+                  v-model="user"
+                  label="name"
+                  :options="usersLextracking"
+                ></vue-select>
+                <br />
+                <div class="row">
+                  <div class="col">
+                    <label for="career">{{
+                      $t("AdminUsers.columnCharge")
+                    }}</label>
+                    <select
+                      class="form-control"
+                      v-model="user.positionId"
+                      id="career"
+                    >
+                      <option
+                        v-for="(career, i) in careers"
+                        :value="career.id"
+                        :key="`car${i}`"
+                        :selected="career.id == user.positionId"
+                      >
+                        {{ career.position }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col">
+                    <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
+                    <select
+                      class="form-control"
+                      v-model="user.levelId"
+                      id="lvl"
+                    >
+                      <option
+                        v-for="(level, i) in levels"
+                        :value="level.id"
+                        :key="`lev${i}`"
+                        :selected="level.id == user.levelId"
+                      >
+                        {{ level.level }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <br />
+                <label for="lead-select">{{ $t("generic.lead") }}</label>
+                <select
+                  v-model="user.lead"
+                  class="form-control"
+                  id="lead-select"
+                >
+                  <option
+                    :value="{ id: lead.idLextracking, name: lead.name }"
+                    :key="`lead${i}`"
+                    v-for="(lead, i) in leaders"
+                  >
+                    {{ lead.name }}
+                  </option>
+                </select>
+                <br />
+                <label for="techs">{{ $t("generic.technologies") }}</label>
+                <div class="tech-ctl">
+                  <vue-select
+                    :options="technologies"
+                    id="techs"
+                    style="width: 95%"
+                    v-model="currentTech"
+                    :getOptionLabel="(el) => el.name"
+                  >
+                  </vue-select>
+                  <i
+                    class="fas fa-plus-circle"
+                    :style="`font-size: 1.5rem; cursor: pointer;${
+                      currentTech && currentTech.name
+                        ? ''
+                        : 'pointer-events: none; color: #d3d3d3;'
+                    }`"
+                    v-on:click="addSkill()"
+                  />
+                </div>
+                <ul class="list-group list-group-flush">
+                  <li
+                    class="
+                      list-group-item
+                      d-flex
+                      justify-content-between
+                      align-items-center
+                    "
+                    v-for="(item, i) in managerUserTechs.userTechs"
+                    :key="`usrtchg${i}`"
+                  >
+                    {{ item.name }}
+                    <i
+                      class="far fa-times-circle"
+                      v-on:click="removeSkill(item)"
+                      style="cursor: pointer"
+                    />
+                  </li>
+                </ul>
+                <br />
+                <select class="form-control" v-model="user.active">
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+              </form>
+            </div>
+            <div class="roadmap" v-show="tabs.roadmap">
+              <header>
+                <h3>Habilidades</h3>
+                <span>
+                  {{ $t("AdminUsers.daysLeftMessage") }}
+                  <b>
+                    {{ changePositionTime }} d.
+                  </b>
+                </span>
+              </header>
+              <div class="list-group" v-if="user.skills">
+                <label
+                  class="list-group-item"
+                  v-for="(item, i) in jobAssignments"
+                  :key="`asgn${i}`"
+                >
+                  <input
+                    class="form-check-input me-1"
+                    type="checkbox"
+                    v-model="user.skills[item]"
+                  />
+                  {{ $t(`positionAssignments['${user.position}'][${i}]`) }}
+                </label>
+              </div>
+            </div>
             <div
               v-if="error"
               class="alert alert-danger"
@@ -255,6 +313,7 @@ import TechnologiesService from "../../services/technologies.service";
 import { verifyToken } from "../../services/helpers";
 import translations from "../../data/translate";
 import { API, APP_NAME } from "../../../env";
+import minimunTimes from "../../data/positionMinimunTimes";
 
 export default {
   name: "Users",
@@ -266,6 +325,7 @@ export default {
         localStorage.getItem(`_lextracking_user-${APP_NAME}`)
       ).cubeUser,
       users: [],
+      changePositionTime: 0,
       error: "",
       isLoading: true,
       isFeching: false,
@@ -282,6 +342,11 @@ export default {
       careers: [],
       pagesLength: 1,
       page: 1,
+      tabs: {
+        perfil: true,
+        roadmap: false,
+      },
+      jobAssignments: [],
       technologies: [],
       managerUserTechs: {
         userTechs: [],
@@ -294,6 +359,8 @@ export default {
   },
   methods: {
     newUser() {
+      this.activeTab('perfil');
+
       const lead = {
         id: this.mySelfieCube.idLextracking,
         name: this.mySelfieCube.name,
@@ -307,7 +374,13 @@ export default {
         lead,
       };
     },
-    getUserById: async function (id) {
+    activeTab(tab) {
+      Object.keys(this.tabs).forEach((key) => {
+        this.tabs[key] = false;
+      });
+      this.tabs[tab] = true;
+    },
+    getUserById(id) {
       const lead = {
         id: this.mySelfieCube.idLextracking,
         name: this.mySelfieCube.name,
@@ -317,7 +390,16 @@ export default {
       this.isFeching = true;
       UserService().getUserById(id, async (res) => {
         if (!res.error) {
+          const { skills, position, since } = res.response;
           this.user = { ...res.response, lead };
+          this.jobAssignments =
+            translations.en.positionAssignments[position] || [];
+          this.user.skills = skills ? JSON.parse(skills) : {};
+
+          if (since !== null && since < minimunTimes[position]) {
+            this.changePositionTime = minimunTimes[position] - since;
+          }
+
           const resp = await TechnologiesService.getByUser(res.response.id);
           this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
         }
@@ -325,6 +407,18 @@ export default {
       });
     },
     upsertUser() {
+      if (!this.validateChecks()) {
+        Vue.toasted.show(
+          translations[this.$store.state.language].AdminUsers
+            .allChecksNotAllowedMsg,
+          {
+            type: "error",
+            duration: 2500,
+          }
+        );
+        return;
+      }
+
       this.isLoading = true;
       // Agrego usuarios nuevos con el sync desde el front
       this.user.token = "";
@@ -347,6 +441,7 @@ export default {
             this.handlePagination(page);
           } else {
             this.handlePagination(this.page);
+            this.cleanStates();
           }
         } else {
           this.error = res.error;
@@ -400,10 +495,6 @@ export default {
           });
       }
     },
-    silentFunction() {
-      console.log(this.$refs.logo.files);
-      console.log(this.$refs.background.files);
-    },
     navigate(operator) {
       this.isLoading = true;
       if (typeof operator === "number") {
@@ -444,6 +535,31 @@ export default {
         }
       });
       this.page = page + 1 || 1;
+    },
+    cleanStates() {
+      this.user = this.changePositionTime = 0;
+      (this.error = ""),
+        (this.isLoading = false),
+        (this.isFeching = false),
+        (this.user = {
+          name: "",
+          active: "1",
+        });
+      this.tabs = {
+        perfil: true,
+        roadmap: false,
+      };
+      this.jobAssignments = [];
+    },
+    validateChecks() {
+      const canChange = this.changePositionTime === 0;
+      let allChecked = false;
+      const skillArray = translations.en.positionAssignments[this.user.position];
+
+      if(skillArray) {
+        allChecked = skillArray.every((el) => this.user.skills[el] === true);
+      }
+      return !canChange && allChecked ? false : true;
     },
     addSkill() {
       const exists = this.managerUserTechs.userTechs.some(
@@ -513,7 +629,10 @@ export default {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
-        this.usersLextracking = users;
+        this.usersLextracking = users.map((el) => ({
+          ...el,
+          idLextracking: el.id,
+        }));
       } else {
         this.error = res.error;
       }
@@ -584,6 +703,19 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.roadmap {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+.roadmap > header {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
 }
 .tech-ctl {
   display: flex;

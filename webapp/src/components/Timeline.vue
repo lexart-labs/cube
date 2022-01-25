@@ -16,9 +16,23 @@
             </button>
           </div>
           <div class="modal-body">
-            <ul class="list-group list-group-flush">
-              <li v-for="(atb, i) in jobAssignments" :key="i" class="list-group-item">{{ atb }}</li>
-            </ul>
+            <header>
+                <span>
+                  {{ $t('AdminUsers.daysLeftMessage')}}
+                  <b>{{changePositionTime}} d.</b>
+                </span>
+              </header>
+              <br>
+            <div class="list-group list-group-flush">
+              <span
+                v-for="(atb, i) in jobAssignments"
+                :key="i"
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                {{ jobAssignmentsTranslated[i] }}
+                <i class="fas fa-check" v-show="user.skills && user.skills[atb]"></i>
+              </span>
+            </div>
           </div>
           <div class="modal-footer">
             <button
@@ -41,21 +55,25 @@ import axios from "axios";
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
-import assignments from "../data/jobAssignments";
 import translations from '../data/translate';
 import { APP_NAME, API } from "../../env";
+import minimunTimes from '../data/positionMinimunTimes';
 
 export default {
   name: "Timeline",
+  props: ['user'],
   data() {
     return {
       isLoading: false,
       jobAssignments: [],
+      changePositionTime: 0,
+      jobAssignmentsTranslated: [],
     };
   },
   methods: {
     showJobDetails(charge) {
-      this.jobAssignments = translations[this.$store.state.language].positionAssignments[charge];
+      this.jobAssignments = translations.en.positionAssignments[charge];
+      this.jobAssignmentsTranslated = translations[this.$store.state.language].positionAssignments[charge];
 
       $('#myModal').modal()
     },
@@ -164,6 +182,10 @@ export default {
 
     labelBullet.setStateOnChildren = true;
     labelBullet.states.create("hover").properties.scale = 1.2;
+
+    if (this.user.since < minimunTimes[this.user.position]) {
+      this.changePositionTime = minimunTimes[this.user.position] - this.user.since;
+    }
   },
 };
 </script>
