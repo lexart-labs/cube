@@ -439,22 +439,31 @@ let User = {
 		const sql = `
 			SELECT
 				lead.name AS 'name',
-				dev.name AS 'dev'
+				(
+						SELECT GROUP_CONCAT(name) FROM users AS dev WHERE dev.idUser = lead.idLextracking
+					) AS 'devs'
 			FROM users lead
-			INNER JOIN users AS dev ON dev.idUser = lead.idLextracking
 			WHERE lead.type IN ('admin', 'pm');
 		`;
 
 		const response = await conn.query(sql);
-		const groupedByLead = response.reduce((acc, {name, dev}) => {
-			acc[name] = acc[name]
-				? acc[name]
-				: [];
-			acc[name].push(dev);
-			return acc;
-		}, {});
-		const toArray = Object.keys(groupedByLead).map(el => ({name: el, devs: groupedByLead[el]}));
-		return { response: toArray };
+		let fixed = [];
+
+		try {
+			fixed = response.reduce((acc, el) => {
+				if (el.devs) {
+					const devs = el.devs.split(',');
+					acc.push({...el, devs});
+				}
+				return acc;
+			}, []);
+		} catch (e) {
+			console.log('response->', response);
+			console.log(e.message);
+		}
+		
+
+		return { response: fixed };
 	},
 	devIds: async function() {
 		const sql = `
