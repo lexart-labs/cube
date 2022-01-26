@@ -438,12 +438,12 @@ let User = {
 	getLeaderDevTree: async function() {
 		const sql = `
 			SELECT
-				lead.name AS 'name',
+				users.name AS 'name',
 				(
-						SELECT GROUP_CONCAT(name) FROM users AS dev WHERE dev.idUser = lead.idLextracking
+						SELECT GROUP_CONCAT(name) FROM users AS dev WHERE dev.idUser = users.idLextracking
 					) AS 'devs'
-			FROM users lead
-			WHERE lead.type IN ('admin', 'pm');
+			FROM users
+			WHERE users.type IN ('admin', 'pm');
 		`;
 
 		const response = await conn.query(sql);
