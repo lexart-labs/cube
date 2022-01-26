@@ -217,7 +217,11 @@
               </div>
               <div v-show="tabs.unasigned">
                 <ul class="list-group">
-                  <li v-for="(dev, i) in unasignedDevs" :key="`usgDev${i}`" class="list-group-item">
+                  <li
+                    v-for="(dev, i) in unasignedDevs"
+                    :key="`usgDev${i}`"
+                    class="list-group-item"
+                  >
                     {{ dev.name }}
                   </li>
                 </ul>
@@ -515,21 +519,23 @@ export default {
           (res) => (this.technologies = res.response)
         );
 
-        UserService()
-          .listLeadDevs()
-          .then(({ data }) => (this.developersByLead = data.response));
+        if (this.myUser.type == 'admin' || this.myUser.type == 'pm') {
+          UserService()
+              .listLeadDevs()
+              .then(({ data }) => (this.developersByLead = data.response));
 
-        this.findUnasignedDevs().then((res) => {
-          this.unasignedDevs = res.sort((a, b) => {
-            if (a.name > b.name) {
-              return 1;
-            }
-            if (a.name < b.name) {
-              return -1;
-            }
-            return 0;
+          this.findUnasignedDevs().then((res) => {
+            this.unasignedDevs = res.sort((a, b) => {
+              if (a.name > b.name) {
+                return 1;
+              }
+              if (a.name < b.name) {
+                return -1;
+              }
+              return 0;
+            });
           });
-        });
+        }
       });
     }
   },
