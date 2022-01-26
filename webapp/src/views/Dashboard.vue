@@ -409,7 +409,6 @@ export default {
       if (!data.err) {
         this.years = data;
         this.year = data[data.length - 1];
-        this.obtenerEvaluaciones(id, this.year);
       } else {
         console.log("ENTER");
         Vue.toasted.show(
@@ -486,7 +485,7 @@ export default {
     };
 
     if (id) {
-      axios.get(`${API}users/${id}`, { headers }).then((res) => {
+      axios.get(`${API}users/${id}`, { headers }).then(async (res) => {
         this.isLoading = false;
 
         if (!res.data.error) {
@@ -498,8 +497,8 @@ export default {
             ].dashboard.messageSyncStatus;
 
           // Obtenemos evaluaciones de un usuario
-          this.getYears(id);
-          this.obtenerEvaluaciones(id, this.year);
+          await this.getYears(id);
+          if(this.year) this.obtenerEvaluaciones(id, this.year);
           TechnologiesService.getByUser(this.myUser.id).then(
             (resp) => (this.userStack = Object.values(resp)[0] || [])
           );
