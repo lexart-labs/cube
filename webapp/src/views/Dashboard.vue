@@ -417,7 +417,7 @@ export default {
 
           // Obtenemos evaluaciones de un usuario
           await this.getYears(id);
-          this.obtenerEvaluaciones(id, this.year);
+          if(this.year) this.obtenerEvaluaciones(id, this.year);
           TechnologiesService.getByUser(idCube).then(
             (resp) => (this.userStack = Object.values(resp)[0] || [])
           );
