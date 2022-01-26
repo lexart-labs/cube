@@ -469,7 +469,7 @@ export default {
 
       const {
         data: { response: trckUsrs },
-      } = await axios.get(`${API}users/lextracking/all`, { headers });
+      } = await axios.get(`${API}users/lextracking/all?minified=true`, { headers });
       const {
         data: { response: cubeIds },
       } = await axios.get(`${API}users/lextracking-ids`, { headers });

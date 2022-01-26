@@ -15,7 +15,7 @@ export const verifyToken = (token) => {
 
 export const compareDBUsers = (listIds, listUsers) => {
   const result = listUsers.filter(el => (
-    !listIds.includes(parseInt(el.id)) && el.role === 'developer'
+    !listIds.includes(parseInt(el.id))
   ));
   return result;
 };

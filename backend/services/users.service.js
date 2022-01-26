@@ -28,17 +28,25 @@ let User = {
 
 		return response.length > 0 ? { response: response } : error;
 	},
-	allUserLextracking: async function (req) {
+	allUserLextracking: async function (req, shouldOmit) {
 		let error = { "error": "Error al obtener usuarios" }
 		let model = 'user/all'
-		const response = await axios.get(API_LEXTRACKING + model,
+		let { data: { response } } = await axios.get(API_LEXTRACKING + model,
 			{
 				"headers": {
 					"token": req.headers.token
 				}
 			})
+		if (shouldOmit && response.length) {
+			response = response.reduce((acc, {name, id, email, role }) => {
+				if (role == 'developer') {
+					acc.push({ name, id, email });
+				}
+				return acc;
+			}, []);
+		}
 
-		return response.data.response.length > 0 ? { response: response.data.response } : error;
+		return response.length > 0 ? { response } : error;
 	},
 	one: async function (id, token) {
 		let error = { "error": "Error al obtener usuarios" }
