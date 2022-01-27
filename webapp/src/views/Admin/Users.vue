@@ -282,6 +282,7 @@
               type="button"
               class="btn btn-secondary"
               data-dismiss="modal"
+              v-on:click="cleanStates"
             >
               {{ $t("generic.cancel") }}
             </button>
@@ -439,8 +440,9 @@ export default {
             this.handlePagination(page);
           } else {
             this.handlePagination(this.page);
-            this.cleanStates();
           }
+
+          this.cleanStates();
         } else {
           this.error = res.error;
         }
@@ -536,18 +538,23 @@ export default {
     },
     cleanStates() {
       this.user = this.changePositionTime = 0;
-      (this.error = ""),
-        (this.isLoading = false),
-        (this.isFeching = false),
-        (this.user = {
-          name: "",
-          active: "1",
-        });
+      this.error = "";
+      this.isLoading = false;
+      this.isFeching = false;
+      this.user = {
+        name: "",
+        active: "1",
+      };
       this.tabs = {
         perfil: true,
         roadmap: false,
       };
       this.jobAssignments = [];
+      this.managerUserTechs = {
+        userTechs: [],
+        toAdd: [],
+        toRemove: [],
+      };
     },
     validateChecks() {
       const canChange = this.changePositionTime === 0;
