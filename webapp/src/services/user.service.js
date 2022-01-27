@@ -74,7 +74,29 @@ const UserService = function () {
       axios.get(`${API + model}count`, { headers }).then((res) => {
         cb(res.data);
       });
-    }
+    },
+    getLeaders() {
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const userId = localStorage.getItem(`id-${APP_NAME}`);
+
+      const headers = {
+        token,
+        'user-id': userId,
+      };
+
+      return axios.get(`${API + model}leads`, { headers });
+    },
+    listLeadDevs() {
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const userId = localStorage.getItem(`id-${APP_NAME}`);
+
+      const headers = {
+        token,
+        'user-id': userId,
+      };
+
+      return axios.get(`${API + model}lead-tree`, { headers });
+    },
   };
 };
 

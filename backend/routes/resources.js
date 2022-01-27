@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const User 	 = require('../services/users.service')
 const Resource = require('../services/resources.service')
 
 
@@ -12,6 +11,5 @@ router.get('/by-course/:id', Mdl.middleware, Mdl.middlewareCourse, async functio
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
 })
-
 
 module.exports = router;

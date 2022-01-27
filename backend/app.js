@@ -14,8 +14,9 @@ const coursesRouter = require('./routes/courses')
 const resourcesRouter = require('./routes/resources')
 const levelsRouter = require('./routes/levels');
 const careersRouter = require('./routes/careers');
+const technologies = require('./routes/technologies');
 
-const port 	  	 = 3001;
+const port 	  	 = process.env.API_PORT;
 const seed       = 100000000000000
 
 const storage = multer.diskStorage({
@@ -48,6 +49,7 @@ app.use('/courses', coursesRouter)
 app.use('/resources', resourcesRouter)
 app.use('/careers', careersRouter)
 app.use('/levels', levelsRouter)
+app.use('/technologies', technologies)
 app.use('/public', express.static('public'));
 
 app.post('/upload-file', upload.single('file-image'), function (req, res, next) {

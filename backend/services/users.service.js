@@ -1,4 +1,5 @@
-const utils = require('./utils.service')
+const utils = require('./utils.service');
+const UserSkills = require('./userSkills.service');
 const axios = require('axios')
 
 const tablaNombre = 'users';
@@ -9,8 +10,6 @@ let User = {
 	all: async function (idAdmin, page) {
 		let error = { "error": "Error al obtener usuarios" }
 
-		const tablaNombre = 'users'
-
 		// Obtener los usuarios
 		const sql = `
 			SELECT c.position AS position, l.level AS level, u.* FROM users u
@@ -20,7 +19,7 @@ let User = {
 			WHERE u.idUser = ? OR u.idLextracking = ?
 			${page ? `LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}` : ''}
 		`
-		
+
 		let response = []
 
 		try {
@@ -29,17 +28,25 @@ let User = {
 
 		return response.length > 0 ? { response: response } : error;
 	},
-	allUserLextracking: async function (req) {
+	allUserLextracking: async function (req, shouldOmit) {
 		let error = { "error": "Error al obtener usuarios" }
 		let model = 'user/all'
-		const response = await axios.get(API_LEXTRACKING + model,
+		let { data: { response } } = await axios.get(API_LEXTRACKING + model,
 			{
 				"headers": {
 					"token": req.headers.token
 				}
 			})
+		if (shouldOmit && response.length) {
+			response = response.reduce((acc, {name, id, email, role }) => {
+				if (role == 'developer') {
+					acc.push({ name, id, email });
+				}
+				return acc;
+			}, []);
+		}
 
-		return response.data.response.length > 0 ? { response: response.data.response } : error;
+		return response.length > 0 ? { response } : error;
 	},
 	one: async function (id, token) {
 		let error = { "error": "Error al obtener usuarios" }
@@ -47,18 +54,21 @@ let User = {
 		let stack;
 
 		// Obtener los usuario
-			const sql = `
-				SELECT
-					c.position AS position,
-					c.id AS positionId,
-					l.level AS level,
-					l.id AS levelId,
-					u.*
-				FROM users u
-				LEFT JOIN user_position_level uc ON uc.id = u.idPosition
-				LEFT JOIN careers c ON uc.idPosition = c.id
-				LEFT JOIN levels l ON uc.idLevel = l.id
-				WHERE u.idLextracking = ?;
+		const sql = `
+			SELECT
+				c.position AS position,
+				c.id AS positionId,
+				l.level AS level,
+				l.id AS levelId,
+				usp.skills AS 'skills',
+				DATEDIFF(CURRENT_DATE, uc.dateCreated) AS 'since',
+				u.*
+			FROM users u
+			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			LEFT JOIN careers c ON uc.idPosition = c.id
+			LEFT JOIN levels l ON uc.idLevel = l.id
+			LEFT JOIN user_skills_per_position usp ON u.idLextracking = usp.idUser AND usp.idPosition = uc.id
+			WHERE u.idLextracking = ?;
 			`
 		// alterado o where, antes estava WHERE u.idLextraking = ? AND u.token = ?;
 		// E ele nunca encontrava o usuário, pois quando se cria um, ele não é criado com o token;
@@ -93,116 +103,144 @@ let User = {
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
 	},
+	updateOne: async function (usuario, { idAdmin }) {
+		const tablaNombre = 'users';
+		let response;
+		let stack;
+		let shouldCreatePosition = true;
+
+		// Defino en cual clave esta el id de lextracking
+		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
+
+		const { positionId, levelId } = usuario;
+		usuario.token = utils.makeToken(usuario.email, usuario.id, 'public');
+		if (usuario.passwordCopy) { usuario.password = md5(usuario.passwordCopy); }
+
+		// Compara los ids de cargo y nível, si los nuevos son iguales a los atuales
+		const currentPosition = await conn.query(
+			'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
+		);
+
+		if (currentPosition[0]) {
+			shouldCreatePosition = (
+				currentPosition[0].idPosition == positionId
+				&& currentPosition[0].idLevel == levelId
+			) ? false : true;
+		}
+
+		const idPosition = shouldCreatePosition
+			? await this.updatePosition(idLextracking, positionId, levelId)
+			: usuario.idPosition;
+
+		const sql = `
+			UPDATE ${tablaNombre}
+			SET name = ?,
+				email  = ?,
+				type   = ?,
+				password = ?,
+				active = ?,
+				idUser = ?,
+				token = ?,
+				idPosition = ?,
+				dateEdited = NOW()
+			WHERE idLextracking = ?
+		`;
+		const arr = [
+			usuario.name,
+			usuario.email,
+			usuario.type,
+			usuario.password,
+			parseInt(usuario.active),
+			idAdmin,
+			usuario.token,
+			idPosition,
+			idLextracking,
+		];
+
+		try {
+			response = await conn.query(sql, arr);
+			if (shouldCreatePosition) {
+				await UserSkills.insert({ idUser: usuario.idLextracking, skills: usuario.skills, idPosition });
+			} else {
+				await UserSkills.update({ idUser: usuario.idLextracking, skills: usuario.skills, idPosition });
+			};
+		} catch (e) {
+			console.log("e: ", e)
+			stack = e
+		}
+
+		return { response, stack, arr, sql };
+	},
+	insertOne: async function (usuario, { idAdmin }) {
+		const tablaNombre = 'users';
+		let response;
+		let stack;
+		let password = usuario.password;
+		if (usuario.passwordCopy) {
+			password = md5(usuario.passwordCopy);
+		}
+		const { id, positionId, levelId } = usuario;
+
+		const result = await this.updatePosition(id, positionId, levelId);
+		const idPosition = result.error ? null : result;
+
+		const sql = `
+			INSERT INTO ${tablaNombre}
+				(name, idLextracking, idUser, email, type, password, token, idPosition)
+			VALUES
+				(?, ?, ?, ?, ?, ?, ?, ?)
+		`;
+		const arr = [
+			usuario.name,
+			parseInt(usuario.idLextracking),
+			idAdmin,
+			usuario.email,
+			usuario.type,
+			password,
+			usuario.token,
+			idPosition,
+		];
+
+		try {
+			response = await conn.query(sql, arr);
+			await UserSkills.insert(
+				{
+					idUser: usuario.idLextracking,
+					skills: usuario.skills,
+					idPosition
+				}
+			);
+		} catch (e) {
+			console.log("e: ", e)
+			stack = e
+		}
+
+		return { response, stack, arr, sql };
+	},
 	upsert: async function (usuario, idAdmin) {
-
-		let error = { "error": "Error al ingresar/editar usuario" }
-		let sql = ``;
-		let arr = [];
-		let shouldCreateNewPosition = false;
-
-		const tablaNombre = 'users'
-
-		// console.log("usuario.type: ", usuario.type)
+		let error = { "error": "Error al ingresar/editar usuario" };
+		let result = [];
+		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 
 		// Verifico si no es admin
 		if (usuario.idUser && (idAdmin != usuario.idUser)) {
 			idAdmin = usuario.idUser
 		}
-
 		// Si ya existe
-		const cubeUser = await this.loginCube(usuario.email);
-
+		const cubeUser = await this.one(idLextracking, '');
 		if (cubeUser.response) {
-			shouldCreateNewPosition = (
-				cubeUser.response.idPosition == usuario.positionId
-				&& cubeUser.response.idLevel == usuario.levelId
-			)
-				? false : true;
 			usuario.sync = false
 		}
 
-		const idPosition = shouldCreateNewPosition
-				? await this.updatePosition(usuario)
-				: usuario.idPosition;
-
-		if (usuario.id && !usuario.sync) {
-
-			// Si viene clave nueva
-			if (usuario.passwordCopy) {
-				usuario.password = md5(usuario.passwordCopy);
-			}
-
-			// Generate token in update
-			usuario.token = utils.makeToken(usuario.email, usuario.id, 'public')
-
-			// Actualizar usuario
-			sql = `
-				UPDATE ${tablaNombre}
-				SET name = ?,
-					email  = ?,
-					type   = ?,
-					password = ?,
-					active = ?,
-					idUser = ?,
-					token = ?,
-					idPosition = ?,
-					dateEdited = NOW()
-				WHERE id = ? 
-			`
-			arr = [
-				usuario.name,
-				usuario.email,
-				usuario.type,
-				usuario.password,
-				parseInt(usuario.active),
-				idAdmin,
-				usuario.token,
-				idPosition,
-				usuario.id,
-			]
-
+		if (cubeUser.response && !usuario.sync) {
+			result = await this.updateOne(usuario, { idAdmin });
 		} else {
-			// Hasheo con MD5
-			// Si viene el sync del lextracking
-			let password = usuario.password
-
-			if (usuario.passwordCopy) {
-				password = md5(usuario.passwordCopy);
-			}
-
-			const result = await this.updatePosition(usuario);
-			const idPosition = result.error ? null : result;
-			
-
-			// Insertar usuario
-			sql = `
-				INSERT INTO ${tablaNombre}
-					(name, idLextracking, idUser, email, type, password, token, idPosition)
-				VALUES
-				 	(?, ?, ?, ?, ?, ?, ?, ?)
-			`
-			arr = [
-				usuario.name,
-				parseInt(usuario.id),
-				idAdmin,
-				usuario.email,
-				usuario.type,
-				password,
-				usuario.token,
-				idPosition,
-			]
+			result = await this.insertOne(usuario, { idAdmin });
 		}
 
-		let response = [];
+		const { arr, sql, stack, response } = result;
 
-		let stack
-		try {
-			response = await conn.query(sql, arr);
-		} catch (e) {
-			console.log("e: ", e)
-			stack = e
-		}
-		error.stack = { stack: stack, tail: response, sql: sql, arr: arr }
+		error.stack = { stack, tail: response, sql, arr }
 		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
 	loginLextracking: async function (email, password) {
@@ -239,27 +277,24 @@ let User = {
 	},
 	loginCube: async function (email) {
 		const sql = `
-			SELECT
-				u.id,
-				u.name,
-				u.email,
-				u.type,
-				u.active,
-				u.idUser,
-				u.idLextracking,
-				uc.idPosition,
-				uc.idLevel
-			FROM ${tablaNombre} u
-			LEFT JOIN user_position_level uc ON u.idPosition = uc.id
-			WHERE u.email = ?
-				AND u.active = 1
-			;
+		SELECT
+			u.id,
+			u.name,
+			u.email,
+			u.type,
+			u.active,
+			u.idUser,
+			u.idLextracking,
+			uc.idPosition,
+			uc.idLevel
+		FROM ${tablaNombre} u
+		LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+		WHERE u.email = ? AND u.active = 1
 		`
-		let response = []
+		let response = [];
 
 		try {
 			response = await conn.query(sql, [email]);
-
 		} catch (e) { }
 
 		return response.length > 0 ? { response: response[0] } : { error: 'Usuario y/o clave incorrecta.' };
@@ -327,7 +362,7 @@ let User = {
 		}
 		return { response: userCorrect }
 	},
-	updatePosition: async function({ id, positionId, levelId }) {
+	updatePosition: async function (id, positionId, levelId) {
 		const sql = `
 			INSERT INTO user_position_level (idPosition, idLevel, idUser)
 			VALUES (?, ?, ?)
@@ -356,8 +391,96 @@ let User = {
 		} catch (e) {
 			console.log(e.message);
 		}
-		
+
 		return response > 0 ? { response } : error;
+	},
+	getLeads: async function () {
+		const sql = `
+			SELECT * FROM ${tablaNombre} WHERE type IN ('admin', 'pm')
+		`;
+		let response = [];
+
+		try {
+			response = await conn.query(sql);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.length ? { response } : { error: 'No leads found.' }
+	},
+	changeLeader: async function (idLead, idDev) {
+		const TABLE_NAME = 'lead_dev_logs';
+		const sql = `
+			INSERT INTO ${TABLE_NAME} (idDev, idLead)
+			VALUES (?, ?)
+		`;
+		let response;
+
+		try {
+			response = await conn.query(sql, [idDev, idLead]);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.affectedRows === 1
+			? { response: 'ok' }
+			: { error: 'Not possible to asign new user' };
+	},
+	getLeadersLog: async function (idDev) {
+		const TABLE_NAME = 'lead_dev_logs';
+		const sql = `
+			SELECT * FROM ${TABLE_NAME} WHERE idDev = ?
+		`;
+		let response;
+
+		try {
+			response = await conn.query(sql, [idDev]);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.length
+			? { response }
+			: { error: 'No leaders found for this user' };
+	},
+	getLeaderDevTree: async function() {
+		const sql = `
+			SELECT
+				users.name AS 'name',
+				(
+						SELECT GROUP_CONCAT(name) FROM users AS dev WHERE dev.idUser = users.idLextracking
+					) AS 'devs'
+			FROM users
+			WHERE users.type IN ('admin', 'pm');
+		`;
+
+		const response = await conn.query(sql);
+		let fixed = [];
+
+		try {
+			fixed = response.reduce((acc, el) => {
+				if (el.devs) {
+					const devs = el.devs.split(',');
+					acc.push({...el, devs});
+				}
+				return acc;
+			}, []);
+		} catch (e) {
+			console.log('response->', response);
+			console.log(e.message);
+		}
+		
+
+		return { response: fixed };
+	},
+	devIds: async function() {
+		const sql = `
+			SELECT idLextracking AS 'id' FROM users WHERE type = 'developer';
+		`;
+
+		const response = await conn.query(sql);
+		const ids = response.map(el => el.id);
+		return { response: ids };
 	},
 }
 module.exports = User;
