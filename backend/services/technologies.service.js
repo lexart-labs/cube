@@ -1,13 +1,11 @@
 const TABLE_NAME = 'technologies';
 const TABLE_RELATION_NAME = 'user_skills';
 const ERROR = { error: 'No results found' };
+require('dotenv').config();
 
 const getColumns = async () => {
   const sql = `
-    SELECT DISTINCT COLUMN_NAME
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_NAME = '${TABLE_NAME}'
-    ORDER BY ORDINAL_POSITION
+    SHOW COLUMNS FROM ${process.env.DATABASE}.${TABLE_NAME};
   `;
   let response = [];
 
@@ -17,7 +15,7 @@ const getColumns = async () => {
     console.log(e.message);
   }
 
-  return response.map(el => el.COLUMN_NAME);
+  return response.map(el => el.Field);
 };
 
 const Technologies = {
