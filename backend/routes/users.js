@@ -37,9 +37,8 @@ router.get('/all', async function (req, res) {
 })
 
 router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
-	let response = await User.allUserLextracking(req);
-
-	// console.log(response)
+	const { minified } = req.query;
+	let response = await User.allUserLextracking(req, minified);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
@@ -47,6 +46,12 @@ router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
 
 router.get('/count', Mdl.middleware, async function (req, res) {
 	let response = await User.countResults(req.headers['user-id']);
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
+router.get('/lextracking-ids', async function (_req, res) {
+	const response = await User.devIds();
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
 })
@@ -64,6 +69,13 @@ router.get('/leads', Mdl.middleware, async function (_req, res) {
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
+})
+
+router.get('/lead-tree', async (_req, res) => {
+	const response = await User.getLeaderDevTree();
+	
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
 })
 
 router.get('/:id', Mdl.middleware, async function (req, res) {

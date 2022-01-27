@@ -28,17 +28,25 @@ let User = {
 
 		return response.length > 0 ? { response: response } : error;
 	},
-	allUserLextracking: async function (req) {
+	allUserLextracking: async function (req, shouldOmit) {
 		let error = { "error": "Error al obtener usuarios" }
 		let model = 'user/all'
-		const response = await axios.get(API_LEXTRACKING + model,
+		let { data: { response } } = await axios.get(API_LEXTRACKING + model,
 			{
 				"headers": {
 					"token": req.headers.token
 				}
 			})
+		if (shouldOmit && response.length) {
+			response = response.reduce((acc, {name, id, email, role }) => {
+				if (role == 'developer') {
+					acc.push({ name, id, email });
+				}
+				return acc;
+			}, []);
+		}
 
-		return response.data.response.length > 0 ? { response: response.data.response } : error;
+		return response.length > 0 ? { response } : error;
 	},
 	one: async function (id, token) {
 		let error = { "error": "Error al obtener usuarios" }
@@ -434,6 +442,45 @@ let User = {
 		return response.length
 			? { response }
 			: { error: 'No leaders found for this user' };
+	},
+	getLeaderDevTree: async function() {
+		const sql = `
+			SELECT
+				users.name AS 'name',
+				(
+						SELECT GROUP_CONCAT(name) FROM users AS dev WHERE dev.idUser = users.idLextracking
+					) AS 'devs'
+			FROM users
+			WHERE users.type IN ('admin', 'pm');
+		`;
+
+		const response = await conn.query(sql);
+		let fixed = [];
+
+		try {
+			fixed = response.reduce((acc, el) => {
+				if (el.devs) {
+					const devs = el.devs.split(',');
+					acc.push({...el, devs});
+				}
+				return acc;
+			}, []);
+		} catch (e) {
+			console.log('response->', response);
+			console.log(e.message);
+		}
+		
+
+		return { response: fixed };
+	},
+	devIds: async function() {
+		const sql = `
+			SELECT idLextracking AS 'id' FROM users WHERE type = 'developer';
+		`;
+
+		const response = await conn.query(sql);
+		const ids = response.map(el => el.id);
+		return { response: ids };
 	},
 }
 module.exports = User;

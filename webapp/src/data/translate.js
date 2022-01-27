@@ -13,6 +13,8 @@ const translations = {
       administration: 'Administración',
       romboTitle: 'Vision general por año',
       alreadyExists: '¡El elemente ya existe!',
+      unasigned: 'No asignados',
+      golbalView: 'Visión general',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -116,6 +118,7 @@ const translations = {
       humanFactor: 'Factor humano',
       skills: 'Habilidades',
       lead: 'Liderazgo',
+      leadTree: 'Mapa de Liderazgo',
       minimumTimeReached: '¡Nuevo cargo disponible!',
     },
     positionAssignments: {
@@ -218,6 +221,8 @@ const translations = {
       administration: 'Administration',
       romboTitle: 'Overview by year',
       alreadyExists: 'This item already exists!',
+      unasigned: 'Unasigneds',
+      golbalView: 'Global Overview',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
@@ -321,6 +326,7 @@ const translations = {
       humanFactor: 'Human Factor',
       skills: 'Skills',
       lead: 'Lead',
+      leadTree: 'Lead\'s Tree',
       minimumTimeReached: 'New position available!',
     },
     positionAssignments: {

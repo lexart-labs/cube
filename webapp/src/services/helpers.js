@@ -12,3 +12,10 @@ export const verifyToken = (token) => {
   }
   return true;
 };
+
+export const compareDBUsers = (listIds, listUsers) => {
+  const result = listUsers.filter(el => (
+    !listIds.includes(parseInt(el.id))
+  ));
+  return result;
+};

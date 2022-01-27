@@ -9,6 +9,11 @@
           "
           v-for="(aba, index) in abas"
           v-on:click="() => setShow(aba.name)"
+          v-show="
+            aba.name === 'leadTree'
+              ? ['admin', 'pm'].includes(myUser.type)
+              : true
+          "
         >
           <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
           {{ $t(`generic.${aba.name}`) }}
@@ -164,6 +169,64 @@
                 </span>
               </h2>
             </div>
+            <div
+              v-show="show === 'leadTree'"
+              v-if="['admin', 'pm'].includes(myUser.type)"
+            >
+              <ul class="nav nav-tabs">
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    v-bind:class="{ active: tabs.globalView }"
+                    v-on:click="activeTab('globalView')"
+                  >
+                    {{ $t("dashboard.golbalView") }}
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    v-bind:class="{ active: tabs.unasigned }"
+                    v-on:click="activeTab('unasigned')"
+                  >
+                    {{ $t("dashboard.unasigned") }}
+                  </a>
+                </li>
+              </ul>
+              <div v-show="tabs.globalView">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Lead</th>
+                      <th>Developers</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(lead, i) in developersByLead" :key="`lead${i}`">
+                      <td>{{ lead.name }}</td>
+                      <td>
+                        <ul>
+                          <li v-for="(dev, j) in lead.devs" :key="`dev${j}`">
+                            {{ dev }}
+                          </li>
+                        </ul>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-show="tabs.unasigned">
+                <ul class="list-group">
+                  <li
+                    v-for="(dev, i) in unasignedDevs"
+                    :key="`usgDev${i}`"
+                    class="list-group-item"
+                  >
+                    {{ dev.name }}
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -177,7 +240,7 @@ import Vue from "vue";
 import vueSelect from "vue-select";
 import { API, APP_NAME } from "../../env";
 import UserService from "../services/user.service";
-import { verifyToken } from "../services/helpers";
+import { verifyToken, compareDBUsers } from "../services/helpers";
 import Spinner from "../components/Spinner.vue";
 import Timeline from "../components/Timeline.vue";
 import Graphic from "../components/graphicEvaluation.vue";
@@ -216,6 +279,7 @@ export default {
           hasIcon: true,
         },
         { name: "technologies", class: "fas fa-code", hasIcon: true },
+        { name: "leadTree", class: "fas fa-sitemap", hasIcon: true },
       ],
       showEvaluation: 0,
       year: null,
@@ -225,6 +289,12 @@ export default {
       currentTech: {},
       translations,
       myUser: {},
+      tabs: {
+        unasigned: false,
+        globalView: true,
+      },
+      developersByLead: [],
+      unasignedDevs: [],
     };
   },
   watch: {
@@ -384,16 +454,33 @@ export default {
       this.userStack = this.userStack.filter((el) => el !== skill);
       TechnologiesService.remove(idUser, skill.id);
     },
+    activeTab(tab) {
+      Object.keys(this.tabs).forEach((key) => {
+        this.$set(this.tabs, key, false);
+      });
+      this.$set(this.tabs, tab, true);
+    },
+    findUnasignedDevs: async function () {
+      this.isLoading = true;
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const userId = localStorage.getItem(`id-${APP_NAME}`);
+      const headers = { token, "user-id": userId };
+
+      const {
+        data: { response: trckUsrs },
+      } = await axios.get(`${API}users/lextracking/all?minified=true`, { headers });
+      const {
+        data: { response: cubeIds },
+      } = await axios.get(`${API}users/lextracking-ids`, { headers });
+
+      this.isLoading = false;
+      return compareDBUsers(cubeIds, trckUsrs);
+    },
   },
   mounted() {
     const id = localStorage.getItem(`id-${APP_NAME}`);
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
     const userId = localStorage.getItem(`id-${APP_NAME}`);
-    const idCube = JSON.parse(
-      localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-    ).id;
-
-    // Verifico el token
     verifyToken(token);
 
     const headers = {
@@ -408,8 +495,6 @@ export default {
         if (!res.data.error) {
           this.myUser = res.data.response;
           this.myUser.skills = JSON.parse(res.data.response.skills);
-          // let courses  = res.data.response;
-          // this.courses = courses;
           this.success =
             translations[
               this.$store.state.language
@@ -418,7 +503,7 @@ export default {
           // Obtenemos evaluaciones de un usuario
           await this.getYears(id);
           if(this.year) this.obtenerEvaluaciones(id, this.year);
-          TechnologiesService.getByUser(idCube).then(
+          TechnologiesService.getByUser(this.myUser.id).then(
             (resp) => (this.userStack = Object.values(resp)[0] || [])
           );
         } else {
@@ -432,6 +517,24 @@ export default {
         TechnologiesService.getAll().then(
           (res) => (this.technologies = res.response)
         );
+
+        if (this.myUser.type == 'admin' || this.myUser.type == 'pm') {
+          UserService()
+              .listLeadDevs()
+              .then(({ data }) => (this.developersByLead = data.response));
+
+          this.findUnasignedDevs().then((res) => {
+            this.unasignedDevs = res.sort((a, b) => {
+              if (a.name > b.name) {
+                return 1;
+              }
+              if (a.name < b.name) {
+                return -1;
+              }
+              return 0;
+            });
+          });
+        }
       });
     }
   },
@@ -478,5 +581,9 @@ export default {
   width: 100%;
   align-items: center;
   justify-content: space-between;
+}
+
+table {
+  margin-top: 2rem;
 }
 </style>
