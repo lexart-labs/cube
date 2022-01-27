@@ -4,7 +4,7 @@ const ERROR = { error: 'No results found' };
 
 const getColumns = async () => {
   const sql = `
-    SELECT COLUMN_NAME
+    SELECT DISTINCT COLUMN_NAME
     FROM INFORMATION_SCHEMA.COLUMNS
     WHERE TABLE_NAME = '${TABLE_NAME}'
     ORDER BY ORDINAL_POSITION
