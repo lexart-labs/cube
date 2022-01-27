@@ -369,8 +369,6 @@ export default {
       this.user = {
         name: "",
         active: "1",
-        positionId: 1,
-        levelId: 1,
         lead,
       };
     },
@@ -614,6 +612,10 @@ export default {
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
     const User = UserService();
+    const lead = {
+      id: this.mySelfieCube.idLextracking,
+      name: this.mySelfieCube.name,
+    };
 
     // Verifico el token
     verifyToken(token);
@@ -628,11 +630,8 @@ export default {
     User.getAllUsersLextracking((res) => {
       this.isLoading = false;
       if (!res.error) {
-        const users = res.response;
-        this.usersLextracking = users.map((el) => ({
-          ...el,
-          idLextracking: el.id,
-        }));
+        const users = res.response.map(usr => ({lead, active: '1', ...usr}));
+        this.usersLextracking = users;
       } else {
         this.error = res.error;
       }
