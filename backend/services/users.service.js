@@ -448,8 +448,10 @@ let User = {
 			SELECT
 				users.name AS 'name',
 				(
-						SELECT GROUP_CONCAT(name) FROM users AS dev WHERE dev.idUser = users.idLextracking
-					) AS 'devs'
+					SELECT GROUP_CONCAT(name)
+					FROM users AS dev
+					WHERE dev.idUser = users.idLextracking AND dev.idLextracking <> users.idLextracking
+				) AS 'devs'
 			FROM users
 			WHERE users.type IN ('admin', 'pm');
 		`;
