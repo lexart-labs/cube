@@ -361,11 +361,10 @@ export default {
   methods: {
     newUser() {
       this.activeTab('perfil');
-
       const lead = {
         id: this.mySelfieCube.idLextracking,
         name: this.mySelfieCube.name,
-      };
+      };    
 
       this.user = {
         name: "",
@@ -399,7 +398,7 @@ export default {
             this.changePositionTime = minimunTimes[position] - since;
           }
 
-          const resp = await TechnologiesService.getByUser(res.response.id);
+          const resp = await TechnologiesService.getByUser(res.response.idLextracking);
           this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
         }
         this.isFeching = false;
@@ -601,7 +600,7 @@ export default {
       this.managerUserTechs = { toAdd, toRemove, userTechs };
     },
     handleSkillChanges: async function () {
-      const idUser = this.user.id;
+      const idUser = this.user.idLextracking || this.user.id;
       const { toRemove, toAdd } = this.managerUserTechs;
       await Promise.all(
         toAdd.map((item) => {
@@ -637,8 +636,8 @@ export default {
     User.getAllUsersLextracking((res) => {
       this.isLoading = false;
       if (!res.error) {
-        const users = res.response.map(usr => ({lead, active: '1', ...usr}));
-        this.usersLextracking = users;
+        const users = res.response;
+        this.usersLextracking = users.map((usr) => ({lead, active: 1, ...usr}));
       } else {
         this.error = res.error;
       }
