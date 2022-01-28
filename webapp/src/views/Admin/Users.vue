@@ -601,7 +601,7 @@ export default {
       this.managerUserTechs = { toAdd, toRemove, userTechs };
     },
     handleSkillChanges: async function () {
-      const idUser = this.user.id;
+      const idUser = this.user.idLextracking || this.user.id;
       const { toRemove, toAdd } = this.managerUserTechs;
       await Promise.all(
         toAdd.map((item) => {

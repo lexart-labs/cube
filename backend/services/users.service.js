@@ -113,7 +113,7 @@ let User = {
 		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 
 		const { positionId, levelId } = usuario;
-		usuario.token = utils.makeToken(usuario.email, usuario.id, 'public');
+		usuario.token = utils.makeToken(usuario.email, idLextracking, 'public');
 		if (usuario.passwordCopy) { usuario.password = md5(usuario.passwordCopy); }
 
 		// Compara los ids de cargo y nível, si los nuevos son iguales a los atuales
@@ -160,9 +160,9 @@ let User = {
 		try {
 			response = await conn.query(sql, arr);
 			if (shouldCreatePosition) {
-				await UserSkills.insert({ idUser: usuario.idLextracking, skills: usuario.skills, idPosition });
+				await UserSkills.insert({ idUser: idLextracking, skills: usuario.skills, idPosition });
 			} else {
-				await UserSkills.update({ idUser: usuario.idLextracking, skills: usuario.skills, idPosition });
+				await UserSkills.update({ idUser: idLextracking, skills: usuario.skills, idPosition });
 			};
 		} catch (e) {
 			console.log("e: ", e)
@@ -192,7 +192,7 @@ let User = {
 		`;
 		const arr = [
 			usuario.name,
-			parseInt(usuario.idLextracking),
+			parseInt(usuario.id),
 			idAdmin,
 			usuario.email,
 			usuario.type,
@@ -205,7 +205,7 @@ let User = {
 			response = await conn.query(sql, arr);
 			await UserSkills.insert(
 				{
-					idUser: usuario.idLextracking,
+					idUser: usuario.id,
 					skills: usuario.skills,
 					idPosition
 				}
@@ -227,7 +227,7 @@ let User = {
 			idAdmin = usuario.idUser
 		}
 		// Si ya existe
-		const cubeUser = await this.one(idLextracking, '');
+		const cubeUser = await this.loginCube(usuario.email);
 		if (cubeUser.response) {
 			usuario.sync = false
 		}
