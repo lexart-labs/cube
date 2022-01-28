@@ -361,11 +361,10 @@ export default {
   methods: {
     newUser() {
       this.activeTab('perfil');
-
       const lead = {
         id: this.mySelfieCube.idLextracking,
         name: this.mySelfieCube.name,
-      };
+      };    
 
       this.user = {
         name: "",
@@ -638,7 +637,7 @@ export default {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
-        this.usersLextracking = users;
+        this.usersLextracking = users.map((usr) => ({lead, active: 1, ...usr}));
       } else {
         this.error = res.error;
       }
