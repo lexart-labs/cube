@@ -120,7 +120,7 @@ const Technologies = {
         t.id AS 'id',
         t.plataform AS 'plataform'
       FROM ${TABLE_RELATION_NAME} AS us
-      INNER JOIN users AS u ON us.idUser = u.id
+      INNER JOIN users AS u ON us.idUser = u.idLextracking
       INNER JOIN ${TABLE_NAME} AS t on us.idTechnology = t.id
       WHERE us.idUser = ?
     `;

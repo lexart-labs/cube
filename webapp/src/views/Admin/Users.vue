@@ -399,7 +399,7 @@ export default {
             this.changePositionTime = minimunTimes[position] - since;
           }
 
-          const resp = await TechnologiesService.getByUser(res.response.id);
+          const resp = await TechnologiesService.getByUser(res.response.idLextracking);
           this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
         }
         this.isFeching = false;
