@@ -96,6 +96,7 @@ const translations = {
       back: 'Atrás',
       exit: 'Cerrar sección',
       technologies: 'Tecnologías',
+      hunting: 'Times',
       months: [
         "Enero",
         "Febrero",
@@ -304,6 +305,7 @@ const translations = {
       back: 'Bcak',
       exit: 'Log out',
       technologies: 'Technologies',
+      hunting: 'Teams',
       months: [
         "January",
         "February",

@@ -169,8 +169,7 @@
                 </span>
               </h2>
             </div>
-            <div
-              v-show="show === 'leadTree'"
+            <div v-show="show === 'leadTree'"
               v-if="['admin', 'pm'].includes(myUser.type)"
             >
               <ul class="nav nav-tabs">
@@ -227,6 +226,21 @@
                 </ul>
               </div>
             </div>
+            <div v-show="show === 'hunting'">
+              <header>
+                <!-- FILTROS VEM AQUI -->
+              </header>
+              <div>
+                <UserCard
+                  :user="{
+                    name: 'teste',
+                    position: 'tester-boy',
+                    evaluations: [],
+                    technologies: ['React', 'Vue', 'Node'],
+                  }"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -245,6 +259,7 @@ import Spinner from "../components/Spinner.vue";
 import Timeline from "../components/Timeline.vue";
 import Graphic from "../components/graphicEvaluation.vue";
 import EvaluationViewer from "../components/evaluationsViewer.vue";
+import UserCard from "../components/userCard.vue";
 import Rombo from "../components/rombo.vue";
 import translations from "../data/translate";
 import TechnologiesService from "../services/technologies.service";
@@ -258,6 +273,7 @@ export default {
     EvaluationViewer,
     Rombo,
     vueSelect,
+    UserCard,
   },
   data() {
     return {
@@ -280,6 +296,7 @@ export default {
         },
         { name: "technologies", class: "fas fa-code", hasIcon: true },
         { name: "leadTree", class: "fas fa-sitemap", hasIcon: true },
+        { name: "hunting", class: "far fa-id-card", hasIcon: true },
       ],
       showEvaluation: 0,
       year: null,
