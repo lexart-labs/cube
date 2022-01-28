@@ -103,7 +103,7 @@ let User = {
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
 	},
-	updateOne: async function (usuario, { idAdmin }) {
+	updateOne: async function (usuario, idAdmin) {
 		const tablaNombre = 'users';
 		let response;
 		let stack;
@@ -171,7 +171,7 @@ let User = {
 
 		return { response, stack, arr, sql };
 	},
-	insertOne: async function (usuario, { idAdmin }) {
+	insertOne: async function (usuario, idAdmin) {
 		const tablaNombre = 'users';
 		let response;
 		let stack;
@@ -217,25 +217,19 @@ let User = {
 
 		return { response, stack, arr, sql };
 	},
-	upsert: async function (usuario, idAdmin) {
+	upsert: async function (usuario) {
 		let error = { "error": "Error al ingresar/editar usuario" };
 		let result = [];
-		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
+		const idLead = usuario.lead.id;
 
-		// Verifico si no es admin
-		if (usuario.idUser && (idAdmin != usuario.idUser)) {
-			idAdmin = usuario.idUser
-		}
 		// Si ya existe
 		const cubeUser = await this.loginCube(usuario.email);
-		if (cubeUser.response) {
-			usuario.sync = false
-		}
 
-		if (cubeUser.response && !usuario.sync) {
-			result = await this.updateOne(usuario, { idAdmin });
+		if (cubeUser.response) {
+			usuario.sync = false;
+			result = await this.updateOne(usuario, idLead);
 		} else {
-			result = await this.insertOne(usuario, { idAdmin });
+			result = await this.insertOne(usuario, idLead);
 		}
 
 		const { arr, sql, stack, response } = result;
