@@ -1,9 +1,10 @@
 const utils = require('./utils.service');
 const UserSkills = require('./userSkills.service');
-const axios = require('axios')
+const Course = require('./courses.service');
+const { setUpData } = require('./EvaluationsHandler.service');
+const axios = require('axios');
 
 const tablaNombre = 'users';
-
 const PAGE_SIZE = 5;
 
 let User = {
@@ -38,7 +39,7 @@ let User = {
 				}
 			})
 		if (shouldOmit && response.length) {
-			response = response.reduce((acc, {name, id, email, role }) => {
+			response = response.reduce((acc, { name, id, email, role }) => {
 				if (role == 'developer') {
 					acc.push({ name, id, email });
 				}
@@ -229,7 +230,7 @@ let User = {
 		if (cubeUser.response) {
 			usuario.sync = false;
 			result = await this.updateOne(usuario, idLead);
-			if(idLead != currentLeadId) {
+			if (idLead != currentLeadId) {
 				await this.changeLeader(idLead, idLextracking);
 			}
 		} else {
@@ -442,7 +443,7 @@ let User = {
 			? { response }
 			: { error: 'No leaders found for this user' };
 	},
-	getLeaderDevTree: async function() {
+	getLeaderDevTree: async function () {
 		const sql = `
 			SELECT
 				users.name AS 'name',
@@ -462,7 +463,7 @@ let User = {
 			fixed = response.reduce((acc, el) => {
 				if (el.devs) {
 					const devs = el.devs.split(',');
-					acc.push({...el, devs});
+					acc.push({ ...el, devs });
 				}
 				return acc;
 			}, []);
@@ -470,11 +471,11 @@ let User = {
 			console.log('response->', response);
 			console.log(e.message);
 		}
-		
+
 
 		return { response: fixed };
 	},
-	devIds: async function() {
+	devIds: async function () {
 		const sql = `
 			SELECT idLextracking AS 'id' FROM users WHERE type = 'developer';
 		`;
@@ -482,6 +483,26 @@ let User = {
 		const response = await conn.query(sql);
 		const ids = response.map(el => el.id);
 		return { response: ids };
+	},
+	allDevsIndexes: async function (token, year) {
+		const defaultYear = (new Date()).getFullYear();
+		// Encontro los devs en cube
+		const { data: { response: devsIds } } = await this.devIds();
+		// Busco las evaluaciones de cada uno
+		const allDevsEvaluations = await Promise.all(
+			devsIds.map((id) => Course.courses(id, year || defaultYear))
+		);
+		// Trato las evaluaciones de cada dev hasta obtener todo en porcentaje
+		const allDevsData = allDevsEvaluations.map((devEvaluations, i) => {
+			return setUpData(
+				devsIds[i],
+				year || defaultYear,
+				token,
+				devEvaluations
+			);
+		});
+
+		return allDevsData;
 	},
 }
 module.exports = User;
