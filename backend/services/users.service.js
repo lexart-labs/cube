@@ -103,7 +103,7 @@ let User = {
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
 	},
-	updateOne: async function (usuario, { idAdmin }) {
+	updateOne: async function (usuario, idAdmin) {
 		const tablaNombre = 'users';
 		let response;
 		let stack;
@@ -113,7 +113,7 @@ let User = {
 		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 
 		const { positionId, levelId } = usuario;
-		usuario.token = utils.makeToken(usuario.email, usuario.id, 'public');
+		usuario.token = utils.makeToken(usuario.email, idLextracking, 'public');
 		if (usuario.passwordCopy) { usuario.password = md5(usuario.passwordCopy); }
 
 		// Compara los ids de cargo y nível, si los nuevos son iguales a los atuales
@@ -160,9 +160,9 @@ let User = {
 		try {
 			response = await conn.query(sql, arr);
 			if (shouldCreatePosition) {
-				await UserSkills.insert({ idUser: usuario.idLextracking, skills: usuario.skills, idPosition });
+				await UserSkills.insert({ idUser: idLextracking, skills: usuario.skills, idPosition });
 			} else {
-				await UserSkills.update({ idUser: usuario.idLextracking, skills: usuario.skills, idPosition });
+				await UserSkills.update({ idUser: idLextracking, skills: usuario.skills, idPosition });
 			};
 		} catch (e) {
 			console.log("e: ", e)
@@ -171,7 +171,7 @@ let User = {
 
 		return { response, stack, arr, sql };
 	},
-	insertOne: async function (usuario, { idAdmin }) {
+	insertOne: async function (usuario, idAdmin) {
 		const tablaNombre = 'users';
 		let response;
 		let stack;
@@ -192,7 +192,7 @@ let User = {
 		`;
 		const arr = [
 			usuario.name,
-			parseInt(usuario.idLextracking),
+			parseInt(usuario.id),
 			idAdmin,
 			usuario.email,
 			usuario.type,
@@ -205,7 +205,7 @@ let User = {
 			response = await conn.query(sql, arr);
 			await UserSkills.insert(
 				{
-					idUser: usuario.idLextracking,
+					idUser: usuario.id,
 					skills: usuario.skills,
 					idPosition
 				}
@@ -217,25 +217,24 @@ let User = {
 
 		return { response, stack, arr, sql };
 	},
-	upsert: async function (usuario, idAdmin) {
+	upsert: async function (usuario, currentLeadId) {
 		let error = { "error": "Error al ingresar/editar usuario" };
 		let result = [];
+		const idLead = usuario.lead.id;
 		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 
-		// Verifico si no es admin
-		if (usuario.idUser && (idAdmin != usuario.idUser)) {
-			idAdmin = usuario.idUser
-		}
 		// Si ya existe
-		const cubeUser = await this.one(idLextracking, '');
-		if (cubeUser.response) {
-			usuario.sync = false
-		}
+		const cubeUser = await this.loginCube(usuario.email);
 
-		if (cubeUser.response && !usuario.sync) {
-			result = await this.updateOne(usuario, { idAdmin });
+		if (cubeUser.response) {
+			usuario.sync = false;
+			result = await this.updateOne(usuario, idLead);
+			if(idLead != currentLeadId) {
+				await this.changeLeader(idLead, idLextracking);
+			}
 		} else {
-			result = await this.insertOne(usuario, { idAdmin });
+			result = await this.insertOne(usuario, idLead);
+			await this.changeLeader(idLead, idLextracking);
 		}
 
 		const { arr, sql, stack, response } = result;
@@ -448,8 +447,10 @@ let User = {
 			SELECT
 				users.name AS 'name',
 				(
-						SELECT GROUP_CONCAT(name) FROM users AS dev WHERE dev.idUser = users.idLextracking
-					) AS 'devs'
+					SELECT GROUP_CONCAT(name)
+					FROM users AS dev
+					WHERE dev.idUser = users.idLextracking AND dev.idLextracking <> users.idLextracking
+				) AS 'devs'
 			FROM users
 			WHERE users.type IN ('admin', 'pm');
 		`;

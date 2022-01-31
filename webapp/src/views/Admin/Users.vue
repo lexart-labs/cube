@@ -282,6 +282,7 @@
               type="button"
               class="btn btn-secondary"
               data-dismiss="modal"
+              v-on:click="cleanStates"
             >
               {{ $t("generic.cancel") }}
             </button>
@@ -360,17 +361,14 @@ export default {
   methods: {
     newUser() {
       this.activeTab('perfil');
-
       const lead = {
         id: this.mySelfieCube.idLextracking,
         name: this.mySelfieCube.name,
-      };
+      };    
 
       this.user = {
         name: "",
         active: "1",
-        positionId: 1,
-        levelId: 1,
         lead,
       };
     },
@@ -400,7 +398,7 @@ export default {
             this.changePositionTime = minimunTimes[position] - since;
           }
 
-          const resp = await TechnologiesService.getByUser(res.response.id);
+          const resp = await TechnologiesService.getByUser(res.response.idLextracking);
           this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
         }
         this.isFeching = false;
@@ -441,8 +439,9 @@ export default {
             this.handlePagination(page);
           } else {
             this.handlePagination(this.page);
-            this.cleanStates();
           }
+
+          this.cleanStates();
         } else {
           this.error = res.error;
         }
@@ -538,18 +537,23 @@ export default {
     },
     cleanStates() {
       this.user = this.changePositionTime = 0;
-      (this.error = ""),
-        (this.isLoading = false),
-        (this.isFeching = false),
-        (this.user = {
-          name: "",
-          active: "1",
-        });
+      this.error = "";
+      this.isLoading = false;
+      this.isFeching = false;
+      this.user = {
+        name: "",
+        active: "1",
+      };
       this.tabs = {
         perfil: true,
         roadmap: false,
       };
       this.jobAssignments = [];
+      this.managerUserTechs = {
+        userTechs: [],
+        toAdd: [],
+        toRemove: [],
+      };
     },
     validateChecks() {
       const canChange = this.changePositionTime === 0;
@@ -596,7 +600,7 @@ export default {
       this.managerUserTechs = { toAdd, toRemove, userTechs };
     },
     handleSkillChanges: async function () {
-      const idUser = this.user.id;
+      const idUser = this.user.idLextracking || this.user.id;
       const { toRemove, toAdd } = this.managerUserTechs;
       await Promise.all(
         toAdd.map((item) => {
@@ -614,6 +618,10 @@ export default {
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
     const User = UserService();
+    const lead = {
+      id: this.mySelfieCube.idLextracking,
+      name: this.mySelfieCube.name,
+    };
 
     // Verifico el token
     verifyToken(token);
@@ -629,10 +637,7 @@ export default {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
-        this.usersLextracking = users.map((el) => ({
-          ...el,
-          idLextracking: el.id,
-        }));
+        this.usersLextracking = users.map((usr) => ({lead, active: 1, ...usr}));
       } else {
         this.error = res.error;
       }
