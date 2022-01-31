@@ -1,0 +1,140 @@
+{
+  "id": 15,
+  "name": "Evaluación Octubre",
+  "user": {
+    "id": 34,
+    "name": "Alex Dev",
+    "type": "developer",
+    "email": "alex@lexartcube.com",
+    "token": "",
+    "active": 1,
+    "idUser": 1,
+    "password": "b75bd008d5fecb1f50cf026532e8ae67",
+    "dateEdited": "2021-11-03T12:20:23.000Z",
+    "dateCreated": "2021-11-03T12:20:23.000Z",
+    "idLextracking": 37
+  },
+  "fecha": "2021-11-11T18:00",
+  "users": [],
+  "active": 1,
+  "resources": [],
+  "json_pagos": [],
+  "indicadores": {
+    "desempeño": [
+      {
+        "name": "Responsabilidad",
+        "total": 0
+      },
+      {
+        "name": "Exactitud y calidad",
+        "total": 0
+      },
+      {
+        "name": "Entregas en fecha",
+        "total": 0
+      },
+      {
+        "name": "Productividad",
+        "total": 0
+      },
+      {
+        "name": "Orden y claridad del trabajo",
+        "total": 0
+      },
+      {
+        "name": "Status de su trabajo",
+        "total": 0
+      },
+      {
+        "name": "Capacidad de realización",
+        "total": 0
+      },
+      {
+        "name": "Comprensión de situaciones",
+        "total": 0
+      },
+      {
+        "name": "Sentido Común",
+        "total": "3"
+      },
+      {
+        "name": "Cumplimiento de los procedimientos existentes",
+        "total": "3"
+      },
+      {
+        "name": "Grado de Conocimiento Técnico",
+        "total": "4"
+      },
+      {
+        "name": "Grado de Conocimiento funcional",
+        "total": "4"
+      }
+    ],
+    "habilidades": [
+      {
+        "name": "Iniciativa",
+        "total": 0
+      },
+      {
+        "name": "Creatividad",
+        "total": 0
+      },
+      {
+        "name": "Adaptabilidad",
+        "total": 0
+      },
+      {
+        "name": "Respuesta bajo presión",
+        "total": 0
+      },
+      {
+        "name": "Capacidad de manejar múltiples tareas",
+        "total": 0
+      },
+      {
+        "name": "Coordinación y Liderazgo",
+        "total": 0
+      },
+      {
+        "name": "Potencialidad.",
+        "total": 0
+      }
+    ],
+    "factorHumano": [
+      {
+        "name": "Actitud hacia la Empresa",
+        "total": 0
+      },
+      {
+        "name": "Actitud hacia superiores",
+        "total": 0
+      },
+      {
+        "name": "Actitud hacia los Compañeros",
+        "total": 0
+      },
+      {
+        "name": "Actitud con el cliente",
+        "total": 0
+      },
+      {
+        "name": "Cooperación con el equipo",
+        "total": 0
+      },
+      {
+        "name": "Capacidad de aceptar críticas",
+        "total": 0
+      },
+      {
+        "name": "Capacidad de generar sugerencias constructivas",
+        "total": 0
+      },
+      {
+        "name": "Predisposición",
+        "total": 0
+      }
+    ]
+  },
+  "observaciones": "- Estudiar más\n- Pedir trabajo, no sea vago\n- Tomar más caña en horario laboral",
+  "json_evaluaciones": []
+}
