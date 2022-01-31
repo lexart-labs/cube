@@ -215,9 +215,16 @@
                 </table>
               </div>
               <div v-show="tabs.unasigned">
+                <input
+                  type="text"
+                  v-model="search"
+                  class="form-control"
+                  :placeholder="$t('AdminUsers.searchPlaceholder')"
+                  style="margin: 1rem 0;"
+                >
                 <ul class="list-group">
                   <li
-                    v-for="(dev, i) in unasignedDevs"
+                    v-for="(dev, i) in filteredUnasigned"
                     :key="`usgDev${i}`"
                     class="list-group-item"
                   >
@@ -283,6 +290,7 @@ export default {
       isFetching: false,
       isSync: false,
       searchQuery: null,
+      search: '',
       error: "",
       success: "",
       resources: [],
@@ -566,6 +574,10 @@ export default {
         );
       }
       return this.resources;
+    },
+    filteredUnasigned() {
+      const regex = new RegExp(`${this.search}`, 'i');
+      return this.unasignedDevs.filter((dev) => dev.name.match(regex));
     },
   },
 };
