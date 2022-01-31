@@ -434,15 +434,15 @@ export default {
       }
     },
     addSkill() {
-      const idUser = JSON.parse(
+      const idLextracking = JSON.parse(
         localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-      ).id;
+      ).idLextracking;
       const exists = this.userStack.some(
         (el) => el.name === this.currentTech.name
       );
       if (!exists) {
         this.userStack.push(this.currentTech);
-        TechnologiesService.asignNew(idUser, this.currentTech.id);
+        TechnologiesService.asignNew(idLextracking, this.currentTech.id);
         this.currentTech = {};
       } else {
         Vue.toasted.show(
