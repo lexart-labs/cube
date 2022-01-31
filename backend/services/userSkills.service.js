@@ -1,8 +1,8 @@
 const MODEL = 'user_skills_per_position';
 
 const UserSkills = {
-  insert: async function(payload) {
-    const {idUser, skills, idPosition} = payload;
+  insert: async function (payload) {
+    const { idUser, skills, idPosition } = payload;
     const sql = `
     INSERT INTO ${MODEL}
       (idUser, skills, idPosition)
@@ -19,10 +19,10 @@ const UserSkills = {
 
     return response.changedRows ? { resposne: 'ok' } : { error: response.sqlMessage };
   },
-  update: async function(payload) {
-    const {skills, idUser, idPosition} = payload;
+  update: async function (payload) {
+    const { skills, idUser, idPosition } = payload;
     const sql = `
-    UPDATE ${MODEL}
+      UPDATE ${MODEL}
       SET
         skills = ?,
         updatedAt= CURRENT_TIMESTAMP
@@ -33,6 +33,9 @@ const UserSkills = {
 
     try {
       response = await conn.query(sql, [JSON.stringify(skills), idUser, idPosition]);
+      if (!response.changedRows) {
+        response = await this.insert(payload);
+      }
     } catch (e) {
       e.message
     }
