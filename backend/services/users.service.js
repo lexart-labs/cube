@@ -217,10 +217,11 @@ let User = {
 
 		return { response, stack, arr, sql };
 	},
-	upsert: async function (usuario) {
+	upsert: async function (usuario, currentLeadId) {
 		let error = { "error": "Error al ingresar/editar usuario" };
 		let result = [];
 		const idLead = usuario.lead.id;
+		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 
 		// Si ya existe
 		const cubeUser = await this.loginCube(usuario.email);
@@ -228,8 +229,12 @@ let User = {
 		if (cubeUser.response) {
 			usuario.sync = false;
 			result = await this.updateOne(usuario, idLead);
+			if(idLead != currentLeadId) {
+				await this.changeLeader(idLead, idLextracking);
+			}
 		} else {
 			result = await this.insertOne(usuario, idLead);
+			await this.changeLeader(idLead, idLextracking);
 		}
 
 		const { arr, sql, stack, response } = result;
