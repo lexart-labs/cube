@@ -456,11 +456,11 @@ export default {
       }
     },
     removeSkill(skill) {
-      const idUser = JSON.parse(
+      const idLextracking = JSON.parse(
         localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-      ).id;
+      ).idLextracking;
       this.userStack = this.userStack.filter((el) => el !== skill);
-      TechnologiesService.remove(idUser, skill.id);
+      TechnologiesService.remove(idLextracking, skill.id);
     },
     activeTab(tab) {
       Object.keys(this.tabs).forEach((key) => {
@@ -511,7 +511,7 @@ export default {
           // Obtenemos evaluaciones de un usuario
           await this.getYears(id);
           if(this.year) this.obtenerEvaluaciones(id, this.year);
-          TechnologiesService.getByUser(this.myUser.id).then(
+          TechnologiesService.getByUser(this.myUser.idLextracking).then(
             (resp) => (this.userStack = Object.values(resp)[0] || [])
           );
         } else {
