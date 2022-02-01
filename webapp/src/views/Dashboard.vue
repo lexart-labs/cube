@@ -9,11 +9,7 @@
           "
           v-for="(aba, index) in abas"
           v-on:click="() => setShow(aba.name)"
-          v-show="
-            aba.onlyAdmin
-              ? ['admin', 'pm'].includes(myUser.type)
-              : true
-          "
+          v-show="aba.onlyAdmin ? ['admin', 'pm'].includes(myUser.type) : true"
         >
           <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
           {{ $t(`generic.${aba.name}`) }}
@@ -169,9 +165,7 @@
                 </span>
               </h2>
             </div>
-            <div v-show="show === 'leadTree'"
-              v-if="['admin', 'pm'].includes(myUser.type)"
-            >
+            <div v-show="show === 'leadTree'" v-if="['admin', 'pm'].includes(myUser.type)">
               <ul class="nav nav-tabs">
                 <li class="nav-item">
                   <a
@@ -220,8 +214,8 @@
                   v-model="search"
                   class="form-control"
                   :placeholder="$t('AdminUsers.searchPlaceholder')"
-                  style="margin: 1rem 0;"
-                >
+                  style="margin: 1rem 0"
+                />
                 <ul class="list-group">
                   <li
                     v-for="(dev, i) in filteredUnasigned"
@@ -237,15 +231,8 @@
               <header>
                 <!-- FILTROS VEM AQUI -->
               </header>
-              <div>
-                <UserCard
-                  :user="{
-                    name: 'teste',
-                    position: 'tester-boy',
-                    evaluations: [],
-                    technologies: ['React', 'Vue', 'Node'],
-                  }"
-                />
+              <div v-for="(dev, i) in developers" :key="`dev${i}`">
+                <UserCard :user="dev" />
               </div>
             </div>
           </div>
@@ -290,17 +277,42 @@ export default {
       isFetching: false,
       isSync: false,
       searchQuery: null,
-      search: '',
+      search: "",
       error: "",
       success: "",
       resources: [],
       show: "Dashboard",
       abas: [
-        { name: "Dashboard", class: "bi bi-clipboard-data", hasIcon: true, onlyAdmin: false },
-        { name: "Evaluations", class: "bi bi-calendar-check-fill", hasIcon: true, onlyAdmin: false},
-        { name: "technologies", class: "fas fa-code", hasIcon: true, onlyAdmin: false },
-        { name: "leadTree", class: "fas fa-sitemap", hasIcon: true, onlyAdmin: true },
-        { name: "hunting", class: "far fa-id-card", hasIcon: true, onlyAdmin: true },
+        {
+          name: "Dashboard",
+          class: "bi bi-clipboard-data",
+          hasIcon: true,
+          onlyAdmin: false,
+        },
+        {
+          name: "Evaluations",
+          class: "bi bi-calendar-check-fill",
+          hasIcon: true,
+          onlyAdmin: false,
+        },
+        {
+          name: "technologies",
+          class: "fas fa-code",
+          hasIcon: true,
+          onlyAdmin: false,
+        },
+        {
+          name: "leadTree",
+          class: "fas fa-sitemap",
+          hasIcon: true,
+          onlyAdmin: true,
+        },
+        {
+          name: "hunting",
+          class: "far fa-id-card",
+          hasIcon: true,
+          onlyAdmin: true,
+        },
       ],
       showEvaluation: 0,
       year: null,
@@ -316,6 +328,62 @@ export default {
       },
       developersByLead: [],
       unasignedDevs: [],
+      developers: [
+        {
+          name: "teste",
+          position: "tester-boy",
+          indicadores: [
+            {
+              label: "Human Factor",
+              value: "50.00",
+            },
+            {
+              label: "Performance",
+              value: "23.33",
+            },
+            {
+              label: "Ability",
+              value: "65.00",
+            },
+            {
+              label: "Evolution",
+              value: "80.00",
+            },
+            {
+              label: "Continuity",
+              value: "10.00",
+            },
+          ],
+          technologies: ["React", "Vue", "Node"],
+        },
+        {
+          name: "teste 2",
+          position: "tester-boy - new",
+          indicadores: [
+            {
+              label: "Human Factor",
+              value: "70.00",
+            },
+            {
+              label: "Performance",
+              value: "60.33",
+            },
+            {
+              label: "Ability",
+              value: "85.00",
+            },
+            {
+              label: "Evolution",
+              value: "50.00",
+            },
+            {
+              label: "Continuity",
+              value: "60.00",
+            },
+          ],
+          technologies: ["React", "Vue", "PHP", "AngularJS"],
+        },
+      ],
     };
   },
   watch: {
@@ -489,7 +557,9 @@ export default {
 
       const {
         data: { response: trckUsrs },
-      } = await axios.get(`${API}users/lextracking/all?minified=true`, { headers });
+      } = await axios.get(`${API}users/lextracking/all?minified=true`, {
+        headers,
+      });
       const {
         data: { response: cubeIds },
       } = await axios.get(`${API}users/lextracking-ids`, { headers });
@@ -523,7 +593,7 @@ export default {
 
           // Obtenemos evaluaciones de un usuario
           await this.getYears(id);
-          if(this.year) this.obtenerEvaluaciones(id, this.year);
+          if (this.year) this.obtenerEvaluaciones(id, this.year);
           TechnologiesService.getByUser(this.myUser.idLextracking).then(
             (resp) => (this.userStack = Object.values(resp)[0] || [])
           );
@@ -539,10 +609,10 @@ export default {
           (res) => (this.technologies = res.response)
         );
 
-        if (this.myUser.type == 'admin' || this.myUser.type == 'pm') {
+        if (this.myUser.type == "admin" || this.myUser.type == "pm") {
           UserService()
-              .listLeadDevs()
-              .then(({ data }) => (this.developersByLead = data.response));
+            .listLeadDevs()
+            .then(({ data }) => (this.developersByLead = data.response));
 
           this.findUnasignedDevs().then((res) => {
             this.unasignedDevs = res.sort((a, b) => {
@@ -572,7 +642,7 @@ export default {
       return this.resources;
     },
     filteredUnasigned() {
-      const regex = new RegExp(`${this.search}`, 'i');
+      const regex = new RegExp(`${this.search}`, "i");
       return this.unasignedDevs.filter((dev) => dev.name.match(regex));
     },
   },

@@ -1,5 +1,8 @@
 <template>
-  <div class="card-parent">
+  <div
+    :class="selected ? 'card-parent selected' : 'card-parent'"
+    v-on:click="() => {selected = !selected}"
+  >
     <div class="usr-info">
       <h2>{{ user.name }}</h2>
       <h4>
@@ -17,41 +20,71 @@
         </h4>
       </div>
     </div>
-    <div class="graphic">
-      <Rombo :evaluations="user.evaluations" :year="new Date().getFullYear()" />
-    </div>
-    <input type="checkbox" />
+    <div class="graphic" ref="chartdiv2"></div>
+    <input type="checkbox" v-model="selected" />
   </div>
 </template>
 
 <script>
-import Rombo from "./rombo.vue";
+import * as am4core from '@amcharts/amcharts4/core';
+import * as am4charts from '@amcharts/amcharts4/charts';
 
 export default {
   name: "UserCard",
   props: ["user"],
-  components: { Rombo },
   data() {
-    return {};
+    return {
+      selected: false,
+    };
+  },
+  methods: {
+    buildGraphic() {
+      let chart = am4core.create(this.$refs.chartdiv2, am4charts.RadarChart);
+
+      chart.data = this.user.indicadores;
+
+      /* Create axes */
+      let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+      categoryAxis.dataFields.category = "label";
+
+      let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+      valueAxis.renderer.gridType = "polygons";
+      valueAxis.min = 0;
+      valueAxis.max = 100;
+
+      /* Create and configure series */
+      let series = chart.series.push(new am4charts.RadarSeries());
+      series.dataFields.valueY = "value";
+      series.dataFields.categoryX = "label";
+      series.name = "Development";
+      series.strokeWidth = 1.5;
+      series.stroke = am4core.color('#2bc4a7');
+      series.fillOpacity = 0.2;
+      series.fill = am4core.color('#2bc4a7');
+    },
+  },
+  mounted() {
+    this.buildGraphic();
   },
 };
 </script>
 
 <style scoped>
 .card-parent {
-  max-width: 60%;
-  height: 300px;
+  max-width: 80%;
+  height: 400px;
   display: flex;
+  margin: 0 auto 1rem;
   justify-content: space-between;
-  margin: 0 auto;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
   padding: 1rem;
+  border-radius: 1rem;
 }
 .card-parent:hover {
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-  }
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
 .usr-info {
-  flex-basis: 50%;
+  flex-basis: 30%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -60,9 +93,14 @@ export default {
   display: flex;
   gap: 0.5rem;
 }
-.graphic {
+#graphic {
   display: flex;
+  flex-basis: 60%;
   justify-content: center;
   align-items: center;
+}
+
+.selected {
+  border: 2px solid green;
 }
 </style>
