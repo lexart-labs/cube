@@ -484,25 +484,27 @@ let User = {
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},
-	allDevsIndexes: async function (token, year) {
-		const defaultYear = (new Date()).getFullYear();
+	allDevsIndexes: async function (token, query) {
+		// Caso no venga el año, utilizo el atual como default
+		const year = isNaN(query) ? (new Date()).getFullYear() : query;
 		// Encontro los devs en cube
-		const { data: { response: devsIds } } = await this.devIds();
+		const {response: devsIds } = await this.devIds();
 		// Busco las evaluaciones de cada uno
 		const allDevsEvaluations = await Promise.all(
-			devsIds.map((id) => Course.courses(id, year || defaultYear))
+			devsIds.map((id) => Course.byUser(id, year))
 		);
 		// Trato las evaluaciones de cada dev hasta obtener todo en porcentaje
 		const allDevsData = allDevsEvaluations.map((devEvaluations, i) => {
+			if(devEvaluations.error) return {};
 			return setUpData(
 				devsIds[i],
-				year || defaultYear,
+				year,
 				token,
-				devEvaluations
+				devEvaluations.response
 			);
 		});
 
-		return allDevsData;
+		return Promise.all(allDevsData);
 	},
 }
 module.exports = User;

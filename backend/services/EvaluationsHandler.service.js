@@ -1,3 +1,5 @@
+const axios = require('axios');
+
 const sumAll = (array, key) => array.reduce((acc, cur) => acc += Number(cur[key]), 0);
 
 // Get user hours by year on lextracking
@@ -32,7 +34,7 @@ const parseEvaluation = (evaluation, key) => {
 const setUpData = async (idLextracking, year, token, evaluations) => {
 	const MAX_MONTH_HOURS_CONV_FACTOR = 200 / 100;
 	const SECOND_TO_HOURS = (60 * 60);
-	const EVALUATION_LENGTH = this.evaluations.length;
+	const EVALUATION_LENGTH = evaluations.length;
 
 	// Busco las horas menuales por año
 	const monthlyHours = await getMonthHours(idLextracking, year, token);
@@ -52,14 +54,14 @@ const setUpData = async (idLextracking, year, token, evaluations) => {
 		}, 0) / EVALUATION_LENGTH
 	);
 	const performanceAvg = (
-		this.evaluations.reduce((acc, cur) => {
-			acc += this.parseEvaluation(cur, 'desempeño')
+		evaluations.reduce((acc, cur) => {
+			acc += parseEvaluation(cur, 'desempeño')
 			return acc;
 		}, 0) / EVALUATION_LENGTH
 	);
 	const abilityAvg = (
-		this.evaluations.reduce((acc, cur) => {
-			acc += this.parseEvaluation(cur, 'habilidades')
+		evaluations.reduce((acc, cur) => {
+			acc += parseEvaluation(cur, 'habilidades')
 			return acc;
 		}, 0) / EVALUATION_LENGTH
 	);
@@ -79,13 +81,14 @@ const setUpData = async (idLextracking, year, token, evaluations) => {
 		},
 		{
 			label: 'Evolution',
-			value: evolutionAvg.toFixed(2)
+			value: !isNaN(evolutionAvg) ? evolutionAvg.toFixed(2) : '0.00'
 		},
 		{
 			label: 'Continuity',
-			value: continuityAvg.toFixed(2)
+			value: !isNaN(continuityAvg) ? continuityAvg.toFixed(2) : '0.00'
 		}
 	];
+	console.log(graphData);
 
 	return graphData;
 };

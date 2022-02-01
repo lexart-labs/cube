@@ -78,6 +78,16 @@ router.get('/lead-tree', async (_req, res) => {
   res.send(response);
 })
 
+router.get('/dev-indexes', async (req, res) => {
+	const { token } = req.headers;
+	const { year } = req.query;
+
+	const response = await User.allDevsIndexes(token, Number(year));
+	
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+})
+
 router.get('/:id', Mdl.middleware, async function (req, res) {
 	let response = await User.one(req.params.id, req.headers['token']);
 

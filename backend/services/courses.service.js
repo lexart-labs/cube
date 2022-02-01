@@ -200,7 +200,6 @@ let Course = {
 		
 		try {
 			response = await conn.query(sql, [parseInt(id), parseInt(year)]);
-			// console.log("response: ", response, id)
 		} catch(e){
 			console.log("e: ", e)
 		}
@@ -291,6 +290,28 @@ let Course = {
 		: { err: 'No fue possible encuentrar evaluaciones'};
 
 		return years
+	},
+	byUser: async function (id, year) {
+		const sql = `
+			SELECT
+				evaluations.json_data AS 'indicadores'
+			FROM evaluations
+			WHERE evaluations.idLextracking = ?
+			AND evaluations.json_data LIKE '%"fecha": "?%'
+			AND evaluations.active = 1
+		`;
+		let response = [];
+
+		try {
+			response = await conn.query(sql, [id, year]);
+			if(response.length) {
+				response = response.map((el) => JSON.parse(el.indicadores));
+			}
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response.length ? { response } : { error: 'Not found'};
 	},
 }
 module.exports = Course;
