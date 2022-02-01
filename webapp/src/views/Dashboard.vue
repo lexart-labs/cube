@@ -232,33 +232,35 @@
             </div>
             <div v-show="show === 'hunting'">
               <header>
-                <div class="new-tech-ctl">
-                  <vue-select
-                    :options="technologies.map((el) => el.name)"
-                    style="width: 50%"
-                    v-model="currentTechFilter"
-                  >
-                  </vue-select>
-                  <i
-                    class="fas fa-plus-circle"
-                    style="font-size: 1.5rem; cursor: pointer"
-                    :style="
-                      currentTechFilter
-                        ? ''
-                        : 'pointer-events: none; color: #d3d3d3;'
-                    "
-                    v-on:click="setFilter()"
-                  />
+                <div class="filters-ctl">
+                  <div class="searcher">
+                    <vue-select
+                      :options="technologies.map((el) => el.name)"
+                      v-model="currentTechFilter"
+                      style="width: 80%; height: 2rem;"
+                    >
+                    </vue-select>
+                    <button
+                      type="button"
+                      class="btn btn-info"
+                      :disabled="!currentTechFilter"
+                      v-on:click="setFilter()"
+                    >
+                      Buscar
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                    >
+                      Guardar
+                    </button>
+                  </div>
+                  <div class="order">
+                    <vue-select :options="indicators" v-model="filters.sorter">
+                    </vue-select>
+                  </div>
                 </div>
-                <div>
-                  <vue-select
-                    :options="indicators"
-                    style="width: 50%"
-                    v-model="filters.sorter"
-                  >
-                  </vue-select>
-                </div>
-                <h4 style="display: flex; gap: 1rem; margin-top: 2rem">
+                <h4 style="display: flex; gap: 1rem; margin-top: 0.5rem">
                   <span
                     class="badge badge-info badge-secondary"
                     v-for="(item, i) in filters.technologies"
@@ -271,7 +273,7 @@
                       style="cursor: pointer; font-size: 1rem"
                     />
                   </span>
-                </h4>
+              </h4>
               </header>
               <div v-for="(dev, i) in filteredCards" :key="`dev${i}`">
                 <UserCard :user="dev" />
@@ -718,9 +720,9 @@ export default {
       }, this.developers);
 
       if (sorter) {
-        result = result.sort(({ indicadores: a }, { indicadores: b}) => {
-          const docA = a.find(el => el.label === sorter).value;
-          const docB = b.find(el => el.label === sorter).value;
+        result = result.sort(({ indicadores: a }, { indicadores: b }) => {
+          const docA = a.find((el) => el.label === sorter).value;
+          const docB = b.find((el) => el.label === sorter).value;
 
           return Number(docB) - Number(docA);
         });
@@ -763,5 +765,24 @@ export default {
 
 table {
   margin-top: 2rem;
+}
+
+.filters-ctl {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.filters-ctl .searcher {
+  display: flex;
+  width: 50%;
+  gap: 1rem;
+}
+
+.order {
+  display: flex;
+  gap: 1rem;
+  margin-right: 0;
 }
 </style>
