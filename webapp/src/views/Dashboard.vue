@@ -10,7 +10,7 @@
           v-for="(aba, index) in abas"
           v-on:click="() => setShow(aba.name)"
           v-show="
-            aba.name === 'leadTree'
+            aba.onlyAdmin
               ? ['admin', 'pm'].includes(myUser.type)
               : true
           "
@@ -296,15 +296,11 @@ export default {
       resources: [],
       show: "Dashboard",
       abas: [
-        { name: "Dashboard", class: "bi bi-clipboard-data", hasIcon: true },
-        {
-          name: "Evaluations",
-          class: "bi bi-calendar-check-fill",
-          hasIcon: true,
-        },
-        { name: "technologies", class: "fas fa-code", hasIcon: true },
-        { name: "leadTree", class: "fas fa-sitemap", hasIcon: true },
-        { name: "hunting", class: "far fa-id-card", hasIcon: true },
+        { name: "Dashboard", class: "bi bi-clipboard-data", hasIcon: true, onlyAdmin: false },
+        { name: "Evaluations", class: "bi bi-calendar-check-fill", hasIcon: true, onlyAdmin: false},
+        { name: "technologies", class: "fas fa-code", hasIcon: true, onlyAdmin: false },
+        { name: "leadTree", class: "fas fa-sitemap", hasIcon: true, onlyAdmin: true },
+        { name: "hunting", class: "far fa-id-card", hasIcon: true, onlyAdmin: true },
       ],
       showEvaluation: 0,
       year: null,
