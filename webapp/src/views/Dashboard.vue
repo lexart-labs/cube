@@ -229,9 +229,40 @@
             </div>
             <div v-show="show === 'hunting'">
               <header>
-                <!-- FILTROS VEM AQUI -->
+              <div class="new-tech-ctl">
+                <vue-select
+                  :options="technologies.map(el=> el.name)"
+                  style="width: 95%"
+                  v-model="currentTechFilter"
+                >
+                </vue-select>
+                <i
+                  class="fas fa-plus-circle"
+                  style="font-size: 1.5rem; cursor: pointer"
+                  :style="
+                    currentTechFilter
+                      ? ''
+                      : 'pointer-events: none; color: #d3d3d3;'
+                  "
+                  v-on:click="setFilter()"
+                />
+                <h4 style="display: flex; gap: 1rem; margin-top: 2rem">
+                  <span
+                    class="badge badge-info badge-secondary"
+                    v-for="(item, i) in filters.technologies"
+                    :key="`usrStk${i}`"
+                  >
+                    {{ item }}
+                    <i
+                      class="far fa-times-circle remove-icon"
+                      v-on:click="unsetFilter(item)"
+                      style="cursor: pointer; font-size: 1rem"
+                    />
+                  </span>
+                </h4>
+              </div>
               </header>
-              <div v-for="(dev, i) in developers" :key="`dev${i}`">
+              <div v-for="(dev, i) in filteredCards" :key="`dev${i}`">
                 <UserCard :user="dev" />
               </div>
             </div>
@@ -384,6 +415,11 @@ export default {
           technologies: ["React", "Vue", "PHP", "AngularJS"],
         },
       ],
+      currentTechFilter: '',
+      filters: {
+        technologies: [],
+        sorter: '',
+      },
     };
   },
   watch: {
@@ -567,6 +603,14 @@ export default {
       this.isLoading = false;
       return compareDBUsers(cubeIds, trckUsrs);
     },
+    setFilter() {
+      this.filters.technologies.push(this.currentTechFilter);
+      this.currentTechFilter = '';
+    },
+    unsetFilter(tech) {
+      const newFilters = this.filters.technologies.filter(el => el !== tech);
+      this.filters.technologies = newFilters;
+    },
   },
   mounted() {
     const id = localStorage.getItem(`id-${APP_NAME}`);
@@ -645,6 +689,17 @@ export default {
       const regex = new RegExp(`${this.search}`, "i");
       return this.unasignedDevs.filter((dev) => dev.name.match(regex));
     },
+    filteredCards() {
+      const technologies = this.filters.technologies;
+      const sorter = this.filters.sorter;
+
+      const byStack = technologies.reduce((acc, tech, i) => {
+        acc = acc.filter(dev => dev.technologies.includes(tech));
+        return acc;
+      }, this.developers);
+
+      return byStack;
+    }
   },
 };
 </script>

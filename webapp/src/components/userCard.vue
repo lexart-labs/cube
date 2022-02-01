@@ -74,7 +74,7 @@ export default {
   max-width: 80%;
   height: 400px;
   display: flex;
-  margin: 0 auto 1rem;
+  margin: 1rem auto 0;
   justify-content: space-between;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
   padding: 1rem;
