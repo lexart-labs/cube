@@ -93,7 +93,7 @@ router.get('/dev-indexes', async (req, res) => {
 	const { token } = req.headers;
 	const { year } = req.query;
 
-	const response = await User.allDevsIndexes(token, Number(year));
+	const response = await User.allDevelopersIndicators(token, Number(year));
 	
 	res.set(['Content-Type', 'application/json']);
   res.send(response);

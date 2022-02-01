@@ -484,27 +484,76 @@ let User = {
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},
-	allDevsIndexes: async function (token, query) {
-		// Caso no venga el año, utilizo el atual como default
-		const year = isNaN(query) ? (new Date()).getFullYear() : query;
-		// Encontro los devs en cube
-		const {response: devsIds } = await this.devIds();
-		// Busco las evaluaciones de cada uno
-		const allDevsEvaluations = await Promise.all(
-			devsIds.map((id) => Course.byUser(id, year))
-		);
-		// Trato las evaluaciones de cada dev hasta obtener todo en porcentaje
-		const allDevsData = allDevsEvaluations.map((devEvaluations, i) => {
-			if(devEvaluations.error) return {};
-			return setUpData(
-				devsIds[i],
-				year,
-				token,
-				devEvaluations.response
-			);
-		});
+	// allDevsIndexes: async function (token, query) {
+	// 	// Caso no venga el año, utilizo el atual como default
+	// 	const year = isNaN(query) ? (new Date()).getFullYear() : query;
+	// 	// Encontro los devs en cube
+	// 	const { response: devsIds } = await this.devIds();
+	// 	// Busco las evaluaciones de cada uno
+	// 	const allDevsEvaluations = await Promise.all(
+	// 		devsIds.map((id) => Course.byUser(id, year))
+	// 	);
+	// 	// Trato las evaluaciones de cada dev hasta obtener todo en porcentaje
+	// 	const allDevsData = allDevsEvaluations.map((devEvaluations, i) => {
+	// 		if (devEvaluations.error) return {};
+	// 		return setUpData(
+	// 			devsIds[i],
+	// 			year,
+	// 			token,
+	// 			devEvaluations.response
+	// 		);
+	// 	});
 
-		return Promise.all(allDevsData);
+	// 	return Promise.all(allDevsData);
+	// },
+	allDevelopersIndicators: async function (token, query) {
+		const { response: devsIds } = await this.devIds();
+		const sql = `
+			SELECT
+				c.position AS position,
+				l.level AS level,
+				u.name,
+				u.idLextracking,
+				GROUP_CONCAT(t.name) AS 'technologies'
+			FROM users u
+			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			LEFT JOIN careers c ON uc.idPosition = c.id
+			LEFT JOIN levels l ON uc.idLevel = l.id
+			INNER JOIN user_skills us ON u.idLextracking = us.idUser
+			INNER JOIN technologies t ON t.id = us.idTechnology
+			WHERE u.idLextracking = ?;
+		`;
+		const callbackBasics = async (devId) => {
+			let result = {};
+			try {
+				result = await conn.query(sql, [devId]);
+			} catch (e) {
+				console.log('callBackBasics ->', e.message);
+			}
+			return result;
+		};
+		const callbackIndicators = async (devId) => {
+			let result = [];
+			try {
+				result = await this.devIndexes(devId, token, query);
+			} catch (e) {
+				console.log('callBackIndicators ->', e.message);
+			}
+			return result;
+		};
+
+		const [bsc, ind] = await Promise.all([
+			Promise.all(devsIds.map((devId) => callbackBasics(devId))),
+			Promise.all(devsIds.map((devId) => callbackIndicators(devId)))
+		]);
+
+		const response = bsc.map(([el], i) => ({
+			...el,
+			technologies: el.technologies ? el.technologies.split(',') : [],
+			indicadores: ind[i],
+		}))
+
+		return { response }
 	},
 	devIndexes: async function (idDev, token, query) {
 		const year = isNaN(query) ? (new Date()).getFullYear() : query;

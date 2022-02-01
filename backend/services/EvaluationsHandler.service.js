@@ -88,7 +88,6 @@ const setUpData = async (idLextracking, year, token, evaluations) => {
 			value: !isNaN(continuityAvg) ? continuityAvg.toFixed(2) : '0.00'
 		}
 	];
-	console.log(graphData);
 
 	return graphData;
 };
