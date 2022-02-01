@@ -237,7 +237,7 @@
                     <vue-select
                       :options="technologies.map((el) => el.name)"
                       v-model="currentTechFilter"
-                      style="width: 80%; height: 2rem;"
+                      style="width: 80%; height: 2rem"
                     >
                     </vue-select>
                     <button
@@ -248,14 +248,12 @@
                     >
                       Buscar
                     </button>
-                    <button
-                      type="button"
-                      class="btn btn-primary"
-                    >
+                    <button type="button" class="btn btn-primary">
                       Guardar
                     </button>
                   </div>
                   <div class="order">
+                    <label> Ordenar</label>
                     <vue-select :options="indicators" v-model="filters.sorter">
                     </vue-select>
                   </div>
@@ -273,7 +271,7 @@
                       style="cursor: pointer; font-size: 1rem"
                     />
                   </span>
-              </h4>
+                </h4>
               </header>
               <div v-for="(dev, i) in filteredCards" :key="`dev${i}`">
                 <UserCard :user="dev" />
