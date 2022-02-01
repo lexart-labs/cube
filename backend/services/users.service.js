@@ -506,5 +506,10 @@ let User = {
 
 		return Promise.all(allDevsData);
 	},
+	devIndexes: async function (idDev, token, query) {
+		const year = isNaN(query) ? (new Date()).getFullYear() : query;
+		const { response: evaluations } = await Course.byUser(idDev, year);
+		return setUpData(idDev, year, token, evaluations);
+	},
 }
 module.exports = User;

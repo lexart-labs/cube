@@ -78,6 +78,17 @@ router.get('/lead-tree', async (_req, res) => {
   res.send(response);
 })
 
+router.get('/dev-indexes/:id', async (req, res) => {
+	const { token } = req.headers;
+	const { year } = req.query;
+	const { id } = req.params;
+
+	const response = await User.devIndexes(id, token, Number(year));
+	
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+})
+
 router.get('/dev-indexes', async (req, res) => {
 	const { token } = req.headers;
 	const { year } = req.query;
