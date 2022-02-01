@@ -20,7 +20,7 @@
         </h4>
       </div>
     </div>
-    <div class="graphic" ref="chartdiv2"></div>
+    <div class="graphic" :id="`chartdiv2${user.name}`"></div>
     <input type="checkbox" v-model="selected" />
   </div>
 </template>
@@ -37,9 +37,14 @@ export default {
       selected: false,
     };
   },
+  // watch: {
+  //   'user': function() {
+  //     this.buildGraphic();
+  //   },
+  // },
   methods: {
     buildGraphic() {
-      let chart = am4core.create(this.$refs.chartdiv2, am4charts.RadarChart);
+      let chart = am4core.create(`chartdiv2${this.user.name}`, am4charts.RadarChart);
 
       chart.data = this.user.indicadores;
 

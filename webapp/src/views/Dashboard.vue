@@ -165,7 +165,10 @@
                 </span>
               </h2>
             </div>
-            <div v-show="show === 'leadTree'" v-if="['admin', 'pm'].includes(myUser.type)">
+            <div
+              v-show="show === 'leadTree'"
+              v-if="['admin', 'pm'].includes(myUser.type)"
+            >
               <ul class="nav nav-tabs">
                 <li class="nav-item">
                   <a
@@ -229,23 +232,32 @@
             </div>
             <div v-show="show === 'hunting'">
               <header>
-              <div class="new-tech-ctl">
-                <vue-select
-                  :options="technologies.map(el=> el.name)"
-                  style="width: 95%"
-                  v-model="currentTechFilter"
-                >
-                </vue-select>
-                <i
-                  class="fas fa-plus-circle"
-                  style="font-size: 1.5rem; cursor: pointer"
-                  :style="
-                    currentTechFilter
-                      ? ''
-                      : 'pointer-events: none; color: #d3d3d3;'
-                  "
-                  v-on:click="setFilter()"
-                />
+                <div class="new-tech-ctl">
+                  <vue-select
+                    :options="technologies.map((el) => el.name)"
+                    style="width: 50%"
+                    v-model="currentTechFilter"
+                  >
+                  </vue-select>
+                  <i
+                    class="fas fa-plus-circle"
+                    style="font-size: 1.5rem; cursor: pointer"
+                    :style="
+                      currentTechFilter
+                        ? ''
+                        : 'pointer-events: none; color: #d3d3d3;'
+                    "
+                    v-on:click="setFilter()"
+                  />
+                </div>
+                <div>
+                  <vue-select
+                    :options="indicators"
+                    style="width: 50%"
+                    v-model="filters.sorter"
+                  >
+                  </vue-select>
+                </div>
                 <h4 style="display: flex; gap: 1rem; margin-top: 2rem">
                   <span
                     class="badge badge-info badge-secondary"
@@ -260,7 +272,6 @@
                     />
                   </span>
                 </h4>
-              </div>
               </header>
               <div v-for="(dev, i) in filteredCards" :key="`dev${i}`">
                 <UserCard :user="dev" />
@@ -359,6 +370,13 @@ export default {
       },
       developersByLead: [],
       unasignedDevs: [],
+      indicators: [
+        "Human Factor",
+        "Performance",
+        "Ability",
+        "Evolution",
+        "Continuity",
+      ],
       developers: [
         {
           name: "teste",
@@ -415,10 +433,10 @@ export default {
           technologies: ["React", "Vue", "PHP", "AngularJS"],
         },
       ],
-      currentTechFilter: '',
+      currentTechFilter: "",
       filters: {
         technologies: [],
-        sorter: '',
+        sorter: "",
       },
     };
   },
@@ -605,10 +623,10 @@ export default {
     },
     setFilter() {
       this.filters.technologies.push(this.currentTechFilter);
-      this.currentTechFilter = '';
+      this.currentTechFilter = "";
     },
     unsetFilter(tech) {
-      const newFilters = this.filters.technologies.filter(el => el !== tech);
+      const newFilters = this.filters.technologies.filter((el) => el !== tech);
       this.filters.technologies = newFilters;
     },
   },
@@ -692,14 +710,24 @@ export default {
     filteredCards() {
       const technologies = this.filters.technologies;
       const sorter = this.filters.sorter;
+      let result = this.developers;
 
-      const byStack = technologies.reduce((acc, tech, i) => {
-        acc = acc.filter(dev => dev.technologies.includes(tech));
+      result = technologies.reduce((acc, tech, i) => {
+        acc = acc.filter((dev) => dev.technologies.includes(tech));
         return acc;
       }, this.developers);
 
-      return byStack;
-    }
+      if (sorter) {
+        result = result.sort(({ indicadores: a }, { indicadores: b}) => {
+          const docA = a.find(el => el.label === sorter).value;
+          const docB = b.find(el => el.label === sorter).value;
+
+          return Number(docB) - Number(docA);
+        });
+      }
+
+      return result;
+    },
   },
 };
 </script>
