@@ -248,7 +248,13 @@
                     >
                       Buscar
                     </button>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveTeamModal">
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      data-toggle="modal"
+                      data-target="#saveTeamModal"
+                      :disabled="!(currentTeam && currentTeam.length)"
+                    >
                       Guardar
                     </button>
                   </div>
@@ -260,7 +266,17 @@
                       style="min-width: 80%"
                     >
                     </vue-select>
-                    <i class="fas fa-list-ul" style="font-size: 2rem" data-toggle="modal" data-target="#teamsModal" />
+                    <i
+                      class="fas fa-list-ul"
+                      style="font-size: 2rem"
+                      data-toggle="modal"
+                      data-target="#teamsModal"
+                      :style="
+                        teams && teams.length
+                          ? ''
+                          : 'pointer-events: none; color: #d3d3d3;'
+                      "
+                    />
                   </div>
                 </div>
                 <h4 style="display: flex; gap: 1rem; margin-top: 0.5rem">
@@ -278,7 +294,7 @@
                   </span>
                 </h4>
               </header>
-              <div v-for="(dev, i) in filteredCards" :key="`dev${i}`">
+              <div v-for="(dev, i) in filteredCards" :key="`dev${i}`" v-on:click="handleTeamChanges(dev)">
                 <UserCard :user="dev" />
               </div>
 
@@ -688,6 +704,14 @@ export default {
       this.currentTeam = team.team;
       this.teamName = team.name;
     },
+    handleTeamChanges(dev) {
+      const exists = this.currentTeam.some(el => el.name === dev.name);
+      if(exists) {
+        this.currentTeam = this.currentTeam.filter(el => el.name !== dev.name);
+      } else {
+        this.currentTeam.push(dev);
+      }
+    }
   },
   mounted() {
     const id = localStorage.getItem(`id-${APP_NAME}`);

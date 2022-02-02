@@ -41,15 +41,16 @@ const Team = {
   },
   insertOne: async (payload) => {
     const {idLead, team, name} = payload;
+    console.log(name);
     let response = {};
     const error = { error: 'Operation not realized'}
     const sql = `
       INSERT INTO ${TABLE_NAME} (idLead, team, name, updatedAt)
-      VALUES (?, ?, ?)
+      VALUES (?, ?, ?, CURRENT_TIMESTAMP)
     `;
 
     try {
-      response = await conn.query(sql, [idLead, team, name]);
+      response = await conn.query(sql, [idLead, JSON.stringify(team), name]);
     } catch (e) {
       console.log(e.message);
       error.message = e.message;
