@@ -556,8 +556,32 @@ let User = {
 		return { response }
 	},
 	devIndexes: async function (idDev, token, query) {
+		const defaultIndicators = [
+      {
+        label: 'Human Factor',
+        value: '0.00'
+      },
+      {
+        label: 'Performance',
+        value: '0.00'
+      },
+      {
+        label: 'Ability',
+        value: '0.00'
+      },
+      {
+        label: 'Evolution',
+        value: '0.00'
+      },
+      {
+        label: 'Continuity',
+        value: '0.00'
+      }
+    ];
 		const year = isNaN(query) ? (new Date()).getFullYear() : query;
 		const { response: evaluations } = await Course.byUser(idDev, year);
+
+		if(!evaluations) return defaultIndicators;
 		return setUpData(idDev, year, token, evaluations);
 	},
 }
