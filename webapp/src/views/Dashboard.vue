@@ -254,8 +254,9 @@
                   </div>
                   <div class="order">
                     <label> Ordenar</label>
-                    <vue-select :options="indicators" v-model="filters.sorter">
+                    <vue-select :options="indicators" v-model="filters.sorter" style="min-width: 80%;">
                     </vue-select>
+                    <i class="fas fa-list-ul" style="font-size: 2rem;"></i>
                   </div>
                 </div>
                 <h4 style="display: flex; gap: 1rem; margin-top: 0.5rem">
@@ -377,62 +378,7 @@ export default {
         "Evolution",
         "Continuity",
       ],
-      developers: [
-        {
-          name: "teste",
-          position: "tester-boy",
-          indicadores: [
-            {
-              label: "Human Factor",
-              value: "50.00",
-            },
-            {
-              label: "Performance",
-              value: "23.33",
-            },
-            {
-              label: "Ability",
-              value: "65.00",
-            },
-            {
-              label: "Evolution",
-              value: "80.00",
-            },
-            {
-              label: "Continuity",
-              value: "10.00",
-            },
-          ],
-          technologies: ["React", "Vue", "Node"],
-        },
-        {
-          name: "teste 2",
-          position: "tester-boy - new",
-          indicadores: [
-            {
-              label: "Human Factor",
-              value: "70.00",
-            },
-            {
-              label: "Performance",
-              value: "60.33",
-            },
-            {
-              label: "Ability",
-              value: "85.00",
-            },
-            {
-              label: "Evolution",
-              value: "50.00",
-            },
-            {
-              label: "Continuity",
-              value: "60.00",
-            },
-          ],
-          technologies: ["React", "Vue", "PHP", "AngularJS"],
-        },
-      ],
+      developers: [],
       currentTechFilter: "",
       filters: {
         technologies: [],
@@ -687,6 +633,10 @@ export default {
               return 0;
             });
           });
+
+          UserService().allDevIndicators(null, (res) => {
+            this.developers = res.response;
+          });
         }
       });
     }
@@ -782,5 +732,6 @@ table {
   display: flex;
   gap: 1rem;
   margin-right: 0;
+  width: 20%;
 }
 </style>

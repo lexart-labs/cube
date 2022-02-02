@@ -484,28 +484,6 @@ let User = {
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},
-	// allDevsIndexes: async function (token, query) {
-	// 	// Caso no venga el año, utilizo el atual como default
-	// 	const year = isNaN(query) ? (new Date()).getFullYear() : query;
-	// 	// Encontro los devs en cube
-	// 	const { response: devsIds } = await this.devIds();
-	// 	// Busco las evaluaciones de cada uno
-	// 	const allDevsEvaluations = await Promise.all(
-	// 		devsIds.map((id) => Course.byUser(id, year))
-	// 	);
-	// 	// Trato las evaluaciones de cada dev hasta obtener todo en porcentaje
-	// 	const allDevsData = allDevsEvaluations.map((devEvaluations, i) => {
-	// 		if (devEvaluations.error) return {};
-	// 		return setUpData(
-	// 			devsIds[i],
-	// 			year,
-	// 			token,
-	// 			devEvaluations.response
-	// 		);
-	// 	});
-
-	// 	return Promise.all(allDevsData);
-	// },
 	allDevelopersIndicators: async function (token, query) {
 		const { response: devsIds } = await this.devIds();
 		const sql = `
