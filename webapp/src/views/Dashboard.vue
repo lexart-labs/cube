@@ -300,6 +300,7 @@ import UserCard from "../components/userCard.vue";
 import Rombo from "../components/rombo.vue";
 import translations from "../data/translate";
 import TechnologiesService from "../services/technologies.service";
+import TeamService from "../services/teams.service";
 
 export default {
   name: "Dashboard",
@@ -384,6 +385,9 @@ export default {
         technologies: [],
         sorter: "",
       },
+      currentTeam: [],
+      teams: [],
+      teamName: '',
     };
   },
   watch: {
@@ -574,6 +578,37 @@ export default {
     unsetFilter(tech) {
       const newFilters = this.filters.technologies.filter((el) => el !== tech);
       this.filters.technologies = newFilters;
+    },
+    saveTeam() {
+      this.isLoading = true;
+      const payload = {
+        team: this.currentTeam,
+        name: this.teamName,
+        idLead: this.myUser.idLextracking,
+      };
+
+      TeamService.insertOne(payload).then(res => {
+        this.currentTeam = [];
+        this.teamName = '';
+        this.isLoading = false;
+      });
+    },
+    getTeams() {
+      this.isLoading = true;
+      TeamService.getAll().then(res => {
+        this.teams = res.response;
+        this.isLoading = false;
+      });
+    },
+    removeTeam(id) {
+      this.isLoading = true;
+      TeamService.remove(id).then(res => {
+        this.isLoading = false;
+      });
+    },
+    editTeam(team) {
+      this.currentTeam = team.team;
+      this.teamName = team.name;
     },
   },
   mounted() {
