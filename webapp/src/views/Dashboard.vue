@@ -248,15 +248,19 @@
                     >
                       Buscar
                     </button>
-                    <button type="button" class="btn btn-primary">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveTeamModal">
                       Guardar
                     </button>
                   </div>
                   <div class="order">
                     <label> Ordenar</label>
-                    <vue-select :options="indicators" v-model="filters.sorter" style="min-width: 80%;">
+                    <vue-select
+                      :options="indicators"
+                      v-model="filters.sorter"
+                      style="min-width: 80%"
+                    >
                     </vue-select>
-                    <i class="fas fa-list-ul" style="font-size: 2rem;"></i>
+                    <i class="fas fa-list-ul" style="font-size: 2rem" data-toggle="modal" data-target="#teamsModal" />
                   </div>
                 </div>
                 <h4 style="display: flex; gap: 1rem; margin-top: 0.5rem">
@@ -276,6 +280,80 @@
               </header>
               <div v-for="(dev, i) in filteredCards" :key="`dev${i}`">
                 <UserCard :user="dev" />
+              </div>
+
+              <!-- Modal save -->
+              <div class="modal" role="dialog" id="saveTeamModal">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Save Team</h5>
+                      <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <input
+                        type="text"
+                        v-model="teamName"
+                        class="form-control"
+                        placeholder="Team name"
+                      >
+                      <ul>
+                        <li v-for="dev in currentTeam" :key="`${dev.name}`">
+                          {{ dev.name }}
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        v-on:click="saveTeam"
+                      >
+                        Save Team
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Modal available Lists -->
+              <div class="modal" role="dialog" id="teamsModal">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Your Teams</h5>
+                      <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <ul>
+                        <li v-for="dev in currentTeam" :key="`${dev.name}`">
+                          {{ dev.name }}
+                        </li>
+                      </ul>
+                      </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -387,7 +465,7 @@ export default {
       },
       currentTeam: [],
       teams: [],
-      teamName: '',
+      teamName: "",
     };
   },
   watch: {
@@ -587,22 +665,22 @@ export default {
         idLead: this.myUser.idLextracking,
       };
 
-      TeamService.insertOne(payload).then(res => {
+      TeamService.insertOne(payload).then((res) => {
         this.currentTeam = [];
-        this.teamName = '';
+        this.teamName = "";
         this.isLoading = false;
       });
     },
     getTeams() {
       this.isLoading = true;
-      TeamService.getAll().then(res => {
+      TeamService.getAll().then((res) => {
         this.teams = res.response;
         this.isLoading = false;
       });
     },
     removeTeam(id) {
       this.isLoading = true;
-      TeamService.remove(id).then(res => {
+      TeamService.remove(id).then((res) => {
         this.isLoading = false;
       });
     },
