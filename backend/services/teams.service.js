@@ -2,7 +2,7 @@ const TABLE_NAME = 'teams';
 const ERROR = { error: 'No fue possible recuperar los datos' };
 
 const Career = {
-  allUserLists: async (idLead) => {
+  all: async (idLead) => {
     const sql = `
       SELECT *
       FROM ${TABLE_NAME}
