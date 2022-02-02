@@ -41,7 +41,6 @@ const Team = {
   },
   insertOne: async (payload) => {
     const {idLead, team, name} = payload;
-    console.log(name);
     let response = {};
     const error = { error: 'Operation not realized'}
     const sql = `

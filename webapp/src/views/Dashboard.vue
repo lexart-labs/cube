@@ -363,8 +363,8 @@
                     </div>
                     <div class="modal-body">
                       <ul>
-                        <li v-for="dev in currentTeam" :key="`${dev.name}`">
-                          {{ dev.name }}
+                        <li v-for="team in teams" :key="`${team.name}`">
+                          {{ team.name }}
                         </li>
                       </ul>
                       </div>
@@ -770,6 +770,8 @@ export default {
               return 0;
             });
           });
+
+          this.getTeams();
 
           UserService().allDevIndicators(null, (res) => {
             this.developers = res.response;
