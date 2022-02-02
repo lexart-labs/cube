@@ -1,7 +1,7 @@
 const TABLE_NAME = 'teams';
 const ERROR = { error: 'No fue possible recuperar los datos' };
 
-const Career = {
+const Team = {
   all: async (idLead) => {
     const sql = `
       SELECT *
@@ -72,4 +72,4 @@ const Career = {
   },
 };
 
-module.exports = Career;
+module.exports = Team;
