@@ -20,7 +20,7 @@
         </h4>
       </div>
     </div>
-    <div class="graphic" :ref="`chartdiv2${user.name}`"></div>
+    <div class="graphic" :ref="`chartdiv2`"></div>
     <input type="checkbox" v-model="selected" />
   </div>
 </template>
@@ -38,16 +38,15 @@ export default {
     };
   },
   watch: {
-    'user': function(nw, od) {
-      console.log(nw.name);
-      this.buildGraphic(nw.indicadores);
-    },
+    user: function() {
+      this.buildGraphic();
+    }
   },
   methods: {
-    buildGraphic(arrayData) {
-      let chart = am4core.create(this.$refs[`chartdiv2${this.user.name}`], am4charts.RadarChart);
+    buildGraphic() {
+      let chart = am4core.create(this.$refs[`chartdiv2`], am4charts.RadarChart);
 
-      chart.data = arrayData;
+      chart.data = this.chartData;
 
       /* Create axes */
       let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
@@ -70,7 +69,12 @@ export default {
     },
   },
   mounted() {
-    this.buildGraphic(this.user.indicadores);
+    this.buildGraphic();
+  },
+  computed: {
+    chartData: function(){
+      return this.user.indicadores;
+    },
   },
 };
 </script>
@@ -99,7 +103,7 @@ export default {
   display: flex;
   gap: 0.5rem;
 }
-#graphic {
+.graphic {
   display: flex;
   flex-basis: 60%;
   justify-content: center;
