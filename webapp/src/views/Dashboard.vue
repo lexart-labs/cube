@@ -294,7 +294,11 @@
                   </span>
                 </h4>
               </header>
-              <div v-for="(dev, i) in filteredCards" :key="`dev${i}`" v-on:click="handleTeamChanges(dev)">
+              <div
+                v-for="(dev, i) in filteredCards"
+                :key="`dev${i}`"
+                v-on:click="handleTeamChanges(dev)"
+              >
                 <UserCard :user="dev" />
               </div>
 
@@ -319,7 +323,7 @@
                         v-model="teamName"
                         class="form-control"
                         placeholder="Team name"
-                      >
+                      />
                       <ul>
                         <li v-for="dev in currentTeam" :key="`${dev.name}`">
                           {{ dev.name }}
@@ -331,6 +335,7 @@
                         type="button"
                         class="btn btn-primary"
                         v-on:click="saveTeam"
+                        data-dismiss="modal"
                       >
                         Save Team
                       </button>
@@ -366,18 +371,26 @@
                         <li v-for="team in teams" :key="`${team.name}`">
                           <div class="team-card">
                             <h5>{{ team.name }}</h5>
-                            <span>{{ formatDate(team.updatedAt).split('.')[0] }}</span>
+                            <span>{{
+                              formatDate(team.updatedAt).split(".")[0]
+                            }}</span>
                             <i class="fas fa-pen" v-on:click="editTeam(team)" />
-                            <i class="fas fa-trash" v-on:click="removeTeam(team.id)" />
+                            <i
+                              class="fas fa-trash"
+                              v-on:click="removeTeam(team.id)"
+                            />
                             <ul>
-                              <li v-for="dev in team.team" :key="`dev-${dev.name}`">
+                              <li
+                                v-for="dev in team.team"
+                                :key="`dev-${dev.name}`"
+                              >
                                 {{ dev.name }}
                               </li>
                             </ul>
                           </div>
                         </li>
                       </ul>
-                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -492,7 +505,8 @@ export default {
       currentTeam: [],
       teams: [],
       teamName: "",
-      inUseTeamList: 'developers',
+      inUseTeamList: "developers",
+      teamId: 0,
     };
   },
   watch: {
@@ -692,22 +706,38 @@ export default {
         idLead: this.myUser.idLextracking,
       };
 
-      TeamService.insertOne(payload).then((res) => {
-        this.currentTeam = [];
-        this.teamName = "";
-        this.isLoading = false;
-        $('#saveTeamModal').modal('hide');
-      });
+      if (this.teamId > 0) {
+        TeamService.updateOne(this.teamId, payload).then((res) => {
+          this.currentTeam = [];
+          this.teamName = "";
+          this.teamId = 0;
+          this.isLoading = false;
+          this.inUseTeamList = 'developers';
+        }).catch(err => {
+          this.isLoading = false;
+        });
+      } else {
+        TeamService.insertOne(payload).then((res) => {
+          this.currentTeam = [];
+          this.teamName = "";
+          this.teamId = 0;
+          this.isLoading = false;
+          this.inUseTeamList = 'developers';
+        }).catch(err => {
+          this.isLoading = false;
+        });;
+      }
     },
     getTeams() {
       this.isLoading = true;
       TeamService.getAll().then((res) => {
-        if(res.response && res.response.length) {
-          this.teams = res.response.map(
-            team => ({...team, team: JSON.parse(team.team)})
-          );
+        if (res.response && res.response.length) {
+          this.teams = res.response.map((team) => ({
+            ...team,
+            team: JSON.parse(team.team),
+          }));
         }
-        
+
         this.isLoading = false;
       });
     },
@@ -715,23 +745,26 @@ export default {
       this.isLoading = true;
       TeamService.remove(id).then((res) => {
         this.isLoading = false;
-        $('#teamsModal').modal('hide');
+        $("#teamsModal").modal("hide");
       });
     },
     editTeam(team) {
       this.currentTeam = team.team;
       this.teamName = team.name;
-      this.inUseTeamList = 'currentTeam';
-      $('#teamsModal').modal('hide');
+      this.inUseTeamList = "currentTeam";
+      this.teamId = team.id;
+      $("#teamsModal").modal("hide");
     },
     handleTeamChanges(dev) {
-      const exists = this.currentTeam.some(el => el.name === dev.name);
-      if(exists) {
-        this.currentTeam = this.currentTeam.filter(el => el.name !== dev.name);
+      const exists = this.currentTeam.some((el) => el.name === dev.name);
+      if (exists) {
+        this.currentTeam = this.currentTeam.filter(
+          (el) => el.name !== dev.name
+        );
       } else {
         this.currentTeam.push(dev);
       }
-    }
+    },
   },
   mounted() {
     const id = localStorage.getItem(`id-${APP_NAME}`);
@@ -817,9 +850,8 @@ export default {
       return this.unasignedDevs.filter((dev) => dev.name.match(regex));
     },
     filteredCards() {
-      const arrayOfDevs = this.inUseTeamList == 'developers'
-        ? this.developers
-        : this.currentTeam;
+      const arrayOfDevs =
+        this.inUseTeamList == "developers" ? this.developers : this.currentTeam;
       const technologies = this.filters.technologies;
       const sorter = this.filters.sorter;
       let result = arrayOfDevs;
