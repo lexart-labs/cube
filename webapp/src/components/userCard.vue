@@ -1,7 +1,6 @@
 <template>
   <div
-    :class="selected ? 'card-parent selected' : 'card-parent'"
-    v-on:click="() => {selected = !selected}"
+    :class="isSelected ? 'card-parent selected' : 'card-parent'"
   >
     <div class="usr-info">
       <h2>{{ user.name }}</h2>
@@ -21,7 +20,6 @@
       </div>
     </div>
     <div class="graphic" :ref="`chartdiv2`"></div>
-    <input type="checkbox" v-model="selected" />
   </div>
 </template>
 
@@ -31,12 +29,7 @@ import * as am4charts from '@amcharts/amcharts4/charts';
 
 export default {
   name: "UserCard",
-  props: ["user"],
-  data() {
-    return {
-      selected: false,
-    };
-  },
+  props: ["user", "selected"],
   watch: {
     user: function() {
       this.buildGraphic();
@@ -74,6 +67,9 @@ export default {
   computed: {
     chartData: function(){
       return this.user.indicadores;
+    },
+    isSelected: function(){
+      return this.selected;
     },
   },
 };
