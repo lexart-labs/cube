@@ -364,7 +364,17 @@
                     <div class="modal-body">
                       <ul>
                         <li v-for="team in teams" :key="`${team.name}`">
-                          {{ team.name }}
+                          <div class="team-card">
+                            <h5>{{ team.name }}</h5>
+                            <span>{{ formatDate(team.updatedAt).split('.')[0] }}</span>
+                            <i class="fas fa-pen" v-on:click="editTeam(team)" />
+                            <i class="fas fa-trash" v-on:click="removeTeam(team.id)" />
+                            <ul>
+                              <li v-for="dev in team.team" :key="`dev-${dev.name}`">
+                                {{ dev.name }}
+                              </li>
+                            </ul>
+                          </div>
                         </li>
                       </ul>
                       </div>
@@ -482,6 +492,7 @@ export default {
       currentTeam: [],
       teams: [],
       teamName: "",
+      inUseTeamList: 'developers',
     };
   },
   watch: {
@@ -685,12 +696,18 @@ export default {
         this.currentTeam = [];
         this.teamName = "";
         this.isLoading = false;
+        $('#saveTeamModal').modal('hide');
       });
     },
     getTeams() {
       this.isLoading = true;
       TeamService.getAll().then((res) => {
-        this.teams = res.response;
+        if(res.response && res.response.length) {
+          this.teams = res.response.map(
+            team => ({...team, team: JSON.parse(team.team)})
+          );
+        }
+        
         this.isLoading = false;
       });
     },
@@ -698,11 +715,14 @@ export default {
       this.isLoading = true;
       TeamService.remove(id).then((res) => {
         this.isLoading = false;
+        $('#teamsModal').modal('hide');
       });
     },
     editTeam(team) {
       this.currentTeam = team.team;
       this.teamName = team.name;
+      this.inUseTeamList = 'currentTeam';
+      $('#teamsModal').modal('hide');
     },
     handleTeamChanges(dev) {
       const exists = this.currentTeam.some(el => el.name === dev.name);
@@ -797,14 +817,17 @@ export default {
       return this.unasignedDevs.filter((dev) => dev.name.match(regex));
     },
     filteredCards() {
+      const arrayOfDevs = this.inUseTeamList == 'developers'
+        ? this.developers
+        : this.currentTeam;
       const technologies = this.filters.technologies;
       const sorter = this.filters.sorter;
-      let result = this.developers;
+      let result = arrayOfDevs;
 
       result = technologies.reduce((acc, tech, i) => {
         acc = acc.filter((dev) => dev.technologies.includes(tech));
         return acc;
-      }, this.developers);
+      }, arrayOfDevs);
 
       if (sorter) {
         result = result.sort(({ indicadores: a }, { indicadores: b }) => {
