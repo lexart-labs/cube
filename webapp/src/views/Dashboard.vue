@@ -441,16 +441,26 @@ export default {
   },
   data() {
     return {
+      // General
       title: "Dashboard",
-      courses: [],
       isLoading: true,
       isFetching: false,
       isSync: false,
-      searchQuery: null,
-      search: "",
       error: "",
       success: "",
+      translations,
+      myUser: {},
+
+      // Evaluations
+      courses: [],
+      searchQuery: null,
       resources: [],
+      search: "",
+      showEvaluation: 0,
+      year: null,
+      years: [],
+
+      // Tabs control
       show: "Dashboard",
       abas: [
         {
@@ -484,20 +494,21 @@ export default {
           onlyAdmin: true,
         },
       ],
-      showEvaluation: 0,
-      year: null,
-      years: [],
+
+      // Technologies
       userStack: [],
       technologies: [],
       currentTech: {},
-      translations,
-      myUser: {},
+
+      // leads map
       tabs: {
         unasigned: false,
         globalView: true,
       },
       developersByLead: [],
       unasignedDevs: [],
+
+      // Teams
       indicators: [
         "Human Factor",
         "Performance",
@@ -700,12 +711,34 @@ export default {
       return compareDBUsers(cubeIds, trckUsrs);
     },
     setFilter() {
+      const exists = this.filters.technologies.some(
+        el => el === this.currentTechFilter
+      );
+
+      if(exists) {
+        this.currentTechFilter = "";
+        return;
+      }
+
+      this.isLoading = true;
+
       this.filters.technologies.push(this.currentTechFilter);
       this.currentTechFilter = "";
+
+      UserService().allDevIndicators(null, this.filters.technologies, (res) => {
+        this.isLoading = false;
+        this.developers = res.response;
+      });
     },
     unsetFilter(tech) {
+      this.isLoading = true;
       const newFilters = this.filters.technologies.filter((el) => el !== tech);
       this.filters.technologies = newFilters;
+
+      UserService().allDevIndicators(null, this.filters.technologies, (res) => {
+        this.isLoading = false;
+        this.developers = res.response;
+      });
     },
     saveTeam() {
       this.isLoading = true;
@@ -721,14 +754,18 @@ export default {
             this.cleanStatesTeams();
             this.getTeams();
           })
-          .catch(err => { this.isLoading = false; });
+          .catch((err) => {
+            this.isLoading = false;
+          });
       } else {
         TeamService.insertOne(payload)
           .then((res) => {
             this.cleanStatesTeams();
             this.getTeams();
           })
-          .catch(err => { this.isLoading = false;});
+          .catch((err) => {
+            this.isLoading = false;
+          });
       }
     },
     getTeams() {
@@ -772,7 +809,7 @@ export default {
       this.currentTeam = [];
       this.teamName = "";
       this.teamId = 0;
-      this.inUseTeamList = 'developers';
+      this.inUseTeamList = "developers";
     },
   },
   mounted() {
@@ -835,7 +872,7 @@ export default {
 
           this.getTeams();
 
-          UserService().allDevIndicators(null, (res) => {
+          UserService().allDevIndicators(null, null, (res) => {
             this.developers = res.response;
           });
         }
@@ -860,15 +897,9 @@ export default {
     },
     filteredCards() {
       const arrayOfDevs =
-        this.inUseTeamList == "developers" ? this.developers : this.currentTeam;
-      const technologies = this.filters.technologies;
+      this.inUseTeamList == "developers" ? this.developers : this.currentTeam;
       const sorter = this.filters.sorter;
       let result = arrayOfDevs;
-
-      result = technologies.reduce((acc, tech, i) => {
-        acc = acc.filter((dev) => dev.technologies.includes(tech));
-        return acc;
-      }, arrayOfDevs);
 
       if (sorter) {
         result = result.sort(({ indicadores: a }, { indicadores: b }) => {
