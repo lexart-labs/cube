@@ -31,13 +31,13 @@ const Team = {
     `;
 
     try {
-      response = await conn.query(sql, [idLead, team, name, id]);
+      response = await conn.query(sql, [idLead, JSON.stringify(team), name, id]);
     } catch (e) {
       console.log(e.message);
       error.message = e.message;
     }
 
-    return response.changedRows ? { response: 'ok' } : error;
+    return response.changedRows || response.affectedRows ? { response: 'ok' } : error;
   },
   insertOne: async (payload) => {
     const {idLead, team, name} = payload;
