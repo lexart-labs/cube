@@ -246,7 +246,7 @@
                       :disabled="!currentTechFilter"
                       v-on:click="setFilter()"
                     >
-                      Buscar
+                      {{ $t("generic.search") }}
                     </button>
                     <button
                       type="button"
@@ -255,17 +255,17 @@
                       data-target="#saveTeamModal"
                       :disabled="!(currentTeam && currentTeam.length)"
                     >
-                      Guardar
+                      {{ $t("generic.save") }}
                     </button>
                     <button
                       v-if="inUseTeamList !== 'developers'"
                       v-on:click="cleanStatesTeams"
                     >
-                      Cancelar Edición
+                      {{ $t("generic.cancel") }}
                     </button>
                   </div>
                   <div class="order">
-                    <label> Ordenar</label>
+                    <label>{{ $t("generic.order") }}</label>
                     <vue-select
                       :options="indicators"
                       v-model="filters.sorter"
@@ -316,7 +316,9 @@
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title">Save Team</h5>
+                      <h5 class="modal-title">
+                        {{ $t("dashboard.saveTeam") }}
+                      </h5>
                       <button
                         type="button"
                         class="close"
@@ -346,14 +348,14 @@
                         v-on:click="saveTeam"
                         data-dismiss="modal"
                       >
-                        Save Team
+                        {{ $t("dashboard.saveTeam") }}
                       </button>
                       <button
                         type="button"
                         class="btn btn-secondary"
                         data-dismiss="modal"
                       >
-                        Close
+                        {{ $t("generic.close") }}
                       </button>
                     </div>
                   </div>
@@ -365,7 +367,9 @@
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title">Your Teams</h5>
+                      <h5 class="modal-title">
+                        {{ $t("dashboard.teamModalTitle") }}
+                      </h5>
                       <button
                         type="button"
                         class="close"
@@ -712,10 +716,10 @@ export default {
     },
     setFilter() {
       const exists = this.filters.technologies.some(
-        el => el === this.currentTechFilter
+        (el) => el === this.currentTechFilter
       );
 
-      if(exists) {
+      if (exists) {
         this.currentTechFilter = "";
         return;
       }
@@ -897,7 +901,7 @@ export default {
     },
     filteredCards() {
       const arrayOfDevs =
-      this.inUseTeamList == "developers" ? this.developers : this.currentTeam;
+        this.inUseTeamList == "developers" ? this.developers : this.currentTeam;
       const sorter = this.filters.sorter;
       let result = arrayOfDevs;
 

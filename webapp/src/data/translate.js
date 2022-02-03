@@ -15,6 +15,8 @@ const translations = {
       alreadyExists: '¡El elemente ya existe!',
       unasigned: 'No asignados',
       golbalView: 'Visión general',
+      saveTeam: 'Guardar Time',
+      teamModalTitle: 'Sus times',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -86,9 +88,11 @@ const translations = {
       save: 'Guardar',
       date: 'Fecha',
       edit: 'Editar',
+      close: 'Cerrar',
       remove: 'Borrar',
       topic: 'Topico',
       score: 'Puntaje',
+      order: 'Ordenar',
       observations: 'Observaciones',
       yes: 'SI',
       no: 'NO',
@@ -121,6 +125,7 @@ const translations = {
       lead: 'Liderazgo',
       leadTree: 'Mapa de Liderazgo',
       minimumTimeReached: '¡Nuevo cargo disponible!',
+      search: 'Buscar',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -224,6 +229,8 @@ const translations = {
       alreadyExists: 'This item already exists!',
       unasigned: 'Unasigneds',
       golbalView: 'Global Overview',
+      saveTeam: 'Save Team',
+      teamModalTitle: 'Your Teams',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
@@ -295,9 +302,11 @@ const translations = {
       save: 'Save',
       date: 'Date',
       edit: 'Edit',
+      close: 'Close',
       remove: 'Delete',
       topic: 'Topic',
       score: 'Score',
+      order: 'Order by',
       observations: 'Observations',
       yes: 'YES',
       no: 'NO',
@@ -330,6 +339,7 @@ const translations = {
       lead: 'Lead',
       leadTree: 'Lead\'s Tree',
       minimumTimeReached: 'New position available!',
+      search: 'Search',
     },
     positionAssignments: {
       'EntryLevel Developer': [
