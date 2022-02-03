@@ -78,6 +78,12 @@ router.get('/lead-tree', async (_req, res) => {
   res.send(response);
 })
 
+router.get('/dev-indexes/count', async (_req, res) => {
+	let response = await User.countDevs();
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
 router.get('/dev-indexes/:id', async (req, res) => {
 	const { token } = req.headers;
 	const { year } = req.query;
@@ -91,11 +97,11 @@ router.get('/dev-indexes/:id', async (req, res) => {
 
 router.post('/dev-indexes', async (req, res) => {
 	const { token } = req.headers;
-	const { year } = req.query;
+	const { year, page } = req.query;
 	const { techs } = req.body;
 
 	const response = await User.allDevelopersIndicators(
-		token, Number(year), techs
+		token, Number(year), techs, page
 	);
 	
 	res.set(['Content-Type', 'application/json']);
