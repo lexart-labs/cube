@@ -310,6 +310,28 @@
                   :selected="currentTeam.some((el) => el.name === dev.name)"
                 />
               </div>
+              <nav class="pages-nav">
+                <span
+                  v-on:click="navigate('-')"
+                  :class="currentPage == 1 ? 'not-allowed' : ''"
+                >
+                  Back
+                </span>
+                <span
+                  :class="currentPage == index ? 'current' : ''"
+                  v-for="index in pagesLength"
+                  :key="index"
+                  v-on:click="navigate(index)"
+                >
+                  {{ index }}
+                </span>
+                <span
+                  v-on:click="navigate('+')"
+                  :class="currentPage == pagesLength ? 'not-allowed' : ''"
+                >
+                  Next
+                </span>
+              </nav>
 
               <!-- Modal save -->
               <div class="modal" role="dialog" id="saveTeamModal">
@@ -531,6 +553,8 @@ export default {
       teamName: "",
       inUseTeamList: "developers",
       teamId: 0,
+      pagesLength: 0,
+      currentPage: 1,
     };
   },
   watch: {
@@ -728,21 +752,33 @@ export default {
 
       this.filters.technologies.push(this.currentTechFilter);
       this.currentTechFilter = "";
+      this.currentPage = 1;
 
-      UserService().allDevIndicators(null, this.filters.technologies, (res) => {
-        this.isFetching = false;
-        this.developers = res.response;
-      });
+      UserService().allDevIndicators(
+        null,
+        this.filters.technologies,
+        this.currentPage,
+        (res) => {
+          this.isFetching = false;
+          this.developers = res.response;
+        }
+      );
     },
     unsetFilter(tech) {
       this.isFetching = true;
       const newFilters = this.filters.technologies.filter((el) => el !== tech);
       this.filters.technologies = newFilters;
+      this.currentPage = 1;
 
-      UserService().allDevIndicators(null, this.filters.technologies, (res) => {
-        this.isFetching = false;
-        this.developers = res.response;
-      });
+      UserService().allDevIndicators(
+        null,
+        this.filters.technologies,
+        this.currentPage,
+        (res) => {
+          this.isFetching = false;
+          this.developers = res.response;
+        }
+      );
     },
     saveTeam() {
       this.isFetching = true;
@@ -815,6 +851,24 @@ export default {
       this.teamId = 0;
       this.inUseTeamList = "developers";
     },
+    navigate(operator) {
+      this.isFetching = true;
+      if (typeof operator === "number") {
+        this.currentPage = operator;
+      } else {
+        operator === "+" ? (this.currentPage += 1) : (this.currentPage -= 1);
+      }
+
+      UserService().allDevIndicators(
+        null,
+        this.filters.technologies,
+        this.currentPage,
+        (res) => {
+          this.isFetching = false;
+          this.developers = res.response;
+        }
+      );
+    },
   },
   mounted() {
     const id = localStorage.getItem(`id-${APP_NAME}`);
@@ -874,11 +928,20 @@ export default {
             });
           });
 
+          UserService().countDevs((data) => {
+            this.pagesLength = data.response;
+          });
+
           this.getTeams();
 
-          UserService().allDevIndicators(null, null, (res) => {
-            this.developers = res.response;
-          });
+          UserService().allDevIndicators(
+            null,
+            null,
+            this.currentPage,
+            (res) => {
+              this.developers = res.response;
+            }
+          );
         }
       });
     }
