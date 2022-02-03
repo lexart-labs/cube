@@ -13,7 +13,7 @@ router.get('/', Mdl.middleware, async (req, res) => {
 router.put('/:id', Mdl.middleware, async (req, res) => {
   const { id } = req.params;
 
-  const response = await Team.upsert(id, req.body);
+  const response = await Team.updateOne(id, req.body);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
