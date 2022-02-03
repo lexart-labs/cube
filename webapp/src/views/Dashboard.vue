@@ -257,6 +257,12 @@
                     >
                       Guardar
                     </button>
+                    <button
+                      v-if="inUseTeamList !== 'developers'"
+                      v-on:click="cleanStatesTeams"
+                    >
+                      Cancelar Edición
+                    </button>
                   </div>
                   <div class="order">
                     <label> Ordenar</label>
@@ -299,7 +305,10 @@
                 :key="`dev${i}`"
                 v-on:click="handleTeamChanges(dev)"
               >
-                <UserCard :user="dev" />
+                <UserCard
+                  :user="dev"
+                  :selected="currentTeam.some((el) => el.name === dev.name)"
+                />
               </div>
 
               <!-- Modal save -->
@@ -707,25 +716,19 @@ export default {
       };
 
       if (this.teamId > 0) {
-        TeamService.updateOne(this.teamId, payload).then((res) => {
-          this.currentTeam = [];
-          this.teamName = "";
-          this.teamId = 0;
-          this.isLoading = false;
-          this.inUseTeamList = 'developers';
-        }).catch(err => {
-          this.isLoading = false;
-        });
+        TeamService.updateOne(this.teamId, payload)
+          .then((res) => {
+            this.cleanStatesTeams();
+            this.getTeams();
+          })
+          .catch(err => { this.isLoading = false; });
       } else {
-        TeamService.insertOne(payload).then((res) => {
-          this.currentTeam = [];
-          this.teamName = "";
-          this.teamId = 0;
-          this.isLoading = false;
-          this.inUseTeamList = 'developers';
-        }).catch(err => {
-          this.isLoading = false;
-        });;
+        TeamService.insertOne(payload)
+          .then((res) => {
+            this.cleanStatesTeams();
+            this.getTeams();
+          })
+          .catch(err => { this.isLoading = false;});
       }
     },
     getTeams() {
@@ -744,8 +747,8 @@ export default {
     removeTeam(id) {
       this.isLoading = true;
       TeamService.remove(id).then((res) => {
-        this.isLoading = false;
         $("#teamsModal").modal("hide");
+        this.getTeams();
       });
     },
     editTeam(team) {
@@ -764,6 +767,12 @@ export default {
       } else {
         this.currentTeam.push(dev);
       }
+    },
+    cleanStatesTeams() {
+      this.currentTeam = [];
+      this.teamName = "";
+      this.teamId = 0;
+      this.inUseTeamList = 'developers';
     },
   },
   mounted() {
