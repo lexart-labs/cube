@@ -475,17 +475,31 @@ let User = {
 
 		return { response: fixed };
 	},
-	devIds: async function () {
-		const sql = `
-			SELECT idLextracking AS 'id' FROM users WHERE type = 'developer';
+	devIds: async function (techs) {
+		let sql = '';
+		if (techs && techs.length) {
+			const techsFilter = techs.map((el) => `'${el}'`).join();
+			sql = `
+				SELECT
+					DISTINCT us.idUser AS id
+				FROM user_skills us
+				INNER JOIN technologies t ON us.idTechnology = t.id
+				INNER JOIN users u ON u.idLextracking = us.idUser
+				WHERE u.type = 'developer' AND t.name IN (${techsFilter});
+			`;
+		} else {
+			sql = `
+				SELECT idLextracking AS 'id' FROM users WHERE type = 'developer';
 		`;
+		}
 
 		const response = await conn.query(sql);
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},
-	allDevelopersIndicators: async function (token, query) {
-		const { response: devsIds } = await this.devIds();
+	allDevelopersIndicators: async function (token, query, techs) {
+		const { response: devsIds } = await this.devIds(techs);
+
 		const sql = `
 			SELECT
 				c.position AS position,
@@ -535,31 +549,31 @@ let User = {
 	},
 	devIndexes: async function (idDev, token, query) {
 		const defaultIndicators = [
-      {
-        label: 'Human Factor',
-        value: '0.00'
-      },
-      {
-        label: 'Performance',
-        value: '0.00'
-      },
-      {
-        label: 'Ability',
-        value: '0.00'
-      },
-      {
-        label: 'Evolution',
-        value: '0.00'
-      },
-      {
-        label: 'Continuity',
-        value: '0.00'
-      }
-    ];
+			{
+				label: 'Human Factor',
+				value: '0.00'
+			},
+			{
+				label: 'Performance',
+				value: '0.00'
+			},
+			{
+				label: 'Ability',
+				value: '0.00'
+			},
+			{
+				label: 'Evolution',
+				value: '0.00'
+			},
+			{
+				label: 'Continuity',
+				value: '0.00'
+			}
+		];
 		const year = isNaN(query) ? (new Date()).getFullYear() : query;
 		const { response: evaluations } = await Course.byUser(idDev, year);
 
-		if(!evaluations) return defaultIndicators;
+		if (!evaluations) return defaultIndicators;
 		return setUpData(idDev, year, token, evaluations);
 	},
 }

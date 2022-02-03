@@ -89,11 +89,14 @@ router.get('/dev-indexes/:id', async (req, res) => {
   res.send(response);
 })
 
-router.get('/dev-indexes', async (req, res) => {
+router.post('/dev-indexes', async (req, res) => {
 	const { token } = req.headers;
 	const { year } = req.query;
+	const { techs } = req.body;
 
-	const response = await User.allDevelopersIndicators(token, Number(year));
+	const response = await User.allDevelopersIndicators(
+		token, Number(year), techs
+	);
 	
 	res.set(['Content-Type', 'application/json']);
   res.send(response);

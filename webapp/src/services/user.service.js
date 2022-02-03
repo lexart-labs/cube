@@ -67,13 +67,14 @@ const UserService = function () {
 
       return axios.get(`${API + model}lead-tree`, { headers });
     },
-    allDevIndicators(year, cb) {
+    allDevIndicators(year, techs, cb) {
       const headers = buildHeaders();
 
       const endpoint = year
         ? `${API + model}dev-indexes?year=${year}`
-        : `${API + model}dev-indexes`
-      axios.get(endpoint, { headers }).then(({ data }) => cb(data))
+        : `${API + model}dev-indexes`;
+
+      axios.post(endpoint, { techs }, { headers }).then(({ data }) => cb(data))
     }
   };
 };
