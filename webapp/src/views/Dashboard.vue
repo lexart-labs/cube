@@ -720,28 +720,28 @@ export default {
         return;
       }
 
-      this.isLoading = true;
+      this.isFetching = true;
 
       this.filters.technologies.push(this.currentTechFilter);
       this.currentTechFilter = "";
 
       UserService().allDevIndicators(null, this.filters.technologies, (res) => {
-        this.isLoading = false;
+        this.isFetching = false;
         this.developers = res.response;
       });
     },
     unsetFilter(tech) {
-      this.isLoading = true;
+      this.isFetching = true;
       const newFilters = this.filters.technologies.filter((el) => el !== tech);
       this.filters.technologies = newFilters;
 
       UserService().allDevIndicators(null, this.filters.technologies, (res) => {
-        this.isLoading = false;
+        this.isFetching = false;
         this.developers = res.response;
       });
     },
     saveTeam() {
-      this.isLoading = true;
+      this.isFetching = true;
       const payload = {
         team: this.currentTeam,
         name: this.teamName,
@@ -755,7 +755,7 @@ export default {
             this.getTeams();
           })
           .catch((err) => {
-            this.isLoading = false;
+            this.isFetching = false;
           });
       } else {
         TeamService.insertOne(payload)
@@ -764,12 +764,12 @@ export default {
             this.getTeams();
           })
           .catch((err) => {
-            this.isLoading = false;
+            this.isFetching = false;
           });
       }
     },
     getTeams() {
-      this.isLoading = true;
+      this.isFetching = true;
       TeamService.getAll().then((res) => {
         if (res.response && res.response.length) {
           this.teams = res.response.map((team) => ({
@@ -778,11 +778,11 @@ export default {
           }));
         }
 
-        this.isLoading = false;
+        this.isFetching = false;
       });
     },
     removeTeam(id) {
-      this.isLoading = true;
+      this.isFetching = true;
       TeamService.remove(id).then((res) => {
         $("#teamsModal").modal("hide");
         this.getTeams();
