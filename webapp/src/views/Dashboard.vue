@@ -310,7 +310,7 @@
                   :selected="currentTeam.some((el) => el.name === dev.name)"
                 />
               </div>
-              <nav class="pages-nav">
+              <nav class="pages-nav" v-if="inUseTeamList == 'developers'">
                 <span
                   v-on:click="navigate('-')"
                   :class="currentPage == 1 ? 'not-allowed' : ''"
