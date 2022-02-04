@@ -476,7 +476,7 @@ let User = {
 		return { response: fixed };
 	},
 	countDevs: async function () {
-		const PAGE_LENGTH = 10;
+		const PAGE_LENGTH = 5;
 		const sql = `
 			SELECT COUNT(*) AS total FROM users AS u
 			WHERE u.type = 'developer'
@@ -494,7 +494,8 @@ let User = {
 		return response > 0 ? { response } : error;
 	},
 	devIds: async function (techs, page) {
-		const PAGE_LENGTH = 10;
+		const PAGE_LENGTH = 5;
+		const currentPage = page || 1;
 		let sql = '';
 		if (techs && techs.length) {
 			const techsFilter = techs.map((el) => `'${el}'`).join();
@@ -505,11 +506,14 @@ let User = {
 				INNER JOIN technologies t ON us.idTechnology = t.id
 				INNER JOIN users u ON u.idLextracking = us.idUser
 				WHERE u.type = 'developer' AND t.name IN (${techsFilter});
-				LIMIT ${PAGE_LENGTH} OFFSET = ${(page - 1) * PAGE_LENGTH}
+				LIMIT ${PAGE_LENGTH} OFFSET ${(currentPage - 1) * PAGE_LENGTH}
 			`;
 		} else {
 			sql = `
-				SELECT idLextracking AS 'id' FROM users WHERE type = 'developer';
+				SELECT
+					idLextracking AS 'id'
+				FROM users WHERE type = 'developer'
+				LIMIT ${PAGE_LENGTH} OFFSET ${(currentPage - 1) * PAGE_LENGTH};
 		`;
 		}
 
@@ -517,7 +521,7 @@ let User = {
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},
-	allDevelopersIndicators: async function (token, query, techs, page = 1) {
+	allDevelopersIndicators: async function (token, query, techs, page) {
 		const { response: devsIds } = await this.devIds(techs, page);
 
 		const sql = `
