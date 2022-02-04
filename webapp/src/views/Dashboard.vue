@@ -242,7 +242,7 @@
                     </vue-select>
                     <button
                       type="button"
-                      class="btn btn-info"
+                      class="btn btn-info btn-sm"
                       :disabled="!currentTechFilter"
                       v-on:click="setFilter()"
                     >
@@ -250,7 +250,7 @@
                     </button>
                     <button
                       type="button"
-                      class="btn btn-primary"
+                      class="btn btn-primary btn-sm"
                       data-toggle="modal"
                       data-target="#saveTeamModal"
                       :disabled="!(currentTeam && currentTeam.length)"
@@ -260,18 +260,20 @@
                     <button
                       v-if="inUseTeamList !== 'developers'"
                       v-on:click="cleanStatesTeams"
+                      class="btn btn-primary btn-sm"
                     >
                       {{ $t("generic.cancel") }}
                     </button>
                   </div>
                   <div class="order">
-                    <label>{{ $t("generic.order") }}</label>
-                    <vue-select
-                      :options="indicators"
-                      v-model="filters.sorter"
-                      style="min-width: 80%"
-                    >
-                    </vue-select>
+                    <label>{{ $t("generic.order") }}
+                      <vue-select
+                        :options="indicators"
+                        v-model="filters.sorter"
+                        style="min-width: 50%"
+                      >
+                      </vue-select>
+                    </label>
                     <i
                       class="fas fa-list-ul"
                       style="font-size: 2rem"
@@ -1027,12 +1029,20 @@ table {
   display: flex;
   width: 50%;
   gap: 1rem;
+  max-height: 2rem;
 }
 
 .order {
   display: flex;
   gap: 1rem;
-  margin-right: 0;
-  width: 20%;
+  justify-content: flex-end;
+  width: 28%;
+}
+
+.order label {
+  display: flex;
+  justify-content: flex-end;
+  width: 70%;
+  gap: 0.5rem;
 }
 </style>

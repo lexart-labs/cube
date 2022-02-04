@@ -476,7 +476,7 @@ let User = {
 		return { response: fixed };
 	},
 	countDevs: async function () {
-		const PAGE_LENGTH = 5;
+		const PAGE_LENGTH = 10;
 		const sql = `
 			SELECT COUNT(*) AS total FROM users AS u
 			WHERE u.type = 'developer'
@@ -494,7 +494,7 @@ let User = {
 		return response > 0 ? { response } : error;
 	},
 	devIds: async function (techs, page) {
-		const PAGE_LENGTH = 5;
+		const PAGE_LENGTH = 10;
 		const currentPage = page || 1;
 		let sql = '';
 		if (techs && techs.length) {
