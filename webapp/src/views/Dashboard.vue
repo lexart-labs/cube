@@ -975,8 +975,9 @@ export default {
       return this.unasignedDevs.filter((dev) => dev.name.match(regex));
     },
     filteredCards() {
-      const arrayOfDevs =
-        this.inUseTeamList == "developers" ? this.developers : this.currentTeam;
+      // const arrayOfDevs =
+      //   this.inUseTeamList == "developers" ? this.developers : this.currentTeam;
+      const arrayOfDevs = this.developers;
       const sorter = this.filters.sorter;
       let result = arrayOfDevs;
 

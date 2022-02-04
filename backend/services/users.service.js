@@ -476,7 +476,7 @@ let User = {
 		return { response: fixed };
 	},
 	countDevs: async function (techs) {
-		const PAGE_LENGTH = 5;
+		const PAGE_LENGTH = 10;
 		let sql = '';
 		if(techs && techs.length) {
 			const techsFilter = techs.map((el) => `'${el}'`).join();
@@ -508,7 +508,7 @@ let User = {
 		return response > 0 ? { response } : error;
 	},
 	devIds: async function (techs, page) {
-		const PAGE_LENGTH = 5;
+		const PAGE_LENGTH = 10;
 		const currentPage = page || 1;
 		let sql = '';
 		if (techs && techs.length) {
