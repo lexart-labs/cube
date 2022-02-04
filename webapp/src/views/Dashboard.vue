@@ -407,15 +407,16 @@
                       <ul>
                         <li v-for="team in teams" :key="`${team.name}`">
                           <div class="team-card">
-                            <h5>{{ team.name }}</h5>
-                            <span>{{
-                              formatDate(team.updatedAt).split(".")[0]
-                            }}</span>
-                            <i class="fas fa-pen" v-on:click="editTeam(team)" />
-                            <i
-                              class="fas fa-trash"
-                              v-on:click="removeTeam(team.id)"
-                            />
+                            <div>
+                              <div class="team-card-title">
+                                <h5>{{ team.name }}</h5>
+                                <span>{{ formatDate(team.updatedAt).split(".")[0] }}</span>
+                              </div>
+                              <div class="team-card-icons">
+                                <i class="fas fa-pen" v-on:click="editTeam(team)" />
+                                <i class="fas fa-trash" v-on:click="removeTeam(team.id)" />
+                              </div>
+                            </div>
                             <ul>
                               <li
                                 v-for="dev in team.team"
@@ -1044,5 +1045,46 @@ table {
   justify-content: flex-end;
   width: 70%;
   gap: 0.5rem;
+}
+
+#teamsModal .modal-body > ul {
+  list-style: none outside none;
+  margin: 0;
+  padding: 0;
+}
+
+.team-card {
+  display: flex;
+  flex-flow: column;
+  width: 100%;
+  padding: 1rem;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.team-card > div {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.team-card h5 {
+  text-transform: capitalize;
+  margin-bottom: 0;
+}
+
+.team-card-title span {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 0;
+}
+
+.team-card-icons {
+  display: flex;
+  gap: 1rem;
+}
+
+.team-card-icons i {
+  cursor: pointer;
 }
 </style>
