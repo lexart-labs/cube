@@ -758,6 +758,10 @@ export default {
       this.currentTechFilter = "";
       this.currentPage = 1;
 
+      UserService().countDevs(this.filters.technologies, (data) => {
+        this.pagesLength = data.response;
+      });
+
       UserService().allDevIndicators(
         null,
         this.filters.technologies,
@@ -773,6 +777,10 @@ export default {
       const newFilters = this.filters.technologies.filter((el) => el !== tech);
       this.filters.technologies = newFilters;
       this.currentPage = 1;
+
+      UserService().countDevs(this.filters.technologies, (data) => {
+        this.pagesLength = data.response;
+      });
 
       UserService().allDevIndicators(
         null,
@@ -932,7 +940,7 @@ export default {
             });
           });
 
-          UserService().countDevs((data) => {
+          UserService().countDevs([], (data) => {
             this.pagesLength = data.response;
           });
 

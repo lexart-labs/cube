@@ -76,9 +76,9 @@ const UserService = function () {
 
       axios.post(endpoint, { techs }, { headers }).then(({ data }) => cb(data))
     },
-    countDevs(cb) {
+    countDevs(techs, cb) {
       const headers = buildHeaders();
-      axios.get(`${API + model}dev-indexes/count`, { headers }).then(({data}) => {
+      axios.post(`${API + model}dev-indexes/count`, { techs }, { headers }).then(({data}) => {
         cb(data)
       });
     },

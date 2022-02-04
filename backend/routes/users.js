@@ -78,8 +78,10 @@ router.get('/lead-tree', async (_req, res) => {
   res.send(response);
 })
 
-router.get('/dev-indexes/count', async (_req, res) => {
-	let response = await User.countDevs();
+router.post('/dev-indexes/count', async (req, res) => {
+	const { techs } = req.body;
+
+	let response = await User.countDevs(techs);
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
 })
