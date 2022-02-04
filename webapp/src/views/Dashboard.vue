@@ -358,6 +358,7 @@
                         v-model="teamName"
                         class="form-control"
                         placeholder="Team name"
+                        style="margin-bottom: 1rem;"
                       />
                       <ul>
                         <li v-for="dev in currentTeam" :key="`${dev.name}`">
