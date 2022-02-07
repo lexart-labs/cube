@@ -17,7 +17,7 @@ const Team = {
     return response.length > 0 ? { response } : ERROR;
   },
   updateOne: async (id, payload) => {
-    const {idLead, team, name} = payload;
+    const {idLead, team, name, stack} = payload;
     let response = {};
     const error = { error: 'Operation not realized'}
     const sql = `
@@ -26,12 +26,13 @@ const Team = {
         idLead=?,
         team=?,
         name=?,
+        mainStack=?
         updatedAt=CURRENT_TIMESTAMP
       WHERE id = ?
     `;
 
     try {
-      response = await conn.query(sql, [idLead, JSON.stringify(team), name, id]);
+      response = await conn.query(sql, [idLead, JSON.stringify(team), name, JSON.stringify(stack), id]);
     } catch (e) {
       console.log(e.message);
       error.message = e.message;
@@ -40,16 +41,16 @@ const Team = {
     return response.changedRows || response.affectedRows ? { response: 'ok' } : error;
   },
   insertOne: async (payload) => {
-    const {idLead, team, name} = payload;
+    const {idLead, team, name, stack} = payload;
     let response = {};
     const error = { error: 'Operation not realized'}
     const sql = `
-      INSERT INTO ${TABLE_NAME} (idLead, team, name, updatedAt)
-      VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+      INSERT INTO ${TABLE_NAME} (idLead, team, name, mainStack, updatedAt)
+      VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
     `;
 
     try {
-      response = await conn.query(sql, [idLead, JSON.stringify(team), name]);
+      response = await conn.query(sql, [idLead, JSON.stringify(team), name, JSON.stringify(stack)]);
     } catch (e) {
       console.log(e.message);
       error.message = e.message;

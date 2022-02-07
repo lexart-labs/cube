@@ -854,6 +854,7 @@ export default {
         team: this.currentTeam,
         name: this.teamName,
         idLead: this.myUser.idLextracking,
+        stack: this.filters.technologies,
       };
 
       if (this.teamId > 0) {
@@ -887,6 +888,7 @@ export default {
           this.teams = res.response.map((team) => ({
             ...team,
             team: JSON.parse(team.team),
+            mainStack: JSON.parse(team.mainStack),
           }));
         }
 
@@ -906,6 +908,7 @@ export default {
         this.currentTeam = team.team;
         this.developers = team.team;
         this.teamName = team.name;
+        this.filters.technologies = team.mainStack || [];
         this.inUseTeamList = "currentTeam";
         this.teamId = team.id;
         $("#teamsModal").modal("hide");

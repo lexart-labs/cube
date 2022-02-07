@@ -7,3 +7,5 @@ CREATE TABLE `lexart_cube`.`teams` (
   `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
+
+ALTER TABLE `teams` ADD `mainStack` LONGTEXT NULL DEFAULT NULL AFTER `name`;
