@@ -312,7 +312,7 @@
                   :selected="currentTeam.some((el) => el.name === dev.name)"
                 />
               </div>
-              <nav class="pages-nav" v-if="inUseTeamList == 'developers'">
+              <nav class="pages-nav" v-show="filters.technologies.length">
                 <span
                   v-on:click="navigate('-')"
                   :class="currentPage == 1 ? 'not-allowed' : ''"
@@ -778,6 +778,12 @@ export default {
       this.filters.technologies = newFilters;
       this.currentPage = 1;
 
+      if(!this.filters.technologies.length) {
+        this.developers = [];
+        this.isFetching = false;
+        return;
+      }
+
       UserService().countDevs(this.filters.technologies, (data) => {
         this.pagesLength = data.response;
       });
@@ -940,20 +946,20 @@ export default {
             });
           });
 
-          UserService().countDevs([], (data) => {
-            this.pagesLength = data.response;
-          });
+          // UserService().countDevs([], (data) => {
+          //   this.pagesLength = data.response;
+          // });
 
-          this.getTeams();
+          // this.getTeams();
 
-          UserService().allDevIndicators(
-            null,
-            null,
-            this.currentPage,
-            (res) => {
-              this.developers = res.response;
-            }
-          );
+          // UserService().allDevIndicators(
+          //   null,
+          //   null,
+          //   this.currentPage,
+          //   (res) => {
+          //     this.developers = res.response;
+          //   }
+          // );
         }
       });
     }
