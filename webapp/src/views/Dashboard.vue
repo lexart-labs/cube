@@ -862,13 +862,15 @@ export default {
       if (this.teamId > 0) {
         TeamService.updateOne(this.teamId, payload)
           .then((res) => {
-            Vue.toasted.show(
-              translations[this.$store.state.language].dashboard.teamSaved,
-              {
-                type: "success",
-                duration: 2000,
-              }
-            );
+            if(!res.error) {
+              Vue.toasted.show(
+                translations[this.$store.state.language].dashboard.teamSaved,
+                {
+                  type: "success",
+                  duration: 2000,
+                }
+              );
+            }
 
             this.cleanStatesTeams();
             this.getTeams();
@@ -879,13 +881,15 @@ export default {
       } else {
         TeamService.insertOne(payload)
           .then((res) => {
-            Vue.toasted.show(
-              translations[this.$store.state.language].dashboard.teamSaved,
-              {
-                type: "success",
-                duration: 2000,
-              }
-            );
+            if(!res.error) {
+              Vue.toasted.show(
+                translations[this.$store.state.language].dashboard.teamSaved,
+                {
+                  type: "success",
+                  duration: 2000,
+                }
+              );
+            }
 
             this.cleanStatesTeams();
             this.getTeams();
@@ -916,6 +920,16 @@ export default {
     removeTeam(id) {
       this.isFetching = true;
       TeamService.remove(id).then((res) => {
+        if(!res.error) {
+          Vue.toasted.show(
+          translations[this.$store.state.language].dashboard.teamRemoved,
+          {
+            type: "success",
+            duration: 2000,
+          }
+        );
+        }
+
         this.cleanStatesTeams();
         $("#teamsModal").modal("hide");
         this.getTeams();

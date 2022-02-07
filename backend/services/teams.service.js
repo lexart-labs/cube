@@ -69,7 +69,8 @@ const Team = {
      error.message = e.message;
     }
 
-    return response.changedRows == 1 ? { response: 'Succesfully removed'} : error;
+    console.log(response);
+    return response.changedRows || response.affectedRows ? { response: 'Succesfully removed'} : error;
   },
 };
 

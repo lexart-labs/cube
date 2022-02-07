@@ -19,6 +19,7 @@ const translations = {
       teamModalTitle: 'Sus times',
       confirmRemove: '¿Estás seguro que desas borrar este time?',
       teamSaved: '¡Time salvo con suceso!',
+      teamRemoved: '¡Time borrado con suceso!',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -236,6 +237,7 @@ const translations = {
       teamModalTitle: 'Your Teams',
       confirmRemove: 'Are you sure you want to remove this team?',
       teamSaved: 'Team successfully saved!',
+      teamRemoved: 'Team successfully removed',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
