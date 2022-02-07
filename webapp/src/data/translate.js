@@ -17,6 +17,7 @@ const translations = {
       golbalView: 'Visión general',
       saveTeam: 'Guardar Time',
       teamModalTitle: 'Sus times',
+      confirmRemove: '¿Estás seguro que desas borrar este time?'
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -126,6 +127,7 @@ const translations = {
       leadTree: 'Mapa de Liderazgo',
       minimumTimeReached: '¡Nuevo cargo disponible!',
       search: 'Buscar',
+      warning: '¡Atencion!'
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -231,6 +233,7 @@ const translations = {
       golbalView: 'Global Overview',
       saveTeam: 'Save Team',
       teamModalTitle: 'Your Teams',
+      confirmRemove: 'Are you sure you want to remove this team?'
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
@@ -340,6 +343,7 @@ const translations = {
       leadTree: 'Lead\'s Tree',
       minimumTimeReached: 'New position available!',
       search: 'Search',
+      warning: 'Warning'
     },
     positionAssignments: {
       'EntryLevel Developer': [

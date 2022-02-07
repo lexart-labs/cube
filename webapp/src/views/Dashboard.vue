@@ -416,8 +416,13 @@
                                 <span>{{ formatDate(team.updatedAt).split(".")[0] }}</span>
                               </div>
                               <div class="team-card-icons">
-                                <i class="fas fa-pen" v-on:click="editTeam(team)" />
-                                <i class="fas fa-trash" v-on:click="removeTeam(team.id)" />
+                                <i class="fas fa-pen" v-on:click="addToStage(team, 'edit')" />
+                                <i
+                                  class="fas fa-trash"
+                                  data-toggle="modal"
+                                  data-target="#confirmModal"
+                                  v-on:click="addToStage(team, 'remove')"                                 
+                                />
                               </div>
                             </div>
                             <ul>
@@ -431,6 +436,49 @@
                           </div>
                         </li>
                       </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Modal confirmation -->
+              <div class="modal fade" role="dialog" id="confirmModal">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">
+                        {{ $t("generic.warning") }}
+                      </h5>
+                      <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <span>
+                        {{ $t('dashboard.confirmRemove') }}
+                      </span>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                      >
+                        {{ $t("generic.no").toLowerCase() }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        v-on:click="removeTeam(teamId)"
+                        data-dismiss="modal"
+                      >
+                        {{ $t("generic.yes").toLowerCase() }}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -834,11 +882,6 @@ export default {
     getTeams() {
       this.isFetching = true;
 
-      if(!this.filters.technologies.length) {
-        this.isFetching = false;
-        return;
-      }
-
       TeamService.getAll().then((res) => {
         if (res.response && res.response.length) {
           this.teams = res.response.map((team) => ({
@@ -853,16 +896,23 @@ export default {
     removeTeam(id) {
       this.isFetching = true;
       TeamService.remove(id).then((res) => {
+        this.cleanStatesTeams();
         $("#teamsModal").modal("hide");
         this.getTeams();
       });
     },
-    editTeam(team) {
-      this.currentTeam = team.team;
-      this.teamName = team.name;
-      this.inUseTeamList = "currentTeam";
-      this.teamId = team.id;
-      $("#teamsModal").modal("hide");
+    addToStage(team, op) {
+      if(op === 'edit') {
+        this.currentTeam = team.team;
+        this.developers = team.team;
+        this.teamName = team.name;
+        this.inUseTeamList = "currentTeam";
+        this.teamId = team.id;
+        $("#teamsModal").modal("hide");
+      } else if(op === 'remove') {
+        this.teamId = team.id;
+        $("#teamsModal").modal("hide");
+      }
     },
     handleTeamChanges(dev) {
       const exists = this.currentTeam.some((el) => el.name === dev.name);
@@ -876,6 +926,7 @@ export default {
     },
     cleanStatesTeams() {
       this.currentTeam = [];
+      this.developers = [];
       this.teamName = "";
       this.teamId = 0;
       this.inUseTeamList = "developers";
@@ -961,7 +1012,7 @@ export default {
           //   this.pagesLength = data.response;
           // });
 
-          // this.getTeams();
+          this.getTeams();
 
           // UserService().allDevIndicators(
           //   null,
