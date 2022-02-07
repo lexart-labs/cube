@@ -220,8 +220,8 @@ let User = {
 	upsert: async function (usuario, currentLeadId) {
 		let error = { "error": "Error al ingresar/editar usuario" };
 		let result = [];
-		const idLead = usuario.lead.id;
 		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
+		const idLead = usuario.lead ? usuario.lead.id : idLextracking;
 
 		// Si ya existe
 		const cubeUser = await this.loginCube(usuario.email);
