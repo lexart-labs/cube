@@ -51,7 +51,7 @@ let Course = {
 	countResults: async function (idAdmin) {
 		const sql = `
 			SELECT COUNT(*) AS total FROM ${tablaNombre} AS e
-			WHERE e.idUser = ? AND active = 1
+			WHERE e.idUser = ?
 		`;
 		const error = { "error": "Error getting total evaluations page" };
 		let response = 0;
