@@ -17,7 +17,8 @@ const translations = {
       golbalView: 'Visión general',
       saveTeam: 'Guardar Time',
       teamModalTitle: 'Sus times',
-      confirmRemove: '¿Estás seguro que desas borrar este time?'
+      confirmRemove: '¿Estás seguro que desas borrar este time?',
+      teamSaved: '¡Time salvo con suceso!',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -233,7 +234,8 @@ const translations = {
       golbalView: 'Global Overview',
       saveTeam: 'Save Team',
       teamModalTitle: 'Your Teams',
-      confirmRemove: 'Are you sure you want to remove this team?'
+      confirmRemove: 'Are you sure you want to remove this team?',
+      teamSaved: 'Team successfully saved!',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',

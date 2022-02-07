@@ -266,7 +266,8 @@
                     </button>
                   </div>
                   <div class="order">
-                    <label>{{ $t("generic.order") }}
+                    <label
+                      >{{ $t("generic.order") }}
                       <vue-select
                         :options="indicators"
                         v-model="filters.sorter"
@@ -302,15 +303,11 @@
                   </span>
                 </h4>
               </header>
-              <div
-                v-for="(dev, i) in filteredCards"
-                :key="`dev${i}`"
-              >
+              <div v-for="(dev, i) in filteredCards" :key="`dev${i}`">
                 <UserCard
                   :user="dev"
                   :selected="currentTeam.some((el) => el.name === dev.name)"
                   :onClick="handleTeamChanges"
-                  
                 />
               </div>
               <nav class="pages-nav" v-show="filters.technologies.length">
@@ -359,7 +356,7 @@
                         v-model="teamName"
                         class="form-control"
                         placeholder="Team name"
-                        style="margin-bottom: 1rem;"
+                        style="margin-bottom: 1rem"
                       />
                       <ul>
                         <li v-for="dev in currentTeam" :key="`${dev.name}`">
@@ -413,15 +410,20 @@
                             <div>
                               <div class="team-card-title">
                                 <h5>{{ team.name }}</h5>
-                                <span>{{ formatDate(team.updatedAt).split(".")[0] }}</span>
+                                <span>{{
+                                  formatDate(team.updatedAt).split(".")[0]
+                                }}</span>
                               </div>
                               <div class="team-card-icons">
-                                <i class="fas fa-pen" v-on:click="addToStage(team, 'edit')" />
+                                <i
+                                  class="fas fa-pen"
+                                  v-on:click="addToStage(team, 'edit')"
+                                />
                                 <i
                                   class="fas fa-trash"
                                   data-toggle="modal"
                                   data-target="#confirmModal"
-                                  v-on:click="addToStage(team, 'remove')"                                 
+                                  v-on:click="addToStage(team, 'remove')"
                                 />
                               </div>
                             </div>
@@ -460,7 +462,7 @@
                     </div>
                     <div class="modal-body">
                       <span>
-                        {{ $t('dashboard.confirmRemove') }}
+                        {{ $t("dashboard.confirmRemove") }}
                       </span>
                     </div>
                     <div class="modal-footer">
@@ -828,7 +830,7 @@ export default {
       this.filters.technologies = newFilters;
       this.currentPage = 1;
 
-      if(!this.filters.technologies.length) {
+      if (!this.filters.technologies.length) {
         this.developers = [];
         this.isFetching = false;
         return;
@@ -860,6 +862,14 @@ export default {
       if (this.teamId > 0) {
         TeamService.updateOne(this.teamId, payload)
           .then((res) => {
+            Vue.toasted.show(
+              translations[this.$store.state.language].dashboard.teamSaved,
+              {
+                type: "success",
+                duration: 2000,
+              }
+            );
+
             this.cleanStatesTeams();
             this.getTeams();
           })
@@ -869,6 +879,14 @@ export default {
       } else {
         TeamService.insertOne(payload)
           .then((res) => {
+            Vue.toasted.show(
+              translations[this.$store.state.language].dashboard.teamSaved,
+              {
+                type: "success",
+                duration: 2000,
+              }
+            );
+
             this.cleanStatesTeams();
             this.getTeams();
           })
@@ -904,7 +922,7 @@ export default {
       });
     },
     addToStage(team, op) {
-      if(op === 'edit') {
+      if (op === "edit") {
         this.currentTeam = team.team;
         this.developers = team.team;
         this.teamName = team.name;
@@ -912,7 +930,7 @@ export default {
         this.inUseTeamList = "currentTeam";
         this.teamId = team.id;
         $("#teamsModal").modal("hide");
-      } else if(op === 'remove') {
+      } else if (op === "remove") {
         this.teamId = team.id;
         $("#teamsModal").modal("hide");
       }
