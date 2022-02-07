@@ -378,6 +378,7 @@
                       </button>
                       <button
                         type="button"
+                        v-on:click="teamName = ''"
                         class="btn btn-secondary"
                         data-dismiss="modal"
                       >
