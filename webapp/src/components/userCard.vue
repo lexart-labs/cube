@@ -1,6 +1,7 @@
 <template>
   <div
     :class="isSelected ? 'card-parent selected' : 'card-parent'"
+    v-on:click="onClick(user)"
   >
     <div class="usr-info">
       <h2>{{ user.name }}</h2>
@@ -29,7 +30,7 @@ import * as am4charts from '@amcharts/amcharts4/charts';
 
 export default {
   name: "UserCard",
-  props: ["user", "selected"],
+  props: ["user", "selected", "onClick"],
   watch: {
     user: function() {
       this.buildGraphic();

@@ -305,11 +305,12 @@
               <div
                 v-for="(dev, i) in filteredCards"
                 :key="`dev${i}`"
-                v-on:click="handleTeamChanges(dev)"
               >
                 <UserCard
                   :user="dev"
                   :selected="currentTeam.some((el) => el.name === dev.name)"
+                  :onClick="handleTeamChanges"
+                  
                 />
               </div>
               <nav class="pages-nav" v-show="filters.technologies.length">
