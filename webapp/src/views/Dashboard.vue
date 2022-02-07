@@ -827,9 +827,18 @@ export default {
             this.isFetching = false;
           });
       }
+
+      this.filters.technologies = [];
+      this.developers = [];
     },
     getTeams() {
       this.isFetching = true;
+
+      if(!this.filters.technologies.length) {
+        this.isFetching = false;
+        return;
+      }
+
       TeamService.getAll().then((res) => {
         if (res.response && res.response.length) {
           this.teams = res.response.map((team) => ({
