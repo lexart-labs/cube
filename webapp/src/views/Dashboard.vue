@@ -234,6 +234,9 @@
                 </ul>
               </div>
             </div>
+            <div v-show="show === 'personify'">
+              <DashComp :dev="{ idLextracking: 37, token: '1DED12653488DF20A630509F8FA7D0572DEE971C' }" />
+            </div>
           </div>
         </div>
       </div>
@@ -242,19 +245,23 @@
 </template>
 
 <script>
+// Tools
 import axios from "axios";
 import Vue from "vue";
 import vueSelect from "vue-select";
+import translations from "../data/translate";
+// Services
 import { API, APP_NAME } from "../../env";
 import UserService from "../services/user.service";
 import { verifyToken, compareDBUsers } from "../services/helpers";
+import TechnologiesService from "../services/technologies.service";
+// Components
 import Spinner from "../components/Spinner.vue";
 import Timeline from "../components/Timeline.vue";
 import Graphic from "../components/graphicEvaluation.vue";
 import EvaluationViewer from "../components/evaluationsViewer.vue";
 import Rombo from "../components/rombo.vue";
-import translations from "../data/translate";
-import TechnologiesService from "../services/technologies.service";
+import DashComp from "../components/DashboardComp.vue";
 
 export default {
   name: "Dashboard",
@@ -265,6 +272,7 @@ export default {
     EvaluationViewer,
     Rombo,
     vueSelect,
+    DashComp,
   },
   data() {
     return {
@@ -288,6 +296,7 @@ export default {
         },
         { name: "technologies", class: "fas fa-code", hasIcon: true },
         { name: "leadTree", class: "fas fa-sitemap", hasIcon: true },
+        { name: "personify", class: "fas fa-user-friends", hasIcon: true },
       ],
       showEvaluation: 0,
       year: null,
