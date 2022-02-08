@@ -235,7 +235,7 @@
               </div>
             </div>
             <div v-show="show === 'personify'">
-              <DashComp :dev="{ idLextracking: 37, token: '1DED12653488DF20A630509F8FA7D0572DEE971C' }" />
+              
             </div>
           </div>
         </div>
@@ -492,6 +492,73 @@ export default {
 
       this.isLoading = false;
       return compareDBUsers(cubeIds, trckUsrs);
+    },
+    getEvaluations: async function(token, userId) {
+      const headers = {
+        token,
+        "user-id": userId,
+      };
+
+      const { data: { response } } = await axios.get(
+        `${API}courses/by-user/${userId}?year=${this.year}`,
+        { headers }
+      );
+
+      if (response) {;
+        return response;
+      } else {
+        Vue.toasted.show(
+          translations[this.$store.state.language].dashboard.evaluationNotFound,
+          { type: "error", duration: 2000 }
+        );
+      }
+
+      return [];
+    },
+    getMyUser: async function(token, userId) {
+      const headers = {
+        token,
+        "user-id": userId,
+      };
+
+      const {
+        data: { response },
+      } = await axios.get(`${API}users/${userId}`, { headers });
+
+      if (response) {
+        const user = { ...response, skills: JSON.parse(response.skills) };
+        return user;
+      }
+      
+      return {};
+    },
+    changeView: async function (token, idUser) {
+      // Limpar estados atuais que afetam a troca
+      this.isLoading = true;
+      this.show = "Dashboard";
+      this.showEvaluation = 0;
+      this.year = null;
+      this.years = [];
+      this.myUser = {};
+      this.resources = [];
+
+      // Buscar as informações do novo usuário
+      const token = token;
+      const idDev = idUser;
+
+      const [myUser, evaluations, years] = await Promise.all([
+        this.getMyUser(token, idDev),
+        this.getEvaluations(token, idDev),
+        this.getYears(token, idDev),
+      ]);
+
+      this.isLoading = false;
+
+      // Setar os estados;
+      this.myUser = myUser;
+      this.years = years;
+      this.year = years.length ? years[years.length - 1]: null;
+      this.resources = evaluations;
     },
   },
   mounted() {

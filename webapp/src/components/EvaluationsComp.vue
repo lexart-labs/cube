@@ -15,7 +15,6 @@
       class="form-control"
       style="margin-bottom: 1rem"
     />
-    <div class="courseContainer" v-if="!isLoading"></div>
     <div
       class="alert alert-primary"
       :key="`resource${index}`"
@@ -55,16 +54,17 @@ import translations from "../data/translate";
 
 export default {
   name: "EvalsComp",
-  // props: { 'dev', }
+  props: ['dev', 'evaluations'],
   components: { EvaluationViewer },
   data() {
     return {
       years: [],
-      evaluations: [],
+      evaluations,
       showEvaluation: "",
       searchQuery: "",
       success: "",
       isLoading: "",
+      translations,
     };
   },
   methods: {},
