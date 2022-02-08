@@ -120,6 +120,7 @@ const translations = {
       lead: 'Liderazgo',
       leadTree: 'Mapa de Liderazgo',
       minimumTimeReached: '¡Nuevo cargo disponible!',
+      personify: 'Personificar developer',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -328,6 +329,7 @@ const translations = {
       lead: 'Lead',
       leadTree: 'Lead\'s Tree',
       minimumTimeReached: 'New position available!',
+      personify: 'Personify developer',
     },
     positionAssignments: {
       'EntryLevel Developer': [
