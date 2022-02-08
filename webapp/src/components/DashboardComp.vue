@@ -29,13 +29,6 @@ export default {
       year: [],
     };
   },
-  watch: {
-    "$store.state.language": function (newVal, oldVal) {
-      this.success = this.success
-        ? translations[this.$store.state.language].dashboard.messageSyncStatus
-        : translations[this.$store.state.language].dashboard.messageNotSync;
-    },
-  },
   methods: {},
   methods: {},
   mounted() {},
