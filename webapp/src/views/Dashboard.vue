@@ -66,6 +66,7 @@
           </div>
           <div v-show="!isFetching">
             <div v-show="show === 'Dashboard'">
+              <span v-if="isPersonifying">Is personifying</span>
               <timeline :user="myUser" v-if="myUser" />
               <h4 class="text-center" v-if="years.length === 0">
                 {{
@@ -83,6 +84,7 @@
               </div>
             </div>
             <div class="dashboard--resources" v-show="show === 'Evaluations'">
+              <span v-if="isPersonifying">Is personifying</span>
               <h4 class="text-center" v-if="years.length === 0">
                 {{
                   translations[$store.state.language].dashboard
@@ -221,8 +223,8 @@
                   v-model="search"
                   class="form-control"
                   :placeholder="$t('AdminUsers.searchPlaceholder')"
-                  style="margin: 1rem 0;"
-                >
+                  style="margin: 1rem 0"
+                />
                 <ul class="list-group">
                   <li
                     v-for="(dev, i) in filteredUnasigned"
@@ -235,7 +237,24 @@
               </div>
             </div>
             <div v-show="show === 'personify'">
-              
+              <vue-select
+                :options="technologies"
+                id="techs"
+                style="width: 95%"
+                v-model="currentTech"
+                :getOptionLabel="(el) => el.name"
+              >
+              </vue-select>
+              <button
+                v-on:click="
+                  personifyDashboard(
+                    '1DED12653488DF20A630509F8FA7D0572DEE971C',
+                    37
+                  )
+                "
+              >
+                Personify
+              </button>
             </div>
           </div>
         </div>
@@ -312,6 +331,7 @@ export default {
       },
       developersByLead: [],
       unasignedDevs: [],
+      isPersonifying: false,
     };
   },
   watch: {
@@ -415,32 +435,28 @@ export default {
     setShow(abaName) {
       this.show = abaName;
     },
-    getYears: async function (id) {
-      const token = localStorage.getItem(`token-app-${APP_NAME}`);
-      const userId = localStorage.getItem(`id-${APP_NAME}`);
+    getYears: async function (id, devToken) {
+      const token = devToken ? devToken : localStorage.getItem(`token-app-${APP_NAME}`);
+      const userId = id ? id : localStorage.getItem(`id-${APP_NAME}`);
 
       const headers = {
         token,
         "user-id": userId,
       };
 
-      const { data } = await axios.get(`${API}courses/years/${id}`, {
-        headers,
-      });
-      if (!data.err) {
-        this.years = data;
-        this.year = data[data.length - 1];
-      } else {
-        console.log("ENTER");
-        Vue.toasted.show(
-          translations[this.$store.state.language].dashboard
-            .userHaventEvaluations,
-          {
-            type: "info",
-            duration: 2000,
-          }
-        );
-      }
+      const { data } = await axios.get(`${API}courses/years/${userId}`, { headers });
+      if (!data.err) return data;
+
+      Vue.toasted.show(
+        translations[this.$store.state.language].dashboard
+          .userHaventEvaluations,
+        {
+          type: "info",
+          duration: 2000,
+        }
+      );
+
+      return [];
     },
     addSkill() {
       const idLextracking = JSON.parse(
@@ -500,7 +516,7 @@ export default {
       };
 
       const { data: { response } } = await axios.get(
-        `${API}courses/by-user/${userId}?year=${this.year}`,
+        `${API}courses/by-user/${userId}?year=${2022}`,
         { headers }
       );
 
@@ -532,7 +548,7 @@ export default {
       
       return {};
     },
-    changeView: async function (token, idUser) {
+    personifyDashboard: async function (token, idUser, toggle = true) {
       // Limpar estados atuais que afetam a troca
       this.isLoading = true;
       this.show = "Dashboard";
@@ -541,12 +557,13 @@ export default {
       this.years = [];
       this.myUser = {};
       this.resources = [];
+      this.isPersonifying = toggle;
 
       // Buscar as informações do novo usuário
       const [myUser, evaluations, years] = await Promise.all([
         this.getMyUser(token, idUser),
         this.getEvaluations(token, idUser),
-        this.getYears(token, idUser),
+        this.getYears(idUser),
       ]);
 
       this.isLoading = false;
@@ -582,7 +599,11 @@ export default {
             ].dashboard.messageSyncStatus;
 
           // Obtenemos evaluaciones de un usuario
-          await this.getYears(id);
+          const years = await this.getYears(id);
+          if (years.length) {
+            this.year = years;
+            this.year = years[years.length - 1];
+          }
           if(this.year) this.obtenerEvaluaciones(id, this.year);
           TechnologiesService.getByUser(this.myUser.idLextracking).then(
             (resp) => (this.userStack = Object.values(resp)[0] || [])
