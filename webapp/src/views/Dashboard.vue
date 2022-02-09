@@ -241,18 +241,19 @@
             </div>
             <div v-show="show === 'personify'">
               <vue-select
-                :options="technologies"
-                id="techs"
-                style="width: 95%"
-                v-model="currentTech"
+                :options="myDevs"
+                style="width: 60%"
                 :getOptionLabel="(el) => el.name"
+                v-model="myDev"
               >
               </vue-select>
               <button
+                class="btn btn-primary"
+                :disabled="myDev && myDev.idLextrack == 0"
                 v-on:click="
                   personifyDashboard(
-                    '1DED12653488DF20A630509F8FA7D0572DEE971C',
-                    37,
+                    myDev.token,
+                    myDev.idLextracking,
                     true
                   )
                 "
@@ -336,6 +337,11 @@ export default {
       developersByLead: [],
       unasignedDevs: [],
       isPersonifying: false,
+      myDevs: [],
+      myDev: {
+        idLextrack: 0,
+        token: '',
+      },
     };
   },
   watch: {
@@ -637,8 +643,16 @@ export default {
 
         if (this.myUser.type == "admin" || this.myUser.type == "pm") {
           UserService()
+            .getLeaderDevs(this.myUser.idLextracking)
+            .then(({ data: { response } }) => {
+              this.myDevs = response;
+            });
+
+          UserService()
             .listLeadDevs()
-            .then(({ data }) => (this.developersByLead = data.response));
+            .then(({ data }) => {
+              this.developersByLead = data.response;
+            });
 
           this.findUnasignedDevs().then((res) => {
             this.unasignedDevs = res.sort((a, b) => {
