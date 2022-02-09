@@ -97,6 +97,17 @@ const UserService = function () {
 
       return axios.get(`${API + model}lead-tree`, { headers });
     },
+    getLeaderDevs(idLead) {
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const userId = localStorage.getItem(`id-${APP_NAME}`);
+
+      const headers = {
+        token,
+        'user-id': userId,
+      };
+
+      return axios.get(`${API + model}lead-tree/${idLead}`, { headers });
+    },
   };
 };
 
