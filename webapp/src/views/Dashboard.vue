@@ -906,7 +906,7 @@ export default {
       this.isFetching = true;
 
       TeamService.getAll().then((res) => {
-        if (res.response && res.response.length) {
+        if (res.response) {
           this.teams = res.response.map((team) => ({
             ...team,
             team: JSON.parse(team.team),
