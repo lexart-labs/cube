@@ -14,7 +14,7 @@ const Team = {
     } catch (e) {
       console.log(e.message);
     }
-    return response.length > 0 ? { response } : ERROR;
+    return Array.isArray(response) ? { response } : ERROR;
   },
   updateOne: async (id, payload) => {
     const {idLead, team, name, stack} = payload;
