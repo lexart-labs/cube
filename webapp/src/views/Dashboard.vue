@@ -543,13 +543,10 @@ export default {
       this.resources = [];
 
       // Buscar as informações do novo usuário
-      const token = token;
-      const idDev = idUser;
-
       const [myUser, evaluations, years] = await Promise.all([
-        this.getMyUser(token, idDev),
-        this.getEvaluations(token, idDev),
-        this.getYears(token, idDev),
+        this.getMyUser(token, idUser),
+        this.getEvaluations(token, idUser),
+        this.getYears(token, idUser),
       ]);
 
       this.isLoading = false;
