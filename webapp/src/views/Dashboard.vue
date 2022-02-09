@@ -240,11 +240,21 @@
                       style="width: 80%; height: 2rem"
                     >
                     </vue-select>
+                    <i
+                      class="fas fa-plus-circle"
+                      style="font-size: 1.5rem; cursor: pointer"
+                      :style="
+                        currentTechFilter
+                          ? ''
+                          : 'pointer-events: none; color: #d3d3d3;'
+                      "
+                      v-on:click="setFilter()"
+                    />
                     <button
                       type="button"
                       class="btn btn-info btn-sm"
-                      :disabled="!currentTechFilter"
-                      v-on:click="setFilter()"
+                      :disabled="!filters.technologies.length"
+                      v-on:click="searchDevs()"
                     >
                       {{ $t("generic.search") }}
                     </button>
@@ -804,37 +814,55 @@ export default {
         return;
       }
 
-      this.isFetching = true;
+      // this.isFetching = true;
 
       this.filters.technologies.push(this.currentTechFilter);
       this.currentTechFilter = "";
-      this.currentPage = 1;
+      // this.currentPage = 1;
 
-      UserService().countDevs(this.filters.technologies, (data) => {
-        this.pagesLength = data.response;
-      });
+      // UserService().countDevs(this.filters.technologies, (data) => {
+      //   this.pagesLength = data.response;
+      // });
 
-      UserService().allDevIndicators(
-        null,
-        this.filters.technologies,
-        this.currentPage,
-        (res) => {
-          this.isFetching = false;
-          this.developers = res.response;
-        }
-      );
+      // UserService().allDevIndicators(
+      //   null,
+      //   this.filters.technologies,
+      //   this.currentPage,
+      //   (res) => {
+      //     this.isFetching = false;
+      //     this.developers = res.response;
+      //   }
+      // );
     },
     unsetFilter(tech) {
-      this.isFetching = true;
+      // this.isFetching = true;
       const newFilters = this.filters.technologies.filter((el) => el !== tech);
       this.filters.technologies = newFilters;
-      this.currentPage = 1;
+      // this.currentPage = 1;
 
       if (!this.filters.technologies.length) {
         this.developers = [];
-        this.isFetching = false;
+        // this.isFetching = false;
         return;
       }
+
+      // UserService().countDevs(this.filters.technologies, (data) => {
+      //   this.pagesLength = data.response;
+      // });
+
+      // UserService().allDevIndicators(
+      //   null,
+      //   this.filters.technologies,
+      //   this.currentPage,
+      //   (res) => {
+      //     this.isFetching = false;
+      //     this.developers = res.response;
+      //   }
+      // );
+    },
+    searchDevs() {
+      this.isFetching = true;
+      this.currentPage = 1;
 
       UserService().countDevs(this.filters.technologies, (data) => {
         this.pagesLength = data.response;
@@ -862,7 +890,7 @@ export default {
       if (this.teamId > 0) {
         TeamService.updateOne(this.teamId, payload)
           .then((res) => {
-            if(!res.error) {
+            if (!res.error) {
               Vue.toasted.show(
                 translations[this.$store.state.language].dashboard.teamSaved,
                 {
@@ -881,7 +909,7 @@ export default {
       } else {
         TeamService.insertOne(payload)
           .then((res) => {
-            if(!res.error) {
+            if (!res.error) {
               Vue.toasted.show(
                 translations[this.$store.state.language].dashboard.teamSaved,
                 {
@@ -920,14 +948,14 @@ export default {
     removeTeam(id) {
       this.isFetching = true;
       TeamService.remove(id).then((res) => {
-        if(!res.error) {
+        if (!res.error) {
           Vue.toasted.show(
-          translations[this.$store.state.language].dashboard.teamRemoved,
-          {
-            type: "success",
-            duration: 2000,
-          }
-        );
+            translations[this.$store.state.language].dashboard.teamRemoved,
+            {
+              type: "success",
+              duration: 2000,
+            }
+          );
         }
 
         this.cleanStatesTeams();
