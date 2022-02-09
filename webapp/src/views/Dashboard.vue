@@ -66,7 +66,10 @@
           </div>
           <div v-show="!isFetching">
             <div v-show="show === 'Dashboard'">
-              <span v-if="isPersonifying">Is personifying</span>
+              <div v-if="isPersonifying">
+                <span>Is personifying</span>
+                <button v-on:click="personifyDashboard()">Return</button>
+              </div>
               <timeline :user="myUser" v-if="myUser" />
               <h4 class="text-center" v-if="years.length === 0">
                 {{
@@ -249,7 +252,8 @@
                 v-on:click="
                   personifyDashboard(
                     '1DED12653488DF20A630509F8FA7D0572DEE971C',
-                    37
+                    37,
+                    true
                   )
                 "
               >
@@ -301,7 +305,7 @@ export default {
       isFetching: false,
       isSync: false,
       searchQuery: null,
-      search: '',
+      search: "",
       error: "",
       success: "",
       resources: [],
@@ -436,7 +440,9 @@ export default {
       this.show = abaName;
     },
     getYears: async function (id, devToken) {
-      const token = devToken ? devToken : localStorage.getItem(`token-app-${APP_NAME}`);
+      const token = devToken
+        ? devToken
+        : localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = id ? id : localStorage.getItem(`id-${APP_NAME}`);
 
       const headers = {
@@ -444,7 +450,9 @@ export default {
         "user-id": userId,
       };
 
-      const { data } = await axios.get(`${API}courses/years/${userId}`, { headers });
+      const { data } = await axios.get(`${API}courses/years/${userId}`, {
+        headers,
+      });
       if (!data.err) return data;
 
       Vue.toasted.show(
@@ -501,7 +509,9 @@ export default {
 
       const {
         data: { response: trckUsrs },
-      } = await axios.get(`${API}users/lextracking/all?minified=true`, { headers });
+      } = await axios.get(`${API}users/lextracking/all?minified=true`, {
+        headers,
+      });
       const {
         data: { response: cubeIds },
       } = await axios.get(`${API}users/lextracking-ids`, { headers });
@@ -509,18 +519,19 @@ export default {
       this.isLoading = false;
       return compareDBUsers(cubeIds, trckUsrs);
     },
-    getEvaluations: async function(token, userId) {
+    getEvaluations: async function (token, userId) {
       const headers = {
         token,
         "user-id": userId,
       };
 
-      const { data: { response } } = await axios.get(
-        `${API}courses/by-user/${userId}?year=${2022}`,
-        { headers }
-      );
+      const {
+        data: { response },
+      } = await axios.get(`${API}courses/by-user/${userId}?year=${2022}`, {
+        headers,
+      });
 
-      if (response) {;
+      if (response) {
         return response;
       } else {
         Vue.toasted.show(
@@ -531,7 +542,7 @@ export default {
 
       return [];
     },
-    getMyUser: async function(token, userId) {
+    getMyUser: async function (token, userId) {
       const headers = {
         token,
         "user-id": userId,
@@ -545,10 +556,14 @@ export default {
         const user = { ...response, skills: JSON.parse(response.skills) };
         return user;
       }
-      
+
       return {};
     },
-    personifyDashboard: async function (token, idUser, toggle = true) {
+    personifyDashboard: async function (
+      token = localStorage.getItem(`token-app-${APP_NAME}`),
+      idUser = localStorage.getItem(`id-${APP_NAME}`),
+      toggle = false
+    ) {
       // Limpar estados atuais que afetam a troca
       this.isLoading = true;
       this.show = "Dashboard";
@@ -571,7 +586,7 @@ export default {
       // Setar os estados;
       this.myUser = myUser;
       this.years = years;
-      this.year = years.length ? years[years.length - 1]: null;
+      this.year = years.length ? years[years.length - 1] : null;
       this.resources = evaluations;
     },
   },
@@ -604,7 +619,7 @@ export default {
             this.year = years;
             this.year = years[years.length - 1];
           }
-          if(this.year) this.obtenerEvaluaciones(id, this.year);
+          if (this.year) this.obtenerEvaluaciones(id, this.year);
           TechnologiesService.getByUser(this.myUser.idLextracking).then(
             (resp) => (this.userStack = Object.values(resp)[0] || [])
           );
@@ -620,10 +635,10 @@ export default {
           (res) => (this.technologies = res.response)
         );
 
-        if (this.myUser.type == 'admin' || this.myUser.type == 'pm') {
+        if (this.myUser.type == "admin" || this.myUser.type == "pm") {
           UserService()
-              .listLeadDevs()
-              .then(({ data }) => (this.developersByLead = data.response));
+            .listLeadDevs()
+            .then(({ data }) => (this.developersByLead = data.response));
 
           this.findUnasignedDevs().then((res) => {
             this.unasignedDevs = res.sort((a, b) => {
@@ -653,7 +668,7 @@ export default {
       return this.resources;
     },
     filteredUnasigned() {
-      const regex = new RegExp(`${this.search}`, 'i');
+      const regex = new RegExp(`${this.search}`, "i");
       return this.unasignedDevs.filter((dev) => dev.name.match(regex));
     },
   },
