@@ -78,6 +78,38 @@ router.get('/lead-tree', async (_req, res) => {
   res.send(response);
 })
 
+router.post('/dev-indexes/count', async (req, res) => {
+	const { techs } = req.body;
+
+	let response = await User.countDevs(techs);
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
+router.get('/dev-indexes/:id', async (req, res) => {
+	const { token } = req.headers;
+	const { year } = req.query;
+	const { id } = req.params;
+
+	const response = await User.devIndexes(id, token, Number(year));
+	
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+})
+
+router.post('/dev-indexes', async (req, res) => {
+	const { token } = req.headers;
+	const { year, page } = req.query;
+	const { techs } = req.body;
+
+	const response = await User.allDevelopersIndicators(
+		token, Number(year), techs, page
+	);
+	
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+})
+
 router.get('/:id', Mdl.middleware, async function (req, res) {
 	let response = await User.one(req.params.id, req.headers['token']);
 
