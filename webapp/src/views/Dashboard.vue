@@ -41,6 +41,12 @@
               <p>{{ success }}</p>
             </div>
           </div>
+          <div v-if="isPersonifying" class="alert alert-info psy-notf" role="alert">
+            <span>Is personifying, click 
+            <button v-on:click="personifyDashboard()">here</button>
+             to return
+            </span>
+          </div>
 
           <div class="left-select">
             <select
@@ -66,10 +72,6 @@
           </div>
           <div v-show="!isFetching">
             <div v-show="show === 'Dashboard'">
-              <div v-if="isPersonifying">
-                <span>Is personifying</span>
-                <button v-on:click="personifyDashboard()">Return</button>
-              </div>
               <timeline :user="myUser" v-if="myUser" />
               <h4 class="text-center" v-if="years.length === 0">
                 {{
@@ -87,7 +89,6 @@
               </div>
             </div>
             <div class="dashboard--resources" v-show="show === 'Evaluations'">
-              <span v-if="isPersonifying">Is personifying</span>
               <h4 class="text-center" v-if="years.length === 0">
                 {{
                   translations[$store.state.language].dashboard
@@ -240,25 +241,22 @@
               </div>
             </div>
             <div v-show="show === 'personify'">
-              <vue-select
-                :options="myDevs"
-                style="width: 60%"
-                :getOptionLabel="(el) => el.name"
-                v-model="myDev"
-              >
-              </vue-select>
-              <button
-                class="btn btn-primary"
-                :disabled="myDev && myDev.idLextrack == 0"
-                v-on:click="
-                  personifyDashboard(
-                    myDev.idLextracking,
-                    true
-                  )
-                "
-              >
-                Personify
-              </button>
+              <div class="personify-searcher">
+                <vue-select
+                  :options="myDevs"
+                  style="width: 60%"
+                  :getOptionLabel="(el) => el.name"
+                  v-model="myDev"
+                >
+                </vue-select>
+                <button
+                  class="btn btn-primary btn-sm"
+                  :disabled="myDev && myDev.idLextrack == 0"
+                  v-on:click="personifyDashboard(myDev.idLextracking, true)"
+                >
+                  Personify
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -339,7 +337,7 @@ export default {
       myDevs: [],
       myDev: {
         idLextrack: 0,
-        token: '',
+        token: "",
       },
     };
   },
@@ -453,9 +451,12 @@ export default {
         "user-id": userId,
       };
 
-      const { data } = await axios.get(`${API}courses/years/${idDev || userId}`, {
-        headers,
-      });
+      const { data } = await axios.get(
+        `${API}courses/years/${idDev || userId}`,
+        {
+          headers,
+        }
+      );
       if (!data.err) return data;
 
       Vue.toasted.show(
@@ -530,9 +531,12 @@ export default {
 
       const {
         data: { response },
-      } = await axios.get(`${API}courses/by-user/${idDev || IdUser}?year=${2022}`, {
-        headers,
-      });
+      } = await axios.get(
+        `${API}courses/by-user/${idDev || IdUser}?year=${2022}`,
+        {
+          headers,
+        }
+      );
 
       if (response) {
         return response;
@@ -719,5 +723,22 @@ export default {
 
 table {
   margin-top: 2rem;
+}
+
+.personify-searcher {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 1rem;
+}
+.psy-notf button {
+  padding: 0;
+  background-color: transparent;
+  color: #0c5460;
+  border: none;
+  font-weight: 700;
+}
+.psy-notf button:hover {
+  text-decoration: underline;
 }
 </style>
