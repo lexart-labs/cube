@@ -1078,25 +1078,22 @@ export default {
       this.isLoading = true;
       this.show = "Dashboard";
       this.showEvaluation = 0;
-      this.year = null;
-      this.years = [];
+      this.year = (new Date()).getFullYear();
+      this.years = [(new Date()).getFullYear()];
       this.myUser = {};
       this.resources = [];
       this.isPersonifying = toggle;
 
       // Buscar as informações do novo usuário
-      const [myUser, evaluations, years] = await Promise.all([
+      const [myUser, evaluations] = await Promise.all([
         this.getMyUser(token, idUser, id),
         this.getEvaluations(token, idUser, id),
-        this.getYears(idUser),
       ]);
 
       this.isLoading = false;
 
       // Setar os estados;
       this.myUser = myUser;
-      this.years = years;
-      this.year = years.length ? years[years.length - 1] : null;
       this.resources = evaluations;
     },
   },
@@ -1126,7 +1123,7 @@ export default {
           // Obtenemos evaluaciones de un usuario
           const years = await this.getYears(id);
           if (years.length) {
-            this.year = years;
+            this.years = years;
             this.year = years[years.length - 1];
           }
           if (this.year) this.obtenerEvaluaciones(id, this.year);
