@@ -1,9 +1,10 @@
 const utils = require('./utils.service');
 const UserSkills = require('./userSkills.service');
-const axios = require('axios')
+const Course = require('./courses.service');
+const { setUpData } = require('./EvaluationsHandler.service');
+const axios = require('axios');
 
 const tablaNombre = 'users';
-
 const PAGE_SIZE = 5;
 
 let User = {
@@ -38,7 +39,7 @@ let User = {
 				}
 			})
 		if (shouldOmit && response.length) {
-			response = response.reduce((acc, {name, id, email, role }) => {
+			response = response.reduce((acc, { name, id, email, role }) => {
 				if (role == 'developer') {
 					acc.push({ name, id, email });
 				}
@@ -229,7 +230,7 @@ let User = {
 		if (cubeUser.response) {
 			usuario.sync = false;
 			result = await this.updateOne(usuario, idLead);
-			if(idLead != currentLeadId) {
+			if (idLead != currentLeadId) {
 				await this.changeLeader(idLead, idLextracking);
 			}
 		} else {
@@ -442,7 +443,7 @@ let User = {
 			? { response }
 			: { error: 'No leaders found for this user' };
 	},
-	getLeaderDevTree: async function() {
+	getLeaderDevTree: async function () {
 		const sql = `
 			SELECT
 				users.name AS 'name',
@@ -462,7 +463,7 @@ let User = {
 			fixed = response.reduce((acc, el) => {
 				if (el.devs) {
 					const devs = el.devs.split(',');
-					acc.push({...el, devs});
+					acc.push({ ...el, devs });
 				}
 				return acc;
 			}, []);
@@ -470,16 +471,68 @@ let User = {
 			console.log('response->', response);
 			console.log(e.message);
 		}
-		
+
 
 		return { response: fixed };
 	},
-	devIds: async function() {
-		const sql = `
-			SELECT idLextracking AS 'id' FROM users WHERE type = 'developer';
+	countDevs: async function (techs) {
+		const PAGE_LENGTH = 10;
+		let sql = '';
+		if(techs && techs.length) {
+			const techsFilter = techs.map((el) => `'${el}'`).join();
+			sql = `
+				SELECT
+					COUNT(DISTINCT us.idUser) AS 'total'
+				FROM user_skills us
+				INNER JOIN technologies t ON us.idTechnology = t.id
+				INNER JOIN users u ON u.idLextracking = us.idUser
+				WHERE u.type = 'developer' AND t.name IN (${techsFilter})
+				`;
+		} else {
+			sql = `
+				SELECT COUNT(*) AS total FROM users AS u
+				WHERE u.type = 'developer'
+			`;
+		}
+
+		const error = { "error": "Error al obtener usuarios" };
+		let response = 0;
+
+		try {
+			const result = await conn.query(sql);
+			response = Math.ceil(result[0].total / PAGE_LENGTH);
+		} catch (e) {
+			console.log(e.message);
+		}
+
+		return response > 0 ? { response } : error;
+	},
+	devIds: async function (techs, page) {
+		const PAGE_LENGTH = 10;
+		const currentPage = page || 1;
+		let sql = '';
+		if (techs && techs.length) {
+			const techsFilter = techs.map((el) => `'${el}'`).join();
+			sql = `
+				SELECT
+					DISTINCT us.idUser AS id
+				FROM user_skills us
+				INNER JOIN technologies t ON us.idTechnology = t.id
+				INNER JOIN users u ON u.idLextracking = us.idUser
+				WHERE u.type = 'developer' AND t.name IN (${techsFilter})
+				LIMIT ${PAGE_LENGTH} OFFSET ${(currentPage - 1) * PAGE_LENGTH}
+			`;
+		} else {
+			sql = `
+				SELECT
+					idLextracking AS 'id'
+				FROM users WHERE type = 'developer'
+				LIMIT ${PAGE_LENGTH} OFFSET ${(currentPage - 1) * PAGE_LENGTH};
 		`;
+		}
 
 		const response = await conn.query(sql);
+		// console.log(response);
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},
@@ -499,10 +552,88 @@ let User = {
 		} catch (e) {
 			console.log('response->', response);
 			console.log(e.message);
-		}
-		
+		}		
 
 		return { response };
+	},
+	allDevelopersIndicators: async function (token, query, techs, page) {
+		const { response: devsIds } = await this.devIds(techs, page);
+
+		const sql = `
+			SELECT
+				c.position AS position,
+				l.level AS level,
+				u.name,
+				u.idLextracking,
+				GROUP_CONCAT(t.name) AS 'technologies'
+			FROM users u
+			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			LEFT JOIN careers c ON uc.idPosition = c.id
+			LEFT JOIN levels l ON uc.idLevel = l.id
+			INNER JOIN user_skills us ON u.idLextracking = us.idUser
+			INNER JOIN technologies t ON t.id = us.idTechnology
+			WHERE u.idLextracking = ?;
+		`;
+		const callbackBasics = async (devId) => {
+			let result = {};
+			try {
+				result = await conn.query(sql, [devId]);
+			} catch (e) {
+				console.log('callBackBasics ->', e.message);
+			}
+			return result;
+		};
+		const callbackIndicators = async (devId) => {
+			let result = [];
+			try {
+				result = await this.devIndexes(devId, token, query);
+			} catch (e) {
+				console.log('callBackIndicators ->', e.message);
+			}
+			return result;
+		};
+
+		const [bsc, ind] = await Promise.all([
+			Promise.all(devsIds.map((devId) => callbackBasics(devId))),
+			Promise.all(devsIds.map((devId) => callbackIndicators(devId)))
+		]);
+
+		const response = bsc.map(([el], i) => ({
+			...el,
+			technologies: el.technologies ? el.technologies.split(',') : [],
+			indicadores: ind[i],
+		}))
+
+		return { response }
+	},
+	devIndexes: async function (idDev, token, query) {
+		const defaultIndicators = [
+			{
+				label: 'Human Factor',
+				value: '0.00'
+			},
+			{
+				label: 'Performance',
+				value: '0.00'
+			},
+			{
+				label: 'Ability',
+				value: '0.00'
+			},
+			{
+				label: 'Evolution',
+				value: '0.00'
+			},
+			{
+				label: 'Continuity',
+				value: '0.00'
+			}
+		];
+		const year = isNaN(query) ? (new Date()).getFullYear() : query;
+		const { response: evaluations } = await Course.byUser(idDev, year);
+
+		if (!evaluations) return defaultIndicators;
+		return setUpData(idDev, year, token, evaluations);
 	},
 }
 module.exports = User;

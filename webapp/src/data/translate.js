@@ -15,6 +15,11 @@ const translations = {
       alreadyExists: '¡El elemente ya existe!',
       unasigned: 'No asignados',
       golbalView: 'Visión general',
+      saveTeam: 'Guardar Time',
+      teamModalTitle: 'Sus times',
+      confirmRemove: '¿Estás seguro que desas borrar este time?',
+      teamSaved: '¡Time salvo con suceso!',
+      teamRemoved: '¡Time borrado con suceso!',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -86,9 +91,11 @@ const translations = {
       save: 'Guardar',
       date: 'Fecha',
       edit: 'Editar',
+      close: 'Cerrar',
       remove: 'Borrar',
       topic: 'Topico',
       score: 'Puntaje',
+      order: 'Ordenar',
       observations: 'Observaciones',
       yes: 'SI',
       no: 'NO',
@@ -96,6 +103,7 @@ const translations = {
       back: 'Atrás',
       exit: 'Cerrar sección',
       technologies: 'Tecnologías',
+      hunting: 'Times',
       months: [
         "Enero",
         "Febrero",
@@ -121,6 +129,8 @@ const translations = {
       leadTree: 'Mapa de Liderazgo',
       minimumTimeReached: '¡Nuevo cargo disponible!',
       personify: 'Personificar developer',
+      search: 'Buscar',
+      warning: '¡Atencion!'
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -224,6 +234,11 @@ const translations = {
       alreadyExists: 'This item already exists!',
       unasigned: 'Unasigneds',
       golbalView: 'Global Overview',
+      saveTeam: 'Save Team',
+      teamModalTitle: 'Your Teams',
+      confirmRemove: 'Are you sure you want to remove this team?',
+      teamSaved: 'Team successfully saved!',
+      teamRemoved: 'Team successfully removed',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
@@ -295,9 +310,11 @@ const translations = {
       save: 'Save',
       date: 'Date',
       edit: 'Edit',
+      close: 'Close',
       remove: 'Delete',
       topic: 'Topic',
       score: 'Score',
+      order: 'Order by',
       observations: 'Observations',
       yes: 'YES',
       no: 'NO',
@@ -305,6 +322,7 @@ const translations = {
       back: 'Bcak',
       exit: 'Log out',
       technologies: 'Technologies',
+      hunting: 'Teams',
       months: [
         "January",
         "February",
@@ -330,6 +348,8 @@ const translations = {
       leadTree: 'Lead\'s Tree',
       minimumTimeReached: 'New position available!',
       personify: 'Personify developer',
+      search: 'Search',
+      warning: 'Warning'
     },
     positionAssignments: {
       'EntryLevel Developer': [
