@@ -252,7 +252,6 @@
                 :disabled="myDev && myDev.idLextrack == 0"
                 v-on:click="
                   personifyDashboard(
-                    myDev.token,
                     myDev.idLextracking,
                     true
                   )
@@ -445,18 +444,16 @@ export default {
     setShow(abaName) {
       this.show = abaName;
     },
-    getYears: async function (id, devToken) {
-      const token = devToken
-        ? devToken
-        : localStorage.getItem(`token-app-${APP_NAME}`);
-      const userId = id ? id : localStorage.getItem(`id-${APP_NAME}`);
+    getYears: async function (idDev) {
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const userId = localStorage.getItem(`id-${APP_NAME}`);
 
       const headers = {
         token,
         "user-id": userId,
       };
 
-      const { data } = await axios.get(`${API}courses/years/${userId}`, {
+      const { data } = await axios.get(`${API}courses/years/${idDev || userId}`, {
         headers,
       });
       if (!data.err) return data;
@@ -525,7 +522,7 @@ export default {
       this.isLoading = false;
       return compareDBUsers(cubeIds, trckUsrs);
     },
-    getEvaluations: async function (token, userId) {
+    getEvaluations: async function (token, userId, idDev) {
       const headers = {
         token,
         "user-id": userId,
@@ -533,7 +530,7 @@ export default {
 
       const {
         data: { response },
-      } = await axios.get(`${API}courses/by-user/${userId}?year=${2022}`, {
+      } = await axios.get(`${API}courses/by-user/${idDev || IdUser}?year=${2022}`, {
         headers,
       });
 
@@ -548,7 +545,7 @@ export default {
 
       return [];
     },
-    getMyUser: async function (token, userId) {
+    getMyUser: async function (token, userId, idDev) {
       const headers = {
         token,
         "user-id": userId,
@@ -556,7 +553,7 @@ export default {
 
       const {
         data: { response },
-      } = await axios.get(`${API}users/${userId}`, { headers });
+      } = await axios.get(`${API}users/${idDev || idUser}`, { headers });
 
       if (response) {
         const user = { ...response, skills: JSON.parse(response.skills) };
@@ -566,10 +563,12 @@ export default {
       return {};
     },
     personifyDashboard: async function (
-      token = localStorage.getItem(`token-app-${APP_NAME}`),
-      idUser = localStorage.getItem(`id-${APP_NAME}`),
+      id = localStorage.getItem(`id-${APP_NAME}`),
       toggle = false
     ) {
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const idUser = localStorage.getItem(`id-${APP_NAME}`);
+
       // Limpar estados atuais que afetam a troca
       this.isLoading = true;
       this.show = "Dashboard";
@@ -582,8 +581,8 @@ export default {
 
       // Buscar as informações do novo usuário
       const [myUser, evaluations, years] = await Promise.all([
-        this.getMyUser(token, idUser),
-        this.getEvaluations(token, idUser),
+        this.getMyUser(token, idUser, id),
+        this.getEvaluations(token, idUser, id),
         this.getYears(idUser),
       ]);
 
