@@ -798,12 +798,11 @@ export default {
       return [];
     },
     addSkill() {
-      const idLextracking = JSON.parse(
-        localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-      ).idLextracking;
+      const idLextracking = this.myUser.idLextracking;
       const exists = this.userStack.some(
         (el) => el.name === this.currentTech.name
       );
+
       if (!exists) {
         this.userStack.push(this.currentTech);
         TechnologiesService.asignNew(idLextracking, this.currentTech.id);
@@ -820,9 +819,7 @@ export default {
       }
     },
     removeSkill(skill) {
-      const idLextracking = JSON.parse(
-        localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-      ).idLextracking;
+      const idLextracking = this.myUser.idLextracking;
       this.userStack = this.userStack.filter((el) => el !== skill);
       TechnologiesService.remove(idLextracking, skill.id);
     },
@@ -1085,15 +1082,22 @@ export default {
       this.isPersonifying = toggle;
 
       // Buscar as informações do novo usuário
-      const [myUser, evaluations] = await Promise.all([
+      const [myUser, evaluations, years, myTechs] = await Promise.all([
         this.getMyUser(token, idUser, id),
         this.getEvaluations(token, idUser, id),
+        this.getYears(id),
+        TechnologiesService.getByUser(id),
       ]);
 
       this.isLoading = false;
 
       // Setar os estados;
       this.myUser = myUser;
+      if (!toggle) {
+        this.years = years;
+        this.year = years.length ? years[years.length - 1] : null;
+      }
+      this.userStack = Object.values(myTechs)[0] || [];
       this.resources = evaluations;
     },
   },
