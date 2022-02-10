@@ -320,7 +320,7 @@
                   :onClick="handleTeamChanges"
                 />
               </div>
-              <nav class="pages-nav" v-show="filters.technologies.length">
+              <nav class="pages-nav" v-show="developers.length">
                 <span
                   v-on:click="navigate('-')"
                   :class="currentPage == 1 ? 'not-allowed' : ''"
@@ -814,51 +814,17 @@ export default {
         return;
       }
 
-      // this.isFetching = true;
-
       this.filters.technologies.push(this.currentTechFilter);
       this.currentTechFilter = "";
-      // this.currentPage = 1;
-
-      // UserService().countDevs(this.filters.technologies, (data) => {
-      //   this.pagesLength = data.response;
-      // });
-
-      // UserService().allDevIndicators(
-      //   null,
-      //   this.filters.technologies,
-      //   this.currentPage,
-      //   (res) => {
-      //     this.isFetching = false;
-      //     this.developers = res.response;
-      //   }
-      // );
     },
     unsetFilter(tech) {
-      // this.isFetching = true;
       const newFilters = this.filters.technologies.filter((el) => el !== tech);
       this.filters.technologies = newFilters;
-      // this.currentPage = 1;
 
       if (!this.filters.technologies.length) {
-        this.developers = [];
-        // this.isFetching = false;
+        // this.developers = [];
         return;
       }
-
-      // UserService().countDevs(this.filters.technologies, (data) => {
-      //   this.pagesLength = data.response;
-      // });
-
-      // UserService().allDevIndicators(
-      //   null,
-      //   this.filters.technologies,
-      //   this.currentPage,
-      //   (res) => {
-      //     this.isFetching = false;
-      //     this.developers = res.response;
-      //   }
-      // );
     },
     searchDevs() {
       this.isFetching = true;
@@ -1106,8 +1072,6 @@ export default {
       return this.unasignedDevs.filter((dev) => dev.name.match(regex));
     },
     filteredCards() {
-      // const arrayOfDevs =
-      //   this.inUseTeamList == "developers" ? this.developers : this.currentTeam;
       const arrayOfDevs = this.developers;
       const sorter = this.filters.sorter;
       let result = arrayOfDevs;
