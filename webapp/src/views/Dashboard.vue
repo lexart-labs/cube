@@ -37,6 +37,12 @@
               <p>{{ success }}</p>
             </div>
           </div>
+          <div v-if="isPersonifying" class="alert alert-info psy-notf" role="alert">
+            <span>Is personifying, click 
+            <button v-on:click="personifyDashboard()">here</button>
+             to return
+            </span>
+          </div>
 
           <div class="left-select">
             <select
@@ -228,6 +234,24 @@
                     {{ dev.name }}
                   </li>
                 </ul>
+              </div>
+            </div>
+            <div v-show="show === 'personify'">
+              <div class="personify-searcher">
+                <vue-select
+                  :options="myDevs"
+                  style="width: 60%"
+                  :getOptionLabel="(el) => el.name"
+                  v-model="myDev"
+                >
+                </vue-select>
+                <button
+                  class="btn btn-primary btn-sm"
+                  :disabled="!myDev || myDev.idLextrack == 0"
+                  v-on:click="personifyDashboard(myDev.idLextracking, true)"
+                >
+                  Personify
+                </button>
               </div>
             </div>
             <div v-show="show === 'hunting'">
@@ -504,21 +528,25 @@
 </template>
 
 <script>
+// Tools
 import axios from "axios";
 import Vue from "vue";
 import vueSelect from "vue-select";
+import translations from "../data/translate";
+// Services
 import { API, APP_NAME } from "../../env";
 import UserService from "../services/user.service";
 import { verifyToken, compareDBUsers } from "../services/helpers";
+import TechnologiesService from "../services/technologies.service";
+import TeamService from "../services/teams.service";
+// Components
 import Spinner from "../components/Spinner.vue";
 import Timeline from "../components/Timeline.vue";
 import Graphic from "../components/graphicEvaluation.vue";
 import EvaluationViewer from "../components/evaluationsViewer.vue";
 import UserCard from "../components/userCard.vue";
 import Rombo from "../components/rombo.vue";
-import translations from "../data/translate";
-import TechnologiesService from "../services/technologies.service";
-import TeamService from "../services/teams.service";
+import DashComp from "../components/DashboardComp.vue";
 
 export default {
   name: "Dashboard",
@@ -529,6 +557,7 @@ export default {
     EvaluationViewer,
     Rombo,
     vueSelect,
+    DashComp,
     UserCard,
   },
   data() {
@@ -538,6 +567,8 @@ export default {
       isLoading: true,
       isFetching: false,
       isSync: false,
+      searchQuery: null,
+      search: "",
       error: "",
       success: "",
       translations,
@@ -585,6 +616,12 @@ export default {
           hasIcon: true,
           onlyAdmin: true,
         },
+        {
+          name: "personify",
+          class: "fas fa-user-friends",
+          hasIcon: true,
+          onlyAdmin: true,
+        },
       ],
 
       // Technologies
@@ -621,6 +658,14 @@ export default {
       teamId: 0,
       pagesLength: 0,
       currentPage: 1,
+
+      //Personifying
+      isPersonifying: false,
+      myDevs: [],
+      myDev: {
+        idLextrack: 0,
+        token: "",
+      },
     };
   },
   watch: {
@@ -724,7 +769,7 @@ export default {
     setShow(abaName) {
       this.show = abaName;
     },
-    getYears: async function (id) {
+    getYears: async function (idDev) {
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
 
@@ -733,31 +778,31 @@ export default {
         "user-id": userId,
       };
 
-      const { data } = await axios.get(`${API}courses/years/${id}`, {
-        headers,
-      });
-      if (!data.err) {
-        this.years = data;
-        this.year = data[data.length - 1];
-      } else {
-        console.log("ENTER");
-        Vue.toasted.show(
-          translations[this.$store.state.language].dashboard
-            .userHaventEvaluations,
-          {
-            type: "info",
-            duration: 2000,
-          }
-        );
-      }
+      const { data } = await axios.get(
+        `${API}courses/years/${idDev || userId}`,
+        {
+          headers,
+        }
+      );
+      if (!data.err) return data;
+
+      Vue.toasted.show(
+        translations[this.$store.state.language].dashboard
+          .userHaventEvaluations,
+        {
+          type: "info",
+          duration: 2000,
+        }
+      );
+
+      return [];
     },
     addSkill() {
-      const idLextracking = JSON.parse(
-        localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-      ).idLextracking;
+      const idLextracking = this.myUser.idLextracking;
       const exists = this.userStack.some(
         (el) => el.name === this.currentTech.name
       );
+
       if (!exists) {
         this.userStack.push(this.currentTech);
         TechnologiesService.asignNew(idLextracking, this.currentTech.id);
@@ -774,9 +819,7 @@ export default {
       }
     },
     removeSkill(skill) {
-      const idLextracking = JSON.parse(
-        localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-      ).idLextracking;
+      const idLextracking = this.myUser.idLextracking;
       this.userStack = this.userStack.filter((el) => el !== skill);
       TechnologiesService.remove(idLextracking, skill.id);
     },
@@ -816,6 +859,49 @@ export default {
 
       this.filters.technologies.push(this.currentTechFilter);
       this.currentTechFilter = "";
+    },
+    getEvaluations: async function (token, userId, idDev) {
+      const headers = {
+        token,
+        "user-id": userId,
+      };
+
+      const {
+        data: { response },
+      } = await axios.get(
+        `${API}courses/by-user/${idDev || IdUser}?year=${2022}`,
+        {
+          headers,
+        }
+      );
+
+      if (response) {
+        return response;
+      } else {
+        Vue.toasted.show(
+          translations[this.$store.state.language].dashboard.evaluationNotFound,
+          { type: "error", duration: 2000 }
+        );
+      }
+
+      return [];
+    },
+    getMyUser: async function (token, userId, idDev) {
+      const headers = {
+        token,
+        "user-id": userId,
+      };
+
+      const {
+        data: { response },
+      } = await axios.get(`${API}users/${idDev || idUser}`, { headers });
+
+      if (response) {
+        const user = { ...response, skills: JSON.parse(response.skills) };
+        return user;
+      }
+
+      return {};
     },
     unsetFilter(tech) {
       const newFilters = this.filters.technologies.filter((el) => el !== tech);
@@ -978,6 +1064,42 @@ export default {
         }
       );
     },
+    personifyDashboard: async function (
+      id = localStorage.getItem(`id-${APP_NAME}`),
+      toggle = false
+    ) {
+      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const idUser = localStorage.getItem(`id-${APP_NAME}`);
+
+      // Limpar estados atuais que afetam a troca
+      this.isLoading = true;
+      this.show = "Dashboard";
+      this.showEvaluation = 0;
+      this.year = (new Date()).getFullYear();
+      this.years = [(new Date()).getFullYear()];
+      this.myUser = {};
+      this.resources = [];
+      this.isPersonifying = toggle;
+
+      // Buscar as informações do novo usuário
+      const [myUser, evaluations, years, myTechs] = await Promise.all([
+        this.getMyUser(token, idUser, id),
+        this.getEvaluations(token, idUser, id),
+        this.getYears(id),
+        TechnologiesService.getByUser(id),
+      ]);
+
+      this.isLoading = false;
+
+      // Setar os estados;
+      this.myUser = myUser;
+      if (!toggle) {
+        this.years = years;
+        this.year = years.length ? years[years.length - 1] : null;
+      }
+      this.userStack = Object.values(myTechs)[0] || [];
+      this.resources = evaluations;
+    },
   },
   mounted() {
     const id = localStorage.getItem(`id-${APP_NAME}`);
@@ -1003,8 +1125,13 @@ export default {
             ].dashboard.messageSyncStatus;
 
           // Obtenemos evaluaciones de un usuario
-          await this.getYears(id);
+          const years = await this.getYears(id);
+          if (years.length) {
+            this.years = years;
+            this.year = years[years.length - 1];
+          }
           if (this.year) this.obtenerEvaluaciones(id, this.year);
+
           TechnologiesService.getByUser(this.myUser.idLextracking).then(
             (resp) => (this.userStack = Object.values(resp)[0] || [])
           );
@@ -1022,8 +1149,16 @@ export default {
 
         if (this.myUser.type == "admin" || this.myUser.type == "pm") {
           UserService()
+            .getLeaderDevs(this.myUser.idLextracking)
+            .then(({ data: { response } }) => {
+              this.myDevs = response;
+            });
+
+          UserService()
             .listLeadDevs()
-            .then(({ data }) => (this.developersByLead = data.response));
+            .then(({ data }) => {
+              this.developersByLead = data.response;
+            });
 
           this.findUnasignedDevs().then((res) => {
             this.unasignedDevs = res.sort((a, b) => {
@@ -1037,20 +1172,7 @@ export default {
             });
           });
 
-          // UserService().countDevs([], (data) => {
-          //   this.pagesLength = data.response;
-          // });
-
           this.getTeams();
-
-          // UserService().allDevIndicators(
-          //   null,
-          //   null,
-          //   this.currentPage,
-          //   (res) => {
-          //     this.developers = res.response;
-          //   }
-          // );
         }
       });
     }
@@ -1124,6 +1246,22 @@ table {
   margin-top: 2rem;
 }
 
+.personify-searcher {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 1rem;
+}
+.psy-notf button {
+  padding: 0;
+  background-color: transparent;
+  color: #0c5460;
+  border: none;
+  font-weight: 700;
+}
+.psy-notf button:hover {
+  text-decoration: underline;
+}
 .filters-ctl {
   display: flex;
   flex-flow: row wrap;

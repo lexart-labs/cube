@@ -24,6 +24,7 @@ const i18n = new VueI18n({
 const store = new Vuex.Store({
   state: {
     language: 'en',
+    isPesonifying: false,
   },
   mutations: {
     SET_LANGUAGE (state, lang) {

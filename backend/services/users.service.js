@@ -536,6 +536,26 @@ let User = {
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},
+	getLeaderDevs: async function(idLead) {
+		const sql = `
+			SELECT
+				users.name,
+				users.token,
+				users.idLextracking
+			FROM users
+			WHERE idUser = ?;
+		`;
+		let response;
+
+		try {
+			response = await conn.query(sql, idLead);
+		} catch (e) {
+			console.log('response->', response);
+			console.log(e.message);
+		}		
+
+		return { response };
+	},
 	allDevelopersIndicators: async function (token, query, techs, page) {
 		const { response: devsIds } = await this.devIds(techs, page);
 

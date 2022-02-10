@@ -128,6 +128,7 @@ const translations = {
       lead: 'Liderazgo',
       leadTree: 'Mapa de Liderazgo',
       minimumTimeReached: '¡Nuevo cargo disponible!',
+      personify: 'Personificar developer',
       search: 'Buscar',
       warning: '¡Atencion!'
     },
@@ -346,6 +347,7 @@ const translations = {
       lead: 'Lead',
       leadTree: 'Lead\'s Tree',
       minimumTimeReached: 'New position available!',
+      personify: 'Personify developer',
       search: 'Search',
       warning: 'Warning'
     },
