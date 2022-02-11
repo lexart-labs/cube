@@ -71,8 +71,48 @@ router.get('/leads', Mdl.middleware, async function (_req, res) {
     res.send(response);
 })
 
+router.get('/lead-tree/:id', async (req, res) => {
+	const { id } = req.params;
+	const response = await User.getLeaderDevs(id);
+	
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+})
+
 router.get('/lead-tree', async (_req, res) => {
 	const response = await User.getLeaderDevTree();
+	
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+})
+
+router.post('/dev-indexes/count', async (req, res) => {
+	const { techs } = req.body;
+
+	let response = await User.countDevs(techs);
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
+router.get('/dev-indexes/:id', async (req, res) => {
+	const { token } = req.headers;
+	const { year } = req.query;
+	const { id } = req.params;
+
+	const response = await User.devIndexes(id, token, Number(year));
+	
+	res.set(['Content-Type', 'application/json']);
+  res.send(response);
+})
+
+router.post('/dev-indexes', async (req, res) => {
+	const { token } = req.headers;
+	const { year, page } = req.query;
+	const { techs } = req.body;
+
+	const response = await User.allDevelopersIndicators(
+		token, Number(year), techs, page
+	);
 	
 	res.set(['Content-Type', 'application/json']);
   res.send(response);
