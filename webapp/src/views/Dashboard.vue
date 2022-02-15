@@ -1,63 +1,68 @@
 <template>
   <div id="dashboard--component">
-    <div class="container">
+    <div class="container-dash">
       <nav class="abas-control">
-        <h4
-          :key="`aba${index}`"
-          v-bind:class="
-            aba.name === show ? 'courseTitle selected' : 'courseTitle '
-          "
-          v-for="(aba, index) in abas"
-          v-on:click="() => setShow(aba.name)"
-          v-show="aba.onlyAdmin ? ['admin', 'pm'].includes(myUser.type) : true"
-        >
-          <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
-          {{ $t(`generic.${aba.name}`) }}
-          <spinner v-if="isLoading"></spinner>
-        </h4>
+        <ul>
+          <li
+            :key="`aba${index}`"
+            v-bind:class="
+              aba.name === show ? 'courseTitle selected is-bold' : 'courseTitle is-bold'
+            "
+            v-for="(aba, index) in abas"
+            v-on:click="() => setShow(aba.name)"
+            v-show="aba.onlyAdmin ? ['admin', 'pm'].includes(myUser.type) : true"
+          >
+            <h4>
+              <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
+              {{ $t(`generic.${aba.name}`) }}
+              <spinner v-if="isLoading"></spinner>
+            </h4>
+          </li>
+        </ul>
       </nav>
       <div class="courseContainer" v-if="!isLoading">
         <div>
-          <div class="alert alert-primary" role="alert" v-if="error">
-            <div>
-              <p>{{ error }}</p>
+          <section class="warnings">
+            <div class="alerts-group">
+                <div role="alert" v-if="error">
+                  <span>{{ error }}</span>
+                  <div class="text-right">
+                    <button
+                      class="btn btn-primary btn-sm"
+                      v-on:click="syncUsuario()"
+                      v-bind:disabled="isSync"
+                    >
+                      Sync user
+                    </button>
+                </div>
+                </div>
+                <div role="alert" v-if="success">
+                  <span>{{ success }}</span>
+                  <i class="fas fa-check alert-check" />
+                </div>
+              <div v-if="isPersonifying" class="alert alert-info psy-notf" role="alert">
+                <span>Is personifying, click 
+                <button v-on:click="personifyDashboard()">here</button>
+                to return
+                </span>
+              </div>
             </div>
-            <div class="text-right">
-              <button
-                class="btn btn-primary"
-                v-on:click="syncUsuario()"
-                v-bind:disabled="isSync"
-              >
-                Sync user
-              </button>
-            </div>
-          </div>
-          <div class="alert alert-success" role="alert" v-if="success">
-            <div>
-              <p>{{ success }}</p>
-            </div>
-          </div>
-          <div v-if="isPersonifying" class="alert alert-info psy-notf" role="alert">
-            <span>Is personifying, click 
-            <button v-on:click="personifyDashboard()">here</button>
-             to return
-            </span>
-          </div>
 
-          <div class="left-select">
-            <select
-              id="year-filter"
-              class="form-control"
-              v-model="year"
-              v-on:change="obtenerEvaluaciones"
-              v-show="show !== 'technologies'"
-              v-if="years.length > 0"
-            >
-              <option v-for="(yr, i) in years" :key="i" :selected="yr === year">
-                {{ yr }}
-              </option>
-            </select>
-          </div>
+            <div class="left-select">
+              <select
+                id="year-filter"
+                class="form-control"
+                v-model="year"
+                v-on:change="obtenerEvaluaciones"
+                v-show="show !== 'technologies'"
+                v-if="years.length > 0"
+              >
+                <option v-for="(yr, i) in years" :key="i" :selected="yr === year">
+                  {{ yr }}
+                </option>
+              </select>
+            </div>
+          </section>
 
           <div
             v-show="isFetching"
@@ -66,6 +71,7 @@
           >
             <span class="sr-only">Loading...</span>
           </div>
+
           <div v-show="!isFetching">
             <div v-show="show === 'Dashboard'">
               <timeline :user="myUser" v-if="myUser" />
@@ -1214,10 +1220,7 @@ export default {
 </script>
 
 <style scoped>
-.left-select {
-  width: 10vw;
-  margin: 1rem 0rem;
-}
+
 
 .graphics-ctl {
   width: 100%;
@@ -1244,23 +1247,6 @@ export default {
 
 table {
   margin-top: 2rem;
-}
-
-.personify-searcher {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  gap: 1rem;
-}
-.psy-notf button {
-  padding: 0;
-  background-color: transparent;
-  color: #0c5460;
-  border: none;
-  font-weight: 700;
-}
-.psy-notf button:hover {
-  text-decoration: underline;
 }
 .filters-ctl {
   display: flex;
