@@ -1,6 +1,6 @@
 <template>
-  <div id="menu--component" class="navbar navbar-dark bg-dark">
-    <div class="menu">
+  <header id="menu--component" class="navbar navbar-dark bg-dark">
+    <nav class="menu">
       <div>
         <img
           v-if="setting.logo"
@@ -37,8 +37,8 @@
           </option>
         </select>
       </div>
-    </div>
-  </div>
+    </nav>
+  </header>
 </template>
 
 <script>
