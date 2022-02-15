@@ -73,7 +73,7 @@
           </div>
 
           <div v-show="!isFetching">
-            <div v-show="show === 'Dashboard'">
+            <section v-show="show === 'Dashboard'">
               <timeline :user="myUser" v-if="myUser" />
               <h4 class="text-center" v-if="years.length === 0">
                 {{
@@ -89,8 +89,8 @@
                   :year="year"
                 />
               </div>
-            </div>
-            <div class="dashboard--resources" v-show="show === 'Evaluations'">
+            </section>
+            <section class="dashboard--resources" v-show="show === 'Evaluations'">
               <h4 class="text-center" v-if="years.length === 0">
                 {{
                   translations[$store.state.language].dashboard
@@ -101,18 +101,22 @@
                 v-if="resources.length"
                 :course="resources[showEvaluation]"
               />
-              <input
-                type="search"
-                :placeholder="$t('generic.searchPlaceholderEvaluations')"
-                v-model="searchQuery"
-                v-if="success && resultQuery.length > 0"
-                class="form-control"
-                style="margin-bottom: 1rem"
-              />
+              <div class="inner-addon right-addon">
+                <input
+                  type="search"
+                  :placeholder="$t('generic.searchPlaceholderEvaluations')"
+                  v-model="searchQuery"
+                  v-if="success && resultQuery.length > 0"
+                  class="form-control rounded-input"
+                  style="margin-bottom: 1rem"
+                />
+                <i class="fas fa-search"></i>
+              </div>
               <div class="courseContainer" v-if="!isLoading"></div>
               <div
                 class="alert alert-primary"
                 :key="`resource${index}`"
+                style="background-color: #ecf5fc; color: #020305; border: none"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
                 role="alert"
@@ -129,6 +133,9 @@
                     <i class="bi bi-calendar-check-fill"></i>
                     {{ resource.name }}
                   </p>
+                  <div class="text-right">
+                      <b>{{ resource.total }}%</b>
+                    </div>
                   <p class="smallText">
                     <b>Tech Lead:</b> {{ resource.lead }} -
                     {{ formatDate(resource.fecha) }}
@@ -136,11 +143,8 @@
                   <hr />
                   <p class="smallText" v-html="resource.observaciones"></p>
                 </div>
-                <div class="text-right">
-                  <b>{{ resource.total }}%</b>
-                </div>
               </div>
-            </div>
+            </section>
             <div v-show="show === 'technologies'">
               <div class="new-tech-ctl">
                 <vue-select
