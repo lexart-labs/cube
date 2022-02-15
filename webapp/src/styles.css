@@ -57,7 +57,7 @@ body {
   --color-bg: #efefef;
   --color-header: #2c2d31;
   --text-color: #020305;
-  --text-color-mid: #8f8f8f;
+  --text-color-mid: #888787;
   --text-color-bright: #edeeee;
   --green-1: #d5ebd7;
   --green-2: #3cc688;
@@ -69,10 +69,12 @@ body {
   --big: 2rem;
   --mid: 1rem;
   --small: 0.8rem;
+  --header-height: 4rem;
 
   font-family: 'Montserrat', sans-serif;
   font-size: var(--mid);
   font-weight: 100;
+  background-color: var(--color-bg);
 }
 
 /* Login */
@@ -82,7 +84,7 @@ body {
   align-items: center;
   justify-content: center;
   background-image: url(assets/cube-background.jpeg);
-  background-position: center top;
+  background-position: bottom;
   background-size: cover;
 }
 .formContainer__background > img {
@@ -94,7 +96,7 @@ body {
 .formContainer__login {
   max-width: 700px;
   width: 20vw;
-  gap: 2rem;
+  gap: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -108,7 +110,7 @@ body {
   gap: 1rem;
   justify-content: center;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-  padding: 4rem 2rem 2rem;
+  padding: 3rem 8% 8%;
 }
 .formContainer__login > header {
   color: var(--text-color-bright);
@@ -136,4 +138,19 @@ body {
 .formContainer__login footer img {
   font-size: var(--small);
   width: 5rem;
+}
+
+/* Header */
+#menu--component {
+  margin-bottom: 1rem;
+  max-height: var(--header-height);
+}
+#menu--component a {
+  color: #fff;
+}
+.is-bold {
+  font-weight: 800;
+}
+.logout {
+  color: var(--text-color-mid) !important;
 }

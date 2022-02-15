@@ -8,16 +8,16 @@
           width="32"
           class="brand--logo"
         />
-        <router-link to="/app/dashboard" class="nav-link">Dashboard</router-link>
+        <router-link to="/app/dashboard" class="nav-link is-bold">Dashboard</router-link>
         <router-link
           v-if="isAdmin"
           to="/app/administration/users"
-          class="nav-link"
+          class="nav-link is-bold"
           >{{ $t("dashboard.administration")}}</router-link
         >
         <router-link
           v-bind:to="setting.token ? '/' + setting.token : '/'"
-          class="nav-link"
+          class="nav-link logout"
         >
           <small>{{ $t("generic.exit")}}</small>
         </router-link>
@@ -98,7 +98,12 @@ export default {
     padding: 0.5rem;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
+    width: 80%;
+    margin: 0 auto;
+    text-transform: uppercase;
+    max-width: 2000px;
+    font-size: var(--mid);
+    color: var(--text-color-bright);
   }
 
   div:first-child {
