@@ -19,7 +19,6 @@
             <h4>
               <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
               {{ $t(`generic.${aba.name}`) }}
-              <spinner v-if="isLoading"></spinner>
             </h4>
           </li>
         </ul>
@@ -103,14 +102,10 @@
                 />
               </div>
             </section>
-            <section
-              class="dashboard--resources"
-              v-show="show === 'Evaluations'"
-            >
+            <section v-show="show === 'Evaluations'" class="dashboard--resources">
               <h4 class="text-center" v-if="years.length === 0">
                 {{
-                  translations[$store.state.language].dashboard
-                    .userHaventEvaluations
+                  translations[$store.state.language].dashboard.userHaventEvaluations
                 }}
               </h4>
               <evaluation-viewer
@@ -201,8 +196,7 @@
                 </span>
               </h2>
             </div>
-            <div
-              v-show="show === 'leadTree'"
+            <div v-show="show === 'leadTree'"
               v-if="['admin', 'pm'].includes(myUser.type)"
             >
               <ul class="nav nav-tabs">

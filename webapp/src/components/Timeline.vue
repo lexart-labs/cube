@@ -122,13 +122,13 @@ export default {
             text: cur.position,
             center: i % 2 === 0 ? "top" : "bottom",
             config: {
-              fill: isFull ? "#2bc4a7" : "white",
+              fill: isFull ? "#0676ff" : "white",
             },
           };
 
           if (cur.position === current) {
             isFull = false;
-            return [...acc, { ...docTemplate, config: { fill: "#2bc4a7" } }];
+            return [...acc, { ...docTemplate, config: { fill: "#0676ff" } }];
           }
           return [...acc, docTemplate];
         }, []);
@@ -161,11 +161,11 @@ export default {
       const series = chart.series.push(new am4charts.LineSeries());
       series.dataFields.categoryX = "x";
       series.dataFields.valueY = "y";
-      series.stroke = am4core.color("#2bc4a7");
+      series.stroke = am4core.color("#0676ff");
       series.strokeWidth = 4;
 
       const bullet = series.bullets.push(new am4charts.CircleBullet());
-      bullet.circle.fill = am4core.color("#2bc4a7");
+      bullet.circle.fill = am4core.color("#0676ff");
       bullet.circle.configField = "config";
       bullet.circle.radius = 10;
       bullet.events.on(

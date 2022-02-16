@@ -147,6 +147,11 @@ b {
 #menu--component {
   margin-bottom: 1rem;
   max-height: var(--header-height);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 10;
 }
 #menu--component a {
   color: #fff;
@@ -163,6 +168,9 @@ b {
 .is-small-text {
   font-size: var(--small);
 }
+.is-upper {
+  text-transform: uppercase;
+}
 .logout {
   color: var(--text-color-mid) !important;
 }
@@ -171,7 +179,7 @@ b {
 #dashboard--component {
   width: 80vw;
   padding: 0;
-  margin: calc(var(--header-height) + 0.8rem) auto 5rem;
+  margin: calc(var(--header-height) + 2rem) auto 5rem;
   background-color: var(--white);
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
@@ -293,4 +301,18 @@ b {
 }
 .evaluation-card hr {
   border-top-color: #dbdbdb;
+}
+
+/* Evaluations modal */
+.modal-header {
+  border: none;
+}
+.evaluations-modal {
+  padding: 2rem;
+}
+input[type=range]:disabled {
+  padding: 0;
+  height: 5px;
+  border-radius: 10px;
+  cursor: pointer;
 }
