@@ -86,20 +86,22 @@
 
           <div v-show="!isFetching">
             <section v-show="show === 'Dashboard'">
-              <timeline :user="myUser" v-if="myUser" />
-              <h4 class="text-center" v-if="years.length === 0">
-                {{
-                  translations[$store.state.language].dashboard
-                    .userHaventEvaluations
-                }}
-              </h4>
-              <div class="graphics-ctl">
-                <graphic v-if="resources.length" :evaluations="resources" />
-                <Rombo
-                  v-if="resources.length"
-                  :evaluations="resources"
-                  :year="year"
-                />
+              <div id="dash-ctrl">
+                <timeline :user="myUser" v-if="myUser" />
+                <h4 class="text-center" v-if="years.length === 0">
+                  {{
+                    translations[$store.state.language].dashboard
+                      .userHaventEvaluations
+                  }}
+                </h4>
+                <div class="graphics-ctl">
+                  <graphic v-if="resources.length" :evaluations="resources" />
+                  <Rombo
+                    v-if="resources.length"
+                    :evaluations="resources"
+                    :year="year"
+                  />
+                </div>
               </div>
             </section>
             <section v-show="show === 'Evaluations'" class="dashboard--resources">

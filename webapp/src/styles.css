@@ -316,3 +316,43 @@ input[type=range]:disabled {
   border-radius: 10px;
   cursor: pointer;
 }
+
+/* Dashboard tab */
+#dash-ctrl {
+  margin-top: 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  justify-content: center;
+}
+.timeline {
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  padding: 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.timeline:hover {
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+.grafic-evaluation {
+  height: calc(100% - 2rem);
+}
+.ctl-card {
+  height: 400px;
+  width: 100%;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  padding: 1rem;
+}
+.ctl-card:hover {
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+body::-webkit-scrollbar {
+  width: 5px;
+}
+body::-webkit-scrollbar-track {
+  background-color: var(--blue-1);
+}
+body::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #69acff;
+}

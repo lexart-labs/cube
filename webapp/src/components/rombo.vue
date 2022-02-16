@@ -106,9 +106,9 @@ export default {
       series.dataFields.categoryX = "label";
       series.name = "Development";
       series.strokeWidth = 1.5;
-      series.stroke = am4core.color('#2bc4a7');
+      series.stroke = am4core.color('#0676ff');
       series.fillOpacity = 0.2;
-      series.fill = am4core.color('#2bc4a7');
+      series.fill = am4core.color('#0676ff');
     },
     async setUpData() {
       // Calculo el factor de conversion para decimal, horas / cien por ciento;
@@ -186,18 +186,16 @@ export default {
 <style scoped>
   #chartdiv {
     width: 100%;
-    height: 400px;
-  }
-
-  .ctl-card {
+    height: calc(400px - 4rem);
     max-height: 100%;
+  }
+  .ctl-card {
+    height: 400px;
     width: 100%;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
     padding: 1rem;
   }
-
   .ctl-card:hover {
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   }
-
 </style>

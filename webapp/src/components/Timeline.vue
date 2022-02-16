@@ -5,7 +5,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ $t("generic.asignments") }}</h5>
+            <h5 class="modal-title"><b>{{ $t("generic.asignments") }}</b></h5>
             <button
               type="button"
               class="close"
@@ -167,7 +167,7 @@ export default {
       const bullet = series.bullets.push(new am4charts.CircleBullet());
       bullet.circle.fill = am4core.color("#0676ff");
       bullet.circle.configField = "config";
-      bullet.circle.radius = 10;
+      bullet.circle.radius = 12;
       bullet.events.on(
         "hit",
         function (e) {
@@ -178,7 +178,7 @@ export default {
 
       const labelBullet = series.bullets.push(new am4charts.LabelBullet());
       labelBullet.label.text = "{text}";
-      labelBullet.label.maxWidth = 150;
+      labelBullet.label.maxWidth = 250;
       labelBullet.label.wrap = true;
       labelBullet.label.truncate = false;
       labelBullet.label.textAlign = "middle";
