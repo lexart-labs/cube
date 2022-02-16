@@ -6,11 +6,15 @@
           <li
             :key="`aba${index}`"
             v-bind:class="
-              aba.name === show ? 'courseTitle selected is-bold' : 'courseTitle is-bold'
+              aba.name === show
+                ? 'courseTitle selected is-bold'
+                : 'courseTitle is-bold'
             "
             v-for="(aba, index) in abas"
             v-on:click="() => setShow(aba.name)"
-            v-show="aba.onlyAdmin ? ['admin', 'pm'].includes(myUser.type) : true"
+            v-show="
+              aba.onlyAdmin ? ['admin', 'pm'].includes(myUser.type) : true
+            "
           >
             <h4>
               <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
@@ -24,26 +28,31 @@
         <div>
           <section class="warnings">
             <div class="alerts-group">
-                <div role="alert" v-if="error">
-                  <span>{{ error }}</span>
-                  <div class="text-right">
-                    <button
-                      class="btn btn-primary btn-sm"
-                      v-on:click="syncUsuario()"
-                      v-bind:disabled="isSync"
-                    >
-                      Sync user
-                    </button>
+              <div role="alert" v-if="error">
+                <span>{{ error }}</span>
+                <div class="text-right">
+                  <button
+                    class="btn btn-primary btn-sm"
+                    v-on:click="syncUsuario()"
+                    v-bind:disabled="isSync"
+                  >
+                    Sync user
+                  </button>
                 </div>
-                </div>
-                <div role="alert" v-if="success">
-                  <span>{{ success }}</span>
-                  <i class="fas fa-check alert-check" />
-                </div>
-              <div v-if="isPersonifying" class="alert alert-info psy-notf" role="alert">
-                <span>Is personifying, click 
-                <button v-on:click="personifyDashboard()">here</button>
-                to return
+              </div>
+              <div role="alert" v-if="success">
+                <span>{{ success }}</span>
+                <i class="fas fa-check alert-check" />
+              </div>
+              <div
+                v-if="isPersonifying"
+                class="alert alert-info psy-notf"
+                role="alert"
+              >
+                <span
+                  >Is personifying, click
+                  <button v-on:click="personifyDashboard()">here</button>
+                  to return
                 </span>
               </div>
             </div>
@@ -57,7 +66,11 @@
                 v-show="show !== 'technologies'"
                 v-if="years.length > 0"
               >
-                <option v-for="(yr, i) in years" :key="i" :selected="yr === year">
+                <option
+                  v-for="(yr, i) in years"
+                  :key="i"
+                  :selected="yr === year"
+                >
                   {{ yr }}
                 </option>
               </select>
@@ -90,7 +103,10 @@
                 />
               </div>
             </section>
-            <section class="dashboard--resources" v-show="show === 'Evaluations'">
+            <section
+              class="dashboard--resources"
+              v-show="show === 'Evaluations'"
+            >
               <h4 class="text-center" v-if="years.length === 0">
                 {{
                   translations[$store.state.language].dashboard
@@ -110,13 +126,12 @@
                   class="form-control rounded-input"
                   style="margin-bottom: 1rem"
                 />
-                <i class="fas fa-search"></i>
+                <!-- <i class="fas fa-search"></i> -->
               </div>
               <div class="courseContainer" v-if="!isLoading"></div>
               <div
-                class="alert alert-primary"
+                class="alert alert-primary evaluation-card"
                 :key="`resource${index}`"
-                style="background-color: #ecf5fc; color: #020305; border: none"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
                 role="alert"
@@ -129,13 +144,18 @@
                 "
               >
                 <div>
-                  <p>
-                    <i class="bi bi-calendar-check-fill"></i>
-                    {{ resource.name }}
-                  </p>
-                  <div class="text-right">
+                  <div class="is-bold is-big-text eval-head">
+                    <h2>
+                      <i
+                        class="bi bi-calendar-check-fill"
+                        style="font-size: 80%"
+                      />
+                      {{ resource.name }}
+                    </h2>
+                    <span class="text-right">
                       <b>{{ resource.total }}%</b>
-                    </div>
+                    </span>
+                  </div>
                   <p class="smallText">
                     <b>Tech Lead:</b> {{ resource.lead }} -
                     {{ formatDate(resource.fecha) }}
@@ -1085,8 +1105,8 @@ export default {
       this.isLoading = true;
       this.show = "Dashboard";
       this.showEvaluation = 0;
-      this.year = (new Date()).getFullYear();
-      this.years = [(new Date()).getFullYear()];
+      this.year = new Date().getFullYear();
+      this.years = [new Date().getFullYear()];
       this.myUser = {};
       this.resources = [];
       this.isPersonifying = toggle;
@@ -1224,8 +1244,6 @@ export default {
 </script>
 
 <style scoped>
-
-
 .graphics-ctl {
   width: 100%;
   display: flex;

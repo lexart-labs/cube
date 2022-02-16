@@ -1,0 +1,233 @@
+@media all {
+  /* general */
+  #app--component {
+    margin-bottom: 5rem;
+  }
+
+  /* Componente: Login form */
+  #login--form {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(assets/cube-background.jpeg);
+    background-position: center top;
+    background-size: cover;
+  }
+  #login--form .btn.btn-success {
+    width: 100%;
+  }
+  #login--form .alert {
+    margin-top: 1rem;
+    border-radius: 0;
+  }
+  /* Componente: Menu */
+  #menu--component {
+    margin-bottom: 1rem;
+  }
+  #menu--component a {
+    color: #fff;
+    text-decoration: underline;
+  }
+  .courseContainer .alert {
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+  }
+  .courseContainer .alert div {
+    flex: 1;
+  }
+
+  .courseContainer .alert a {
+    color: #333;
+    text-decoration: underline;
+  }
+  .courseContainer .alert p {
+    margin: 0;
+  }
+
+  .courseContainer .alert .smallText {
+    font-size: 12px;
+  }
+  .container-fluid {
+    padding: 0;
+  }
+  .courseTitle {
+    font-weight: 300;
+    text-decoration: underline;
+    font-size: 18px;
+    color: #888;
+    margin-bottom: 1rem;
+  }
+  .form-control,
+  .btn {
+    border-radius: 0 !important;
+  }
+  .courseTitle .spinner-border {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-left: 0.5rem;
+    border-width: 0.15em;
+  }
+  .formContainer__background {
+    height: 100vh;
+    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.6);
+    /* background-image: url(assets/cube-background.jpeg);
+    background-size: cover;
+    background-position: center center; */
+    text-align: right;
+  }
+  .formContainer__background img {
+    width: 30rem;
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+  }
+  .formContainer h2 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: -0.45rem;
+    color: #fff;
+  }
+  .formContainer small {
+    color: #fff;
+    font-size: 1rem;
+  }
+  #login-form {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 3rem 2rem 1.5rem;
+  }
+  .formContainer .form-control {
+    margin-bottom: 0.65rem;
+  }
+  .courseContainer .table thead th {
+    font-weight: lighter;
+    text-decoration: underline;
+    padding: 0.3rem;
+  }
+  .modal-content {
+    border-radius: 0;
+  }
+  .table td,
+  .table th {
+    padding: 0.3rem;
+  }
+  /* Courses componente - Model */
+  .coursesTab {
+    margin-top: 1rem;
+    padding-left: 1rem;
+  }
+  .coursesTab a {
+    cursor: pointer;
+  }
+  .myCoursesTab {
+    margin-bottom: 1rem;
+  }
+  /* Decoradores */
+  .disabledClase {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  .only-mob {
+    display: none;
+  }
+  .brand--logo {
+    object-fit: contain;
+    margin-left: 0.5rem;
+  }
+  .btn-black {
+    border: 1px solid #999;
+    width: 100%;
+  }
+  .btn-black img {
+    width: 100px;
+  }
+  .obs--title {
+    margin-top: 1rem;
+  }
+}
+/* @media (max-width: 768px) {
+  .formContainer__background {
+    display: none;
+  }
+  .col-4.formContainer__login {
+    width: 100%;
+    flex: none;
+    max-width: 100%;
+    margin-top: -5rem;
+  }
+  #login--form {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url(assets/cube-background.jpeg);
+    background-position: center top;
+    background-size: cover;
+    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.6);
+    margin: 0;
+  }
+  #login--form img.only-mob {
+    display: block;
+    width: 16rem;
+    margin: 0 auto;
+  }
+  #login--form h2,
+  #login--form small {
+    color: #fff;
+    display: block;
+    text-align: center;
+  }
+  #login--form .row {
+    margin: 0;
+  }
+  .myCoursesTab .btn-primary {
+    width: 100%;
+    margin-bottom: 0.3rem;
+  }
+  .btn-black {
+    background-color: #fff;
+  }
+} */
+/* Patch desktop */
+
+.timeline {
+  font-size: 0.6rem !important;
+  width: 100%;
+  padding: 2rem 1rem 3rem;
+}
+
+.abas-control {
+  display: flex;
+}
+
+.abas-control > h4 {
+  background-color: rgb(235, 235, 235);
+  height: 100%;
+  padding: 1rem;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+}
+
+.selected {
+  background-color: white !important;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+.navbar > .row > * {
+  display: flex !important;
+  flex-flow: row !important;
+  justify-content: flex-start;
+  gap: 1.5rem !important;
+  width: fit-content !important;
+}
+
+.grafic-evaluation {
+  height: 300px;
+}
