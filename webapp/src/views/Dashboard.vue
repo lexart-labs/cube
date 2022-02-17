@@ -84,7 +84,7 @@
             <span class="sr-only">Loading...</span>
           </div>
 
-          <div v-show="!isFetching && !isLoading">
+          <main v-show="!isFetching && !isLoading">
             <section v-show="show === 'Dashboard'">
               <div id="dash-ctrl">
                 <timeline :user="myUser" v-if="myUser" />
@@ -546,7 +546,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </main>
         </div>
       </div>
     </div>

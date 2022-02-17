@@ -195,7 +195,7 @@ b {
   flex-direction: column;
   background-color: var(--blue-3);
   text-transform: uppercase;
-  width: 25%;
+  width: 20%;
   min-height: 100%;
 }
 .abas-control li {
@@ -217,9 +217,15 @@ b {
   box-shadow: rgba(0, 0, 0, 0.16) -2px 1px 4px;
 }
 .courseContainer {
-  width: 75%;
+  width: 80%;
   padding: 1rem;
   position: relative;
+}
+.courseContainer main {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  margin: 0 auto 2rem;
 }
 .warnings {
   display: flex;
