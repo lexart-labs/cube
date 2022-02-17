@@ -23,7 +23,7 @@
           </li>
         </ul>
       </nav>
-      <div class="courseContainer" v-if="!isLoading">
+      <div class="courseContainer">
         <div>
           <section class="warnings">
             <div class="alerts-group">
@@ -77,14 +77,14 @@
           </section>
 
           <div
-            v-show="isFetching"
+            v-show="isLoading || isFetching"
             class="spinner-border text-info window-centered"
             role="status"
           >
             <span class="sr-only">Loading...</span>
           </div>
 
-          <div v-show="!isFetching">
+          <div v-show="!isFetching && !isLoading">
             <section v-show="show === 'Dashboard'">
               <div id="dash-ctrl">
                 <timeline :user="myUser" v-if="myUser" />
@@ -1247,12 +1247,6 @@ export default {
   gap: 2rem;
   align-content: center;
   justify-content: center;
-}
-
-.window-centered {
-  position: fixed;
-  top: 50%;
-  left: 50%;
 }
 
 .new-tech-ctl {
