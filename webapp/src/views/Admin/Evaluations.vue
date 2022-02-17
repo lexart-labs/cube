@@ -583,14 +583,14 @@ export default {
 
       CourseService().getCourseById(id, (res) => {
         if (!res.error) {
-          this.course = {indicadores: UtilsServices.indicatorsCopy(), ...res.response};
+          this.course = {
+            indicadores: UtilsServices.indicatorsCopy(),
+            ...res.response
+          };
+
           if (!this.course.resources) {
             this.course.resources = [];
           }
-
-          // if (!this.course.indicadores) {
-          //   this.course.indicadores = UtilsServices.indicatorsCopy();
-          // }
 
           if (!this.course.pagos) {
             this.$set(this.course, 'pagos', []);
