@@ -12,6 +12,16 @@ const DevOrigins = {
     }
     return Array.isArray(response) ? { response } : ERROR;
   },
+  getById: async (id) => {
+    const sql =`SELECT * FROM ${TABLE_NAME} WHERE id = ?`;
+    let response = [];
+    try {
+      response = await conn.query(sql, [id]);
+    } catch (e) {
+      console.log(e.message);
+    }
+    return Array.isArray(response) ? { response } : ERROR;
+  },
   getAll: async () => {
     const sql =`SELECT * FROM ${TABLE_NAME}`;
     let response = [];
