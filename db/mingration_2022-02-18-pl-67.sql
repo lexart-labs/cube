@@ -1,0 +1,6 @@
+CREATE TABLE `lexart_cube`.`developer_origins` (
+  `idDev` INT NOT NULL,
+  `plataform` VARCHAR(150) NOT NULL,
+  `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE = InnoDB;
