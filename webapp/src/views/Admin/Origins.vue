@@ -62,7 +62,7 @@ import Vue from "vue";
 import Spinner from "../../components/Spinner.vue";
 import { APP_NAME } from "../../../env";
 import translations from '../../data/translate';
-import DevOriginsService from '../../services/devOrigins.service';
+import DevOriginsService from '../../services/plataforms.service';
 
 const DEFAULT_VALUE = {
   id: 0,
