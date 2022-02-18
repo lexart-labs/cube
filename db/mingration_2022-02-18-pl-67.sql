@@ -6,3 +6,6 @@ CREATE TABLE `lexart_cube`.`hiring_plataforms` (
   PRIMARY KEY (`id`),
   UNIQUE (`plataform`)
 ) ENGINE = InnoDB;
+
+ALTER TABLE `users`
+ADD `idPlataform` INT DEFAULT NULL;
