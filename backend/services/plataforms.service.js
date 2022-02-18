@@ -1,17 +1,7 @@
-const TABLE_NAME = 'developer_origins';
+const TABLE_NAME = 'hiring_plataforms';
 const ERROR = { error: 'No results found' };
 
 const DevOrigins = {
-  getByDev: async (idDev) => {
-    const sql =`SELECT * FROM ${TABLE_NAME} WHERE idDev = ?`;
-    let response = [];
-    try {
-      response = await conn.query(sql, [idDev]);
-    } catch (e) {
-      console.log(e.message);
-    }
-    return Array.isArray(response) ? { response } : ERROR;
-  },
   getById: async (id) => {
     const sql =`SELECT * FROM ${TABLE_NAME} WHERE id = ?`;
     let response = [];
@@ -33,7 +23,7 @@ const DevOrigins = {
     return Array.isArray(response) ? { response } : ERROR;
   },
   insert: async (payload) => {
-    const { idDev, plataform } = payload;
+    const { plataform } = payload;
     let response = '';
     const sql = `
       INSERT INTO ${TABLE_NAME}
@@ -42,14 +32,14 @@ const DevOrigins = {
         (?, ?, CURRENT_TIMESTAMP)`;
 
     try {
-      response = await conn.query(sql, [idDev, plataform.toLowerCase()]);
+      response = await conn.query(sql, [plataform.toLowerCase()]);
     } catch (e) {
       console.log(e.message);
     }
     return response.affectedRows === 1 ? { response: 'ok' } : { error: response.sqlMessage };
   },
   update: async (id, payload) => {
-    const { idDev, plataform } = payload;
+    const { plataform } = payload;
     let response = '';
     const sql = `
       UPDATE ${TABLE_NAME}
@@ -58,7 +48,7 @@ const DevOrigins = {
     `;
 
     try {
-      response = await conn.query(sql, [idDev, plataform.toLowerCase(), id]);
+      response = await conn.query(sql, [plataform.toLowerCase(), id]);
     } catch (e) {
       console.log(e.message);
     }
@@ -75,16 +65,6 @@ const DevOrigins = {
       console.log(e.message);
     }
     return (response.affectedRows === 1) ? { response: 'Succesfully removed'} : error;
-  },
-  getByPlataform: async (plataform) => {
-    const sql =`SELECT * FROM ${TABLE_NAME} WHERE plataform = ?`;
-    let response = [];
-    try {
-      response = await conn.query(sql, [plataform]);
-    } catch (e) {
-      console.log(e.message);
-    }
-    return Array.isArray(response) ? { response } : ERROR;
   },
 }
 
