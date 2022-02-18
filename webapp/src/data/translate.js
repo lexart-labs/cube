@@ -86,6 +86,11 @@ const translations = {
       success: '¡Operación completada con suceso!',
       error: 'No fue possible completar la operación.',
     },
+    AdminOrigins: {
+      placeholder: 'Adicionar una plataforma',
+      title: 'Orígenes',
+      tableHeaders: ['id', 'plataforma'],
+    },
     generic: {
       cancel: 'Cancelar',
       save: 'Guardar',
@@ -130,7 +135,8 @@ const translations = {
       minimumTimeReached: '¡Nuevo cargo disponible!',
       personify: 'Personificar developer',
       search: 'Buscar',
-      warning: '¡Atencion!'
+      warning: '¡Atencion!',
+      origin: 'Origin',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -305,6 +311,11 @@ const translations = {
       success: 'Operation ran sucessfully',
       error: 'Error when saving this operation',
     },
+    AdminOrigins: {
+      placeholder: 'Add new plataform',
+      title: 'Origins',
+      tableHeaders: ['id', 'plataform'],
+    },
     generic: {
       cancel: 'Cancel',
       save: 'Save',
@@ -349,7 +360,8 @@ const translations = {
       minimumTimeReached: 'New position available!',
       personify: 'Personify developer',
       search: 'Search',
-      warning: 'Warning'
+      warning: 'Warning',
+      origin: 'Origin',
     },
     positionAssignments: {
       'EntryLevel Developer': [
