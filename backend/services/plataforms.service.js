@@ -27,9 +27,9 @@ const DevOrigins = {
     let response = '';
     const sql = `
       INSERT INTO ${TABLE_NAME}
-        (idDev, plataform, updatedAt)
+        (plataform, updatedAt)
       VALUES
-        (?, ?, CURRENT_TIMESTAMP)`;
+        (?, NOW())`;
 
     try {
       response = await conn.query(sql, [plataform.toLowerCase()]);
@@ -43,7 +43,7 @@ const DevOrigins = {
     let response = '';
     const sql = `
       UPDATE ${TABLE_NAME}
-      SET idDev = ?, plataform = ?, updatedAt = CURRENT_TIMESTAMP
+      SET plataform = ?, updatedAt = CURRENT_TIMESTAMP
       WHERE id = ?
     `;
 

@@ -35,7 +35,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, i) in technologies" :key="`tech${i}`">
+          <tr v-for="(item, i) in plataforms" :key="`tech${i}`">
             <td>{{ item.id }}</td>
             <td>{{ item.plataform }}</td>
             <td style="display: flex; gap: 1rem;">
@@ -95,7 +95,7 @@ export default {
       this.isEditing = false;
       const { id, plataform } = this.newPlataform;
 
-      const { data } = await DevOriginsService.update(id, plataform);
+      const data = await DevOriginsService.update(id, plataform);
       
       if(data.response) {
         await this.getPlataforms();
@@ -116,7 +116,7 @@ export default {
     deletePlataform: async function(id) {
       this.isLoading = true;
 
-      const { data } = await DevOriginsService.remove(id);
+      const data = await DevOriginsService.remove(id);
       
       if(data.response) {
         await this.getPlataforms();
@@ -137,7 +137,7 @@ export default {
     addPlataform: async function() {
       this.isLoading = true;
 
-      const {data} = await DevOriginsService.insert(this.newPlataform.plataform);
+      const data = await DevOriginsService.insert(this.newPlataform.plataform);
       
       if(data.response) {
         await this.getPlataforms();
