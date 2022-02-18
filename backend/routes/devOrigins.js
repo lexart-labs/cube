@@ -2,17 +2,17 @@ const express = require('express');
 const router = express.Router();
 const DevOrigins = require('../services/DevOrigins.service');
 
-router.get('/', async function (_req, res) {
-  const response = await DevOrigins.getAll();
+router.get('/:id', async function (req, res) {
+  const { id } = req.params;
+
+  const response = await DevOrigins.getById(id);
 
   res.set(['Content-Type', 'application/json']);
     res.send(response);
 });
 
-router.get('/:id', async function (req, res) {
-  const { id } = req.params;
-
-  const response = await DevOrigins.getById(id);
+router.get('/', async function (_req, res) {
+  const response = await DevOrigins.getAll();
 
   res.set(['Content-Type', 'application/json']);
     res.send(response);
