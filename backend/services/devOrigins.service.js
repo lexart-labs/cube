@@ -42,7 +42,7 @@ const DevOrigins = {
         (?, ?, CURRENT_TIMESTAMP)`;
 
     try {
-      response = await conn.query(sql, [idDev, plataform]);
+      response = await conn.query(sql, [idDev, plataform.toLowerCase()]);
     } catch (e) {
       console.log(e.message);
     }
@@ -58,7 +58,7 @@ const DevOrigins = {
     `;
 
     try {
-      response = await conn.query(sql, [idDev, plataform, id]);
+      response = await conn.query(sql, [idDev, plataform.toLowerCase(), id]);
     } catch (e) {
       console.log(e.message);
     }
