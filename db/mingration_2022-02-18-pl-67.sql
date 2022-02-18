@@ -1,8 +1,8 @@
-CREATE TABLE `lexart_cube`.`developer_origins` (
+CREATE TABLE `lexart_cube`.`hiring_plataforms` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `idDev` INT NOT NULL,
-  `plataform` INT NOT NULL,
+  `plataform` VARCHAR(150) NOT NULL,
   `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE (`plataform`)
 ) ENGINE = InnoDB;
