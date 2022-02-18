@@ -144,6 +144,14 @@
                   :options="usersLextracking"
                 ></vue-select>
                 <br />
+                <label for="">{{ $t('AdminUsers.hired')}}</label>
+                <vue-select
+                  v-model="user.idPlataform"
+                  label="plataform"
+                  :options="plataforms"
+                  :reduce="plat => plat.id"
+                ></vue-select>
+                <br />
                 <div class="row">
                   <div class="col">
                     <label for="career">{{
@@ -315,6 +323,7 @@ import { verifyToken } from "../../services/helpers";
 import translations from "../../data/translate";
 import { API, APP_NAME } from "../../../env";
 import minimunTimes from "../../data/positionMinimunTimes";
+import DevOriginsService from "../../services/plataforms.service";
 
 export default {
   name: "Users",
@@ -356,6 +365,7 @@ export default {
       },
       currentTech: {},
       leaders: [],
+      plataforms: [],
     };
   },
   methods: {
@@ -632,6 +642,9 @@ export default {
     LevelService()
       .getAll()
       .then((res) => (this.levels = res.response));
+    DevOriginsService
+      .getAll()
+      .then(res => this.plataforms = res);
 
     User.getAllUsersLextracking((res) => {
       this.isLoading = false;
