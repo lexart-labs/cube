@@ -1,7 +1,7 @@
 const TABLE_NAME = 'hiring_plataforms';
 const ERROR = { error: 'No results found' };
 
-const DevOrigins = {
+const Plataforms = {
   getById: async (id) => {
     const sql =`SELECT * FROM ${TABLE_NAME} WHERE id = ?`;
     let response = [];
@@ -68,4 +68,4 @@ const DevOrigins = {
   },
 }
 
-module.exports = DevOrigins;
+module.exports = Plataforms;

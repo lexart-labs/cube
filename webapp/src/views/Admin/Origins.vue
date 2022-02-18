@@ -62,7 +62,7 @@ import Vue from "vue";
 import Spinner from "../../components/Spinner.vue";
 import { APP_NAME } from "../../../env";
 import translations from '../../data/translate';
-import DevOriginsService from '../../services/plataforms.service';
+import Plataforms from '../../services/plataforms.service';
 
 const DEFAULT_VALUE = {
   id: 0,
@@ -86,7 +86,7 @@ export default {
     getPlataforms: async function () {
       this.isLoading = true;
 
-      this.plataforms = await DevOriginsService.getAll();
+      this.plataforms = await Plataforms.getAll();
 
       this.isLoading = false;
     },
@@ -95,7 +95,7 @@ export default {
       this.isEditing = false;
       const { id, plataform } = this.newPlataform;
 
-      const data = await DevOriginsService.update(id, plataform);
+      const data = await Plataforms.update(id, plataform);
       
       if(data.response) {
         await this.getPlataforms();
@@ -116,7 +116,7 @@ export default {
     deletePlataform: async function(id) {
       this.isLoading = true;
 
-      const data = await DevOriginsService.remove(id);
+      const data = await Plataforms.remove(id);
       
       if(data.response) {
         await this.getPlataforms();
@@ -137,7 +137,7 @@ export default {
     addPlataform: async function() {
       this.isLoading = true;
 
-      const data = await DevOriginsService.insert(this.newPlataform.plataform);
+      const data = await Plataforms.insert(this.newPlataform.plataform);
       
       if(data.response) {
         await this.getPlataforms();

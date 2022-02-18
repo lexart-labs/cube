@@ -11,7 +11,7 @@ const generateHeader = () => {
 const headers = generateHeader();
 const MODEL = 'plataforms/';
 
-const DevOriginsService = {
+const Plataforms = {
   getAll: async function () {
     const { data } = await axios.get(`${API + MODEL}`, { headers });
     return data.response ? data.response : [];
@@ -34,4 +34,4 @@ const DevOriginsService = {
   },
 };
 
-export default DevOriginsService;
+export default Plataforms;
