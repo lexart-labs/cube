@@ -32,6 +32,7 @@
             <th>{{ $t("AdminUsers.columnCharge") }}</th>
             <th>{{ $t("AdminUsers.columnLevel") }}</th>
             <th>{{ $t("AdminUsers.columnActive") }}</th>
+            <th>{{ $t("AdminUsers.hired") }}</th>
             <th></th>
           </tr>
         </thead>
@@ -45,6 +46,7 @@
             <td>
               {{ user.active == 1 ? $t("generic.yes") : $t("generic.no") }}
             </td>
+            <td>{{user.plataform}}</td>
             <td>
               <!-- Trigger modal -->
               <button

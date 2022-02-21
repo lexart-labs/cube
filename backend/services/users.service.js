@@ -13,8 +13,14 @@ let User = {
 
 		// Obtener los usuarios
 		const sql = `
-			SELECT c.position AS position, l.level AS level, u.* FROM users u
+			SELECT
+				c.position AS position,
+				l.level AS level,
+				hp.plataform AS 'plataform',
+				u.*
+			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			LEFT JOIN hiring_plataforms hp ON u.idPlataform = hp.id
 			LEFT JOIN careers c ON uc.idPosition = c.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
 			WHERE u.idUser = ? OR u.idLextracking = ?
