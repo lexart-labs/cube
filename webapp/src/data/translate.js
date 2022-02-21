@@ -130,7 +130,8 @@ const translations = {
       minimumTimeReached: '¡Nuevo cargo disponible!',
       personify: 'Personificar developer',
       search: 'Buscar',
-      warning: '¡Atencion!'
+      warning: '¡Atencion!',
+      days: 'días',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -349,7 +350,8 @@ const translations = {
       minimumTimeReached: 'New position available!',
       personify: 'Personify developer',
       search: 'Search',
-      warning: 'Warning'
+      warning: 'Warning',
+      days: 'days',
     },
     positionAssignments: {
       'EntryLevel Developer': [

@@ -207,9 +207,13 @@
                     <tr v-for="(lead, i) in developersByLead" :key="`lead${i}`">
                       <td>{{ lead.name }}</td>
                       <td>
-                        <ul>
-                          <li v-for="(dev, j) in lead.devs" :key="`dev${j}`">
-                            {{ dev }}
+                        <ul class="list-group">
+                          <li
+                            v-for="(dev, j) in lead.devs"
+                            :key="`dev${j}`"
+                            style="padding: 0.5rem;"
+                          >
+                            <b>{{ dev.name }}</b> - {{ dev.position }} ({{ dev.time }} {{$t('generic.days')}})
                           </li>
                         </ul>
                       </td>
