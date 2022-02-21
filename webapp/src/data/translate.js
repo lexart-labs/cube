@@ -138,6 +138,7 @@ const translations = {
       personify: 'Personificar developer',
       search: 'Buscar',
       warning: '¡Atencion!',
+      days: 'días',
       origin: 'Origin',
     },
     positionAssignments: {
@@ -365,6 +366,7 @@ const translations = {
       personify: 'Personify developer',
       search: 'Search',
       warning: 'Warning',
+      days: 'days',
       origin: 'Origin',
     },
     positionAssignments: {

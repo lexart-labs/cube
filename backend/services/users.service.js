@@ -466,14 +466,34 @@ let User = {
 			FROM users
 			WHERE users.type IN ('admin', 'pm');
 		`;
+		const sqlDevsInfo = `
+			SELECT
+				u.name,
+				c.position AS position,
+				(CASE
+						WHEN uc.dateCreated THEN DATEDIFF(CURRENT_DATE, uc.dateCreated)
+							ELSE DATEDIFF(CURRENT_DATE, u.dateCreated)
+				END) AS 'time'
+			FROM users u
+			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			LEFT JOIN careers c ON uc.idPosition = c.id
+		`;
 
-		const response = await conn.query(sql);
+		const [response, devInfos] = await Promise.all([
+			conn.query(sql),
+			conn.query(sqlDevsInfo)
+		]);
 		let fixed = [];
+
+		const devsObj = devInfos.reduce((acc, cur) => {
+			const key = cur.name;
+			return { ...acc, [key]: cur};
+		}, {});
 
 		try {
 			fixed = response.reduce((acc, el) => {
 				if (el.devs) {
-					const devs = el.devs.split(',');
+					const devs = el.devs.split(',').map(dev => devsObj[dev]);
 					acc.push({ ...el, devs });
 				}
 				return acc;
