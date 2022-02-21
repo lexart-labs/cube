@@ -28,7 +28,15 @@
         v-on:click="isEditing ? updateTech() : addTech()"
         :disabled="!newTechnology.name"
       >
-        {{ $t("generic.save") }}
+        {{ isEditing ? $t("generic.edit") : $t("generic.save") }}
+      </button>
+      <button
+        type="button"
+        v-if="isEditing"
+        class="btn btn-secondary col-1"
+        v-on:click="onCancel()"
+      >
+        {{ $t("generic.cancel") }}
       </button>
     </div>
 
@@ -159,7 +167,6 @@ export default {
       const { data } = await axios.post(endpoint, {...this.newTechnology}, { headers: { token: this.token }});
       
       if(data.response) {
-        console.log('cheguei aqui');
         this.newTechnology = {...DEFAULT_VALUE};
         await this.getTechs();
         Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
@@ -177,6 +184,11 @@ export default {
     setEditing(tech) {
       this.isEditing = true;
       this.newTechnology = {...tech};
+    },
+    onCancel() {
+      this.isEditing = false;
+      this.isLoading = false;
+      this.newTechnology = { ...DEFAULT_VALUE};
     },
   },
   mounted: async function () {
