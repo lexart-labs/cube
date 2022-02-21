@@ -91,6 +91,7 @@ const translations = {
       placeholder: 'Adicionar una plataforma',
       title: 'Orígenes',
       tableHeaders: ['id', 'plataforma'],
+      deleteError: 'Error: Por favor, asegúrese de que esta plataforma no esté asociada con ningún usuario.',
     },
     generic: {
       cancel: 'Cancelar',
@@ -317,6 +318,7 @@ const translations = {
       placeholder: 'Add new plataform',
       title: 'Origins',
       tableHeaders: ['id', 'plataform'],
+      deleteError: 'Error: Please make sure this plataform is not related to any user.',
     },
     generic: {
       cancel: 'Cancel',

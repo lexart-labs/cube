@@ -128,9 +128,9 @@ export default {
         this.isLoading = false;
 
         this.error = data.error;
-        Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.error, {
+        Vue.toasted.show(translations[this.$store.state.language].AdminOrigins.deleteError, {
             type: "error",
-            duration: 2000,
+            duration: 3000,
         });
       }
     },
