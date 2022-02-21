@@ -10,7 +10,7 @@
         type="text"
         v-model="newTechnology.name"
         :placeholder="$t('AdminTechnologies.placeholder')"
-        class="form-control col-8"
+        class="form-control col-7"
       />
       <select v-model="newTechnology.plataform" class="form-control col-2">
         <option value="" disabled>Selecione</option>
