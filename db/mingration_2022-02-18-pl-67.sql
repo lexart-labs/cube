@@ -9,3 +9,5 @@ CREATE TABLE `lexart_cube`.`hiring_plataforms` (
 
 ALTER TABLE `users`
 ADD `idPlataform` INT DEFAULT NULL;
+
+ALTER TABLE users ADD FOREIGN KEY (idPlataform) REFERENCES hiring_plataforms(id);
