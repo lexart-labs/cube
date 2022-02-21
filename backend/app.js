@@ -16,6 +16,7 @@ const levelsRouter = require('./routes/levels');
 const careersRouter = require('./routes/careers');
 const technologies = require('./routes/technologies');
 const teams = require('./routes/teams');
+const Plataforms = require('./routes/Plataforms');
 
 const port 	  	 = process.env.API_PORT;
 const seed       = 100000000000000
@@ -52,6 +53,7 @@ app.use('/careers', careersRouter)
 app.use('/levels', levelsRouter)
 app.use('/technologies', technologies)
 app.use('/teams', teams)
+app.use('/plataforms', Plataforms)
 app.use('/public', express.static('public'));
 
 app.post('/upload-file', upload.single('file-image'), function (req, res, next) {

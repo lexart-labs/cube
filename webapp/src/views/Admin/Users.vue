@@ -32,6 +32,7 @@
             <th>{{ $t("AdminUsers.columnCharge") }}</th>
             <th>{{ $t("AdminUsers.columnLevel") }}</th>
             <th>{{ $t("AdminUsers.columnActive") }}</th>
+            <th>{{ $t("AdminUsers.hired") }}</th>
             <th></th>
           </tr>
         </thead>
@@ -45,6 +46,7 @@
             <td>
               {{ user.active == 1 ? $t("generic.yes") : $t("generic.no") }}
             </td>
+            <td>{{user.plataform}}</td>
             <td>
               <!-- Trigger modal -->
               <button
@@ -142,6 +144,14 @@
                   v-model="user"
                   label="name"
                   :options="usersLextracking"
+                ></vue-select>
+                <br />
+                <label for="">{{ $t('AdminUsers.hired')}}</label>
+                <vue-select
+                  v-model="user.idPlataform"
+                  label="plataform"
+                  :options="plataforms"
+                  :reduce="plat => plat.id"
                 ></vue-select>
                 <br />
                 <div class="row">
@@ -315,6 +325,7 @@ import { verifyToken } from "../../services/helpers";
 import translations from "../../data/translate";
 import { API, APP_NAME } from "../../../env";
 import minimunTimes from "../../data/positionMinimunTimes";
+import DevOriginsService from "../../services/plataforms.service";
 
 export default {
   name: "Users",
@@ -356,6 +367,7 @@ export default {
       },
       currentTech: {},
       leaders: [],
+      plataforms: [],
     };
   },
   methods: {
@@ -632,6 +644,9 @@ export default {
     LevelService()
       .getAll()
       .then((res) => (this.levels = res.response));
+    DevOriginsService
+      .getAll()
+      .then(res => this.plataforms = res);
 
     User.getAllUsersLextracking((res) => {
       this.isLoading = false;
