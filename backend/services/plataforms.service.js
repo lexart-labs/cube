@@ -32,7 +32,7 @@ const Plataforms = {
         (?, NOW())`;
 
     try {
-      response = await conn.query(sql, [plataform.toLowerCase()]);
+      response = await conn.query(sql, [plataform]);
     } catch (e) {
       console.log(e.message);
     }
@@ -48,7 +48,7 @@ const Plataforms = {
     `;
 
     try {
-      response = await conn.query(sql, [plataform.toLowerCase(), id]);
+      response = await conn.query(sql, [plataform, id]);
     } catch (e) {
       console.log(e.message);
     }
