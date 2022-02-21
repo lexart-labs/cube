@@ -18,7 +18,15 @@
         v-on:click="isEditing ? updatePlataform() : addPlataform()"
         :disabled="!newPlataform.plataform"
       >
-        {{ $t("generic.save") }}
+        {{ isEditing ? $t("generic.edit") : $t("generic.save") }}
+      </button>
+      <button
+        type="button"
+        v-if="isEditing"
+        class="btn btn-secondary col-1"
+        v-on:click="onCancel()"
+      >
+        {{ $t("generic.cancel") }}
       </button>
     </div>
 
@@ -157,6 +165,11 @@ export default {
     setEditing(plataform) {
       this.isEditing = true;
       this.newPlataform = {...plataform};
+    },
+    onCancel() {
+      this.isEditing = false;
+      this.isLoading = false;
+      this.newPlataform = { ...DEFAULT_VALUE};
     },
   },
   mounted: async function () {
