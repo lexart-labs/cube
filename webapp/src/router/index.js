@@ -7,6 +7,7 @@ import Admin from '../views/Admin/Admin.vue';
 import Users from '../views/Admin/Users.vue';
 import EvaluationsAdmin from '../views/Admin/Evaluations.vue';
 import Technologies from '../views/Admin/Technologies.vue';
+import Origin from '../views/Admin/Origins.vue';
 import AppComponent from '../views/AppComponent.vue';
 
 const routes = [
@@ -32,6 +33,10 @@ const routes = [
           {
             path: 'technologies',
             component: Technologies,
+          },
+          {
+            path: 'origins',
+            component: Origin,
           },
         ],
       },

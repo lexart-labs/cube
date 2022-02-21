@@ -13,8 +13,14 @@ let User = {
 
 		// Obtener los usuarios
 		const sql = `
-			SELECT c.position AS position, l.level AS level, u.* FROM users u
+			SELECT
+				c.position AS position,
+				l.level AS level,
+				hp.plataform AS 'plataform',
+				u.*
+			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			LEFT JOIN hiring_plataforms hp ON u.idPlataform = hp.id
 			LEFT JOIN careers c ON uc.idPosition = c.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
 			WHERE u.idUser = ? OR u.idLextracking = ?
@@ -62,11 +68,13 @@ let User = {
 				l.level AS level,
 				l.id AS levelId,
 				usp.skills AS 'skills',
+				hp.plataform AS 'plataform',
 				DATEDIFF(CURRENT_DATE, uc.dateCreated) AS 'since',
 				u.*
 			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
 			LEFT JOIN careers c ON uc.idPosition = c.id
+			LEFT JOIN hiring_plataforms hp ON u.idPlataform = hp.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
 			LEFT JOIN user_skills_per_position usp ON u.idLextracking = usp.idUser AND usp.idPosition = uc.id
 			WHERE u.idLextracking = ?;
@@ -113,7 +121,7 @@ let User = {
 		// Defino en cual clave esta el id de lextracking
 		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 
-		const { positionId, levelId } = usuario;
+		const { positionId, levelId, idPlataform } = usuario;
 		usuario.token = utils.makeToken(usuario.email, idLextracking, 'public');
 		if (usuario.passwordCopy) { usuario.password = md5(usuario.passwordCopy); }
 
@@ -143,6 +151,7 @@ let User = {
 				idUser = ?,
 				token = ?,
 				idPosition = ?,
+				idPlataform = ?,
 				dateEdited = NOW()
 			WHERE idLextracking = ?
 		`;
@@ -155,6 +164,7 @@ let User = {
 			idAdmin,
 			usuario.token,
 			idPosition,
+			idPlataform,
 			idLextracking,
 		];
 
@@ -180,16 +190,16 @@ let User = {
 		if (usuario.passwordCopy) {
 			password = md5(usuario.passwordCopy);
 		}
-		const { id, positionId, levelId } = usuario;
+		const { id, positionId, levelId, idPlataform } = usuario;
 
 		const result = await this.updatePosition(id, positionId, levelId);
 		const idPosition = result.error ? null : result;
 
 		const sql = `
 			INSERT INTO ${tablaNombre}
-				(name, idLextracking, idUser, email, type, password, token, idPosition)
+				(name, idLextracking, idUser, email, type, password, token, idPosition, idPlataform)
 			VALUES
-				(?, ?, ?, ?, ?, ?, ?, ?)
+				(?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`;
 		const arr = [
 			usuario.name,
@@ -200,6 +210,7 @@ let User = {
 			password,
 			usuario.token,
 			idPosition,
+			idPlataform,
 		];
 
 		try {
