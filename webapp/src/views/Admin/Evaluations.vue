@@ -1,6 +1,6 @@
 <template>
   <div id="courses--component" style="margin-top: 1rem">
-    <h4 class="courseTitle">
+    <h4 class="courseTitle is-main-title">
       {{ $t('AdminEvaluations.title') }}
       <spinner v-if="isLoading"></spinner>
       <button
@@ -18,7 +18,7 @@
       type="search"
       :placeholder="$t('AdminEvaluations.searchPlaceholder')"
       v-model="searchQuery"
-      class="form-control"
+      class="form-control rounded-input"
       style="margin-bottom: 1rem"
     />
     <div class="courseContainer">

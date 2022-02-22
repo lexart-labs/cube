@@ -1,7 +1,7 @@
 <template>
   <div id="admin--component">
     <div class="container">
-      <div class="adminButtons">
+      <nav class="adminButtons">
         <ul class="nav nav-tabs">
           <li class="nav-item">
             <router-link to="/app/administration/users" class="nav-link"
@@ -19,8 +19,10 @@
             >
           </li>
         </ul>
-      </div>
-      <router-view></router-view>
+      </nav>
+      <main>
+        <router-view></router-view>
+      </main>
     </div>
   </div>
 </template>

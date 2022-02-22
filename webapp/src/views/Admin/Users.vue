@@ -1,6 +1,7 @@
 <template>
   <div id="users--component" style="margin-top: 1rem">
-    <h4 class="courseTitle">
+    <header>
+    <h4 class="courseTitle is-main-title">
       <span>{{ $t("AdminUsers.title") }}</span>
       <spinner v-if="isLoading"></spinner>
       <button
@@ -18,13 +19,14 @@
       type="search"
       :placeholder="$t('AdminUsers.searchPlaceholder')"
       v-model="searchQuery"
-      class="form-control"
+      class="form-control rounded-input"
       style="margin-bottom: 1rem"
     />
+    </header>
 
     <div class="courseContainer" v-if="!isLoading">
       <table class="table table-admin">
-        <thead>
+        <thead class="is-table-head">
           <tr>
             <th>{{ $t("AdminUsers.columnName") }}</th>
             <th>Email</th>
