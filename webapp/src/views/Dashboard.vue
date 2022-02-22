@@ -401,7 +401,7 @@
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title">
+                      <h5 class="modal-title is-bold">
                         {{ $t("dashboard.saveTeam") }}
                       </h5>
                       <button
@@ -417,11 +417,11 @@
                       <input
                         type="text"
                         v-model="teamName"
-                        class="form-control"
+                        class="form-control is-rounded"
                         placeholder="Team name"
                         style="margin-bottom: 1rem"
                       />
-                      <ul>
+                      <ul class="styled-list">
                         <li v-for="dev in currentTeam" :key="`${dev.name}`">
                           {{ dev.name }}
                         </li>
@@ -430,19 +430,19 @@
                     <div class="modal-footer">
                       <button
                         type="button"
-                        class="btn btn-primary"
-                        v-on:click="saveTeam"
-                        data-dismiss="modal"
-                      >
-                        {{ $t("dashboard.saveTeam") }}
-                      </button>
-                      <button
-                        type="button"
                         v-on:click="teamName = ''"
                         class="btn btn-secondary"
                         data-dismiss="modal"
                       >
                         {{ $t("generic.close") }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        v-on:click="saveTeam"
+                        data-dismiss="modal"
+                      >
+                        {{ $t("dashboard.saveTeam") }}
                       </button>
                     </div>
                   </div>
@@ -454,7 +454,7 @@
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title">
+                      <h5 class="modal-title is-bold">
                         {{ $t("dashboard.teamModalTitle") }}
                       </h5>
                       <button
@@ -472,7 +472,7 @@
                           <div class="team-card">
                             <div>
                               <div class="team-card-title">
-                                <h5>{{ team.name }}</h5>
+                                <h5 style="font-size: 1.5rem"><b>{{ team.name }}</b></h5>
                                 <span>{{
                                   formatDate(team.updatedAt).split(".")[0]
                                 }}</span>
@@ -490,7 +490,7 @@
                                 />
                               </div>
                             </div>
-                            <ul>
+                            <ul class="styled-list">
                               <li
                                 v-for="dev in team.team"
                                 :key="`dev-${dev.name}`"
@@ -511,7 +511,7 @@
                 <div class="modal-dialog modal-dialog-centered" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title">
+                      <h5 class="modal-title is-bold">
                         {{ $t("generic.warning") }}
                       </h5>
                       <button

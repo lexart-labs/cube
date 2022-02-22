@@ -145,55 +145,55 @@ export default {
       chart.cursor.lineY.disabled = true;
 
       // Responsive
-      // chart.responsive.enabled = true;
-      // chart.responsive.useDefault = false;
-      // chart.responsive.rules.push({
-      //   relevant: am4core.ResponsiveBreakpoints.widthL,
-      //   state: function(target, stateId) {
-      //     if (target instanceof am4charts.XYChart) {
-      //       let state = target.states.create(stateId);
+      chart.responsive.enabled = true;
+      chart.responsive.useDefault = false;
+      chart.responsive.rules.push({
+        relevant: am4core.ResponsiveBreakpoints.widthL,
+        state: function(target, stateId) {
+          if (target instanceof am4charts.XYChart) {
+            let state = target.states.create(stateId);
 
-      //       state.properties.paddingTop = 10;
-      //       state.properties.paddingRight = 15;
-      //       state.properties.paddingBottom = 0;
-      //       state.properties.paddingLeft = 15;
-      //       state.properties.fontSize = 7.5;
+            state.properties.paddingTop = 10;
+            state.properties.paddingRight = 15;
+            state.properties.paddingBottom = 0;
+            state.properties.paddingLeft = 15;
+            state.properties.fontSize = 7.5;
 
-      //       chart.cursor = false;
-      //       chart.tapToActivate = true;
-      //       chart.scrollbarX = new am4core.Scrollbar();
-      //       //chart.scrollbarX.series.push(series);
+            chart.cursor = false;
+            chart.tapToActivate = true;
+            chart.scrollbarX = new am4core.Scrollbar();
+            //chart.scrollbarX.series.push(series);
             
-      //       //colors outside
-      //       chart.scrollbarX.background.fill = am4core.color("#dc67ab");
-      //       chart.scrollbarX.background.fillOpacity = 0.2;
+            //colors outside
+            chart.scrollbarX.background.fill = am4core.color("#dc67ab");
+            chart.scrollbarX.background.fillOpacity = 0.2;
 
-      //       //colors inside
-      //       chart.scrollbarX.startGrip.background.fill = am4core.color("#CBA5A4");
-      //       chart.scrollbarX.endGrip.background.fill = am4core.color("#CBA5A4");
-      //       chart.scrollbarX.thumb.background.fill = am4core.color("#CBA5A4");
+            //colors inside
+            chart.scrollbarX.startGrip.background.fill = am4core.color("#CBA5A4");
+            chart.scrollbarX.endGrip.background.fill = am4core.color("#CBA5A4");
+            chart.scrollbarX.thumb.background.fill = am4core.color("#CBA5A4");
             
-      //       //colors icons
-      //       chart.scrollbarX.startGrip.icon.stroke = am4core.color("#8A5658");
-      //       chart.scrollbarX.endGrip.icon.stroke = am4core.color("#8A5658");
+            //colors icons
+            chart.scrollbarX.startGrip.icon.stroke = am4core.color("#8A5658");
+            chart.scrollbarX.endGrip.icon.stroke = am4core.color("#8A5658");
 
-      //       // height scrollbar
-      //       chart.scrollbarX.minHeight = 3;
+            // height scrollbar
+            chart.scrollbarX.minHeight = 3;
 
-      //       //remove grip
-      //       //chart.scrollbarX.startGrip.disabled = true;
-      //       //chart.scrollbarX.endGrip.disabled = true;
+            //remove grip
+            //chart.scrollbarX.startGrip.disabled = true;
+            //chart.scrollbarX.endGrip.disabled = true;
 
-      //       return state;
-      //     } else if (target instanceof am4charts.XYChart && target.scrollbarX) {
-      //       let state = target.states.create(stateId);
-      //       let sbstate = target.scrollbarX.states.create(stateId);
-      //       sbstate.properties.disabled = true;
-      //       return state;
-      //     }
-      //     return null;
-      //   }
-      // });
+            return state;
+          } else if (target instanceof am4charts.XYChart && target.scrollbarX) {
+            let state = target.states.create(stateId);
+            let sbstate = target.scrollbarX.states.create(stateId);
+            sbstate.properties.disabled = true;
+            return state;
+          }
+          return null;
+        }
+      });
 
       // Configuraciones
       const xAxis = chart.xAxes.push(new am4charts.CategoryAxis());

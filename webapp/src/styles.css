@@ -502,6 +502,10 @@ input[type=range] {
   border-color: var(--green-2);
   opacity: 0.6;
 }
+.styled-list {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+} 
 
 /* Media Query Landscape Smartphones/Tablets */
 @media (min-width: 481px) and (max-width: 915px) and (orientation: landscape) {
