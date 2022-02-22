@@ -226,7 +226,7 @@ b {
   padding: 1rem;
   position: relative;
 }
-.courseContainer main {
+.is-padded {
   display: flex;
   flex-direction: column;
   width: 90%;
@@ -374,6 +374,11 @@ body::-webkit-scrollbar-track {
 body::-webkit-scrollbar-thumb {
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: #69acff;
+}
+
+/* Leads tree tab */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: var(--blue-1);
 }
 
 /* Admin area */

@@ -85,7 +85,7 @@
           </div>
 
           <main v-show="!isFetching && !isLoading">
-            <section v-show="show === 'Dashboard'">
+            <section v-show="show === 'Dashboard'" class="is-padded">
               <div id="dash-ctrl">
                 <timeline :user="myUser" v-if="myUser" />
                 <h4 class="text-center" v-if="years.length === 0">
@@ -162,7 +162,7 @@
                 </div>
               </div>
             </section>
-            <div v-show="show === 'technologies'">
+            <section v-show="show === 'technologies'">
               <div class="new-tech-ctl">
                 <vue-select
                   :options="technologies"
@@ -197,8 +197,8 @@
                   />
                 </span>
               </h2>
-            </div>
-            <div v-show="show === 'leadTree'"
+            </section>
+            <section v-show="show === 'leadTree'"
               v-if="['admin', 'pm'].includes(myUser.type)"
             >
               <ul class="nav nav-tabs">
@@ -225,8 +225,8 @@
                 <table class="table table-striped">
                   <thead>
                     <tr>
-                      <th>Lead</th>
-                      <th>Developers</th>
+                      <th class="is-bold">Lead</th>
+                      <th class="is-bold">Developers</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -251,7 +251,7 @@
                 <input
                   type="text"
                   v-model="search"
-                  class="form-control"
+                  class="form-control rounded-input"
                   :placeholder="$t('AdminUsers.searchPlaceholder')"
                   style="margin: 1rem 0"
                 />
@@ -265,8 +265,8 @@
                   </li>
                 </ul>
               </div>
-            </div>
-            <div v-show="show === 'personify'">
+            </section>
+            <section v-show="show === 'personify'">
               <div class="personify-searcher">
                 <vue-select
                   :options="myDevs"
@@ -283,8 +283,8 @@
                   Personify
                 </button>
               </div>
-            </div>
-            <div v-show="show === 'hunting'">
+            </section>
+            <section v-show="show === 'hunting'">
               <header>
                 <div class="filters-ctl">
                   <div class="searcher">
@@ -549,7 +549,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
           </main>
         </div>
       </div>
