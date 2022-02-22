@@ -58,8 +58,8 @@ export default {
       },
       api: API,
       langs: [
-        {value:'es', label: 'español'},
-        {value:'en', label: 'english'}
+        {value:'es', label: 'SP'},
+        {value:'en', label: 'EN'}
       ],
     };
   },
@@ -114,4 +114,51 @@ export default {
   .locale-changer {
     justify-self: flex-end;
   }
+
+  @media (min-width: 481px) and (max-width: 915px) and (orientation: landscape) {
+    .menu {
+      padding: 0.5rem 0;
+      width: 100%;
+    }
+    .nav-link {
+      padding: .5rem .5rem;
+    }
+  }
+
+  @media (min-width: 481px) and (max-width: 1000px) {
+    .menu {
+      padding: 0.5rem 0;
+      width: 100%;
+    }
+    .nav-link {
+      padding: .5rem .5rem;
+    }
+  }
+
+  @media (min-width: 320px) and (max-width: 480px) {
+    .menu {
+      padding: 0.5rem 0;
+      width: 100%;
+      font-size: var(--mini);
+    }
+    .nav-link {
+      padding: .5rem .5rem;
+    }
+    .locale-changer select {
+      width: 4.8vh;
+      height: 3vh;
+      line-height: 14px;
+      font-size: var(--mini);
+    }
+    .locale-changer select option {
+      font-size: var(--mini);
+    }
+    .locale-changer .form-control-sm {
+      padding: 0;
+    }
+    .locale-changer .form-control {
+      padding: 0;
+    }
+  }
+
 </style>

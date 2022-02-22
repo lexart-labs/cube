@@ -69,6 +69,7 @@ body {
   --big: 2rem;
   --mid: 1rem;
   --small: 0.8rem;
+  --mini: 0.6rem;
   --header-height: 4rem;
 
   font-family: 'Montserrat', sans-serif;
@@ -369,4 +370,271 @@ body::-webkit-scrollbar-track {
 body::-webkit-scrollbar-thumb {
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: #69acff;
+}
+
+
+/* Media Query Landscape Smartphones/Tablets */
+@media (min-width: 481px) and (max-width: 915px) and (orientation: landscape) {
+  /* Login */
+  .formContainer__background > img {
+    left: 0; 
+    right: 0; 
+    margin-left: auto; 
+    margin-right: auto; 
+    width: 360px;
+  }
+  .formContainer__login {
+    max-width: auto;
+    width: 100%;
+  }
+
+  /* Header */
+  #menu--component {
+    width: 100%;
+  }
+  .logout {
+    color: var(--white) !important;
+  }
+
+  /* Dashboard */
+  #dashboard--component {
+    width: 100%;
+    box-shadow: none;
+  }
+  .container-dash {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: none;
+  }
+  .abas-control {
+    justify-content: center;
+    align-items: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    background-color: var(--color-bg);
+  }
+  .abas-control ul {
+    display: flex;
+    margin: 0 10px;
+  }
+  .abas-control li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    border: none;
+    min-width: 200px;
+  }
+  .abas-control li > h4 {
+    margin-left: 0;
+  }
+  .abas-control .selected {
+    box-shadow: none;
+  }
+  .courseContainer {
+    width: 100%;
+  }
+  .courseContainer main {
+    width: 100%;
+  }
+  .left-select {
+    width: 30vw;
+  }
+
+  /* Evaluations tab */
+  .evaluation-card {
+    padding: 1rem 1rem;
+  }
+  .eval-head {
+    margin-bottom: 0.5rem;
+    flex-direction: column;
+    align-content: flex-start;
+    align-items: flex-start;
+  }
+  .eval-head h2{
+    font-size: 25px;
+  }
+  .eval-head span{
+    padding-top: 10px;
+  }
+
+  /* Dashboard tab */
+  #dash-ctrl {
+    margin-top: 2rem;
+  }
+  p.smallText {
+    font-size: 15px;
+  }
+
+  /* Modal Evaluations */
+  .coursesTab{
+    padding: 0 1rem;
+  }
+  .coursesTab .nav {
+    white-space: nowrap;
+    display: block !important;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .coursesTab .nav li {
+    display: inline-block
+  }
+  /*table tbody tr td:nth-child(2){
+    display:none;
+  }*/
+  .evaluations-modal {
+    padding: 0;
+  }
+  .modal-header {
+    padding: 1rem;
+  }
+  .modal-body {
+    padding: 0rem 1rem;
+  }
+  .modal-body .col-12{
+    padding: 1rem;
+  }
+
+  /* Timeline */
+  .timeline {
+    padding: 0;
+  }
+}
+
+/* Media Query Portrait Smartphones/Tablets */
+@media (min-width: 320px) and (max-width: 1000px) {
+  /* Login */
+  .formContainer__background > img {
+    left: 0; 
+    right: 0; 
+    margin-left: auto; 
+    margin-right: auto; 
+    width: 360px;
+  }
+  .formContainer__login {
+    max-width: auto;
+    width: 100%;
+  }
+
+  /* Header */
+  #menu--component {
+    width: 100%;
+  }
+  .logout {
+    color: var(--white) !important;
+  }
+
+  /* Dashboard */
+  #dashboard--component {
+    width: 100%;
+    box-shadow: none;
+  }
+  .container-dash {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: none;
+  }
+  .abas-control {
+    justify-content: center;
+    align-items: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    background-color: var(--color-bg);
+  }
+  .abas-control ul {
+    display: flex;
+    margin: 0 10px;
+  }
+  .abas-control li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    border: none;
+    min-width: 200px;
+  }
+  .abas-control li > h4 {
+    margin-left: 0;
+  }
+  .abas-control .selected {
+    box-shadow: none;
+  }
+  .courseContainer {
+    width: 100%;
+  }
+  .courseContainer main {
+    width: 100%;
+  }
+  .left-select {
+    width: 30vw;
+  }
+
+  /* Evaluations tab */
+  .evaluation-card {
+    padding: 1rem 1rem;
+  }
+  .eval-head {
+    margin-bottom: 0.5rem;
+    flex-direction: column;
+    align-content: flex-start;
+    align-items: flex-start;
+  }
+  .eval-head h2{
+    font-size: 25px;
+  }
+  .eval-head span{
+    padding-top: 10px;
+  }
+
+  /* Dashboard tab */
+  #dash-ctrl {
+    margin-top: 2rem;
+  }
+  p.smallText {
+    font-size: 15px;
+  }
+
+  /* Modal Evaluations */
+  .coursesTab{
+    padding: 0 1rem;
+  }
+  .coursesTab .nav {
+    white-space: nowrap;
+    display: block !important;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .coursesTab .nav li {
+    display: inline-block
+  }
+  /*table tbody tr td:nth-child(2){
+    display:none;
+  }*/
+  .evaluations-modal {
+    padding: 0;
+  }
+  .modal-header {
+    padding: 1rem;
+  }
+  .modal-body {
+    padding: 0rem 1rem;
+  }
+  .modal-body .col-12{
+    padding: 1rem;
+  }
+
+  /* Timeline */
+  .timeline {
+    padding: 0;
+  }
 }
