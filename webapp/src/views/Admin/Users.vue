@@ -21,7 +21,6 @@
       class="form-control rounded-input"
       style="margin-bottom: 1rem"
     />
-
     <div class="" v-if="!isLoading" style="width: 100%">
       <table class="table table-admin col-12">
         <thead class="is-bold">
@@ -84,6 +83,9 @@
           Next
         </span>
       </nav>
+    </div>
+    <div class="window-centered">
+      <Spinner v-if="isFeching || isLoading" />
     </div>
 
     <!-- User / Modal -->
