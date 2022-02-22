@@ -81,6 +81,15 @@ body {
 b {
   font-weight: 800;
 }
+label {
+  margin-bottom: 0.5rem;
+}
+.modal-xl .vs__dropdown-toggle {
+  border-color: #e0e2e2;
+}
+.modal-xl select {
+  border-color: #e0e2e2;
+}
 
 /* Login */
 #login--form {
@@ -339,7 +348,7 @@ b {
 .evaluations-modal {
   padding: 2rem;
 }
-input[type=range]:disabled {
+input[type=range] {
   padding: 0;
   height: 5px;
   border-radius: 10px;
@@ -440,28 +449,22 @@ input[type=range]:disabled {
 #admin--component main {
   width: 100%;
 }
-.is-main-title {
-  font-size: var(--big);
-}
 #users--component {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
-#users--component > header {
-  width: 100%;
-  gap: 1rem;
+.header-table {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  justify-content: space-between;
+  margin: 0 auto 1rem;
+  align-content: center;
+  align-items: center;
+  width: 100%;
 }
-.is-table-head {
-  background-color: var(--blue-2);
-  font-weight: 600;
-}
-.table-admin {
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+.admin-conteiner > input {
+  width: 60%;
+  margin-bottom: 2rem;
 }
 
 /* teams tab */
