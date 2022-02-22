@@ -290,12 +290,12 @@
                     <vue-select
                       :options="technologies.map((el) => el.name)"
                       v-model="currentTechFilter"
-                      style="width: 80%; height: 2rem"
+                      style="min-width: 40%; height: 2rem"
                     >
                     </vue-select>
                     <i
                       class="fas fa-plus-circle"
-                      style="font-size: 1.5rem; cursor: pointer"
+                      style="font-size: 1.3rem; cursor: pointer"
                       :style="
                         currentTechFilter
                           ? ''
@@ -305,15 +305,15 @@
                     />
                     <button
                       type="button"
-                      class="btn btn-info btn-sm"
-                      :disabled="!filters.technologies.length"
+                      class="btn btn-success btn-sm col-2"
+                      :disabled="filters.technologies.length === 0"
                       v-on:click="searchDevs()"
                     >
                       {{ $t("generic.search") }}
                     </button>
                     <button
                       type="button"
-                      class="btn btn-primary btn-sm"
+                      class="btn btn-primary btn-sm col-2"
                       data-toggle="modal"
                       data-target="#saveTeamModal"
                       :disabled="!(currentTeam && currentTeam.length)"
@@ -323,21 +323,19 @@
                     <button
                       v-if="inUseTeamList !== 'developers'"
                       v-on:click="cleanStatesTeams"
-                      class="btn btn-primary btn-sm"
+                      class="btn btn-primary btn-sm col-2"
                     >
                       {{ $t("generic.cancel") }}
                     </button>
                   </div>
                   <div class="order">
-                    <label
-                      >{{ $t("generic.order") }}
                       <vue-select
                         :options="indicators"
                         v-model="filters.sorter"
                         style="min-width: 50%"
+                        :placeholder="$t('generic.order')"
                       >
                       </vue-select>
-                    </label>
                     <i
                       class="fas fa-list-ul"
                       style="font-size: 2rem"
@@ -351,17 +349,17 @@
                     />
                   </div>
                 </div>
-                <h4 style="display: flex; gap: 1rem; margin-top: 0.5rem">
+                <h4 style="display: flex; gap: 1rem; margin-top: 0.5rem" class="tag">
                   <span
-                    class="badge badge-info badge-secondary"
+                    class="badge badge-primary"
                     v-for="(item, i) in filters.technologies"
                     :key="`usrStk${i}`"
+                    style="width: 10rem;"
                   >
                     {{ item }}
                     <i
-                      class="far fa-times-circle remove-icon"
+                      class="fas fa-times-circle remove-icon"
                       v-on:click="unsetFilter(item)"
-                      style="cursor: pointer; font-size: 1rem"
                     />
                   </span>
                 </h4>
@@ -1251,36 +1249,8 @@ export default {
   align-content: center;
   justify-content: center;
 }
-
 table {
   margin-top: 2rem;
-}
-.filters-ctl {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.filters-ctl .searcher {
-  display: flex;
-  width: 50%;
-  gap: 1rem;
-  max-height: 2rem;
-}
-
-.order {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  width: 28%;
-}
-
-.order label {
-  display: flex;
-  justify-content: flex-end;
-  width: 70%;
-  gap: 0.5rem;
 }
 
 #teamsModal .modal-body > ul {

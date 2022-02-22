@@ -147,6 +147,9 @@ b {
   font-size: var(--small);
   width: 5rem;
 }
+.vs__search::placeholder {
+  color: var(--text-color-mid) !important;
+}
 
 /* Header */
 #menu--component {
@@ -402,7 +405,7 @@ body::-webkit-scrollbar-thumb {
   display: flex;
   gap: 0.8rem;
   margin-top: 2rem;
-  height: 2.5rem;
+  height: 2rem;
 }
 .tag span {
   display: flex;
@@ -416,8 +419,8 @@ body::-webkit-scrollbar-thumb {
   font-size: 1.3rem;
   color: #013d86;
   height: 1.2rem;
-  background-color: white;
-  border-radius: 50%;
+  /* background-color: white;
+  border-radius: 50%; */
 }
 
 /* Admin area */
@@ -455,4 +458,40 @@ body::-webkit-scrollbar-thumb {
 }
 .table-admin {
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+/* teams tab */
+.filters-ctl {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  width: 100%;
+  margin: 3rem auto 1rem;
+}
+.filters-ctl .searcher {
+  display: flex;
+  width: 60%;
+  align-content: center;
+  gap: 0.8rem;
+  max-height: 2rem;
+}
+.order {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  width: 28%;
+}
+.searcher i {
+  display: flex;
+  flex-direction: column;
+  justify-content:center;
+}
+.btn-success {
+  background-color: var(--green-2);
+  border-color: var(--green-2);
+}
+.btn-success[disabled] {
+  background-color: var(--green-2);
+  border-color: var(--green-2);
+  opacity: 0.6;
 }
