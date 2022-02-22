@@ -450,9 +450,6 @@
 </template>
 
 <script>
-/* eslint-disable no-undef */
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-unused-vars */
 import Spinner from '../../components/Spinner.vue';
 import { verifyToken, copy } from '../../services/helpers';
 import CourseService from '../../services/course.service';
@@ -479,7 +476,7 @@ export default {
       course: {
         id: 0,
         fecha: '',
-        indicadores: {},
+        indicadores: UtilsServices.indicatorsCopy(),
       },
       evaluacion: {},
       pago: {},
@@ -586,13 +583,13 @@ export default {
 
       CourseService().getCourseById(id, (res) => {
         if (!res.error) {
-          this.course = res.response;
+          this.course = {
+            indicadores: UtilsServices.indicatorsCopy(),
+            ...res.response
+          };
+
           if (!this.course.resources) {
             this.course.resources = [];
-          }
-
-          if (!this.course.indicadores) {
-            this.course.indicadores = UtilsServices.copy(this.indicadores);
           }
 
           if (!this.course.pagos) {
@@ -900,10 +897,6 @@ export default {
         this.error = res.error;
       }
     });
-
-    // Obtengo indicadores desde el JSON
-      this.indicadores = Indicadores;
-      this.course.indicadores = Indicadores;
   },
   computed: {
     resultQuery() {
