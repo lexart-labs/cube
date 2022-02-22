@@ -26,7 +26,7 @@
 
     <div class="courseContainer" v-if="!isLoading">
       <table class="table table-admin">
-        <thead class="is-table-head">
+        <thead class="is-bold">
           <tr>
             <th>{{ $t("AdminUsers.columnName") }}</th>
             <th>Email</th>
