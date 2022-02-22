@@ -79,9 +79,8 @@ export default {
     };
   },
   watch: {
-    user: async function (old, nw) {
-      console.log(nw.position);
-      this.buildGraphic(nw);
+    user: async function () {
+      this.buildGraphic();
     },
   },
   methods: {
@@ -100,13 +99,15 @@ export default {
       const { data: { response } } = await axios.get(`${API}users/${id}`, { headers });
       return response || {};
     },
-    buildGraphic(usr) {
+    buildGraphic() {
       const AIMLpositions = [
         { position: "IA/ML Developer" },
         { position: "IA/ML Architect" },
         { position: "Research Developer" },
         { position: "Research Architect" },
       ];  
+
+      const usr = this.chartData;
 
       const current = usr.position;
       let isFull = true;
@@ -270,6 +271,11 @@ export default {
 
     // Build the graphic
     this.buildGraphic(this.user);
+  },
+  computed: {
+    chartData() {
+      return this.user;
+    },
   },
 };
 </script>
