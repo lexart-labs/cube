@@ -46,7 +46,7 @@ table {
 	border-spacing: 0;
 }
 
-
+/* general */
 body {
   /* Colors */
   --white: #ffffff;
@@ -90,6 +90,25 @@ label {
 .modal-xl select {
   border-color: #e0e2e2;
 }
+.is-bold {
+  font-weight: 800;
+}
+.is-big-text {
+  font-size: var(--big);
+}
+.is-small-text {
+  font-size: var(--small);
+}
+.is-upper {
+  text-transform: uppercase;
+}
+.is-rounded {
+  border-radius: 1.5rem;
+}
+.vs--searchable .vs__dropdown-toggle {
+  border-radius: 1rem;
+}
+
 
 /* Login */
 #login--form {
@@ -176,24 +195,6 @@ label {
 }
 #menu--component a:hover {
   opacity: 0.8;
-}
-.is-bold {
-  font-weight: 800;
-}
-.is-big-text {
-  font-size: var(--big);
-}
-.is-small-text {
-  font-size: var(--small);
-}
-.is-upper {
-  text-transform: uppercase;
-}
-.is-rounded {
-  border-radius: 1.5rem;
-}
-.vs--searchable .vs__dropdown-toggle {
-  border-radius: 1rem;
 }
 .logout {
   color: var(--text-color-mid) !important;
@@ -436,37 +437,6 @@ input[type=range] {
   border-radius: 50%; */
 }
 
-/* Admin area */
-#admin--component {
-  width: 80vw;
-  padding: 0;
-  margin: calc(var(--header-height) + 2rem) auto 5rem;
-  background-color: var(--white);
-  min-height: 70vh;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-  padding: 1rem 1rem 3rem;
-}
-#admin--component main {
-  width: 100%;
-}
-#users--component {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.header-table {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 auto 1rem;
-  align-content: center;
-  align-items: center;
-  width: 100%;
-}
-.admin-conteiner > input {
-  width: 60%;
-  margin-bottom: 2rem;
-}
-
 /* teams tab */
 .filters-ctl {
   display: flex;
@@ -505,7 +475,38 @@ input[type=range] {
 .styled-list {
   list-style-type: disc;
   margin-left: 1.5rem;
-} 
+}
+
+/* Admin area */
+#admin--component {
+  width: 80vw;
+  padding: 0;
+  margin: calc(var(--header-height) + 2rem) auto 5rem;
+  background-color: var(--white);
+  min-height: 70vh;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  padding: 1rem 1rem 3rem;
+}
+#admin--component main {
+  width: 100%;
+}
+#users--component {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.header-table {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto 1rem;
+  align-content: center;
+  align-items: center;
+  width: 100%;
+}
+.admin-conteiner > input {
+  width: 60%;
+  margin-bottom: 2rem;
+}
 
 /* Media Query Landscape Smartphones/Tablets */
 @media (min-width: 481px) and (max-width: 915px) and (orientation: landscape) {
