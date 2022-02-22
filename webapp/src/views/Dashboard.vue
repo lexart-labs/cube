@@ -336,17 +336,19 @@
                         :placeholder="$t('generic.order')"
                       >
                       </vue-select>
-                    <i
-                      class="fas fa-list-ul"
-                      style="font-size: 2rem"
-                      data-toggle="modal"
-                      data-target="#teamsModal"
-                      :style="
-                        teams && teams.length
-                          ? ''
-                          : 'pointer-events: none; color: #d3d3d3;'
-                      "
-                    />
+                    <abbr title="Teams" style="cursor: pointer">
+                      <i
+                        class="fas fa-list-ul"
+                        style="font-size: 2rem"
+                        data-toggle="modal"
+                        data-target="#teamsModal"
+                        :style="
+                          teams && teams.length
+                            ? ''
+                            : 'pointer-events: none; color: #d3d3d3;'
+                        "
+                      />
+                    </abbr>
                   </div>
                 </div>
                 <h4 style="display: flex; gap: 1rem; margin-top: 0.5rem" class="tag">
