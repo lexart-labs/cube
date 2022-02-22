@@ -125,7 +125,7 @@ const translations = {
         "Noviembre",
         "Diciembre",
       ],
-      asignments: 'Atribuiciones',
+      asignments: 'Atributos',
       searchPlaceholderEvaluations: 'Buscar evaluaciones',
       Evaluations: 'Evaluaciones',
       Dashboard: 'Dashboard',
