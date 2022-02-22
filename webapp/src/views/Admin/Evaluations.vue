@@ -68,9 +68,6 @@
         aria-labelledby="staticBackdropLabel"
         aria-hidden="true"
       >
-        <div :class="isFeching ? 'loading-cover' : ''">
-          <Spinner v-if="isFeching" />
-        </div>
         <div class="modal-dialog modal-xl modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
@@ -445,6 +442,9 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="window-centered">
+      <Spinner v-if="isFeching || isLoading" />
     </div>
   </div>
 </template>
