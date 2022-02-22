@@ -176,6 +176,9 @@ b {
 .is-upper {
   text-transform: uppercase;
 }
+.vs--searchable .vs__dropdown-toggle {
+  border-radius: 1rem;
+}
 .logout {
   color: var(--text-color-mid) !important;
 }
@@ -379,6 +382,42 @@ body::-webkit-scrollbar-thumb {
 /* Leads tree tab */
 .table-striped tbody tr:nth-of-type(odd) {
   background-color: var(--blue-1);
+}
+
+/* Personify tab */
+.personify-searcher {
+  margin: 5rem auto 2rem;
+}
+
+/* technologies */
+.new-tech-ctl {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5rem;
+}
+.tag {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 2rem;
+  height: 2.5rem;
+}
+.tag span {
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.9rem;
+  align-items: center;
+  align-content: center;
+}
+.tag span i {
+  cursor: pointer;
+  font-size: 1.3rem;
+  color: #013d86;
+  height: 1.2rem;
+  background-color: white;
+  border-radius: 50%;
 }
 
 /* Admin area */

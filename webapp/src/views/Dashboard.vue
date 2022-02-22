@@ -174,7 +174,7 @@
                 </vue-select>
                 <i
                   class="fas fa-plus-circle"
-                  style="font-size: 1.5rem; cursor: pointer"
+                  style="font-size: 2rem; cursor: pointer"
                   :style="
                     currentTech && currentTech.name
                       ? ''
@@ -183,17 +183,16 @@
                   v-on:click="addSkill()"
                 />
               </div>
-              <h2 style="display: flex; gap: 1rem; margin-top: 2rem">
+              <h2 class="tag">
                 <span
-                  class="badge badge-info badge-secondary"
+                  class="badge badge-primary col-2"
                   v-for="(item, i) in userStack"
                   :key="`usrStk${i}`"
                 >
                   {{ item.name }}
                   <i
-                    class="far fa-times-circle remove-icon"
+                    class="fas fa-times-circle remove-icon"
                     v-on:click="removeSkill(item)"
-                    style="cursor: pointer; font-size: 1rem"
                   />
                 </span>
               </h2>
@@ -270,13 +269,13 @@
               <div class="personify-searcher">
                 <vue-select
                   :options="myDevs"
-                  style="width: 60%"
                   :getOptionLabel="(el) => el.name"
                   v-model="myDev"
+                  class="col-10 is-rounded"
                 >
                 </vue-select>
                 <button
-                  class="btn btn-primary btn-sm"
+                  class="btn btn-primary btn-sm col-1"
                   :disabled="!myDev || myDev.idLextrack == 0"
                   v-on:click="personifyDashboard(myDev.idLextracking, true)"
                 >
@@ -1251,14 +1250,6 @@ export default {
   gap: 2rem;
   align-content: center;
   justify-content: center;
-}
-
-.new-tech-ctl {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
 }
 
 table {
