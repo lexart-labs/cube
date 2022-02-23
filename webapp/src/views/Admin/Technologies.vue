@@ -5,7 +5,7 @@
       <spinner v-if="isLoading"></spinner>
     </h4>
 
-    <div class="row" style="gap: 1rem; margin: 1rem auto 3rem;">
+    <div class="row" id="inputTech">
       <input
         type="text"
         v-model="newTechnology.name"
@@ -209,5 +209,10 @@ export default {
   h4 {
     margin-top: 1rem;
     margin-bottom: 2rem;
+  }
+
+  #inputTech{
+    gap: 1rem;
+    margin: 1rem auto 3rem;
   }
 </style>

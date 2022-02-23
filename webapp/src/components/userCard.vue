@@ -4,14 +4,14 @@
     v-on:click="onClick(user)"
   >
     <div class="usr-info">
-      <h2>{{ user.name }}</h2>
+      <h2 class="is-big-text is-bold">{{ user.name }}</h2>
       <h4>
         <b>{{ user.position }}</b>
       </h4>
       <div class="tags">
-        <h4>
+        <h4 class="tag">
           <span
-            class="badge badge-info badge-secondary"
+            class="badge badge-primary col-5"
             v-for="(tech, i) in user.technologies"
             :key="`tech${i}`"
           >
@@ -94,11 +94,25 @@ export default {
   flex-basis: 30%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
 }
 .tags > h4 {
   display: flex;
   gap: 0.5rem;
+}
+.tag {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+  height: 2rem;
+  flex-wrap: wrap;
+}
+.tag span {
+  display: flex;
+  justify-content: space-around;
+  font-size: .9rem;
+  align-items: center;
+  align-content: center;
+  height: 2rem;
 }
 .graphic {
   display: flex;
@@ -109,5 +123,19 @@ export default {
 
 .selected {
   border: 2px solid green;
+}
+@media (min-width: 320px) and (max-width: 1000px) {
+.card-parent {
+  max-width: 100%;
+  flex-direction: column;
+}
+.usr-info {
+  flex-basis: 30%;
+  display: flex;
+  flex-direction: column;
+}
+.graphic {
+  margin-top: 6rem;
+}
 }
 </style>

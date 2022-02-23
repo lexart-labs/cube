@@ -6,8 +6,7 @@
       <spinner v-if="isLoading"></spinner>
       <button
         type="button"
-        style="float: right; margin-bottom: 1rem"
-        class="btn btn-secondary"
+        class="btn btn-secondary floatRmarginB"
         data-toggle="modal"
         data-target="#staticBackdrop"
         v-on:click="newUser"
@@ -19,8 +18,7 @@
       type="search"
       :placeholder="$t('AdminUsers.searchPlaceholder')"
       v-model="searchQuery"
-      class="form-control rounded-input"
-      style="margin-bottom: 1rem"
+      class="form-control rounded-input search"
     />
     </header>
 
@@ -745,5 +743,30 @@ export default {
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
+}
+.floatRmarginB{
+  float: right;
+  margin-bottom: 1rem
+}
+
+@media (min-width: 320px) and (max-width: 1000px) {
+.coursesTab {
+  padding: 0;
+}
+.perfil form label{
+  padding-bottom: 1rem;
+}
+.modal-footer {
+  border-top: 0 none;
+}
+}
+
+</style>
+
+<style scoped>
+@media (min-width: 320px) and (max-width: 1000px) {
+.courseContainer {
+  padding: 1rem 0;
+}
 }
 </style>

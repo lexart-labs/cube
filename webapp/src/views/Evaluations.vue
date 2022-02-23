@@ -298,3 +298,21 @@ export default {
   },
 };
 </script>
+
+<style>
+@media (min-width: 320px) and (max-width: 1000px) {
+input.search{
+  margin-bottom: 1rem;
+  width: 100%;
+}
+.coursesTab {
+  padding: 0;
+}
+.perfil form label{
+  padding-bottom: 1rem;
+}
+.modal-footer {
+  border-top: 0 none;
+}
+}
+</style>

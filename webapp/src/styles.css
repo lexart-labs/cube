@@ -496,6 +496,13 @@ body::-webkit-scrollbar-thumb {
   border-color: var(--green-2);
   opacity: 0.6;
 }
+#searchInput{
+  min-width: 40%;
+  height: 2rem;
+}
+#filterInput{
+  min-width: 50%
+}
 
 /* Media Query Landscape Smartphones/Tablets */
 @media (min-width: 481px) and (max-width: 915px) and (orientation: landscape) {
@@ -524,6 +531,7 @@ body::-webkit-scrollbar-thumb {
   #dashboard--component {
     width: 100%;
     box-shadow: none;
+    min-height: 400px;
   }
   .container-dash {
     display: inline-flex;
@@ -700,6 +708,28 @@ body::-webkit-scrollbar-thumb {
     width: 30vw;
   }
 
+  /* Tabs Navigation Dashboard */
+  main .nav {
+    white-space: nowrap;
+    display: block !important;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  main .nav li {
+    display: inline-block
+  }
+
+  /* Dashboard tab */
+  #dash-ctrl {
+    margin-top: 2rem;
+  }
+  p.smallText {
+    font-size: 15px;
+  }
+
   /* Evaluations tab */
   .evaluation-card {
     padding: 1rem 1rem;
@@ -715,14 +745,6 @@ body::-webkit-scrollbar-thumb {
   }
   .eval-head span{
     padding-top: 10px;
-  }
-
-  /* Dashboard tab */
-  #dash-ctrl {
-    margin-top: 2rem;
-  }
-  p.smallText {
-    font-size: 15px;
   }
 
   /* Modal Evaluations */
@@ -761,4 +783,126 @@ body::-webkit-scrollbar-thumb {
   .timeline {
     padding: 0;
   }
+
+  /* Technologies Tab */
+  .tag {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .tag span {
+    justify-content: space-between;
+  }
+  .tag .col-2 {
+    -ms-flex: 0 0 41.666667%;
+    flex: 0 0 41.666667%;
+    max-width: 41.666667%;
+  }
+
+  /* Teams Tab */
+  .filters-ctl #searchInput{
+    min-width: 90%;
+    height: 2rem;
+  }
+  .filters-ctl #filterInput{
+    min-width: 75%
+  }
+  .filters-ctl .searcher {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .filters-ctl .order {
+    width: 50%;
+    justify-content: flex-start;
+    margin-top: 2rem;
+  }
+  .filters-ctl button.col-2 {
+    -ms-flex: 0 0 33.333333%;
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+
+  /* Personofy Developer */
+  .personify-searcher {
+    margin: 0rem;
+    display: flex;
+    width: 100%;
+    gap: 0rem;
+    justify-content: center;
+  }
+  .personify-searcher .col-10 {
+    -ms-flex: 0 0 66.666667%;
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+  }
+
+  /** Administration **/
+  #admin--component {
+    width: 100%;
+    box-shadow: none;
+    padding: 0;
+    margin: calc(var(--header-height) + 2rem) auto 5rem;
+    background-color: var(--white);
+    min-height: 70vh;
+    padding: 1rem 1rem 3rem;
+  }
+  #admin--component .container {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  /* Administration Buttons */
+  .adminButtons{
+    padding: 0;
+  }
+  .adminButtons .nav {
+    white-space: nowrap;
+    display: block !important;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .adminButtons .nav li {
+    display: inline-block
+  }
+
+  /* Developers Tab */
+  #admin--component .table {
+    display: block;
+    max-width: -moz-fit-content;
+    max-width: fit-content;
+    margin: 0 auto;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  #admin--component h4 span{
+    font-size: 28px;
+  }
+  #admin--component input.search{
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+
+  /* Technologies Tab */
+  #admin--component h4{
+    padding: 1em 0 0 0;
+  }
+  input.col-7 {
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  select.col-2 {
+    -ms-flex: 0 0 60%;
+    flex: 0 0 60%;
+    max-width: 60%;
+  }
+  button.col-1 {
+    -ms-flex: 0 0 35%;
+    flex: 0 0 35%;
+    max-width: 35%;
+  }
+
 }

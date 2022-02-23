@@ -18,8 +18,7 @@
       type="search"
       :placeholder="$t('AdminEvaluations.searchPlaceholder')"
       v-model="searchQuery"
-      class="form-control rounded-input"
-      style="margin-bottom: 1rem"
+      class="form-control rounded-input search"
     />
     <div class="courseContainer">
       <table class="table table-admin">
@@ -116,15 +115,15 @@
             <!-- General -->
             <div class="modal-body" v-if="tabs.general">
               <div class="row">
-                <div class="col-3">
+                <div class="col-md-3 col-sm-12">
                   <input
                     type="text"
                     placeholder="Descripción"
-                    class="form-control"
+                    class="form-control firstInput"
                     v-model="course.name"
                   />
                 </div>
-                <div class="col-3">
+                <div class="col-md-3 col-sm-12">
                   <input
                     type="datetime-local"
                     :placeholder="$t('generic.date')"
@@ -132,14 +131,14 @@
                     v-model="course.fecha"
                   />
                 </div>
-                <div class="col-3">
+                <div class="col-md-3 col-sm-12">
                   <v-select
                     v-model="course.user"
                     label="name"
                     :options="users"
                   ></v-select>
                 </div>
-                <div class="col-3">
+                <div class="col-md-3 col-sm-12">
                   <select class="form-control" v-model="course.active">
                     <option value="1">Active</option>
                     <option value="0">Inactive</option>
@@ -911,3 +910,17 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+@media (min-width: 320px) and (max-width: 1000px) {
+  .firstInput{
+    margin-top: 1em;
+  }
+  .modal-body .col-sm-12{
+    margin-bottom: 1em;
+  }
+  .courseContainer {
+  padding: 1rem 0;
+}
+}
+</style>

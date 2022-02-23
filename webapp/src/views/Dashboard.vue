@@ -290,7 +290,7 @@
                     <vue-select
                       :options="technologies.map((el) => el.name)"
                       v-model="currentTechFilter"
-                      style="min-width: 40%; height: 2rem"
+                      id="searchInput"
                     >
                     </vue-select>
                     <i
@@ -332,7 +332,7 @@
                       <vue-select
                         :options="indicators"
                         v-model="filters.sorter"
-                        style="min-width: 50%"
+                        id="filterInput"
                         :placeholder="$t('generic.order')"
                       >
                       </vue-select>
