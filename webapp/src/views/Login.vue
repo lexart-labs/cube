@@ -1,91 +1,77 @@
 <template>
-  <div
-    class="row container-fluid"
-    id="login--form"
-    v-bind:style="
-      setting.background
-        ? 'background-image: url(' + (api + setting.background) + ')'
-        : ''
-    "
-  >
+  <div class="container-fluid" id="login--form">
     <div
-      class="col-8 formContainer__background"
+      class="formContainer__background"
       v-bind:style="
         setting.background
           ? 'background-image: url(' + (api + setting.background) + ')'
           : ''
       "
     >
-      <!-- Add logo -->
       <img
         v-bind:src="
-          setting.logo ? api + setting.logo : require('@/assets/lexart-cube.png')
+          setting.logo
+            ? api + setting.logo
+            : require('@/assets/lexart-cube.png')
         "
       />
     </div>
-    <div class="col-4 formContainer__login">
-      <div class="row">
-        <div class="col-1"></div>
-        <div class="col-10 formContainer">
-          <img
-            v-bind:src="
-              setting.logo ? api + setting.logo : '../assets/lexart-cube.png'
-            "
-            class="only-mob"
-          />
-          <h2>Cube Platform</h2>
-          <small>By Lexart Factory</small>
-          <form style="margin-top: 1rem">
-            <input
-              type="email"
-              v-model="usr.email"
-              placeholder="Email"
-              class="form-control"
-            />
-            <input
-              type="password"
-              v-model="usr.password"
-              placeholder="Clave"
-              class="form-control"
-            />
-            <button
-              type="button"
-              class="btn btn-black"
-              v-bind:disabled="isLoading"
-              v-on:click="loginUser"
-            >
-              <span>{{ !isLoading ? "Login con" : "Login in" }} </span>
-              <img src="../assets/lextracking-logo.svg" alt="" />
-            </button>
-            <div v-if="error" class="alert alert-danger">
-              {{ error }}
-            </div>
-          </form>
-        </div>
-        <div class="col-1"></div>
-      </div>
+    <div class="formContainer__login">
+      <header>
+        <h2>Cube Platform</h2>
+        <small>By Lexart Factory</small>
+      </header>
+      <form style="margin-top: 1rem" id="login-form">
+        <input
+          type="email"
+          v-model="usr.email"
+          placeholder="Email"
+          class="form-control"
+        />
+        <input
+          type="password"
+          v-model="usr.password"
+          placeholder="Clave"
+          class="form-control"
+        />
+        <button
+          type="button"
+          class="btn btn-black btn-block"
+          v-bind:disabled="isLoading"
+          v-on:click="loginUser"
+        >
+          <span>Login</span>
+        </button>
+        <footer>
+          <span>con</span>
+          <img src="../assets/lextracking-logo.svg" alt="" />
+          <div v-if="error" class="alert alert-danger">
+            {{ error }}
+          </div>
+        </footer>
+      </form>
     </div>
   </div>
 </template>
 
 <script>
 /* eslint-disable no-underscore-dangle */
-import axios from 'axios';
-import Vue from 'vue';
-import { copy } from '../services/helpers';
-import { API, APP_NAME } from '../../env';
+import axios from "axios";
+import Vue from "vue";
+import { copy } from "../services/helpers";
+import { API, APP_NAME } from "../../env";
 
 export default {
-  name: 'Login',
+  name: "Login",
   data() {
     return {
       usr: {},
-      error: '',
+      error: "",
       isLoading: false,
       api: API,
       setting: {
-        background: '',
-        logo: '',
+        background: "",
+        logo: "",
       },
     };
   },
@@ -107,18 +93,18 @@ export default {
 
             window.localStorage.setItem(
               `_lextracking_user-${APP_NAME}`,
-              JSON.stringify(rs.response),
+              JSON.stringify(rs.response)
             );
 
-            this.$router.push('/app/dashboard');
+            this.$router.push("/app/dashboard");
           } else {
             this.error = rs.error;
           }
         },
         () => {
-          this.error = 'Error de servidor. Contacte al administrador';
+          this.error = "Error de servidor. Contacte al administrador";
           this.isLoading = false;
-        },
+        }
       );
     },
   },
@@ -136,21 +122,21 @@ export default {
             this.setting.token = token;
             window.localStorage.setItem(
               `_setting-${APP_NAME}`,
-              JSON.stringify(this.setting),
+              JSON.stringify(this.setting)
             );
           } else {
-            Vue.toasted.show('Error en obtener la institución', {
-              type: 'error',
+            Vue.toasted.show("Error en obtener la institución", {
+              type: "error",
               duration: 2000,
             });
           }
         },
         () => {
-          Vue.toasted.show('Error en obtener la institución', {
-            type: 'error',
+          Vue.toasted.show("Error en obtener la institución", {
+            type: "error",
             duration: 2000,
           });
-        },
+        }
       );
     }
   },

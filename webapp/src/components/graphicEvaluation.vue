@@ -62,10 +62,10 @@ export default {
       series.dataFields.categoryX = "x";
       series.dataFields.valueY = "y";
       series.stroke = am4core.color("#6a6c74");
-      series.strokeWidth = 3;
+      series.strokeWidth = 2;
 
       const bullet = series.bullets.push(new am4charts.CircleBullet());
-      bullet.circle.fill = am4core.color("#2bc4a7");
+      bullet.circle.fill = am4core.color("#0676ff");
       bullet.circle.radius = 5;
 
       const labelBullet = series.bullets.push(new am4charts.LabelBullet());
@@ -84,17 +84,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-  .ctl-card {
-    max-height: 100%;
-    width: 100%;
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-    padding: 1rem;
-  }
-
-  .ctl-card:hover {
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-  }
-
-</style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4 class="courseTitle">
+    <h4 class="courseTitle is-bold">
       <span>{{ $t("AdminOrigins.title") }}</span>
       <spinner v-if="isLoading"></spinner>
     </h4>
@@ -10,7 +10,7 @@
         type="text"
         v-model="newPlataform.plataform"
         :placeholder="$t('AdminOrigins.placeholder')"
-        class="form-control col-8"
+        class="form-control col-8 is-rounded"
       />
       <button
         type="button"
@@ -32,7 +32,7 @@
 
     <div class="courseContainer">
       <table class="table">
-        <thead>
+        <thead class="is-bold">
           <tr>
             <th
               v-for="(header, i) in $t('AdminOrigins.tableHeaders')"
@@ -40,6 +40,7 @@
             >
               {{ header }}
             </th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -47,10 +48,10 @@
             <td>{{ item.id }}</td>
             <td>{{ item.plataform }}</td>
             <td style="display: flex; gap: 1rem;">
-              <button class="btn btn-info" data-toggle="modal" v-on:click="setEditing(item)">
+              <button class="btn btn-success col-4" data-toggle="modal" v-on:click="setEditing(item)">
                 {{ $t("generic.edit") }}
               </button>
-              <button class="btn btn-danger" data-toggle="modal" v-on:click="deletePlataform(item.id)">
+              <button class="btn btn-secondary col-4" data-toggle="modal" v-on:click="deletePlataform(item.id)">
                 {{ $t("generic.remove") }}
               </button>
             </td>

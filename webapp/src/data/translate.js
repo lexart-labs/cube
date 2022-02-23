@@ -1,7 +1,7 @@
 const translations = {
   es: {
     dashboard: {
-      messageSyncStatus: 'Usuario sincronizado 👏',
+      messageSyncStatus: 'Usuario sincronizado',
       messageNotSyncStatus: '¡Tu usuario no está sincronizado!',
       messageSync: 'Usuario sincronizado correctamente',
       messageNotSync: 'Error al sincronizar el usuario',
@@ -125,7 +125,7 @@ const translations = {
         "Noviembre",
         "Diciembre",
       ],
-      asignments: 'Atribuiciones',
+      asignments: 'Atributos',
       searchPlaceholderEvaluations: 'Buscar evaluaciones',
       Evaluations: 'Evaluaciones',
       Dashboard: 'Dashboard',
@@ -229,7 +229,7 @@ const translations = {
   },
   en: {
     dashboard: {
-      messageSyncStatus: 'Synchronized user 👏',
+      messageSyncStatus: 'Synchronized user',
       messageNotSyncStatus: 'Your user is not synced!',
       messageSync: 'User successfully synced',
       messageNotSync: 'Failed to sync user',

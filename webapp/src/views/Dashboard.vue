@@ -1,111 +1,133 @@
 <template>
   <div id="dashboard--component">
-    <div class="container">
+    <div class="container-dash">
       <nav class="abas-control">
-        <h4
-          :key="`aba${index}`"
-          v-bind:class="
-            aba.name === show ? 'courseTitle selected' : 'courseTitle '
-          "
-          v-for="(aba, index) in abas"
-          v-on:click="() => setShow(aba.name)"
-          v-show="aba.onlyAdmin ? ['admin', 'pm'].includes(myUser.type) : true"
-        >
-          <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
-          {{ $t(`generic.${aba.name}`) }}
-          <spinner v-if="isLoading"></spinner>
-        </h4>
+        <ul>
+          <li
+            :key="`aba${index}`"
+            v-bind:class="
+              aba.name === show
+                ? 'courseTitle selected is-bold'
+                : 'courseTitle is-bold'
+            "
+            v-for="(aba, index) in abas"
+            v-on:click="() => setShow(aba.name)"
+            v-show="
+              aba.onlyAdmin ? ['admin', 'pm'].includes(myUser.type) : true
+            "
+          >
+            <h4>
+              <i v-if="aba.hasIcon" v-bind:class="aba.class"></i>
+              {{ $t(`generic.${aba.name}`) }}
+            </h4>
+          </li>
+        </ul>
       </nav>
-      <div class="courseContainer" v-if="!isLoading">
+      <div class="courseContainer">
         <div>
-          <div class="alert alert-primary" role="alert" v-if="error">
-            <div>
-              <p>{{ error }}</p>
-            </div>
-            <div class="text-right">
-              <button
-                class="btn btn-primary"
-                v-on:click="syncUsuario()"
-                v-bind:disabled="isSync"
+          <section class="warnings">
+            <div class="alerts-group">
+              <div role="alert" v-if="error">
+                <span>{{ error }}</span>
+                <div class="text-right">
+                  <button
+                    class="btn btn-primary btn-sm"
+                    v-on:click="syncUsuario()"
+                    v-bind:disabled="isSync"
+                  >
+                    Sync user
+                  </button>
+                </div>
+              </div>
+              <div role="alert" v-if="success">
+                <span>{{ success }}</span>
+                <i class="fas fa-check alert-check" />
+              </div>
+              <div
+                v-if="isPersonifying"
+                class="alert alert-info psy-notf"
+                role="alert"
               >
-                Sync user
-              </button>
+                <span
+                  >Is personifying, click
+                  <button v-on:click="personifyDashboard()">here</button>
+                  to return
+                </span>
+              </div>
             </div>
-          </div>
-          <div class="alert alert-success" role="alert" v-if="success">
-            <div>
-              <p>{{ success }}</p>
-            </div>
-          </div>
-          <div v-if="isPersonifying" class="alert alert-info psy-notf" role="alert">
-            <span>Is personifying, click 
-            <button v-on:click="personifyDashboard()">here</button>
-             to return
-            </span>
-          </div>
 
-          <div class="left-select">
-            <select
-              id="year-filter"
-              class="form-control"
-              v-model="year"
-              v-on:change="obtenerEvaluaciones"
-              v-show="show !== 'technologies'"
-              v-if="years.length > 0"
-            >
-              <option v-for="(yr, i) in years" :key="i" :selected="yr === year">
-                {{ yr }}
-              </option>
-            </select>
-          </div>
+            <div class="left-select">
+              <select
+                id="year-filter"
+                class="form-control"
+                v-model="year"
+                v-on:change="obtenerEvaluaciones"
+                v-show="show !== 'technologies'"
+                v-if="years.length > 0"
+              >
+                <option
+                  v-for="(yr, i) in years"
+                  :key="i"
+                  :selected="yr === year"
+                >
+                  {{ yr }}
+                </option>
+              </select>
+            </div>
+          </section>
 
           <div
-            v-show="isFetching"
+            v-show="isLoading || isFetching"
             class="spinner-border text-info window-centered"
             role="status"
           >
             <span class="sr-only">Loading...</span>
           </div>
-          <div v-show="!isFetching">
-            <div v-show="show === 'Dashboard'">
-              <timeline :user="myUser" v-if="myUser" />
-              <h4 class="text-center" v-if="years.length === 0">
-                {{
-                  translations[$store.state.language].dashboard
-                    .userHaventEvaluations
-                }}
-              </h4>
-              <div class="graphics-ctl">
-                <graphic v-if="resources.length" :evaluations="resources" />
-                <Rombo
-                  v-if="resources.length"
-                  :evaluations="resources"
-                  :year="year"
-                />
+
+          <main v-show="!isFetching && !isLoading">
+            <section v-show="show === 'Dashboard'" class="is-padded">
+              <div id="dash-ctrl">
+                <timeline :user="myUser" v-if="myUser" />
+                <h4 class="text-center" v-if="years.length === 0">
+                  {{
+                    translations[$store.state.language].dashboard
+                      .userHaventEvaluations
+                  }}
+                </h4>
+                <div class="graphics-ctl">
+                  <graphic v-if="resources.length" :evaluations="resources" />
+                  <Rombo
+                    v-if="resources.length"
+                    :evaluations="resources"
+                    :year="year"
+                  />
+                </div>
               </div>
-            </div>
-            <div class="dashboard--resources" v-show="show === 'Evaluations'">
+            </section>
+            <section v-show="show === 'Evaluations'" class="dashboard--resources">
               <h4 class="text-center" v-if="years.length === 0">
                 {{
-                  translations[$store.state.language].dashboard
-                    .userHaventEvaluations
+                  translations[$store.state.language].dashboard.userHaventEvaluations
                 }}
               </h4>
               <evaluation-viewer
                 v-if="resources.length"
                 :course="resources[showEvaluation]"
               />
-              <input
-                type="search"
-                :placeholder="$t('generic.searchPlaceholderEvaluations')"
-                v-model="searchQuery"
-                v-if="success && resultQuery.length > 0"
-                class="form-control"
-                style="margin-bottom: 1rem"
-              />
+              <div class="inner-addon right-addon">
+                <input
+                  type="search"
+                  :placeholder="$t('generic.searchPlaceholderEvaluations')"
+                  v-model="searchQuery"
+                  v-if="success && resultQuery.length > 0"
+                  class="form-control rounded-input"
+                  style="margin-bottom: 1rem"
+                />
+                <!-- <i class="fas fa-search"></i> -->
+              </div>
               <div class="courseContainer" v-if="!isLoading"></div>
               <div
-                class="alert alert-primary"
+                class="alert alert-primary evaluation-card"
                 :key="`resource${index}`"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
@@ -119,10 +141,18 @@
                 "
               >
                 <div>
-                  <p>
-                    <i class="bi bi-calendar-check-fill"></i>
-                    {{ resource.name }}
-                  </p>
+                  <div class="is-bold is-big-text eval-head">
+                    <h2>
+                      <i
+                        class="bi bi-calendar-check-fill"
+                        style="font-size: 80%"
+                      />
+                      {{ resource.name }}
+                    </h2>
+                    <span class="text-right">
+                      <b>{{ resource.total }}%</b>
+                    </span>
+                  </div>
                   <p class="smallText">
                     <b>Tech Lead:</b> {{ resource.lead }} -
                     {{ formatDate(resource.fecha) }}
@@ -130,12 +160,9 @@
                   <hr />
                   <p class="smallText" v-html="resource.observaciones"></p>
                 </div>
-                <div class="text-right">
-                  <b>{{ resource.total }}%</b>
-                </div>
               </div>
-            </div>
-            <div v-show="show === 'technologies'">
+            </section>
+            <section v-show="show === 'technologies'">
               <div class="new-tech-ctl">
                 <vue-select
                   :options="technologies"
@@ -147,7 +174,7 @@
                 </vue-select>
                 <i
                   class="fas fa-plus-circle"
-                  style="font-size: 1.5rem; cursor: pointer"
+                  style="font-size: 2rem; cursor: pointer"
                   :style="
                     currentTech && currentTech.name
                       ? ''
@@ -156,23 +183,21 @@
                   v-on:click="addSkill()"
                 />
               </div>
-              <h2 style="display: flex; gap: 1rem; margin-top: 2rem">
+              <h2 class="tag">
                 <span
-                  class="badge badge-info badge-secondary"
+                  class="badge badge-primary col-2"
                   v-for="(item, i) in userStack"
                   :key="`usrStk${i}`"
                 >
                   {{ item.name }}
                   <i
-                    class="far fa-times-circle remove-icon"
+                    class="fas fa-times-circle remove-icon"
                     v-on:click="removeSkill(item)"
-                    style="cursor: pointer; font-size: 1rem"
                   />
                 </span>
               </h2>
-            </div>
-            <div
-              v-show="show === 'leadTree'"
+            </section>
+            <section v-show="show === 'leadTree'"
               v-if="['admin', 'pm'].includes(myUser.type)"
             >
               <ul class="nav nav-tabs">
@@ -199,8 +224,8 @@
                 <table class="table table-striped">
                   <thead>
                     <tr>
-                      <th>Lead</th>
-                      <th>Developers</th>
+                      <th class="is-bold">Lead</th>
+                      <th class="is-bold">Developers</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -225,7 +250,7 @@
                 <input
                   type="text"
                   v-model="search"
-                  class="form-control"
+                  class="form-control rounded-input"
                   :placeholder="$t('AdminUsers.searchPlaceholder')"
                   style="margin: 1rem 0"
                 />
@@ -239,38 +264,38 @@
                   </li>
                 </ul>
               </div>
-            </div>
-            <div v-show="show === 'personify'">
+            </section>
+            <section v-show="show === 'personify'">
               <div class="personify-searcher">
                 <vue-select
                   :options="myDevs"
-                  style="width: 60%"
                   :getOptionLabel="(el) => el.name"
                   v-model="myDev"
+                  class="col-10 is-rounded"
                 >
                 </vue-select>
                 <button
-                  class="btn btn-primary btn-sm"
+                  class="btn btn-primary btn-sm col-1"
                   :disabled="!myDev || myDev.idLextrack == 0"
                   v-on:click="personifyDashboard(myDev.idLextracking, true)"
                 >
                   Personify
                 </button>
               </div>
-            </div>
-            <div v-show="show === 'hunting'">
+            </section>
+            <section v-show="show === 'hunting'">
               <header>
                 <div class="filters-ctl">
                   <div class="searcher">
                     <vue-select
                       :options="technologies.map((el) => el.name)"
                       v-model="currentTechFilter"
-                      style="width: 80%; height: 2rem"
+                      style="min-width: 40%; height: 2rem"
                     >
                     </vue-select>
                     <i
                       class="fas fa-plus-circle"
-                      style="font-size: 1.5rem; cursor: pointer"
+                      style="font-size: 1.3rem; cursor: pointer"
                       :style="
                         currentTechFilter
                           ? ''
@@ -280,15 +305,15 @@
                     />
                     <button
                       type="button"
-                      class="btn btn-info btn-sm"
-                      :disabled="!filters.technologies.length"
+                      class="btn btn-success btn-sm col-2"
+                      :disabled="filters.technologies.length === 0"
                       v-on:click="searchDevs()"
                     >
                       {{ $t("generic.search") }}
                     </button>
                     <button
                       type="button"
-                      class="btn btn-primary btn-sm"
+                      class="btn btn-primary btn-sm col-2"
                       data-toggle="modal"
                       data-target="#saveTeamModal"
                       :disabled="!(currentTeam && currentTeam.length)"
@@ -298,45 +323,45 @@
                     <button
                       v-if="inUseTeamList !== 'developers'"
                       v-on:click="cleanStatesTeams"
-                      class="btn btn-primary btn-sm"
+                      class="btn btn-primary btn-sm col-2"
                     >
                       {{ $t("generic.cancel") }}
                     </button>
                   </div>
                   <div class="order">
-                    <label
-                      >{{ $t("generic.order") }}
                       <vue-select
                         :options="indicators"
                         v-model="filters.sorter"
                         style="min-width: 50%"
+                        :placeholder="$t('generic.order')"
                       >
                       </vue-select>
-                    </label>
-                    <i
-                      class="fas fa-list-ul"
-                      style="font-size: 2rem"
-                      data-toggle="modal"
-                      data-target="#teamsModal"
-                      :style="
-                        teams && teams.length
-                          ? ''
-                          : 'pointer-events: none; color: #d3d3d3;'
-                      "
-                    />
+                    <abbr title="Teams" style="cursor: pointer">
+                      <i
+                        class="fas fa-list-ul"
+                        style="font-size: 2rem"
+                        data-toggle="modal"
+                        data-target="#teamsModal"
+                        :style="
+                          teams && teams.length
+                            ? ''
+                            : 'pointer-events: none; color: #d3d3d3;'
+                        "
+                      />
+                    </abbr>
                   </div>
                 </div>
-                <h4 style="display: flex; gap: 1rem; margin-top: 0.5rem">
+                <h4 style="display: flex; gap: 1rem; margin-top: 0.5rem" class="tag">
                   <span
-                    class="badge badge-info badge-secondary"
+                    class="badge badge-primary"
                     v-for="(item, i) in filters.technologies"
                     :key="`usrStk${i}`"
+                    style="width: 10rem;"
                   >
                     {{ item }}
                     <i
-                      class="far fa-times-circle remove-icon"
+                      class="fas fa-times-circle remove-icon"
                       v-on:click="unsetFilter(item)"
-                      style="cursor: pointer; font-size: 1rem"
                     />
                   </span>
                 </h4>
@@ -376,7 +401,7 @@
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title">
+                      <h5 class="modal-title is-bold">
                         {{ $t("dashboard.saveTeam") }}
                       </h5>
                       <button
@@ -392,11 +417,11 @@
                       <input
                         type="text"
                         v-model="teamName"
-                        class="form-control"
+                        class="form-control is-rounded"
                         placeholder="Team name"
                         style="margin-bottom: 1rem"
                       />
-                      <ul>
+                      <ul class="styled-list">
                         <li v-for="dev in currentTeam" :key="`${dev.name}`">
                           {{ dev.name }}
                         </li>
@@ -405,19 +430,19 @@
                     <div class="modal-footer">
                       <button
                         type="button"
-                        class="btn btn-primary"
-                        v-on:click="saveTeam"
-                        data-dismiss="modal"
-                      >
-                        {{ $t("dashboard.saveTeam") }}
-                      </button>
-                      <button
-                        type="button"
                         v-on:click="teamName = ''"
                         class="btn btn-secondary"
                         data-dismiss="modal"
                       >
                         {{ $t("generic.close") }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-primary"
+                        v-on:click="saveTeam"
+                        data-dismiss="modal"
+                      >
+                        {{ $t("dashboard.saveTeam") }}
                       </button>
                     </div>
                   </div>
@@ -429,7 +454,7 @@
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title">
+                      <h5 class="modal-title is-bold">
                         {{ $t("dashboard.teamModalTitle") }}
                       </h5>
                       <button
@@ -447,7 +472,7 @@
                           <div class="team-card">
                             <div>
                               <div class="team-card-title">
-                                <h5>{{ team.name }}</h5>
+                                <h5 style="font-size: 1.5rem"><b>{{ team.name }}</b></h5>
                                 <span>{{
                                   formatDate(team.updatedAt).split(".")[0]
                                 }}</span>
@@ -465,7 +490,7 @@
                                 />
                               </div>
                             </div>
-                            <ul>
+                            <ul class="styled-list">
                               <li
                                 v-for="dev in team.team"
                                 :key="`dev-${dev.name}`"
@@ -486,7 +511,7 @@
                 <div class="modal-dialog modal-dialog-centered" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title">
+                      <h5 class="modal-title is-bold">
                         {{ $t("generic.warning") }}
                       </h5>
                       <button
@@ -523,8 +548,8 @@
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </section>
+          </main>
         </div>
       </div>
     </div>
@@ -1079,8 +1104,8 @@ export default {
       this.isLoading = true;
       this.show = "Dashboard";
       this.showEvaluation = 0;
-      this.year = (new Date()).getFullYear();
-      this.years = [(new Date()).getFullYear()];
+      this.year = new Date().getFullYear();
+      this.years = [new Date().getFullYear()];
       this.myUser = {};
       this.resources = [];
       this.isPersonifying = toggle;
@@ -1218,11 +1243,6 @@ export default {
 </script>
 
 <style scoped>
-.left-select {
-  width: 10vw;
-  margin: 1rem 0rem;
-}
-
 .graphics-ctl {
   width: 100%;
   display: flex;
@@ -1231,67 +1251,8 @@ export default {
   align-content: center;
   justify-content: center;
 }
-
-.window-centered {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-}
-
-.new-tech-ctl {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-}
-
 table {
   margin-top: 2rem;
-}
-
-.personify-searcher {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  gap: 1rem;
-}
-.psy-notf button {
-  padding: 0;
-  background-color: transparent;
-  color: #0c5460;
-  border: none;
-  font-weight: 700;
-}
-.psy-notf button:hover {
-  text-decoration: underline;
-}
-.filters-ctl {
-  display: flex;
-  flex-flow: row wrap;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.filters-ctl .searcher {
-  display: flex;
-  width: 50%;
-  gap: 1rem;
-  max-height: 2rem;
-}
-
-.order {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  width: 28%;
-}
-
-.order label {
-  display: flex;
-  justify-content: flex-end;
-  width: 70%;
-  gap: 0.5rem;
 }
 
 #teamsModal .modal-body > ul {
