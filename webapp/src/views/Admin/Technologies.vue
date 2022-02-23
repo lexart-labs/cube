@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4 class="courseTitle">
+    <h4 class="courseTitle is-bold">
       <span>{{ $t("AdminTechnologies.title") }}</span>
       <spinner v-if="isLoading"></spinner>
     </h4>
@@ -10,9 +10,9 @@
         type="text"
         v-model="newTechnology.name"
         :placeholder="$t('AdminTechnologies.placeholder')"
-        class="form-control col-7"
+        class="form-control col-7 is-rounded"
       />
-      <select v-model="newTechnology.plataform" class="form-control col-2">
+      <select v-model="newTechnology.plataform" class="form-control col-2 is-rounded">
         <option value="" disabled>Selecione</option>
         <option
           v-for="(plataform, i) in plataforms"
@@ -41,8 +41,8 @@
     </div>
 
     <div class="courseContainer">
-      <table class="table">
-        <thead>
+      <table class="table col-12">
+        <thead class="is-bold">
           <tr>
             <th
               v-for="(header, i) in $t('AdminTechnologies.tableHeaders')"
@@ -58,10 +58,10 @@
             <td>{{ tech.name }}</td>
             <td>{{ tech.plataform }}</td>
             <td style="display: flex; gap: 1rem;">
-              <button class="btn btn-info" data-toggle="modal" v-on:click="setEditing(tech)">
+              <button class="btn btn-success col-4" data-toggle="modal" v-on:click="setEditing(tech)">
                 {{ $t("generic.edit") }}
               </button>
-              <button class="btn btn-danger" data-toggle="modal" v-on:click="deleteTech(tech)">
+              <button class="btn btn-secondary col-4" data-toggle="modal" v-on:click="deleteTech(tech)">
                 {{ $t("generic.remove") }}
               </button>
             </td>

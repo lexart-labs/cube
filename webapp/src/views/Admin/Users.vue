@@ -1,30 +1,28 @@
 <template>
-  <div id="users--component" style="margin-top: 1rem">
-    <header>
-    <h4 class="courseTitle is-main-title">
-      <span>{{ $t("AdminUsers.title") }}</span>
-      <spinner v-if="isLoading"></spinner>
+  <div id="users--component" class="admin-conteiner" style="margin-top: 1rem">
+    <header class="header-table">
+      <h4 class="is-bold">
+        <span>{{ $t("AdminUsers.title") }}</span>
+      </h4>
       <button
         type="button"
-        class="btn btn-secondary floatRmarginB"
+        class="btn btn-success"
         data-toggle="modal"
         data-target="#staticBackdrop"
         v-on:click="newUser"
       >
         + Developers
       </button>
-    </h4>
+    </header>
     <input
       type="search"
       :placeholder="$t('AdminUsers.searchPlaceholder')"
       v-model="searchQuery"
       class="form-control rounded-input search"
     />
-    </header>
-
-    <div class="courseContainer" v-if="!isLoading">
-      <table class="table table-admin">
-        <thead class="is-table-head">
+    <div class="" v-if="!isLoading" style="width: 100%">
+      <table class="table table-admin col-12">
+        <thead class="is-bold">
           <tr>
             <th>{{ $t("AdminUsers.columnName") }}</th>
             <th>Email</th>
@@ -50,7 +48,7 @@
             <td>
               <!-- Trigger modal -->
               <button
-                class="btn btn-info"
+                class="btn btn-primary col-12"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
                 v-on:click="getUserById(user.idLextracking)"
@@ -85,6 +83,9 @@
         </span>
       </nav>
     </div>
+    <div class="window-centered">
+      <Spinner v-if="isFeching || isLoading" />
+    </div>
 
     <!-- User / Modal -->
     <div
@@ -99,7 +100,7 @@
       <div :class="isFeching ? 'loading-cover' : ''">
         <Spinner v-if="isFeching" />
       </div>
-      <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="courseTitle" id="staticBackdropLabel">
@@ -160,7 +161,7 @@
                       $t("AdminUsers.columnCharge")
                     }}</label>
                     <select
-                      class="form-control"
+                      class="form-control is-rounded"
                       v-model="user.positionId"
                       id="career"
                     >
@@ -177,7 +178,7 @@
                   <div class="col">
                     <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
                     <select
-                      class="form-control"
+                      class="form-control is-rounded"
                       v-model="user.levelId"
                       id="lvl"
                     >
@@ -196,7 +197,7 @@
                 <label for="lead-select">{{ $t("generic.lead") }}</label>
                 <select
                   v-model="user.lead"
-                  class="form-control"
+                  class="form-control is-rounded"
                   id="lead-select"
                 >
                   <option
@@ -248,7 +249,7 @@
                   </li>
                 </ul>
                 <br />
-                <select class="form-control" v-model="user.active">
+                <select class="form-control is-rounded" v-model="user.active">
                   <option value="1">Active</option>
                   <option value="0">Inactive</option>
                 </select>
@@ -290,7 +291,7 @@
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-secondary col-1"
               data-dismiss="modal"
               v-on:click="cleanStates"
             >
@@ -298,7 +299,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-success"
+              class="btn btn-primary col-1"
               v-on:click="upsertUser"
               :disabled="isLoading"
             >
