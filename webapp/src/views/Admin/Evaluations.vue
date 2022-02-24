@@ -6,7 +6,7 @@
       </h4>
       <button
           type="button"
-          class="btn btn-success col-2"
+          class="btn btn-success"
           data-toggle="modal"
           data-target="#staticBackdrop"
           v-on:click="newCourse"
@@ -18,10 +18,9 @@
       type="search"
       :placeholder="$t('AdminEvaluations.searchPlaceholder')"
       v-model="searchQuery"
-      class="form-control is-rounded"
-      style="margin-bottom: 1rem"
+      class="form-control is-rounded search"
     />
-    <div class="">
+    <div>
       <table class="table table-admin col-12">
         <thead class="is-bold">
           <tr>
@@ -84,36 +83,35 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <!-- Tabs -->
-            <div class="coursesTab">
-              <ul class="nav nav-tabs">
-                <li class="nav-item">
-                  <a
-                    class="nav-link"
-                    v-bind:class="{ active: tabs.general }"
-                    v-on:click="activeTab('general')"
-                    >General</a
-                  >
-                </li>
-                <li
-                  class="nav-item"
-                  :key="`tab${i}`"
-                  v-for="(tab, i) in tabItems"
-                  v-if="course.id != 0"
-                >
-                  <a
-                    class="nav-link"
-                    v-bind:class="{ active: tabs[tab.tab] }"
-                    v-on:click="activeTab(tab.tab)"
-                    >{{ $t(`generic.${tab.name}`) }}</a
-                  >
-                </li>
-              </ul>
-            </div>
             <!-- General -->
             <div class="modal-body" v-if="tabs.general">
+              <div class="coursesTab" style="margin-bottom: 1rem;">
+                <ul class="nav nav-tabs">
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      v-bind:class="{ active: tabs.general }"
+                      v-on:click="activeTab('general')"
+                      >General</a
+                    >
+                  </li>
+                  <li
+                    class="nav-item"
+                    :key="`tab${i}`"
+                    v-for="(tab, i) in tabItems"
+                    v-if="course.id != 0"
+                  >
+                    <a
+                      class="nav-link"
+                      v-bind:class="{ active: tabs[tab.tab] }"
+                      v-on:click="activeTab(tab.tab)"
+                      >{{ $t(`generic.${tab.name}`) }}</a
+                    >
+                  </li>
+                </ul>
+              </div>
               <div class="row" style="margin-bottom: 2rem;">
-                <div class="col-3">
+                <div class="col-md-3 col-sm-12">
                   <input
                     type="text"
                     placeholder="Descripción"
@@ -121,7 +119,7 @@
                     v-model="course.name"
                   />
                 </div>
-                <div class="col-3">
+                <div class="col-md-3 col-sm-12">
                   <input
                     type="datetime-local"
                     :placeholder="$t('generic.date')"
@@ -129,14 +127,14 @@
                     v-model="course.fecha"
                   />
                 </div>
-                <div class="col-3">
+                <div class="col-md-3 col-sm-12">
                   <v-select
                     v-model="course.user"
                     label="name"
                     :options="users"
                   ></v-select>
                 </div>
-                <div class="col-3">
+                <div class="col-md-3 col-sm-12">
                   <select class="form-control is-rounded" v-model="course.active">
                     <option value="1">Active</option>
                     <option value="0">Inactive</option>
@@ -911,3 +909,17 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+@media (min-width: 320px) and (max-width: 1000px) {
+  .firstInput{
+    margin-top: 1em;
+  }
+  .modal-body .col-sm-12{
+    margin-bottom: 1em;
+  }
+  .courseContainer {
+  padding: 1rem 0;
+}
+}
+</style>

@@ -385,7 +385,8 @@ input[type=range] {
 .ctl-card:hover {
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
-*::-webkit-scrollbar {
+
+/* *::-webkit-scrollbar {
   width: 5px;
 }
 *::-webkit-scrollbar-track {
@@ -394,7 +395,7 @@ input[type=range] {
 *::-webkit-scrollbar-thumb {
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: #69acff;
-}
+} */
 
 /* Leads tree tab */
 .table-striped tbody tr:nth-of-type(odd) {
@@ -415,15 +416,20 @@ input[type=range] {
   justify-content: center;
   margin-top: 5rem;
 }
+.tech{
+  width: 100%;
+}
 .tag {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.8rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
+  margin-left: 0.5rem;
   height: 2rem;
 }
 .tag span {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   font-size: 0.9rem;
   align-items: center;
   align-content: center;
@@ -435,6 +441,10 @@ input[type=range] {
   height: 1.2rem;
   /* background-color: white;
   border-radius: 50%; */
+}
+span.badge.badge-primary {
+  min-width: 15%;
+  min-height: 35px;
 }
 
 /* teams tab */
@@ -451,6 +461,10 @@ input[type=range] {
   align-content: center;
   gap: 0.8rem;
   max-height: 2rem;
+}
+.filters-ctl .searcher button.btn.btn-success.btn-sm,
+.filters-ctl .searcher button.btn.btn-primary.btn-sm {
+  min-width: 18%;
 }
 .order {
   display: flex;
@@ -471,6 +485,13 @@ input[type=range] {
   background-color: var(--green-2);
   border-color: var(--green-2);
   opacity: 0.6;
+}
+#searchInput{
+  min-width: 40%;
+  height: 2rem;
+}
+#filterInput{
+  min-width: 50%
 }
 .styled-list {
   list-style-type: disc;
@@ -535,6 +556,7 @@ input[type=range] {
   #dashboard--component {
     width: 100%;
     box-shadow: none;
+    min-height: 400px;
   }
   .container-dash {
     display: inline-flex;
@@ -711,6 +733,28 @@ input[type=range] {
     width: 30vw;
   }
 
+  /* Tabs Navigation Dashboard */
+  main .nav {
+    white-space: nowrap;
+    display: block !important;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  main .nav li {
+    display: inline-block
+  }
+
+  /* Dashboard tab */
+  #dash-ctrl {
+    margin-top: 2rem;
+  }
+  p.smallText {
+    font-size: 15px;
+  }
+
   /* Evaluations tab */
   .evaluation-card {
     padding: 1rem 1rem;
@@ -726,14 +770,6 @@ input[type=range] {
   }
   .eval-head span{
     padding-top: 10px;
-  }
-
-  /* Dashboard tab */
-  #dash-ctrl {
-    margin-top: 2rem;
-  }
-  p.smallText {
-    font-size: 15px;
   }
 
   /* Modal Evaluations */
@@ -772,4 +808,140 @@ input[type=range] {
   .timeline {
     padding: 0;
   }
+
+  /* Technologies Tab */
+  .new-tech-ctl {
+    margin-top: 2rem;
+  }
+  .tag {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .tag span {
+    justify-content: space-between;
+  }
+
+  span.badge.badge-primary {
+    min-width: 48%;
+  }
+
+  /* Teams Tab */
+  .filters-ctl #searchInput{
+    min-width: 90%;
+    height: 2rem;
+  }
+  .filters-ctl .searcher {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .filters-ctl .searcher button.btn.btn-success.btn-sm,
+  .filters-ctl .searcher button.btn.btn-primary.btn-sm {
+    min-width: 35%;
+    margin-left: .2rem;
+  }
+  .filters-ctl .order {
+    width: 50%;
+    justify-content: flex-start;
+    margin-top: 2rem;
+  }
+  .filters-ctl #filterInput{
+    min-width: 110%
+  }
+  .filters-ctl button.col-2 {
+    -ms-flex: 0 0 33.333333%;
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+
+  /* Personofy Developer */
+  .personify-searcher {
+    margin: 0rem;
+    display: flex;
+    width: 100%;
+    gap: 0rem;
+    justify-content: center;
+  }
+  .personify-searcher .col-10 {
+    -ms-flex: 0 0 66.666667%;
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+  }
+
+  /** Administration **/
+  #admin--component {
+    width: 100%;
+    box-shadow: none;
+    padding: 0;
+    margin: calc(var(--header-height) + 2rem) auto 5rem;
+    background-color: var(--white);
+    min-height: 70vh;
+    padding: 1rem 1rem 3rem;
+  }
+  #admin--component .container {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  /*  */
+  input.col-8 {
+    -ms-flex: 0 0 50%;
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  /* Administration Buttons */
+  .adminButtons{
+    padding: 0;
+  }
+  .adminButtons .nav {
+    white-space: nowrap;
+    display: block !important;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .adminButtons .nav li {
+    display: inline-block
+  }
+
+  /* Developers Tab */
+  #admin--component .table {
+    display: block;
+    max-width: -moz-fit-content;
+    max-width: fit-content;
+    margin: 0 auto;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  #admin--component h4 span{
+    font-size: 18px;
+  }
+  #admin--component input.search{
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+
+  /* Technologies Tab */
+  #admin--component h4{
+    padding: 0;
+  }
+  input.col-7 {
+    -ms-flex: 0 0 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  select.col-2 {
+    -ms-flex: 0 0 60%;
+    flex: 0 0 60%;
+    max-width: 60%;
+  }
+  button.col-1 {
+    -ms-flex: 0 0 35%;
+    flex: 0 0 35%;
+    max-width: 35%;
+  }
+
 }

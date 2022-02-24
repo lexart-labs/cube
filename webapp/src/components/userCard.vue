@@ -82,7 +82,7 @@ export default {
   max-width: 80%;
   height: 300px;
   display: flex;
-  margin: 1rem auto 0;
+  margin: 4rem auto 0;
   justify-content: space-between;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
   padding: 1rem;
@@ -96,11 +96,25 @@ export default {
   flex-basis: 30%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
 }
 .tags > h4 {
   display: flex;
   gap: 0.5rem;
+}
+.tag {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+  height: 2rem;
+  flex-wrap: wrap;
+}
+.tag span {
+  display: flex;
+  justify-content: space-around;
+  font-size: .9rem;
+  align-items: center;
+  align-content: center;
+  height: 2rem;
 }
 .graphic {
   display: flex;
@@ -111,5 +125,21 @@ export default {
 }
 .selected {
   border: 2px solid var(--green-2);
+}
+@media (min-width: 320px) and (max-width: 1000px) {
+.card-parent {
+  max-width: 100%;
+  margin: 2rem auto 0;
+  min-height: 450px;
+  flex-direction: column;
+}
+.usr-info {
+  flex-basis: 30%;
+  display: flex;
+  flex-direction: column;
+}
+.graphic {
+  margin: 1rem 0;
+}
 }
 </style>

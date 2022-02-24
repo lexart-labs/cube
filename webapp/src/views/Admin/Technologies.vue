@@ -5,7 +5,7 @@
       <spinner v-if="isLoading"></spinner>
     </h4>
 
-    <div class="row" style="gap: 1rem; margin: 1rem auto 3rem;">
+    <div class="row" id="inputTech">
       <input
         type="text"
         v-model="newTechnology.name"
@@ -57,11 +57,11 @@
             <td>{{ tech.id }}</td>
             <td>{{ tech.name }}</td>
             <td>{{ tech.plataform }}</td>
-            <td style="display: flex; gap: 1rem;">
-              <button class="btn btn-success col-4" data-toggle="modal" v-on:click="setEditing(tech)">
+            <td style="display: flex; gap: 1rem;justify-content: center;">
+              <button class="btn btn-success" data-toggle="modal" v-on:click="setEditing(tech)">
                 {{ $t("generic.edit") }}
               </button>
-              <button class="btn btn-secondary col-4" data-toggle="modal" v-on:click="deleteTech(tech)">
+              <button class="btn btn-secondary" data-toggle="modal" v-on:click="deleteTech(tech)">
                 {{ $t("generic.remove") }}
               </button>
             </td>
@@ -201,6 +201,7 @@ export default {
   .courseContainer {
     display: flex;
     justify-content: center;
+    width: 100%;
     height: 50vh;
     overflow-y: scroll;
     box-shadow: rgba(0, 0, 0, 0.109) 0px 2px 4px 0px inset;
@@ -209,5 +210,15 @@ export default {
   h4 {
     margin-top: 1rem;
     margin-bottom: 2rem;
+  }
+
+  #inputTech{
+    gap: 1rem;
+    margin: 1rem auto 3rem;
+  }
+
+  button.btn.btn-success,
+  button.btn.btn-secondary {
+    min-width: 18%;
   }
 </style>

@@ -183,19 +183,21 @@
                   v-on:click="addSkill()"
                 />
               </div>
-              <h2 class="tag">
-                <span
-                  class="badge badge-primary col-2"
-                  v-for="(item, i) in userStack"
-                  :key="`usrStk${i}`"
-                >
-                  {{ item.name }}
-                  <i
-                    class="fas fa-times-circle remove-icon"
-                    v-on:click="removeSkill(item)"
-                  />
-                </span>
-              </h2>
+              <div class="tech">
+                <h2 class="tag">
+                  <span
+                    class="badge badge-primary"
+                    v-for="(item, i) in userStack"
+                    :key="`usrStk${i}`"
+                  >
+                    {{ item.name }}
+                    <i
+                      class="fas fa-times-circle remove-icon"
+                      v-on:click="removeSkill(item)"
+                    />
+                  </span>
+                </h2>
+              </div>
             </section>
             <section v-show="show === 'leadTree'"
               v-if="['admin', 'pm'].includes(myUser.type)"
@@ -290,7 +292,7 @@
                     <vue-select
                       :options="technologies.map((el) => el.name)"
                       v-model="currentTechFilter"
-                      style="min-width: 40%; height: 2rem"
+                      id="searchInput"
                     >
                     </vue-select>
                     <i
@@ -305,7 +307,7 @@
                     />
                     <button
                       type="button"
-                      class="btn btn-success btn-sm col-2"
+                      class="btn btn-success btn-sm"
                       :disabled="filters.technologies.length === 0"
                       v-on:click="searchDevs()"
                     >
@@ -313,7 +315,7 @@
                     </button>
                     <button
                       type="button"
-                      class="btn btn-primary btn-sm col-2"
+                      class="btn btn-primary btn-sm"
                       data-toggle="modal"
                       data-target="#saveTeamModal"
                       :disabled="!(currentTeam && currentTeam.length)"
@@ -323,7 +325,7 @@
                     <button
                       v-if="inUseTeamList !== 'developers'"
                       v-on:click="cleanStatesTeams"
-                      class="btn btn-primary btn-sm col-2"
+                      class="btn btn-primary btn-sm"
                     >
                       {{ $t("generic.cancel") }}
                     </button>
@@ -332,7 +334,7 @@
                       <vue-select
                         :options="indicators"
                         v-model="filters.sorter"
-                        style="min-width: 50%"
+                        id="filterInput"
                         :placeholder="$t('generic.order')"
                       >
                       </vue-select>
@@ -351,20 +353,21 @@
                     </abbr>
                   </div>
                 </div>
-                <h4 style="display: flex; gap: 1rem; margin-top: 0.5rem" class="tag">
-                  <span
-                    class="badge badge-primary"
-                    v-for="(item, i) in filters.technologies"
-                    :key="`usrStk${i}`"
-                    style="width: 10rem;"
-                  >
-                    {{ item }}
-                    <i
-                      class="fas fa-times-circle remove-icon"
-                      v-on:click="unsetFilter(item)"
-                    />
-                  </span>
-                </h4>
+                  <h4 class="tag">
+                    <span
+                      class="badge badge-primary"
+                      v-for="(item, i) in filters.technologies"
+                      :key="`usrStk${i}`"
+                      style="width: 10rem;"
+                    >
+                      {{ item }}
+                      <i
+                        class="fas fa-times-circle remove-icon"
+                        v-on:click="unsetFilter(item)"
+                      />
+                    </span>
+                  </h4>
+
               </header>
               <div v-for="(dev, i) in filteredCards" :key="`dev${i}`">
                 <UserCard
