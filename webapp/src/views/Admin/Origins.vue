@@ -1,32 +1,22 @@
 <template>
   <div>
     <h4 class="courseTitle is-bold">
-      <span>{{ $t("AdminTechnologies.title") }}</span>
+      <span>{{ $t("AdminOrigins.title") }}</span>
       <spinner v-if="isLoading"></spinner>
     </h4>
 
-    <div class="row" id="inputTech">
+    <div class="row" style="gap: 1rem; margin: 1rem auto 3rem;">
       <input
         type="text"
-        v-model="newTechnology.name"
-        :placeholder="$t('AdminTechnologies.placeholder')"
-        class="form-control col-7 is-rounded"
+        v-model="newPlataform.plataform"
+        :placeholder="$t('AdminOrigins.placeholder')"
+        class="form-control col-8 is-rounded"
       />
-      <select v-model="newTechnology.plataform" class="form-control col-2 is-rounded">
-        <option value="" disabled>Selecione</option>
-        <option
-          v-for="(plataform, i) in plataforms"
-          :value="plataform"
-          :key="`plat-${i}`"
-        >
-          {{ plataform }}
-        </option>
-      </select>
       <button
         type="button"
         class="btn btn-primary col-1"
-        v-on:click="isEditing ? updateTech() : addTech()"
-        :disabled="!newTechnology.name"
+        v-on:click="isEditing ? updatePlataform() : addPlataform()"
+        :disabled="!newPlataform.plataform"
       >
         {{ isEditing ? $t("generic.edit") : $t("generic.save") }}
       </button>
@@ -41,27 +31,27 @@
     </div>
 
     <div class="courseContainer">
-      <table class="table col-12">
+      <table class="table">
         <thead class="is-bold">
           <tr>
             <th
-              v-for="(header, i) in $t('AdminTechnologies.tableHeaders')"
+              v-for="(header, i) in $t('AdminOrigins.tableHeaders')"
               :key="`head${i}`"
             >
               {{ header }}
             </th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(tech, i) in technologies" :key="`tech${i}`">
-            <td>{{ tech.id }}</td>
-            <td>{{ tech.name }}</td>
-            <td>{{ tech.plataform }}</td>
-            <td style="display: flex; gap: 1rem;justify-content: center;">
-              <button class="btn btn-success" data-toggle="modal" v-on:click="setEditing(tech)">
+          <tr v-for="(item, i) in plataforms" :key="`tech${i}`">
+            <td>{{ item.id }}</td>
+            <td>{{ item.plataform }}</td>
+            <td style="display: flex; gap: 1rem;">
+              <button class="btn btn-success col-4" data-toggle="modal" v-on:click="setEditing(item)">
                 {{ $t("generic.edit") }}
               </button>
-              <button class="btn btn-secondary" data-toggle="modal" v-on:click="deleteTech(tech)">
+              <button class="btn btn-secondary col-4" data-toggle="modal" v-on:click="deletePlataform(item.id)">
                 {{ $t("generic.remove") }}
               </button>
             </td>
@@ -77,53 +67,48 @@
 </template>
 
 <script>
-import axios from 'axios';
 import Vue from "vue";
 import Spinner from "../../components/Spinner.vue";
-import { API, APP_NAME } from "../../../env";
+import { APP_NAME } from "../../../env";
 import translations from '../../data/translate';
+import Plataforms from '../../services/plataforms.service';
 
 const DEFAULT_VALUE = {
   id: 0,
-  name: "",
-  plataform: 'Web',
+  plataform: '',
 };
 
 export default {
-  name: "Technologies",
+  name: "Origin",
   components: { Spinner },
   data() {
     return {
       isEditing: false,
       isLoading: false,
       error: '',
-      technologies: [],
-      newTechnology: { ...DEFAULT_VALUE},
-      plataforms: ["Web", "Mobile", "Desktop"],
+      plataforms: [],
+      newPlataform: { ...DEFAULT_VALUE},
       token: localStorage.getItem(`token-app-${APP_NAME}`),
     };
   },
   methods: {
-    getTechs: async function (id) {
+    getPlataforms: async function () {
       this.isLoading = true;
-      const endpoint = id ? `${API}technologies/${id}` : `${API}technologies`;
 
-      const { data: { response } } = await axios.get(endpoint, { headers: { token: this.token }});
+      this.plataforms = await Plataforms.getAll();
 
-      this.technologies = response;
       this.isLoading = false;
     },
-    updateTech: async function() {
+    updatePlataform: async function() {
       this.isLoading = true;
       this.isEditing = false;
-      const { id } = this.newTechnology;
-      const endpoint = `${API}technologies/${id}`;
+      const { id, plataform } = this.newPlataform;
 
-      const { data } = await axios.put(endpoint, {...this.newTechnology}, { headers: { token: this.token }});
+      const data = await Plataforms.update(id, plataform);
       
       if(data.response) {
-        await this.getTechs();
-        this.newTechnology = {...DEFAULT_VALUE};
+        await this.getPlataforms();
+        this.newPlataform = {...DEFAULT_VALUE};
         Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
             type: "success",
             duration: 2000,
@@ -137,15 +122,13 @@ export default {
         });
       }
     },
-    deleteTech: async function(tech) {
+    deletePlataform: async function(id) {
       this.isLoading = true;
-      const { id } = tech;
-      const endpoint = `${API}technologies/${id}`;
 
-      const { data } = await axios.delete(endpoint, { headers: { token: this.token }});
+      const data = await Plataforms.remove(id);
       
       if(data.response) {
-        await this.getTechs();
+        await this.getPlataforms();
         Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
             type: "success",
             duration: 2000,
@@ -154,21 +137,20 @@ export default {
         this.isLoading = false;
 
         this.error = data.error;
-        Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.error, {
+        Vue.toasted.show(translations[this.$store.state.language].AdminOrigins.deleteError, {
             type: "error",
-            duration: 2000,
+            duration: 3000,
         });
       }
     },
-    addTech: async function() {
+    addPlataform: async function() {
       this.isLoading = true;
-      const endpoint = `${API}technologies/`;
 
-      const { data } = await axios.post(endpoint, {...this.newTechnology}, { headers: { token: this.token }});
+      const data = await Plataforms.insert(this.newPlataform.plataform);
       
       if(data.response) {
-        this.newTechnology = {...DEFAULT_VALUE};
-        await this.getTechs();
+        await this.getPlataforms();
+        this.newPlataform = {...DEFAULT_VALUE};
         Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
             type: "success",
             duration: 2000,
@@ -181,18 +163,18 @@ export default {
         });
       }
     },
-    setEditing(tech) {
+    setEditing(plataform) {
       this.isEditing = true;
-      this.newTechnology = {...tech};
+      this.newPlataform = {...plataform};
     },
     onCancel() {
       this.isEditing = false;
       this.isLoading = false;
-      this.newTechnology = { ...DEFAULT_VALUE};
+      this.newPlataform = { ...DEFAULT_VALUE};
     },
   },
   mounted: async function () {
-    this.getTechs();
+    this.getPlataforms();
   },
 };
 </script>
@@ -201,7 +183,6 @@ export default {
   .courseContainer {
     display: flex;
     justify-content: center;
-    width: 100%;
     height: 50vh;
     overflow-y: scroll;
     box-shadow: rgba(0, 0, 0, 0.109) 0px 2px 4px 0px inset;
@@ -210,15 +191,5 @@ export default {
   h4 {
     margin-top: 1rem;
     margin-bottom: 2rem;
-  }
-
-  #inputTech{
-    gap: 1rem;
-    margin: 1rem auto 3rem;
-  }
-
-  button.btn.btn-success,
-  button.btn.btn-secondary {
-    min-width: 18%;
   }
 </style>

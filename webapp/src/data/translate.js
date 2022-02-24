@@ -1,7 +1,7 @@
 const translations = {
   es: {
     dashboard: {
-      messageSyncStatus: 'Usuario sincronizado 👏',
+      messageSyncStatus: 'Usuario sincronizado',
       messageNotSyncStatus: '¡Tu usuario no está sincronizado!',
       messageSync: 'Usuario sincronizado correctamente',
       messageNotSync: 'Error al sincronizar el usuario',
@@ -31,6 +31,7 @@ const translations = {
       columnActive: 'Activo',
       daysLeftMessage: 'Proximo cambio de funcción disponible en: ',
       allChecksNotAllowedMsg: '¡Solo se puede chequear todas las skills si el tiempo minimo de permanencia se ha cumprido!',
+      hired: 'Contratado desde',
     },
     AdminEvaluations: {
       evaluations: 'Evaluaciones',
@@ -86,6 +87,12 @@ const translations = {
       success: '¡Operación completada con suceso!',
       error: 'No fue possible completar la operación.',
     },
+    AdminOrigins: {
+      placeholder: 'Adicionar una plataforma',
+      title: 'Orígenes',
+      tableHeaders: ['id', 'plataforma'],
+      deleteError: 'Error: Por favor, asegúrese de que esta plataforma no esté asociada con ningún usuario.',
+    },
     generic: {
       cancel: 'Cancelar',
       save: 'Guardar',
@@ -118,7 +125,7 @@ const translations = {
         "Noviembre",
         "Diciembre",
       ],
-      asignments: 'Atribuiciones',
+      asignments: 'Atributos',
       searchPlaceholderEvaluations: 'Buscar evaluaciones',
       Evaluations: 'Evaluaciones',
       Dashboard: 'Dashboard',
@@ -130,7 +137,9 @@ const translations = {
       minimumTimeReached: '¡Nuevo cargo disponible!',
       personify: 'Personificar developer',
       search: 'Buscar',
-      warning: '¡Atencion!'
+      warning: '¡Atencion!',
+      days: 'días',
+      origin: 'Origin',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -220,7 +229,7 @@ const translations = {
   },
   en: {
     dashboard: {
-      messageSyncStatus: 'Synchronized user 👏',
+      messageSyncStatus: 'Synchronized user',
       messageNotSyncStatus: 'Your user is not synced!',
       messageSync: 'User successfully synced',
       messageNotSync: 'Failed to sync user',
@@ -250,6 +259,7 @@ const translations = {
       columnActive: 'Active',
       daysLeftMessage: 'Next job change available in: ',
       allChecksNotAllowedMsg: 'A user can not be saved with all skills checked before the minimum trading position time',
+      hired: 'Hired from',
     },
     AdminEvaluations: {
       evaluations: 'Evaluations',
@@ -305,6 +315,12 @@ const translations = {
       success: 'Operation ran sucessfully',
       error: 'Error when saving this operation',
     },
+    AdminOrigins: {
+      placeholder: 'Add new plataform',
+      title: 'Origins',
+      tableHeaders: ['id', 'plataform'],
+      deleteError: 'Error: Please make sure this plataform is not related to any user.',
+    },
     generic: {
       cancel: 'Cancel',
       save: 'Save',
@@ -349,7 +365,9 @@ const translations = {
       minimumTimeReached: 'New position available!',
       personify: 'Personify developer',
       search: 'Search',
-      warning: 'Warning'
+      warning: 'Warning',
+      days: 'days',
+      origin: 'Origin',
     },
     positionAssignments: {
       'EntryLevel Developer': [

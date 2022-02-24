@@ -9,10 +9,11 @@
     aria-hidden="true"
   >
     <div class="modal-dialog modal-xl">
-      <div class="modal-content">
+      <div class="modal-content  evaluations-modal">
         <div class="modal-header">
           <h4 class="courseTitle" id="staticBackdropLabel">
-            {{ $t('AdminEvaluations.evaluation') }} {{ course.id ? "#" + course.id : "" }}
+            <span class="is-bold is-upper">{{ $t('AdminEvaluations.evaluation') }}:</span>
+            {{ course.id ? "#" + course.id : "" }}
           </h4>
           <button
             type="button"
@@ -50,8 +51,8 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th>{{ $t('generic.topic')}}</th>
-                    <th>{{ $t('generic.score')}}</th>
+                    <th><b>{{ $t('generic.topic')}}</b></th>
+                    <th><b>{{ $t('generic.score')}}</b></th>
                     <th></th>
                   </tr>
                 </thead>
@@ -66,12 +67,12 @@
                         type="range"
                         min="1"
                         max="5"
-                        class="form-control"
+                        class="form-control score-input"
                         v-model="item.total"
                         disabled
                       />
                     </td>
-                    <td>
+                    <td class="is-big-text">
                       <b>{{ item.total }}/{{ MAX_POINTS }}</b>
                     </td>
                   </tr>
@@ -88,8 +89,8 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th>{{ $t('generic.topic')}}</th>
-                    <th>{{ $t('generic.score')}}</th>
+                    <th><b>{{ $t('generic.topic')}}</b></th>
+                    <th><b>{{ $t('generic.score')}}</b></th>
                     <th></th>
                   </tr>
                 </thead>
@@ -109,7 +110,7 @@
                         disabled
                       />
                     </td>
-                    <td>
+                    <td class="is-big-text">
                       <b>{{ item.total }}/{{ MAX_POINTS }}</b>
                     </td>
                   </tr>
@@ -127,8 +128,8 @@
               <table class="table">
                 <thead>
                   <tr>
-                    <th>{{ $t('generic.topic')}}</th>
-                    <th>{{ $t('generic.score')}}</th>
+                    <th><b>{{ $t('generic.topic')}}</b></th>
+                    <th><b>{{ $t('generic.score')}}</b></th>
                     <th></th>
                   </tr>
                 </thead>
@@ -148,7 +149,7 @@
                         disabled
                       />
                     </td>
-                    <td>
+                    <td class="is-big-text">
                       <b>{{ item.total }}/{{ MAX_POINTS }}</b>
                     </td>
                   </tr>

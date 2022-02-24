@@ -1,30 +1,28 @@
 <template>
-  <div id="users--component" style="margin-top: 1rem">
-    <h4 class="courseTitle">
-      <span>{{ $t("AdminUsers.title") }}</span>
-      <spinner v-if="isLoading"></spinner>
+  <div id="users--component" class="admin-conteiner" style="margin-top: 1rem">
+    <header class="header-table">
+      <h4 class="is-bold">
+        <span>{{ $t("AdminUsers.title") }}</span>
+      </h4>
       <button
         type="button"
-        style="float: right; margin-bottom: 1rem"
-        class="btn btn-secondary"
+        class="btn btn-success"
         data-toggle="modal"
         data-target="#staticBackdrop"
         v-on:click="newUser"
       >
         + Developers
       </button>
-    </h4>
+    </header>
     <input
       type="search"
       :placeholder="$t('AdminUsers.searchPlaceholder')"
       v-model="searchQuery"
-      class="form-control"
-      style="margin-bottom: 1rem"
+      class="form-control rounded-input search"
     />
-
-    <div class="courseContainer" v-if="!isLoading">
-      <table class="table table-admin">
-        <thead>
+    <div class="" v-if="!isLoading" style="width: 100%">
+      <table class="table table-admin col-12">
+        <thead class="is-bold">
           <tr>
             <th>{{ $t("AdminUsers.columnName") }}</th>
             <th>Email</th>
@@ -32,6 +30,7 @@
             <th>{{ $t("AdminUsers.columnCharge") }}</th>
             <th>{{ $t("AdminUsers.columnLevel") }}</th>
             <th>{{ $t("AdminUsers.columnActive") }}</th>
+            <th>{{ $t("AdminUsers.hired") }}</th>
             <th></th>
           </tr>
         </thead>
@@ -45,10 +44,11 @@
             <td>
               {{ user.active == 1 ? $t("generic.yes") : $t("generic.no") }}
             </td>
+            <td>{{user.plataform}}</td>
             <td>
               <!-- Trigger modal -->
               <button
-                class="btn btn-info"
+                class="btn btn-primary col-12"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
                 v-on:click="getUserById(user.idLextracking)"
@@ -83,6 +83,9 @@
         </span>
       </nav>
     </div>
+    <div class="window-centered">
+      <Spinner v-if="isFeching || isLoading" />
+    </div>
 
     <!-- User / Modal -->
     <div
@@ -97,7 +100,7 @@
       <div :class="isFeching ? 'loading-cover' : ''">
         <Spinner v-if="isFeching" />
       </div>
-      <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <h4 class="courseTitle" id="staticBackdropLabel">
@@ -144,13 +147,21 @@
                   :options="usersLextracking"
                 ></vue-select>
                 <br />
+                <label for="">{{ $t('AdminUsers.hired')}}</label>
+                <vue-select
+                  v-model="user.idPlataform"
+                  label="plataform"
+                  :options="plataforms"
+                  :reduce="plat => plat.id"
+                ></vue-select>
+                <br />
                 <div class="row">
                   <div class="col">
                     <label for="career">{{
                       $t("AdminUsers.columnCharge")
                     }}</label>
                     <select
-                      class="form-control"
+                      class="form-control is-rounded"
                       v-model="user.positionId"
                       id="career"
                     >
@@ -167,7 +178,7 @@
                   <div class="col">
                     <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
                     <select
-                      class="form-control"
+                      class="form-control is-rounded"
                       v-model="user.levelId"
                       id="lvl"
                     >
@@ -186,7 +197,7 @@
                 <label for="lead-select">{{ $t("generic.lead") }}</label>
                 <select
                   v-model="user.lead"
-                  class="form-control"
+                  class="form-control is-rounded"
                   id="lead-select"
                 >
                   <option
@@ -238,7 +249,7 @@
                   </li>
                 </ul>
                 <br />
-                <select class="form-control" v-model="user.active">
+                <select class="form-control is-rounded" v-model="user.active">
                   <option value="1">Active</option>
                   <option value="0">Inactive</option>
                 </select>
@@ -280,7 +291,7 @@
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-secondary col-1"
               data-dismiss="modal"
               v-on:click="cleanStates"
             >
@@ -288,7 +299,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-success"
+              class="btn btn-primary col-1"
               v-on:click="upsertUser"
               :disabled="isLoading"
             >
@@ -315,6 +326,7 @@ import { verifyToken } from "../../services/helpers";
 import translations from "../../data/translate";
 import { API, APP_NAME } from "../../../env";
 import minimunTimes from "../../data/positionMinimunTimes";
+import DevOriginsService from "../../services/plataforms.service";
 
 export default {
   name: "Users",
@@ -356,6 +368,7 @@ export default {
       },
       currentTech: {},
       leaders: [],
+      plataforms: [],
     };
   },
   methods: {
@@ -632,6 +645,9 @@ export default {
     LevelService()
       .getAll()
       .then((res) => (this.levels = res.response));
+    DevOriginsService
+      .getAll()
+      .then(res => this.plataforms = res);
 
     User.getAllUsersLextracking((res) => {
       this.isLoading = false;
@@ -728,5 +744,30 @@ export default {
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
+}
+.floatRmarginB{
+  float: right;
+  margin-bottom: 1rem
+}
+
+@media (min-width: 320px) and (max-width: 1000px) {
+.coursesTab {
+  padding: 0;
+}
+.perfil form label{
+  padding-bottom: 1rem;
+}
+.modal-footer {
+  border-top: 0 none;
+}
+}
+
+</style>
+
+<style scoped>
+@media (min-width: 320px) and (max-width: 1000px) {
+.courseContainer {
+  padding: 1rem 0;
+}
 }
 </style>
