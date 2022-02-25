@@ -111,6 +111,7 @@
               class="close"
               data-dismiss="modal"
               aria-label="Close"
+              v-on:click="cleanStates"
             >
               <span aria-hidden="true">&times;</span>
             </button>
