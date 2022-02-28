@@ -14,12 +14,23 @@
           + {{$t('AdminEvaluations.evaluation')}}
         </button>
     </header>
-    <input
-      type="search"
-      :placeholder="$t('AdminEvaluations.searchPlaceholder')"
-      v-model="searchQuery"
-      class="form-control is-rounded search"
-    />
+    <div class="grp-icon-input">
+      <input
+        type="search"
+        :placeholder="$t('AdminEvaluations.searchPlaceholder')"
+        v-model="searchQuery"
+        class="form-control is-rounded search"
+        v-on:keydown.enter="getEvaluations"
+      />
+      <button
+        v-on:click="getEvaluations"
+        class="btn btn-primary btn-sm col-1"
+        id="btn-search-eval"
+        :disabled="!searchQuery"
+      >
+        <i class="fas fa-search" style="height: 1rem; width: 1rem;"></i>
+      </button>
+    </div>
     <div>
       <table class="table table-admin col-12">
         <thead class="is-bold">
@@ -34,7 +45,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(course, i) in resultQuery" :key="`course${i}`">
+          <tr v-for="(course, i) in courses" :key="`course${i}`">
             <td>{{ course.id }}</td>
             <td>{{ course.name }}</td>
             <td>{{ course.user.name }}</td>
@@ -454,7 +465,6 @@ import CourseService from '../../services/course.service';
 import UserService from '../../services/user.service';
 import UtilsServices from '../../services/utils.service';
 import { APP_NAME } from '../../../env';
-import Indicadores from '../../data/indicadores';
 
 export default {
   name: 'EvaluationsAdmin',
@@ -837,7 +847,7 @@ export default {
       this.isLoading = true;
       this.courses = [];
       this.page = page + 1;
-      const { data: res } = await CourseService().getAllCourses(page);
+      const { data: res } = await CourseService().getAllCourses(page, this.searchQuery);
 
       if (!res.error) {
         const courses = res.response;
@@ -862,7 +872,25 @@ export default {
     },
     cancelEvaluation: function () {
       this.course = {}
-    }
+    },
+    getEvaluations: async function () {
+      this.isLoading = true;
+      this.courses = [];
+
+      const { data: res } = await CourseService().getAllCourses(0, this.searchQuery);
+      if (!res.error) {
+        this.courses = res.response;
+        this.page = 1;
+      } else {
+        this.$toasted.show('Error when trying to get the evaluations, refresh your screen to try again', {
+          type: 'error',
+          duration: 3000,
+        });
+        this.error = res.error;
+      }
+
+      this.isLoading = false;
+    },
   },
   async mounted() {
     const id = this.$route.params.id ? this.$route.params.id : undefined;
@@ -896,17 +924,7 @@ export default {
       }
     });
   },
-  computed: {
-    resultQuery() {
-      if (this.searchQuery) {
-        return this.courses.filter((item) => this.searchQuery
-          .toLowerCase()
-          .split(' ')
-          .every((v) => item.name.toLowerCase().includes(v)));
-      }
-      return this.courses;
-    },
-  },
+  computed: { },
 };
 </script>
 
@@ -920,6 +938,21 @@ export default {
   }
   .courseContainer {
   padding: 1rem 0;
+  }
 }
+
+.grp-icon-input {
+  position: relative;
+  margin-bottom: 2rem;
+  width: 60%
+}
+
+#btn-search-eval {
+  border-radius: 1rem;
+  position: absolute;
+  /* top: -70px;
+  right: -620px; */
+ top: 0.2rem;
+  right: 0.2rem;
 }
 </style>
