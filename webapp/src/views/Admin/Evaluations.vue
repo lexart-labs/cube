@@ -29,7 +29,7 @@
         <i class="fas fa-search"></i>
       </button>
     </div>
-    <div v-if="!isLoading" style="width: 100%">
+    <div>
       <table class="table table-admin col-12">
         <thead class="is-bold">
           <tr>
@@ -915,7 +915,7 @@ export default {
     const { data: totalOfPages } = await CourseService().getPagesLength();
     this.pagesLength = !totalOfPages.error ? totalOfPages.response : '';
 
-    UserService().getAllUsers(null, (res) => {
+    UserService().getAllUsers(null, '', (res) => {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
