@@ -1,19 +1,17 @@
 const utils 	  = require('./utils.service')
-const Resource    = require('../services/resources.service')
-const User 		  = require('../services/users.service')
 
 const tablaNombre = 'evaluations';
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 let Course = {
-	all: async function (idAdmin, page){
+	all: async function (idAdmin, page, query){
 		
 		let error = {"error":"Error al obtener cursos"}
 
 		// Obtener los usuarios
 		const sql = `
 			SELECT id, name, active, json_data FROM ${tablaNombre}
-			WHERE idUser = ?
+			WHERE idUser = ? ${ query ? "AND name LIKE '%${query}%" : ''}
 			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []
