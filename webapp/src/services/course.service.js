@@ -48,7 +48,7 @@ const CourseService = function () {
         cb(res.data);
       });
     },
-    getPagesLength: async function() {
+    getPagesLength: async function(query) {
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
 
@@ -57,7 +57,9 @@ const CourseService = function () {
         'user-id': userId,
       };
 
-      return axios.get(`${API + model}count`, { headers });
+      const endpoint = query ? `${API + model}count?query=${query}` : `${API + model}count`; 
+
+      return axios.get(endpoint, { headers });
         // .then((res) => {cb(res.data);});
     },
   };

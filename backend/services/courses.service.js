@@ -47,10 +47,11 @@ let Course = {
 		// console.log("total: ", total)
 		return Math.round((total * 100)/MAX_EVALUACION)
 	},
-	countResults: async function (idAdmin) {
+	countResults: async function (idAdmin, query) {
+		const filterQuery = `AND name LIKE '%${query}%'`;
 		const sql = `
 			SELECT COUNT(*) AS total FROM ${tablaNombre} AS e
-			WHERE e.idUser = ?
+			WHERE e.idUser = ? ${query ? filterQuery : ''}
 		`;
 		const error = { "error": "Error getting total evaluations page" };
 		let response = 0;

@@ -877,9 +877,11 @@ export default {
       this.isLoading = true;
       this.courses = [];
 
+      const { data: pageLength} = await CourseService().getPagesLength(this.searchQuery);
       const { data: res } = await CourseService().getAllCourses(0, this.searchQuery);
       if (!res.error) {
         this.courses = res.response;
+        this.pagesLength = pageLength.response;
         this.page = 1;
       } else {
         this.$toasted.show('Error when trying to get the evaluations, refresh your screen to try again', {

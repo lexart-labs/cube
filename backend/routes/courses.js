@@ -11,7 +11,8 @@ router.get('/all', Mdl.middleware, async function (req, res) {
 })
 
 router.get('/count', Mdl.middleware, async function (req, res) {
-	let response = await Course.countResults(req.headers['user-id']);
+	const { query } = req.query;
+	let response = await Course.countResults(req.headers['user-id'], query);
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
 })
