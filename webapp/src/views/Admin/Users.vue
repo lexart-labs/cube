@@ -548,7 +548,7 @@ export default {
         }
       });
 
-      Users.getPagesLength(this.searchQuery, (res) => {
+      Users.getPagesLength(this.searchQuery || '', (res) => {
         this.isLoading = false;
         if (!res.error) {
           this.pagesLength = res.response;
@@ -643,7 +643,7 @@ export default {
       this.courses = [];
 
       UserService().getPagesLength(this.searchQuery, (res) => {
-        this.pagesLength = res.response;
+        this.pagesLength = res.error ? 1 : res.response;
       });
       UserService().getAllUsers(0, this.searchQuery, (res) => {
         this.users = Array.isArray(res.response) ? res.response : [];
