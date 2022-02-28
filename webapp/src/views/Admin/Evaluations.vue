@@ -26,7 +26,6 @@
         v-on:click="getEvaluations"
         class="btn btn-primary btn-sm col-1"
         id="btn-search-eval"
-        :disabled="!searchQuery"
       >
         <i class="fas fa-search" style="height: 1rem; width: 1rem;"></i>
       </button>
