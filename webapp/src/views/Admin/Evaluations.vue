@@ -138,11 +138,11 @@
                   />
                 </div>
                 <div class="col-md-3 col-sm-12">
-                  <v-select
+                  <vue-select
                     v-model="course.user"
                     label="name"
                     :options="users"
-                  ></v-select>
+                  ></vue-select>
                 </div>
                 <div class="col-md-3 col-sm-12">
                   <select class="form-control is-rounded" v-model="course.active">
@@ -459,6 +459,7 @@
 
 <script>
 import Spinner from '../../components/Spinner.vue';
+import vueSelect from "vue-select";
 import { verifyToken, copy } from '../../services/helpers';
 import CourseService from '../../services/course.service';
 import UserService from '../../services/user.service';
@@ -467,7 +468,7 @@ import { APP_NAME } from '../../../env';
 
 export default {
   name: 'EvaluationsAdmin',
-  components: { Spinner },
+  components: { Spinner, vueSelect },
   data() {
     return {
       title: 'Evaluations management',
