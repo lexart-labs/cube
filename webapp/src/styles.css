@@ -528,6 +528,19 @@ span.badge.badge-primary {
   width: 60%;
   margin-bottom: 2rem;
 }
+.grp-icon-input {
+  position: relative;
+  margin-bottom: 2rem;
+  width: 60%
+}
+.btn-search-eval {
+  border-radius: 1rem;
+  position: absolute;
+  /* top: -70px;
+  right: -620px; */
+ top: 0.2rem;
+  right: 0.2rem;
+}
 
 /* Media Query Landscape Smartphones/Tablets */
 @media (min-width: 481px) and (max-width: 915px) and (orientation: landscape) {

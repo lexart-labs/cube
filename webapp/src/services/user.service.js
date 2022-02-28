@@ -25,12 +25,14 @@ const UserService = function () {
         cb(res.data);
       });
     },
-    getAllUsers(page, cb) {
+    getAllUsers(page = 0, query, cb) {
       const headers = buildHeaders();
 
-      const sql = page == null
-        ? `${API + model}all`
-        : `${API + model}all?page=${page}`
+      const sql = query
+        ? `${API + model}all?page=${page}&query=${query}`
+        : `${API + model}all?page=${page}`;
+      
+      
 
       axios.get(sql, { headers }).then((res) => {
         cb(res.data);
@@ -50,10 +52,10 @@ const UserService = function () {
         cb(res.data);
       });
     },
-    getPagesLength(cb) {
+    getPagesLength(query = '', cb) {
       const headers = buildHeaders();
 
-      axios.get(`${API + model}count`, { headers }).then((res) => {
+      axios.get(`${API + model}count?q=${query}`, { headers }).then((res) => {
         cb(res.data);
       });
     },

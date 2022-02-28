@@ -29,8 +29,8 @@ router.post('/check-type', Mdl.middleware, async function (req, res) {
 })
 
 router.get('/all', async function (req, res) {
-	const { page } = req.query;
-	let response = await User.all(req.headers['user-id'], page || null);
+	const { page, query } = req.query;
+	let response = await User.all(req.headers['user-id'], page || null, query);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
@@ -45,7 +45,8 @@ router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
 })
 
 router.get('/count', Mdl.middleware, async function (req, res) {
-	let response = await User.countResults(req.headers['user-id']);
+	const { q } = req.query;
+	let response = await User.countResults(req.headers['user-id'], q);
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
 })

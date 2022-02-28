@@ -5,11 +5,12 @@ const { setUpData } = require('./EvaluationsHandler.service');
 const axios = require('axios');
 
 const tablaNombre = 'users';
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 let User = {
-	all: async function (idAdmin, page) {
-		let error = { "error": "Error al obtener usuarios" }
+	all: async function (idAdmin, page, query) {
+		let error = { "error": "Error al obtener usuarios" };
+		const filter = query ? `AND u.name LIKE '%${query}%'` : '';
 
 		// Obtener los usuarios
 		const sql = `
@@ -23,10 +24,9 @@ let User = {
 			LEFT JOIN hiring_plataforms hp ON u.idPlataform = hp.id
 			LEFT JOIN careers c ON uc.idPosition = c.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
-			WHERE u.idUser = ? OR u.idLextracking = ?
+			WHERE (u.idUser = ? OR u.idLextracking = ?) ${filter}
 			${page ? `LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}` : ''}
 		`
-
 		let response = []
 
 		try {
@@ -388,10 +388,11 @@ let User = {
 			return error;
 		}
 	},
-	countResults: async function (idAdmin) {
+	countResults: async function (idAdmin, q) {
+		const filter = q ? `AND u.name LIKE '%${q}%'` : '';
 		const sql = `
 			SELECT COUNT(*) AS total FROM users AS u
-			WHERE u.idUser = ? OR u.idLextracking = ?
+			WHERE (u.idUser = ? OR u.idLextracking = ?) ${filter}
 		`;
 		const error = { "error": "Error al obtener usuarios" };
 		let response = 0;

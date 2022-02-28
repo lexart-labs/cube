@@ -24,13 +24,12 @@
       />
       <button
         v-on:click="getEvaluations"
-        class="btn btn-primary btn-sm col-1"
-        id="btn-search-eval"
+        class="btn btn-primary btn-sm col-1 btn-search-eval"
       >
-        <i class="fas fa-search" style="height: 1rem; width: 1rem;"></i>
+        <i class="fas fa-search"></i>
       </button>
     </div>
-    <div>
+    <div v-if="!isLoading" style="width: 100%">
       <table class="table table-admin col-12">
         <thead class="is-bold">
           <tr>
@@ -941,20 +940,5 @@ export default {
   .courseContainer {
   padding: 1rem 0;
   }
-}
-
-.grp-icon-input {
-  position: relative;
-  margin-bottom: 2rem;
-  width: 60%
-}
-
-#btn-search-eval {
-  border-radius: 1rem;
-  position: absolute;
-  /* top: -70px;
-  right: -620px; */
- top: 0.2rem;
-  right: 0.2rem;
 }
 </style>
