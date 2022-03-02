@@ -10,6 +10,7 @@ const buildHeaders = () => {
   const headers = {
     token,
     'user-id': userId,
+    'company_slug': localStorage.getItem("_company-slug")
   };
 
   return headers;
@@ -20,6 +21,7 @@ const UserService = function () {
   return {
     getUserById(id, cb) {
       const headers = buildHeaders();
+      console.log(headers)
 
       axios.get(API + model + id, { headers }).then((res) => {
         cb(res.data);
@@ -68,13 +70,7 @@ const UserService = function () {
       return axios.get(`${API + model}lead-tree`, { headers });
     },
     getLeaderDevs(idLead) {
-      const token = localStorage.getItem(`token-app-${APP_NAME}`);
-      const userId = localStorage.getItem(`id-${APP_NAME}`);
-
-      const headers = {
-        token,
-        'user-id': userId,
-      };
+      const headers = buildHeaders();
 
       return axios.get(`${API + model}lead-tree/${idLead}`, { headers });
     },

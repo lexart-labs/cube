@@ -279,7 +279,7 @@
                 <button
                   class="btn btn-primary btn-sm col-1"
                   :disabled="!myDev || myDev.idLextrack == 0"
-                  v-on:click="personifyDashboard(myDev.idLextracking, true)"
+                  v-on:click="personifyDashboard(myDev.id, true)"
                 >
                   Personify
                 </button>
@@ -830,14 +830,14 @@ export default {
       return [];
     },
     addSkill() {
-      const idLextracking = this.myUser.idLextracking;
+      const idDev = this.myUser.id;
       const exists = this.userStack.some(
         (el) => el.name === this.currentTech.name
       );
 
       if (!exists) {
         this.userStack.push(this.currentTech);
-        TechnologiesService.asignNew(idLextracking, this.currentTech.id);
+        TechnologiesService.asignNew(idDev, this.currentTech.id);
         this.currentTech = {};
       } else {
         Vue.toasted.show(
@@ -851,9 +851,9 @@ export default {
       }
     },
     removeSkill(skill) {
-      const idLextracking = this.myUser.idLextracking;
+      const idDev = this.myUser.id;
       this.userStack = this.userStack.filter((el) => el !== skill);
-      TechnologiesService.remove(idLextracking, skill.id);
+      TechnologiesService.remove(idDev, skill.id);
     },
     activeTab(tab) {
       Object.keys(this.tabs).forEach((key) => {
@@ -967,7 +967,7 @@ export default {
       const payload = {
         team: this.currentTeam,
         name: this.teamName,
-        idLead: this.myUser.idLextracking,
+        idLead: this.myUser.id,
         stack: this.filters.technologies,
       };
 
@@ -1164,7 +1164,7 @@ export default {
           }
           if (this.year) this.obtenerEvaluaciones(id, this.year);
 
-          TechnologiesService.getByUser(this.myUser.idLextracking).then(
+          TechnologiesService.getByUser(id).then(
             (resp) => (this.userStack = Object.values(resp)[0] || [])
           );
         } else {
@@ -1181,7 +1181,7 @@ export default {
 
         if (this.myUser.type == "admin" || this.myUser.type == "pm") {
           UserService()
-            .getLeaderDevs(this.myUser.idLextracking)
+            .getLeaderDevs(id)
             .then(({ data: { response } }) => {
               this.myDevs = response;
             });

@@ -51,7 +51,7 @@
                 class="btn btn-primary col-12"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
-                v-on:click="getUserById(user.idLextracking)"
+                v-on:click="getUserById(user.id)"
               >
                 {{ $t("generic.edit") }}
               </button>
@@ -202,7 +202,7 @@
                   id="lead-select"
                 >
                   <option
-                    :value="{ id: lead.idLextracking, name: lead.name }"
+                    :value="{ id: lead.id, name: lead.name }"
                     :key="`lead${i}`"
                     v-for="(lead, i) in leaders"
                   >
@@ -376,7 +376,7 @@ export default {
     newUser() {
       this.activeTab('perfil');
       const lead = {
-        id: this.mySelfieCube.idLextracking,
+        id: this.mySelfieCube.id,
         name: this.mySelfieCube.name,
       };    
 
@@ -394,7 +394,7 @@ export default {
     },
     getUserById(id) {
       const lead = {
-        id: this.mySelfieCube.idLextracking,
+        id: this.mySelfieCube.id,
         name: this.mySelfieCube.name,
       };
 
@@ -412,8 +412,9 @@ export default {
             this.changePositionTime = minimunTimes[position] - since;
           }
 
-          const resp = await TechnologiesService.getByUser(res.response.idLextracking);
+          const resp = await TechnologiesService.getByUser(res.response.id);
           this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
+          console.log(resp, this.managerUserTechs.userTechs)
         }
         this.isFeching = false;
       });
@@ -599,6 +600,8 @@ export default {
           }
         );
       }
+
+      console.log(this.currentTech, this.managerUserTechs)
       this.currentTech = {};
       return;
     },
@@ -614,7 +617,7 @@ export default {
       this.managerUserTechs = { toAdd, toRemove, userTechs };
     },
     handleSkillChanges: async function () {
-      const idUser = this.user.idLextracking || this.user.id;
+      const idUser = this.user.id;
       const { toRemove, toAdd } = this.managerUserTechs;
       await Promise.all(
         toAdd.map((item) => {
@@ -633,7 +636,7 @@ export default {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
     const User = UserService();
     const lead = {
-      id: this.mySelfieCube.idLextracking,
+      id: this.mySelfieCube.id,
       name: this.mySelfieCube.name,
     };
 
@@ -655,6 +658,7 @@ export default {
       if (!res.error) {
         const users = res.response;
         this.usersLextracking = users.map((usr) => ({lead, active: 1, ...usr}));
+        console.log(this.usersLextracking)
       } else {
         this.error = res.error;
       }

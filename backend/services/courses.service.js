@@ -149,7 +149,7 @@ let Course = {
 			delete course.clases
 			delete course.pagos
 			delete course.evaluaciones
-			response = await conn.query(sql, [course.name, idAdmin, course.user.idLextracking, course.active, JSON.stringify(course), json_clases, json_pagos, json_evaluaciones])
+			response = await conn.query(sql, [course.name, idAdmin, course.user.id, course.active, JSON.stringify(course), json_clases, json_pagos, json_evaluaciones])
 		} catch(e){
 			stackTrace = e;
 		}
@@ -190,7 +190,7 @@ let Course = {
 				evaluations.json_data,
 				evaluations.idLextracking
 			FROM evaluations
-			INNER JOIN users ON users.idLextracking = evaluations.idUser
+			INNER JOIN users ON users.id = evaluations.idUser
 			WHERE evaluations.idLextracking = ? AND evaluations.json_data LIKE '%"fecha": "?%' AND evaluations.active = 1
 			GROUP BY evaluations.id
 			ORDER BY evaluations.id ASC

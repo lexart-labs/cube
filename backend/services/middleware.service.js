@@ -2,9 +2,9 @@ const utils  = require('./utils.service')
 const axios  = require('axios')
 
 const Mdl = {
-	middleware: async function (req, res, next){
+	middleware: async function (req, res, next) {
 		
-		let error = {"error":"Token inválido"}
+		let error = { "error": "Token inválido" };
 		let userCorrect = false;
 
 
