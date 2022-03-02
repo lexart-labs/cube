@@ -69,14 +69,12 @@ const Hours = {
         u.name
       FROM ${tablaNombre} cc
       INNER JOIN users u ON u.id = cc.idColaborator
-      WHERE u.idCompany = ?
-        ${month && 'AND cc.month = ?'}
-        ${year && 'AND cc.year = ?'}
+      WHERE u.idCompany = ? AND cc.year = ? ${month ? 'AND cc.month = ?' : ''}
     `;
     let response;
 
     try {
-      response = await conn.query(sql, [idCompany, month, year]);
+      response = await conn.query(sql, [idCompany, year, month]);
       response = response.map(el => ({...el, continuity: toTimeString(el.continuity)}));
     } catch (e) {
       console.log('Continuity service -->', e.message, response);

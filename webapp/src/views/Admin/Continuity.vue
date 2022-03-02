@@ -8,7 +8,7 @@
     :onNew="newReport"
     :onEdit="getReportById"
     :pager="handlePagination"
-    :pagesCount="1"
+    :pagesCount="pageCount"
   ></ExplorerTable>
 </template>
 
@@ -21,24 +21,7 @@ export default {
   components: { ExplorerTable },
   data() {
     return {
-      reports: [
-        {
-          id: 1,
-          year: 2022,
-          month: 'Febrero',
-          idColaborator: 34,
-          name: 'Tester Boy',
-          continuity: '2:50',
-        },
-        {
-          id: 2,
-          name: 'Tester Boy 2',
-          month: 'Febrero',
-          year: 2022,
-          continuity: '5:40',
-          idColaborator: 33,
-        },
-      ],
+      reports: [],
       report: {
         id: 0,
         year: 2022,
@@ -47,7 +30,13 @@ export default {
         name: '',
         continuity: '0:00',
       },
+      filters: {
+        year: (new Date()).getFullYear(),
+        month: 0,
+      },
       isLoading: false,
+      pageCount: 1,
+      idCompany: 1,
     };
   }, 
   methods: {
@@ -66,6 +55,22 @@ export default {
     handlePagination: async (page) => {
       return setTimeout(() => 'Avançou a pagina', 500);
     },
+  },
+  async mounted() {
+    this.isLoading = true;
+
+    const month = this.filters.month;
+    const year = this.filters.year;
+
+    const [pageCount, reports] = await Promise.all([
+      HoursService.countPages(),
+      HoursService.getAll(this.idCompany, month, year)
+    ]);
+
+    this.pageCount = pageCount;
+    this.reports = reports;
+
+    this.isLoading = false;
   },
 }
 </script>

@@ -37,9 +37,12 @@ router.get('/:id', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-  const { month, year } = req.query;
-  const {idCompany} = req.headers;
-  const response = await Hours.getAll(idCompany, month, year);
+  const { month, year, idCompany } = req.query;
+  const response = await Hours.getAll(
+    Number(idCompany),
+    Number(month),
+    Number(year)
+  );
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);

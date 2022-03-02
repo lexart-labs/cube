@@ -27,13 +27,16 @@ const HoursService = {
   },
   getAll: async (idCompany, month, year) => {
     const headers = generateHeader();
-    const { data } = await axios.get(`${API + MODEL}?month=${month}&year=${year}`, { headers: { ...headers, idCompany } });
+    const { data } = await axios.get(`${API + MODEL}?month=${month}&year=${year}&idCompany=${idCompany}`, { headers });
     return data.response ? data.response : [];
   },
   getOne: async (id) => {
     const headers = generateHeader();
     const { data } = await axios.get(`${API + MODEL}/${id}`, { headers });
     return data.response ? data.response[0] : {};
+  },
+  countPages: async () => {
+    return 1;
   },
 };
 
