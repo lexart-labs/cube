@@ -9,6 +9,7 @@ import EvaluationsAdmin from '../views/Admin/Evaluations.vue';
 import Technologies from '../views/Admin/Technologies.vue';
 import Origin from '../views/Admin/Origins.vue';
 import AppComponent from '../views/AppComponent.vue';
+import Continuity from '../views/Admin/Continuity.vue';
 
 const routes = [
   { path: '/:token?', name: 'Login', component: Login },
@@ -29,6 +30,10 @@ const routes = [
           {
             path: 'evaluaciones',
             component: EvaluationsAdmin,
+          },
+          {
+            path: 'continuity',
+            component: Continuity,
           },
           {
             path: 'technologies',

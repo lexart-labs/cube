@@ -140,6 +140,7 @@ const translations = {
       warning: '¡Atencion!',
       days: 'días',
       origin: 'Origin',
+      continuity: 'Continuidade',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -373,6 +374,7 @@ const translations = {
       warning: 'Warning',
       days: 'days',
       origin: 'Origin',
+      continuity: 'Continuity',
     },
     positionAssignments: {
       'EntryLevel Developer': [
