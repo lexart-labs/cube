@@ -229,8 +229,9 @@ const translations = {
     },
     AdminContinuity: {
       title: 'Continuidade',
-      report: 'Reporte',
+      newBtn: 'Reporte',
       searchPlaceholder: 'Buscar reporte de horas',
+      headers: [ 'Id', 'Usuario', 'Mes', 'Año', 'Horas'],
     },
   },
   en: {
@@ -463,7 +464,7 @@ const translations = {
     },
     AdminContinuity: {
       title: 'Continuity',
-      report: 'Report',
+      newBtn: 'Report',
       searchPlaceholder: 'Search time report',
       headers: [ 'Id', 'User', 'Month', 'Year', 'Hours'],
     },
