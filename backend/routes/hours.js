@@ -28,6 +28,13 @@ router.delete('/:id', async (req, res) => {
   return res.send(response);
 });
 
+router.get('/count', async (req, res) => {
+  const response = await Hours.count();
+
+  res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   const response = await Hours.getOne(id);

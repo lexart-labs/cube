@@ -36,7 +36,9 @@ const HoursService = {
     return data.response ? data.response[0] : {};
   },
   countPages: async () => {
-    return 1;
+    const headers = generateHeader();
+    const { data } = await axios.get(`${API + MODEL}/count`, { headers });
+    return data.response ? data.response : 1;
   },
 };
 
