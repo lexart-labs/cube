@@ -226,6 +226,11 @@ const translations = {
         'Reportería activa de las decisiones al directorio',
       ],
     },
+    AdminContinuity: {
+      title: 'Continuidade',
+      report: 'Reporte',
+      searchPlaceholder: 'Buscar reporte de horas',
+    },
   },
   en: {
     dashboard: {
@@ -453,6 +458,12 @@ const translations = {
         'Ability to decide technological changes of great impact in conjunction with infrastructure',
         'Active reporting of decisions to the board',
       ],
+    },
+    AdminContinuity: {
+      title: 'Continuity',
+      report: 'Report',
+      searchPlaceholder: 'Search time report',
+      headers: [ 'Id', 'User', 'Month', 'Year', 'Hours'],
     },
   },
   pt: {},
