@@ -24,7 +24,7 @@
       <table class="table table-admin col-12">
         <thead class="is-bold">
           <tr>
-            <th v-for="(header, i) in $t(`${translations}.tableHeaders`)" :key="`head${i}`">
+            <th v-for="(header, i) in $t(`${translations}.headers`)" :key="`head${i}`">
               {{ header }}
             </th>
             <th></th>
@@ -87,11 +87,11 @@ export default {
   props: {
     translations: String,
     tableKeys: Array,
-    modalId: Number,
+    modalId: String,
     tableData: Array,
     onNew: Function,
     onEdit: Function,
-    pager: Promise,
+    pager: Function,
     pagesCount: Number,
   },
   data() {
