@@ -454,7 +454,6 @@ import CourseService from '../../services/course.service';
 import UserService from '../../services/user.service';
 import UtilsServices from '../../services/utils.service';
 import { APP_NAME } from '../../../env';
-import Indicadores from '../../data/indicadores';
 
 export default {
   name: 'EvaluationsAdmin',
