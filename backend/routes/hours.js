@@ -13,7 +13,7 @@ router.put('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const response = await Hours.upsert(req.body);
+  const response = await Hours.insert(req.body);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
@@ -28,18 +28,18 @@ router.delete('/:id', async (req, res) => {
   return res.send(response);
 });
 
-router.get('/', async (req, res) => {
-  const { month, year } = req.query;
-  const {idCompany} = req.headers;
-  const response = await Hours.getAll(idCompany, month, year);
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  const response = await Hours.getOne(id);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 });
 
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  const response = await Hours.getOne(id);
+router.get('/', async (req, res) => {
+  const { month, year } = req.query;
+  const {idCompany} = req.headers;
+  const response = await Hours.getAll(idCompany, month, year);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);

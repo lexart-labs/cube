@@ -62,8 +62,7 @@ const Hours = {
 
     return response.changedRows ? { response: 'ok' } : { error: 'Operation failed' };
   },
-  getByLead: async (idCompany, filters) => {
-    const { month, year } = filters;
+  getAll: async (idCompany, month, year) => {
     const sql = `
       SELECT
         cc.*,
@@ -72,7 +71,7 @@ const Hours = {
       INNER JOIN users u ON u.id = cc.idColaborator
       WHERE u.idCompany = ?
         ${month && 'AND cc.month = ?'}
-        ${year && 'AND year = ?'}
+        ${year && 'AND cc.year = ?'}
     `;
     let response;
 
@@ -93,12 +92,12 @@ const Hours = {
         u.name
       FROM ${tablaNombre} cc
       INNER JOIN users u ON u.id = cc.idColaborator
-      WHERE id = ?
+      WHERE cc.id = ?
     `;
     let response;
 
     try {
-      response = await conn.query(sql, [id]);
+      response = await conn.query(sql, [parseInt(id)]);
       response[0].continuity = toTimeString(response[0].continuity);
     } catch (e) {
       console.log('Continuity service error --->', e.message, response);
