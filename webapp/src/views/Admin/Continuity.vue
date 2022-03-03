@@ -178,6 +178,8 @@ export default {
     },
     upsertReport: async function() {
       this.isLoading = true;
+      const month = this.filters.month;
+      const year = this.filters.year;
 
       if(this.isEditing) {
         await HoursService.update(this.report.id, this.report);
@@ -188,6 +190,8 @@ export default {
       $('#upsert-report').modal('dispose');
       this.pageCount = this.pageCount === PAGES_SIZE ? this.pageCount + 1 : this.pageCount;
       this.clearStates();
+      const reports = await HoursService.getAll(this.idCompany, month, year, 0);
+      this.reports = reports;
 
       this.isLoading = false;
     },
