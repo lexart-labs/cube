@@ -4,7 +4,7 @@
     translations="AdminContinuity"
     :tableKeys="['id', 'name', 'month', 'year', 'continuity']"
     modalId="#upsert-report"
-    :tableData="reports"
+    :tableData="ReportsWithLiteralMonths"
     :onNew="clearStates"
     :onEdit="getReportById"
     :pager="handlePagination"
@@ -53,7 +53,14 @@
                     <label>{{ $t("generic.month") }}</label>
                     <vue-select
                       v-model="report.month"
-                      :options="$t('generic.months')"
+                      label="name"
+                      :options="
+                        $t('generic.months').map((el, i) => ({
+                          name: el,
+                          value: i + 1,
+                        }))
+                      "
+                      :reduce="(el) => el.value"
                     ></vue-select>
                   </div>
                   <div class="col">
@@ -71,7 +78,9 @@
                     <label
                       >{{ $t("generic.hours") }}
                       <input
-                        type="time"
+                        type="tel"
+                        v-mask="'##:##'"
+                        masked
                         v-model="report.continuity"
                         class="form-control is-rounded"
                       />
@@ -89,7 +98,12 @@
               >
                 {{ $t("generic.close") }}
               </button>
-              <button type="button" class="btn btn-primary">
+              <button
+                type="button"
+                class="btn btn-primary"
+                data-dismiss="modal"
+                @click="upsertReport"
+              >
                 {{ $t("generic.save") }}
               </button>
             </div>
@@ -106,8 +120,10 @@ import UserService from "../../services/user.service";
 import ExplorerTable from "../../components/explorerTable.vue";
 import { APP_NAME } from "../../../env";
 import vueSelect from "vue-select";
+import translations from '../../data/translate';
 
 const User = UserService();
+const PAGES_SIZE = 10;
 
 export default {
   name: "Continuity",
@@ -115,7 +131,7 @@ export default {
   data() {
     return {
       reports: [],
-      colaborators: [{ name: "Tester Boy", id: 0 }],
+      colaborators: [],
       report: {
         id: 0,
         year: 2022,
@@ -146,6 +162,7 @@ export default {
       this.isEditing = false;
     },
     getReportById: async function (id) {
+      this.isEditing = true;
       const report = await HoursService.getOne(id);
       this.report = report;
     },
@@ -161,18 +178,16 @@ export default {
     },
     upsertReport: async function() {
       this.isLoading = true;
-      const payload = {
-        month: this.report.month,
-        year: this.report.year,
-        continuity: this.report.continuity,
-        idColaborator: this.report.idColaborator
-      };
 
       if(this.isEditing) {
-        await HoursService.update(this.report.id, payload);
+        await HoursService.update(this.report.id, this.report);
       } else {
-        await HoursService.insert(payload);
+        await HoursService.insert(this.report);
       }
+
+      $('#upsert-report').modal('dispose');
+      this.pageCount = this.pageCount === PAGES_SIZE ? this.pageCount + 1 : this.pageCount;
+      this.clearStates();
 
       this.isLoading = false;
     },
@@ -195,6 +210,15 @@ export default {
     this.colaborators = users;
 
     this.isLoading = false;
+  },
+  computed: {
+    ReportsWithLiteralMonths() {
+      return this.reports.map(el => (
+        {
+          ...el,
+          month: translations[this.$store.state.language].generic.months[el.month - 1]
+        }))
+    },
   },
 };
 </script>

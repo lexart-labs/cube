@@ -6,8 +6,10 @@ const toSecond = (hrs) => {
   return (parseInt(min) * 60) + (parseInt(hr) * 3600);
 };
 const toTimeString = (sec) => {
-  const hr = Math.trunc(sec / 3600);
-  const min = Math.trunc((sec % 3600) /60);
+  let hr = Math.trunc(sec / 3600);
+  let min = Math.trunc((sec % 3600) /60);
+  hr = hr < 10 ? ('0' + hr) : hr;
+  min = min < 10 ? ('0' + min) : min;
   return `${hr}:${min}`;
 };
 
