@@ -64,7 +64,7 @@ export default {
 
     const [pageCount, reports] = await Promise.all([
       HoursService.countPages(),
-      HoursService.getAll(this.idCompany, month, year)
+      HoursService.getAll(this.idCompany, month, year, 0)
     ]);
 
     this.pageCount = pageCount;

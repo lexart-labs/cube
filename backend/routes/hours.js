@@ -44,11 +44,12 @@ router.get('/:id', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-  const { month, year, idCompany } = req.query;
+  const { month, year, idCompany, p } = req.query;
   const response = await Hours.getAll(
     Number(idCompany),
     Number(month),
-    Number(year)
+    Number(year),
+    Number(p)
   );
 
   res.set(['Content-Type', 'application/json']);

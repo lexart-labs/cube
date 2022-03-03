@@ -63,7 +63,7 @@ const Hours = {
 
     return response.changedRows ? { response: 'ok' } : { error: 'Operation failed' };
   },
-  getAll: async (idCompany, month, year) => {
+  getAll: async (idCompany, month, year, page) => {
     const sql = `
       SELECT
         cc.*,
@@ -71,6 +71,7 @@ const Hours = {
       FROM ${tablaNombre} cc
       INNER JOIN users u ON u.id = cc.idColaborator
       WHERE u.idCompany = ? AND cc.year = ? ${month ? 'AND cc.month = ?' : ''}
+      LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
     `;
     let response;
 

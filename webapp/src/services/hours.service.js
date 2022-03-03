@@ -25,9 +25,9 @@ const HoursService = {
     const { data } = await axios.delete(`${API + MODEL}/${id}`, payload, { headers });
     return data;
   },
-  getAll: async (idCompany, month, year) => {
+  getAll: async (idCompany, month, year, page) => {
     const headers = generateHeader();
-    const { data } = await axios.get(`${API + MODEL}?month=${month}&year=${year}&idCompany=${idCompany}`, { headers });
+    const { data } = await axios.get(`${API + MODEL}?p=${page}&month=${month}&year=${year}&idCompany=${idCompany}`, { headers });
     return data.response ? data.response : [];
   },
   getOne: async (id) => {
