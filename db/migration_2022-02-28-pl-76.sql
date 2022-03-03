@@ -1,4 +1,3 @@
-USE lexart_cube;
 CREATE TABLE companies (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company varchar(255) NOT NULL,
