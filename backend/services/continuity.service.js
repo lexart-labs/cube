@@ -20,7 +20,7 @@ const Hours = {
         month= ?,
         year=?,
         continuity=?,
-        idColaborator=?,
+        idColaborator=?
       WHERE id = ?
     `;
     let response;
@@ -80,7 +80,7 @@ const Hours = {
       response = response.map(el => ({...el, continuity: toTimeString(el.continuity)}));
     } catch (e) {
       console.log('Continuity service -->', e.message, response);
-      return { error: 'Operation Filed'};
+      return { error: 'Operation Failed'};
     }
 
     return { response };
