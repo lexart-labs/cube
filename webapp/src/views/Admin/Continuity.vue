@@ -5,7 +5,7 @@
     :tableKeys="['id', 'name', 'month', 'year', 'continuity']"
     modalId="#upsert-report"
     :tableData="reports"
-    :onNew="newReport"
+    :onNew="clearStates"
     :onEdit="getReportById"
     :pager="handlePagination"
     :pagesCount="pageCount"
@@ -85,6 +85,7 @@
                 type="button"
                 class="btn btn-secondary"
                 data-dismiss="modal"
+                @click="clearStates"
               >
                 {{ $t("generic.close") }}
               </button>
@@ -101,8 +102,12 @@
 
 <script>
 import HoursService from "../../services/hours.service";
+import UserService from "../../services/user.service";
 import ExplorerTable from "../../components/explorerTable.vue";
+import { APP_NAME } from "../../../env";
 import vueSelect from "vue-select";
+
+const User = UserService();
 
 export default {
   name: "Continuity",
@@ -124,32 +129,52 @@ export default {
         month: 0,
       },
       isLoading: false,
+      isEditing: false,
       pageCount: 1,
       idCompany: 1,
     };
   },
   methods: {
-    newReport() {
-      console.log("Chamei o modal com os valores default");
+    clearStates() {
+      this.report = {
+        year: 2022,
+        month: "",
+        idColaborator: 0,
+        name: "",
+        continuity: "0:00",
+      };
+      this.isEditing = false;
     },
-    getReportById: async (id) => {
-      // this.isLoading = true;
-      console.log("Busquei pelo id");
-
-      // const report = await HoursService.getOne(id);
-      // this.report = report;
-
-      // this.isLoading = false;
+    getReportById: async function (id) {
+      const report = await HoursService.getOne(id);
+      this.report = report;
     },
-    handlePagination: async (page) => {
+    handlePagination: async function(page) {
       const reports = await HoursService.getAll(
         this.idCompany,
         this.month,
         this.year,
-        this.page
+        page
       );
 
       this.reports = reports;
+    },
+    upsertReport: async function() {
+      this.isLoading = true;
+      const payload = {
+        month: this.report.month,
+        year: this.report.year,
+        continuity: this.report.continuity,
+        idColaborator: this.report.idColaborator
+      };
+
+      if(this.isEditing) {
+        await HoursService.update(this.report.id, payload);
+      } else {
+        await HoursService.insert(payload);
+      }
+
+      this.isLoading = false;
     },
   },
   async mounted() {
@@ -157,14 +182,17 @@ export default {
 
     const month = this.filters.month;
     const year = this.filters.year;
+    const idLead = JSON.parse(localStorage.getItem(`id-${APP_NAME}`));
 
-    const [pageCount, reports] = await Promise.all([
+    const [pageCount, reports, users] = await Promise.all([
       HoursService.countPages(),
       HoursService.getAll(this.idCompany, month, year, 0),
+      User.getByCompany(idLead, this.idCompany),
     ]);
 
     this.pageCount = pageCount;
     this.reports = reports;
+    this.colaborators = users;
 
     this.isLoading = false;
   },
