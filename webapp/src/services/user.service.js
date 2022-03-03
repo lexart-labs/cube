@@ -93,6 +93,11 @@ const UserService = function () {
         cb(data)
       });
     },
+    getByCompany: async (idLead, isCompany) => {
+      const headers = buildHeaders();
+      const { data } = await axios.get(`${API + model}by-company?l=${idLead}&cp=${isCompany}`, { headers });
+      return data.response ? data.response : [];
+    },
   };
 };
 
