@@ -75,6 +75,9 @@
     <div class="window-centered">
       <Spinner v-if="isLoading" />
     </div>
+
+    <!-- Modais -->
+    <slot name="upsert-modal"></slot>
   </div>
 </template>
 

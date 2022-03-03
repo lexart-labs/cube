@@ -141,6 +141,9 @@ const translations = {
       days: 'días',
       origin: 'Origin',
       continuity: 'Continuidade',
+      month: 'Mes',
+      year: 'Año',
+      hours: 'Horas',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -232,6 +235,8 @@ const translations = {
       newBtn: 'Reporte',
       searchPlaceholder: 'Buscar reporte de horas',
       headers: [ 'Id', 'Usuario', 'Mes', 'Año', 'Horas'],
+      modalTitle: 'Reportes',
+      colaborator: 'Colaborador',
     },
   },
   en: {
@@ -376,6 +381,9 @@ const translations = {
       days: 'days',
       origin: 'Origin',
       continuity: 'Continuity',
+      month: 'Month',
+      year: 'Year',
+      hours: 'Hours',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -467,6 +475,8 @@ const translations = {
       newBtn: 'Report',
       searchPlaceholder: 'Search time report',
       headers: [ 'Id', 'User', 'Month', 'Year', 'Hours'],
+      modalTitle: 'Reports',
+      colaborator: 'Colaborator',
     },
   },
   pt: {},
