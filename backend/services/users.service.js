@@ -636,7 +636,6 @@ let User = {
 				l.level AS level,
 				u.name,
 				u.id,
-				u.idLextracking,
 				GROUP_CONCAT(t.name) AS 'technologies'
 			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
@@ -650,7 +649,6 @@ let User = {
 			let result = {};
 			try {
 				result = await conn.query(sql, [devId]);
-				console.log(result)
 			} catch (e) {
 				console.log('callBackBasics ->', e.message);
 			}

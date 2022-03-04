@@ -1,22 +1,63 @@
 const axios = require('axios');
 
+const syncWithTracking = async (token) => {
+	const API_LEXTRACKING = 'https://api.lexart.com.uy/lextracking-dev/';
+	const ENDPOINT_BASE = `${API_LEXTRACKING}public/tracks-by-year`;
+	const DEFAULT_TRACK = { month, metric: "seconds", tracks: 0 };
+	const headers = { token };
+	const year = (new Date()).getFullYear();
+	const month = (new Date()).getMonth();
+
+	const sql = `SELECT id, idLextracking FROM users WHERE idCompany = 1`;
+	const sqlUpsert = `
+		IF EXISTS (SELECT 1 FROM colaborators_continuity WHERE idColaborator = ? AND month = ${month})
+			UPDATE colaborators_continuity SET continuity = ? WHERE idColaborator = ? AND month = ${month}
+		ELSE
+			INSERT INTO colaborators_continuity
+				(month, year, continuity, idColaborator)
+			VALUES (${month}, ${year}, ?, ?)
+		END
+	`;
+
+	const devIds = await conn.query(sql);
+	const requestHourFromTracking = async (idLextracking) => {
+		const { data } = await axios.get(`${ENDPOINT_BASE}/${idLextracking}/${year}?month=${month}`, { headers });
+		return data.response ? data.response[0] : DEFAULT_TRACK;
+	};
+	const Hours = await Promise.all(devIds.map(el => requestHourFromTracking(el.idLextracking)));
+	await Promise.all(
+		Hours.map(({ tracks }, i) => {
+			const idColaborator = devIds[i].id;
+			const continuity = +tracks;
+			conn.query(sqlUpsert, [idColaborator, continuity, idColaborator, continuity, idColaborator])
+		})
+	);
+};
+
+
 const sumAll = (array, key) => array.reduce((acc, cur) => acc += Number(cur[key]), 0);
 
 // Get user hours by year on lextracking
-const getMonthHours = async (idLextracking, year, token) => {
-	const API_LEXTRACKING = 'https://api.lexart.com.uy/lextracking-dev/';
-	const ENDPOINT_BASE = `${API_LEXTRACKING}public/tracks-by-year`;
-	const headers = { token };
+const getMonthHours = async (id, year) => {
+	const sql = `
+		SELECT
+			SUM(continuity) AS 'tracks',
+			'seconds' AS 'metric',
+			month
+		FROM colaborators_continuity
+		WHERE year = ? AND idColaborator = ?
+		GROUP BY month;
+	`;
 
-	const { data } =  await axios.get(`${ENDPOINT_BASE}/${idLextracking}/${year}`, { headers });
+	const data = await conn.query(sql, [year, id]);
 
-	return data.response || [];
+	return data.length ? data : [];
 };
 
 // Sum all item at some evaluation topic and pass it to percentage
 const parseEvaluation = (evaluation, key) => {
 	const MAX_VALUE = 5;
-	if(!evaluation.indicadores || !evaluation.indicadores[key]) return 0;
+	if (!evaluation.indicadores || !evaluation.indicadores[key]) return 0;
 
 	const valuesArray = evaluation.indicadores[key];
 	const maxTotal = valuesArray.length * MAX_VALUE;
@@ -93,5 +134,5 @@ const setUpData = async (idLextracking, year, token, evaluations) => {
 };
 
 module.exports = {
-  setUpData,
+	setUpData,
 };
