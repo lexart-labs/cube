@@ -35,9 +35,9 @@ const HoursService = {
     const { data } = await axios.get(`${API + MODEL}/${id}`, { headers });
     return data.response ? data.response[0] : {};
   },
-  countPages: async () => {
+  countPages: async (m = 0, y = (new Date()).getFullYear()) => {
     const headers = generateHeader();
-    const { data } = await axios.get(`${API + MODEL}/count`, { headers });
+    const { data } = await axios.get(`${API + MODEL}/count?month=${m}&year=${y}`, { headers });
     return data.response ? data.response : 1;
   },
 };

@@ -1,15 +1,47 @@
 <template>
   <ExplorerTable
-    v-if="!isLoading"
     translations="AdminContinuity"
     :tableKeys="['id', 'name', 'month', 'year', 'continuity']"
     modalId="#upsert-report"
-    :tableData="reports"
+    :tableData="ReportsWithLiteralMonths"
     :onNew="clearStates"
     :onEdit="getReportById"
     :pager="handlePagination"
     :pagesCount="pageCount"
   >
+    <template slot="filters">
+      <div class="filters-ctl">
+        <div>
+          <label style="margin-bottom: 0;"
+            >{{ $t("generic.year") }}
+            <input
+              type="number"
+              v-model="filters.year"
+              max="9999"
+              class="form-control is-rounded"
+              style="height: 2.1rem;"
+            />
+          </label>
+        </div>
+        <div>
+          <label>{{ $t("generic.month") }}</label>
+          <vue-select
+            v-model="filters.month"
+            label="name"
+            :options="monthsFilter"
+            :reduce="(el) => el.value"
+          ></vue-select>
+        </div>
+        <button
+          class="btn btn-primary btn-sm col-1 is-rounded"
+          @click="onSearch"
+          style="height: 2.1rem"
+        >
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </template>
+  
     <template slot="upsert-modal">
       <div
         class="modal fade"
@@ -53,7 +85,14 @@
                     <label>{{ $t("generic.month") }}</label>
                     <vue-select
                       v-model="report.month"
-                      :options="$t('generic.months')"
+                      label="name"
+                      :options="
+                        $t('generic.months').map((el, i) => ({
+                          name: el,
+                          value: i + 1,
+                        }))
+                      "
+                      :reduce="(el) => el.value"
                     ></vue-select>
                   </div>
                   <div class="col">
@@ -71,12 +110,18 @@
                     <label
                       >{{ $t("generic.hours") }}
                       <input
-                        type="time"
+                        type="tel"
+                        v-mask="['##:##:##', '###:##:##']"
+                        placeholder="00:00:00"
+                        masked
                         v-model="report.continuity"
                         class="form-control is-rounded"
                       />
                     </label>
                   </div>
+                </div>
+                <div class="row col-12">
+                  <small v-if="error">{{ error }}</small>
                 </div>
               </form>
             </div>
@@ -89,7 +134,11 @@
               >
                 {{ $t("generic.close") }}
               </button>
-              <button type="button" class="btn btn-primary">
+              <button
+                type="button"
+                class="btn btn-primary"
+                @click="upsertReport"
+              >
                 {{ $t("generic.save") }}
               </button>
             </div>
@@ -102,12 +151,12 @@
 
 <script>
 import HoursService from "../../services/hours.service";
-import UserService from "../../services/user.service";
+import Collaborators from "../../services/collaborators.service";
 import ExplorerTable from "../../components/explorerTable.vue";
-import { APP_NAME } from "../../../env";
 import vueSelect from "vue-select";
+import translations from "../../data/translate";
 
-const User = UserService();
+const PAGES_SIZE = 10;
 
 export default {
   name: "Continuity",
@@ -115,14 +164,23 @@ export default {
   data() {
     return {
       reports: [],
-      colaborators: [{ name: "Tester Boy", id: 0 }],
+      colaborators: [],
+      monthsFilter: [
+        { name: 'All', value: 0 },
+        ...translations[this.$store.state.language].generic.months.map(
+          (el, i) => ({
+            name: el,
+            value: i + 1,
+          })
+        ),
+      ],
       report: {
         id: 0,
         year: 2022,
         month: "",
         idColaborator: 0,
         name: "",
-        continuity: "0:00",
+        continuity: "",
       },
       filters: {
         year: new Date().getFullYear(),
@@ -132,6 +190,7 @@ export default {
       isEditing: false,
       pageCount: 1,
       idCompany: 1,
+      error: '',
     };
   },
   methods: {
@@ -141,40 +200,72 @@ export default {
         month: "",
         idColaborator: 0,
         name: "",
-        continuity: "0:00",
+        continuity: "",
       };
       this.isEditing = false;
+      this.error = '';
+    },
+    getPagesLength: async function () {
+      const year = this.filters.year;
+      const month = this.filters.month;
+
+      return await HoursService.countPages(month, year);
     },
     getReportById: async function (id) {
+      this.isEditing = true;
       const report = await HoursService.getOne(id);
       this.report = report;
     },
-    handlePagination: async function(page) {
+    handlePagination: async function (page) {
       const reports = await HoursService.getAll(
         this.idCompany,
-        this.month,
-        this.year,
+        this.filters.month,
+        this.filters.year,
         page
       );
 
       this.reports = reports;
     },
-    upsertReport: async function() {
+    upsertReport: async function () {
       this.isLoading = true;
-      const payload = {
-        month: this.report.month,
-        year: this.report.year,
-        continuity: this.report.continuity,
-        idColaborator: this.report.idColaborator
+      const month = this.filters.month;
+      const year = this.filters.year;
+
+      const isValid = this.validatePayload();
+      console.log(isValid);
+      if (isValid !== 'true') {
+        this.error = isValid;
+        return;
       };
 
-      if(this.isEditing) {
-        await HoursService.update(this.report.id, payload);
+      if (this.isEditing) {
+        await HoursService.update(this.report.id, this.report);
       } else {
-        await HoursService.insert(payload);
+        await HoursService.insert(this.report);
       }
 
+      $("#upsert-report").modal("hide");
+      this.pageCount =
+        this.pageCount === PAGES_SIZE ? this.pageCount + 1 : this.pageCount;
+      this.clearStates();
+      const reports = await HoursService.getAll(this.idCompany, month, year, 0);
+      this.reports = reports;
+
       this.isLoading = false;
+    },
+    onSearch: async function() {
+      const pagesLength = await this.getPagesLength();
+      this.pageCount = pagesLength;
+      await this.handlePagination(0);
+    },
+    validatePayload() {
+      const translate = translations[this.$store.state.language].AdminContinuity.errorMsgs;
+      const { month, idColaborator, year, continuity} = this.report;
+      if(!month) return translate.month;
+      if(!idColaborator) return translate.user;
+      if(!year || year < 2000) return translate.year;
+      if(!continuity || continuity.length < 7 || continuity == '00:00:00') return translate.continuity;
+      return 'true';
     },
   },
   async mounted() {
@@ -182,12 +273,11 @@ export default {
 
     const month = this.filters.month;
     const year = this.filters.year;
-    const idLead = JSON.parse(localStorage.getItem(`id-${APP_NAME}`));
 
     const [pageCount, reports, users] = await Promise.all([
-      HoursService.countPages(),
+      HoursService.countPages(month, year),
       HoursService.getAll(this.idCompany, month, year, 0),
-      User.getByCompany(idLead, this.idCompany),
+      Collaborators.getByCompany(),
     ]);
 
     this.pageCount = pageCount;
@@ -196,5 +286,34 @@ export default {
 
     this.isLoading = false;
   },
+  computed: {
+    ReportsWithLiteralMonths() {
+      return this.reports.map((el) => ({
+        ...el,
+        month:
+          translations[this.$store.state.language].generic.months[el.month - 1],
+      }));
+    },
+  },
 };
 </script>
+
+<style scoped>
+.filters-ctl {
+  display: flex;
+  align-items:flex-end;
+  justify-content: flex-start;
+  margin: 1rem auto 3rem;
+  gap: 1rem;
+}
+.filters-ctl > div {
+  width: 20%;
+  min-width: 200px;
+}
+small {
+  color: rgb(255, 117, 117);
+  justify-self: flex-end;
+  margin: 1rem;
+  margin-right: 0;
+}
+</style>

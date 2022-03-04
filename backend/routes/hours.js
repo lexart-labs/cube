@@ -29,7 +29,8 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.get('/count', async (req, res) => {
-  const response = await Hours.count();
+  const {month, year } = req.query;
+  const response = await Hours.count(month, year);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);

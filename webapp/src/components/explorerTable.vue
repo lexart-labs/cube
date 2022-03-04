@@ -14,14 +14,9 @@
           + {{$t(`${translations}.newBtn`)}}
       </button>
     </header>
-    <input
-      type="search"
-      :placeholder="$t(`${translations}.searchPlaceholder`)"
-      v-model="searchQuery"
-      class="form-control is-rounded search"
-    />
-    <div class="col-12">
-      <table class="table table-admin">
+    <slot name="filters"></slot>
+    <div>
+      <table class="table table-admin col-12">
         <thead class="is-bold">
           <tr>
             <th v-for="(header, i) in $t(`${translations}.headers`)" :key="`head${i}`">
@@ -87,6 +82,11 @@ import Spinner from './Spinner.vue';
 export default {
   name: 'ExplorerTable',
   components: { Spinner },
+  watch: {
+    pagesCount: function (o, n) {
+      this.pagesLength = o;
+    }, 
+  },
   props: {
     translations: String,
     tableKeys: Array,
@@ -101,7 +101,6 @@ export default {
     return {
       error: '',
       searchQuery: '',
-      tableEntries: this.tableData,
       isLoading: false,
       page: 1,
       pagesLength: this.pagesCount,
@@ -119,22 +118,15 @@ export default {
     },
     paginate: async function (page = 0) {
       this.isLoading = true;
-      this.tableEntries = [];
       this.page = page + 1;
-      const { data: res } = await this.pager(page);
-
-      if (!res.error) {
-        this.tableEntries = res.response;
-
-      } else {
-        this.$toasted.show('Error when trying to get data, refresh your screen to try again', {
-          type: 'error',
-          duration: 3000,
-        });
-        this.error = res.error;
-      }
+      await this.pager(page);
 
       this.isLoading = false;
+    },
+  },
+  computed: {
+    tableEntries() {
+      return this.tableData;
     },
   },
 }

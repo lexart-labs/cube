@@ -10,6 +10,14 @@
     :pager="handlePagination"
     :pagesCount="pageCount"
   >
+    <template slot="filters">
+      <input
+        type="search"
+        :placeholder="$t(`${translations}.searchPlaceholder`)"
+        v-model="searchQuery"
+        class="form-control is-rounded search"
+      />
+    </template>
     <template slot="upsert-modal">
       <div
         class="modal fade"

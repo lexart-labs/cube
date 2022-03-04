@@ -2,13 +2,16 @@ const tablaNombre = 'colaborators_continuity';
 const PAGE_SIZE = 10;
 
 const toSecond = (hrs) => {
-  const [hr, min] = hrs.split(':');
-  return (parseInt(min) * 60) + (parseInt(hr) * 3600);
+  const [hr, min, sec] = hrs.split(':');
+  return (parseInt(min) * 60) + (parseInt(hr) * 3600) + parseInt(sec);
 };
 const toTimeString = (sec) => {
-  const hr = Math.trunc(sec / 3600);
-  const min = Math.trunc((sec % 3600) /60);
-  return `${hr}:${min}`;
+  let hr = Math.trunc(sec / 3600);
+  let min = Math.trunc((sec % 3600) /60);
+  let scn = Math.trunc((sec % 3600) % 60);
+
+  const [hh, mm, ss] = [hr, min, scn].map(el => el < 10 ? ('0' + el) : el);
+  return `${hh}:${mm}:${ss}`;
 };
 
 
@@ -20,7 +23,7 @@ const Hours = {
         month= ?,
         year=?,
         continuity=?,
-        idColaborator=?,
+        idColaborator=?
       WHERE id = ?
     `;
     let response;
@@ -80,7 +83,7 @@ const Hours = {
       response = response.map(el => ({...el, continuity: toTimeString(el.continuity)}));
     } catch (e) {
       console.log('Continuity service -->', e.message, response);
-      return { error: 'Operation Filed'};
+      return { error: 'Operation Failed'};
     }
 
     return { response };
@@ -106,11 +109,14 @@ const Hours = {
 
     return { response };
   },
-  count: async () => {
-    const sql = `SELECT COUNT(*) AS 'docsAmount' FROM ${tablaNombre}`;
+  count: async (month, year) => {
+    const sql = `
+      SELECT COUNT(*) AS 'docsAmount'
+      FROM ${tablaNombre} WHERE year = ? ${parseInt(month) ? 'AND month = ?' : ''}
+    `;
 
     try {
-      const response = await conn.query(sql);
+      const response = await conn.query(sql, [+year, +month]);
       return { response: Math.ceil(response[0]['docsAmount'] / PAGE_SIZE) };
     } catch (e) {
       console.log('Continuity Service -->', e.message);

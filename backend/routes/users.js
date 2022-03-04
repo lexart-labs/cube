@@ -79,14 +79,6 @@ router.get('/lead-tree/:id', async (req, res) => {
   res.send(response);
 })
 
-router.get('/by-company', async (req, res) => {
-	const {l, cp} = req.query;
-	const response = await User.getByCompany(+l, +cp);
-	
-	res.set(['Content-Type', 'application/json']);
-  res.send(response);
-})
-
 router.get('/lead-tree', async (_req, res) => {
 	const response = await User.getLeaderDevTree();
 	
