@@ -144,6 +144,7 @@ const translations = {
       month: 'Mes',
       year: 'Año',
       hours: 'Horas',
+      all: 'Todos',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -384,6 +385,7 @@ const translations = {
       month: 'Month',
       year: 'Year',
       hours: 'Hours',
+      all: 'All',
     },
     positionAssignments: {
       'EntryLevel Developer': [

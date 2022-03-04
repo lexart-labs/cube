@@ -10,6 +10,39 @@
     :pager="handlePagination"
     :pagesCount="pageCount"
   >
+    <template slot="filters">
+      <div class="filters-ctl">
+        <div>
+          <label style="margin-bottom: 0;"
+            >{{ $t("generic.year") }}
+            <input
+              type="number"
+              v-model="filters.year"
+              max="9999"
+              class="form-control is-rounded"
+              style="height: 2.1rem;"
+            />
+          </label>
+        </div>
+        <div>
+          <label>{{ $t("generic.month") }}</label>
+          <vue-select
+            v-model="filters.month"
+            label="name"
+            :options="monthsFilter"
+            :reduce="(el) => el.value"
+          ></vue-select>
+        </div>
+        <button
+          class="btn btn-primary btn-sm col-1 is-rounded"
+          @click="handlePagination(0)"
+          style="height: 2.1rem"
+        >
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </template>
+  
     <template slot="upsert-modal">
       <div
         class="modal fade"
@@ -121,7 +154,7 @@ import UserService from "../../services/user.service";
 import ExplorerTable from "../../components/explorerTable.vue";
 import { APP_NAME } from "../../../env";
 import vueSelect from "vue-select";
-import translations from '../../data/translate';
+import translations from "../../data/translate";
 
 const User = UserService();
 const PAGES_SIZE = 10;
@@ -133,6 +166,15 @@ export default {
     return {
       reports: [],
       colaborators: [],
+      monthsFilter: [
+        { name: 'All', value: 0 },
+        ...translations[this.$store.state.language].generic.months.map(
+          (el, i) => ({
+            name: el,
+            value: i + 1,
+          })
+        ),
+      ],
       report: {
         id: 0,
         year: 2022,
@@ -167,7 +209,7 @@ export default {
       const report = await HoursService.getOne(id);
       this.report = report;
     },
-    handlePagination: async function(page) {
+    handlePagination: async function (page) {
       const reports = await HoursService.getAll(
         this.idCompany,
         this.filters.month,
@@ -177,19 +219,20 @@ export default {
 
       this.reports = reports;
     },
-    upsertReport: async function() {
+    upsertReport: async function () {
       this.isLoading = true;
       const month = this.filters.month;
       const year = this.filters.year;
 
-      if(this.isEditing) {
+      if (this.isEditing) {
         await HoursService.update(this.report.id, this.report);
       } else {
         await HoursService.insert(this.report);
       }
 
-      $('#upsert-report').modal('dispose');
-      this.pageCount = this.pageCount === PAGES_SIZE ? this.pageCount + 1 : this.pageCount;
+      $("#upsert-report").modal("dispose");
+      this.pageCount =
+        this.pageCount === PAGES_SIZE ? this.pageCount + 1 : this.pageCount;
       this.clearStates();
       const reports = await HoursService.getAll(this.idCompany, month, year, 0);
       this.reports = reports;
@@ -218,12 +261,27 @@ export default {
   },
   computed: {
     ReportsWithLiteralMonths() {
-      return this.reports.map(el => (
-        {
-          ...el,
-          month: translations[this.$store.state.language].generic.months[el.month - 1]
-        }))
+      return this.reports.map((el) => ({
+        ...el,
+        month:
+          translations[this.$store.state.language].generic.months[el.month - 1],
+      }));
     },
   },
 };
 </script>
+
+<style scoped>
+.filters-ctl {
+  display: flex;
+  align-items:flex-end;
+  justify-content: flex-start;
+  margin: 1rem auto 3rem;
+  gap: 1rem;
+}
+
+.filters-ctl > div {
+  width: 20%;
+  min-width: 200px;
+}
+</style>

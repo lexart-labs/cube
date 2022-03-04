@@ -14,12 +14,7 @@
           + {{$t(`${translations}.newBtn`)}}
       </button>
     </header>
-    <input
-      type="search"
-      :placeholder="$t(`${translations}.searchPlaceholder`)"
-      v-model="searchQuery"
-      class="form-control is-rounded search"
-    />
+    <slot name="filters"></slot>
     <div>
       <table class="table table-admin col-12">
         <thead class="is-bold">
