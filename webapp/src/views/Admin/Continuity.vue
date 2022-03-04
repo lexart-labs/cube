@@ -246,7 +246,7 @@ export default {
         await HoursService.insert(this.report);
       }
 
-      $("#upsert-report").modal("dispose");
+      $("#upsert-report").modal("hide");
       this.pageCount =
         this.pageCount === PAGES_SIZE ? this.pageCount + 1 : this.pageCount;
       this.clearStates();
