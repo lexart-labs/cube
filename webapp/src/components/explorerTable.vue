@@ -101,7 +101,6 @@ export default {
     return {
       error: '',
       searchQuery: '',
-      tableEntries: this.tableData,
       isLoading: false,
       page: 1,
       pagesLength: this.pagesCount,
@@ -119,22 +118,15 @@ export default {
     },
     paginate: async function (page = 0) {
       this.isLoading = true;
-      this.tableEntries = [];
       this.page = page + 1;
-      const { data: res } = await this.pager(page);
-
-      if (!res.error) {
-        this.tableEntries = res.response;
-
-      } else {
-        this.$toasted.show('Error when trying to get data, refresh your screen to try again', {
-          type: 'error',
-          duration: 3000,
-        });
-        this.error = res.error;
-      }
+      await this.pager(page);
 
       this.isLoading = false;
+    },
+  },
+  computed: {
+    tableEntries() {
+      return this.tableData;
     },
   },
 }

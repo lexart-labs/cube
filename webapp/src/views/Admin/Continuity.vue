@@ -125,7 +125,6 @@ import translations from '../../data/translate';
 
 const User = UserService();
 const PAGES_SIZE = 10;
-// /\d?(\d){2}:(\d){2}:(\d){2}/
 
 export default {
   name: "Continuity",
@@ -140,7 +139,7 @@ export default {
         month: "",
         idColaborator: 0,
         name: "",
-        continuity: "0:00",
+        continuity: "00:00:00",
       },
       filters: {
         year: new Date().getFullYear(),
@@ -159,7 +158,7 @@ export default {
         month: "",
         idColaborator: 0,
         name: "",
-        continuity: "0:00",
+        continuity: "00:00:00",
       };
       this.isEditing = false;
     },
@@ -171,8 +170,8 @@ export default {
     handlePagination: async function(page) {
       const reports = await HoursService.getAll(
         this.idCompany,
-        this.month,
-        this.year,
+        this.filters.month,
+        this.filters.year,
         page
       );
 
