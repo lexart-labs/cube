@@ -2,15 +2,16 @@ const tablaNombre = 'colaborators_continuity';
 const PAGE_SIZE = 10;
 
 const toSecond = (hrs) => {
-  const [hr, min] = hrs.split(':');
-  return (parseInt(min) * 60) + (parseInt(hr) * 3600);
+  const [hr, min, sec] = hrs.split(':');
+  return (parseInt(min) * 60) + (parseInt(hr) * 3600) + parseInt(sec);
 };
 const toTimeString = (sec) => {
   let hr = Math.trunc(sec / 3600);
   let min = Math.trunc((sec % 3600) /60);
-  hr = hr < 10 ? ('0' + hr) : hr;
-  min = min < 10 ? ('0' + min) : min;
-  return `${hr}:${min}`;
+  let scn = Math.trunc((sec % 3600) % 60);
+
+  const [hh, mm, ss] = [hr, min, scn].map(el => el < 10 ? ('0' + el) : el);
+  return `${hh}:${mm}:${ss}`;
 };
 
 
