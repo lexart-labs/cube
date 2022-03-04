@@ -82,6 +82,11 @@ import Spinner from './Spinner.vue';
 export default {
   name: 'ExplorerTable',
   components: { Spinner },
+  watch: {
+    pagesCount: function (o, n) {
+      this.pagesLength = o;
+    }, 
+  },
   props: {
     translations: String,
     tableKeys: Array,

@@ -1,5 +1,5 @@
 const tablaNombre = 'colaborators_continuity';
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 3;
 
 const toSecond = (hrs) => {
   const [hr, min, sec] = hrs.split(':');
@@ -109,11 +109,15 @@ const Hours = {
 
     return { response };
   },
-  count: async () => {
-    const sql = `SELECT COUNT(*) AS 'docsAmount' FROM ${tablaNombre}`;
+  count: async (month, year) => {
+    console.log(month, year);
+    const sql = `
+      SELECT COUNT(*) AS 'docsAmount'
+      FROM ${tablaNombre} WHERE year = ? ${parseInt(month) ? 'AND month = ?' : ''}
+    `;
 
     try {
-      const response = await conn.query(sql);
+      const response = await conn.query(sql, [+year, +month]);
       return { response: Math.ceil(response[0]['docsAmount'] / PAGE_SIZE) };
     } catch (e) {
       console.log('Continuity Service -->', e.message);

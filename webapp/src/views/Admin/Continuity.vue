@@ -35,7 +35,7 @@
         </div>
         <button
           class="btn btn-primary btn-sm col-1 is-rounded"
-          @click="handlePagination(0)"
+          @click="onSearch"
           style="height: 2.1rem"
         >
           <i class="fas fa-search"></i>
@@ -157,7 +157,7 @@ import vueSelect from "vue-select";
 import translations from "../../data/translate";
 
 const User = UserService();
-const PAGES_SIZE = 10;
+const PAGES_SIZE = 3;
 
 export default {
   name: "Continuity",
@@ -204,6 +204,12 @@ export default {
       };
       this.isEditing = false;
     },
+    getPagesLength: async function () {
+      const year = this.filters.year;
+      const month = this.filters.month;
+
+      return await HoursService.countPages(month, year);
+    },
     getReportById: async function (id) {
       this.isEditing = true;
       const report = await HoursService.getOne(id);
@@ -239,6 +245,11 @@ export default {
 
       this.isLoading = false;
     },
+    onSearch: async function() {
+      const pagesLength = await this.getPagesLength();
+      this.pageCount = pagesLength;
+      await this.handlePagination(0);
+    },
   },
   async mounted() {
     this.isLoading = true;
@@ -248,7 +259,7 @@ export default {
     const idLead = JSON.parse(localStorage.getItem(`id-${APP_NAME}`));
 
     const [pageCount, reports, users] = await Promise.all([
-      HoursService.countPages(),
+      HoursService.countPages(month, year),
       HoursService.getAll(this.idCompany, month, year, 0),
       User.getByCompany(idLead, this.idCompany),
     ]);
