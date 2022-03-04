@@ -157,7 +157,7 @@ import vueSelect from "vue-select";
 import translations from "../../data/translate";
 
 const User = UserService();
-const PAGES_SIZE = 3;
+const PAGES_SIZE = 10;
 
 export default {
   name: "Continuity",

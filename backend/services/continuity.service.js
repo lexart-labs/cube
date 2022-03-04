@@ -1,5 +1,5 @@
 const tablaNombre = 'colaborators_continuity';
-const PAGE_SIZE = 3;
+const PAGE_SIZE = 10;
 
 const toSecond = (hrs) => {
   const [hr, min, sec] = hrs.split(':');
@@ -110,7 +110,6 @@ const Hours = {
     return { response };
   },
   count: async (month, year) => {
-    console.log(month, year);
     const sql = `
       SELECT COUNT(*) AS 'docsAmount'
       FROM ${tablaNombre} WHERE year = ? ${parseInt(month) ? 'AND month = ?' : ''}
