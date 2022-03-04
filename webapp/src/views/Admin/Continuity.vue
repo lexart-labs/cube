@@ -1,6 +1,5 @@
 <template>
   <ExplorerTable
-    v-if="!isLoading"
     translations="AdminContinuity"
     :tableKeys="['id', 'name', 'month', 'year', 'continuity']"
     modalId="#upsert-report"
@@ -121,6 +120,9 @@
                     </label>
                   </div>
                 </div>
+                <div class="row col-12">
+                  <small v-if="error">{{ error }}</small>
+                </div>
               </form>
             </div>
             <div class="modal-footer">
@@ -135,7 +137,6 @@
               <button
                 type="button"
                 class="btn btn-primary"
-                data-dismiss="modal"
                 @click="upsertReport"
               >
                 {{ $t("generic.save") }}
@@ -191,6 +192,7 @@ export default {
       isEditing: false,
       pageCount: 1,
       idCompany: 1,
+      error: '',
     };
   },
   methods: {
@@ -203,6 +205,7 @@ export default {
         continuity: "00:00:00",
       };
       this.isEditing = false;
+      this.error = '';
     },
     getPagesLength: async function () {
       const year = this.filters.year;
@@ -230,6 +233,13 @@ export default {
       const month = this.filters.month;
       const year = this.filters.year;
 
+      const isValid = this.validatePayload();
+      console.log(isValid);
+      if (isValid !== 'true') {
+        this.error = isValid;
+        return;
+      };
+
       if (this.isEditing) {
         await HoursService.update(this.report.id, this.report);
       } else {
@@ -249,6 +259,14 @@ export default {
       const pagesLength = await this.getPagesLength();
       this.pageCount = pagesLength;
       await this.handlePagination(0);
+    },
+    validatePayload() {
+      const { month, idColaborator, year, continuity} = this.report;
+      if(!month) return 'Month is required';
+      if(!idColaborator) return 'User is required';
+      if(!year || year < 2000) return 'Invalid year';
+      if(!continuity || continuity.length < 7 || continuity == '00:00:00') return 'Please, insert a valid report, with minutes and seconds';
+      return 'true';
     },
   },
   async mounted() {
@@ -294,5 +312,12 @@ export default {
 .filters-ctl > div {
   width: 20%;
   min-width: 200px;
+}
+
+small {
+  color: rgb(255, 117, 117);
+  justify-self: flex-end;
+  margin: 1rem;
+  margin-right: 0;
 }
 </style>
