@@ -182,7 +182,7 @@ export default {
         month: "",
         idColaborator: 0,
         name: "",
-        continuity: "00:00:00",
+        continuity: "",
       },
       filters: {
         year: new Date().getFullYear(),
@@ -202,7 +202,7 @@ export default {
         month: "",
         idColaborator: 0,
         name: "",
-        continuity: "00:00:00",
+        continuity: "",
       };
       this.isEditing = false;
       this.error = '';
@@ -261,11 +261,12 @@ export default {
       await this.handlePagination(0);
     },
     validatePayload() {
+      const translate = translations[this.$store.state.language].AdminContinuity.errorMsgs;
       const { month, idColaborator, year, continuity} = this.report;
-      if(!month) return 'Month is required';
-      if(!idColaborator) return 'User is required';
-      if(!year || year < 2000) return 'Invalid year';
-      if(!continuity || continuity.length < 7 || continuity == '00:00:00') return 'Please, insert a valid report, with minutes and seconds';
+      if(!month) return translate.month;
+      if(!idColaborator) return translate.user;
+      if(!year || year < 2000) return translate.year;
+      if(!continuity || continuity.length < 7 || continuity == '00:00:00') return translate.continuity;
       return 'true';
     },
   },

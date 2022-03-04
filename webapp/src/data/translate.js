@@ -238,6 +238,12 @@ const translations = {
       headers: [ 'Id', 'Usuario', 'Mes', 'Año', 'Horas'],
       modalTitle: 'Reportes',
       colaborator: 'Colaborador',
+      errorMsgs: {
+        month: 'Si requiere un mes',
+        year: 'Año invalido',
+        user: 'Por favor, elige a un colaborador',
+        continuity: 'Valor de horas inválido. Por favor, inserir en el formato HH:MM:SS',
+      },
     },
   },
   en: {
@@ -479,6 +485,12 @@ const translations = {
       headers: [ 'Id', 'User', 'Month', 'Year', 'Hours'],
       modalTitle: 'Reports',
       colaborator: 'Colaborator',
+      errorMsgs: {
+        month: 'Month is required',
+        year: 'Invalid year',
+        user: 'User is required',
+        continuity: 'Please, insert a valid report, with minutes and seconds',
+      },
     },
   },
   pt: {},
