@@ -151,13 +151,12 @@
 
 <script>
 import HoursService from "../../services/hours.service";
-import UserService from "../../services/user.service";
+import Collaborators from "../../services/collaborators.service";
 import ExplorerTable from "../../components/explorerTable.vue";
 import { APP_NAME } from "../../../env";
 import vueSelect from "vue-select";
 import translations from "../../data/translate";
 
-const User = UserService();
 const PAGES_SIZE = 10;
 
 export default {
@@ -280,7 +279,7 @@ export default {
     const [pageCount, reports, users] = await Promise.all([
       HoursService.countPages(month, year),
       HoursService.getAll(this.idCompany, month, year, 0),
-      User.getByCompany(idLead, this.idCompany),
+      Collaborators.getByCompany(),
     ]);
 
     this.pageCount = pageCount;

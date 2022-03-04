@@ -708,17 +708,5 @@ let User = {
 		if (!evaluations) return defaultIndicators;
 		return setUpData(idDev, year, token, evaluations);
 	},
-	getByCompany: async function(idLead, idCompany) {
-		const sql = `SELECT u.name, u.id FROM users u WHERE u.idCompany = ?`;
-		let response;
-
-		try {
-			response = await conn.query(sql, [idCompany]);
-		} catch (e) {
-			console.log(response, e.message);
-		}
-
-		return response.length ? { response } : { error: 'Operation failed'}
-	},
 }
 module.exports = User;
