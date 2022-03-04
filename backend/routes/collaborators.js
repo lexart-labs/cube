@@ -28,9 +28,10 @@ router.post('/', async function (req, res) {
 });
 
 router.put('/:id', async function (req, res) {
+  const company_slug = req.headers.company_slug;
   const { id } = req.params;
 
-  const response = await collaborators.update(id, req.body);
+  const response = await collaborators.update(id, req.body, company_slug);
 
   res.set(['Content-Type', 'application/json']);
     res.send(response);

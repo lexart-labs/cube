@@ -3,7 +3,7 @@
     v-if="!isLoading"
     translations="AdminCollaborators"
     :tableKeys="['id', 'name', 'email', 'type', 'plataform', 'active']"
-    modalId="#upsert-report"
+    modalId="#upsertModal"
     :tableData="collaborators"
     :onNew="clearStates"
     :onEdit="getCollaboratorById"
@@ -13,10 +13,10 @@
     <template slot="upsert-modal">
       <div
         class="modal fade"
-        id="upsert-report"
+        id="upsertModal"
         tabindex="-1"
         role="dialog"
-        aria-labelledby="exampleModalLabel"
+        aria-labelledby="upsertModal"
         aria-hidden="true"
       >
         <div
@@ -25,7 +25,7 @@
         >
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title is-bold" id="exampleModalLabel">
+              <h5 class="modal-title is-bold" id="upsertModal">
                 {{ $t("AdminCollaborators.modalTitle") }}
               </h5>
               <button
@@ -67,7 +67,7 @@
                   <div class="col-12 col-md-6 mt-0 mt-md-2">
                     <label>{{ $t("AdminUsers.hired") }}</label>
                     <vue-select
-                      v-model="collaborator.idPlatform"
+                      v-model="collaborator.idPlataform"
                       :options="platforms"
                       label="plataform"
                       :reduce="plat => plat.id"
@@ -113,6 +113,7 @@ import CollaboratorsService from "../../services/collaborators.service";
 import ExplorerTable from "../../components/explorerTable.vue";
 import { APP_NAME } from "../../../env";
 import vueSelect from "vue-select";
+import Translations from "../../data/translate";
 
 export default {
   name: "Continuity",
@@ -166,7 +167,7 @@ export default {
       if(collaborator.length > 0) this.collaborator = collaborator[0];
       else {
         Vue.toasted.show(
-          translations[this.$store.state.language].dashboard.errorGettingInfos,
+          Translations[this.$store.state.language].dashboard.errorGettingInfos,
           { type: "info", duration: 2000 }
         );
       }
@@ -176,11 +177,27 @@ export default {
     handlePagination: async function(page) {
     },
     upsertCollaborator: async function() {
-      if(Object.values(this.collaborators).some(val => !val))
+      let res = {};
+      if(Object.values(this.collaborator).some(val => !val))
       this.isLoading = true;
+      console.log(this.collaborator.id, this.collaborator, this.isEditing)
 
-      if(this.isEditing) CollaboratorsService.editUser()
-      else CollaboratorsService.createUser()
+      if(this.isEditing) res = await CollaboratorsService.editUser(this.collaborator.id, this.collaborator)
+      else res = await CollaboratorsService.createUser(this.collaborator)
+
+      if(res.status === 200) {
+        Vue.toasted.show(
+          Translations[this.$store.state.language].AdminCollaborators.successToAdd,
+          { type: "success", duration: 2000 }
+        );
+      } else if(res.status === 400) {
+        Vue.toasted.show(
+          Translations[this.$store.state.language].AdminCollaborators.errorToAdd,
+          { type: "error", duration: 2000 }
+        );
+      }
+
+      $("#upsertModal").modal("hide");
 
       this.isLoading = false;
     },

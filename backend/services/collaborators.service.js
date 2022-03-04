@@ -60,35 +60,50 @@ const Collaborators = {
 
     try {
       response = await conn.query(sql, [plataform]);
+      console.log(response)
     } catch (e) {
-      console.log(e.message);
+      response = e;
     }
-    return response.affectedRows === 1 ? { response: 'ok' } : { error: response.sqlMessage };
+    return response
   },
-  update: async (id, payload) => {
-    const { plataform } = payload;
+  update: async (id, payload, company_slug) => {
     let response = '';
+    let toReturn = {};
+
     const sql = `
       UPDATE ${TABLE_NAME}
       SET 
         name = ?,
         email = ?,
-        password = ?,
         type = ?,
         active= ?,
         idPlataform = ?,
         idCompany = ?,
-        updatedAt = CURRENT_TIMESTAMP
+        dateEdited = CURRENT_TIMESTAMP
       WHERE id = ?
     `;
 
     try {
-      response = await conn.query(sql, [plataform, id]);
+      const [{ companyId }] = await conn.query(`SELECT id AS companyId FROM companies WHERE slug = ?`, [company_slug]);
+
+      response = await conn.query(sql, [
+        payload.name,
+        payload.email,
+        payload.type,
+        payload.active,
+        payload.idPlataform,
+        companyId,
+        id
+      ]);
+
+      if(response.affectedRows === 1) toReturn = { status: 200, message: 'ok' }
+      else toReturn = { status: 400, message: response.sqlMessage }
+
     } catch (e) {
-      console.log(e.message);
+      response = e;
     }
 
-    return response.affectedRows === 1 ? { response: 'ok' } : { error: response.sqlMessage };
+    return toReturn
   },
   remove: async (id) => {
     const sql = `DELETE FROM ${TABLE_NAME} WHERE id = ?`;
