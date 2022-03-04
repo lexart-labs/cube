@@ -79,7 +79,8 @@
                       >{{ $t("generic.hours") }}
                       <input
                         type="tel"
-                        v-mask="'##:##'"
+                        v-mask="['##:##:##', '###:##:##']"
+                        placeholder="00:00:00"
                         masked
                         v-model="report.continuity"
                         class="form-control is-rounded"
@@ -124,6 +125,7 @@ import translations from '../../data/translate';
 
 const User = UserService();
 const PAGES_SIZE = 10;
+// /\d?(\d){2}:(\d){2}:(\d){2}/
 
 export default {
   name: "Continuity",
