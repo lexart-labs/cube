@@ -153,7 +153,6 @@
 import HoursService from "../../services/hours.service";
 import Collaborators from "../../services/collaborators.service";
 import ExplorerTable from "../../components/explorerTable.vue";
-import { APP_NAME } from "../../../env";
 import vueSelect from "vue-select";
 import translations from "../../data/translate";
 
@@ -274,7 +273,6 @@ export default {
 
     const month = this.filters.month;
     const year = this.filters.year;
-    const idLead = JSON.parse(localStorage.getItem(`id-${APP_NAME}`));
 
     const [pageCount, reports, users] = await Promise.all([
       HoursService.countPages(month, year),
@@ -308,12 +306,10 @@ export default {
   margin: 1rem auto 3rem;
   gap: 1rem;
 }
-
 .filters-ctl > div {
   width: 20%;
   min-width: 200px;
 }
-
 small {
   color: rgb(255, 117, 117);
   justify-self: flex-end;
