@@ -20,8 +20,8 @@
       v-model="searchQuery"
       class="form-control is-rounded search"
     />
-    <div>
-      <table class="table table-admin col-12">
+    <div class="col-12">
+      <table class="table table-admin">
         <thead class="is-bold">
           <tr>
             <th v-for="(header, i) in $t(`${translations}.headers`)" :key="`head${i}`">

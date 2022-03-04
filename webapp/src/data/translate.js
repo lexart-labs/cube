@@ -6,6 +6,7 @@ const translations = {
       messageSync: 'Usuario sincronizado correctamente',
       messageNotSync: 'Error al sincronizar el usuario',
       evaluationNotFound: 'Error no se encontró evaluaciones',
+      errorGettingInfos: 'Error al traer las informaciones del usuario, intente novamente',
       userHaventEvaluations: 'Usted aún no tiene evaluaciones',
       histogramTitle: 'Historico de evaluaciones',
       pentagramGraph: 'Vision general por año',
@@ -141,9 +142,13 @@ const translations = {
       days: 'días',
       origin: 'Origin',
       continuity: 'Continuidade',
+      collaborators: 'Colaboradores',
       month: 'Mes',
       year: 'Año',
       hours: 'Horas',
+      name: 'Nombre',
+      userType: 'Tipo usuario',
+      password: 'Contraseña',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -238,6 +243,14 @@ const translations = {
       modalTitle: 'Reportes',
       colaborator: 'Colaborador',
     },
+    AdminCollaborators: {
+      title: 'Colaboradores',
+      newBtn: 'Colaborador',
+      searchPlaceholder: 'Buscar por colaborador',
+      headers: [ 'Id', 'Usuario', 'Mes', 'Año', 'Horas'],
+      modalTitle: 'Colaborador',
+      colaborator: 'Colaborador',
+    },
   },
   en: {
     dashboard: {
@@ -247,6 +260,7 @@ const translations = {
       messageNotSync: 'Failed to sync user',
       evaluationNotFound: 'Error no reviews found',
       userHaventEvaluations: "You haven't evaluations yet",
+      errorGettingInfos: 'Error getting user infos, try again',
       histogramTitle: 'Evaluation history',
       pentagramGraph: 'Overview by year',
       searchPlaceholder: 'Search Evaluations',
@@ -381,9 +395,13 @@ const translations = {
       days: 'days',
       origin: 'Origin',
       continuity: 'Continuity',
+      collaborators: 'Collaborators',
       month: 'Month',
       year: 'Year',
       hours: 'Hours',
+      name: 'Name',
+      userType: 'User type',
+      password: 'Password',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -476,6 +494,14 @@ const translations = {
       searchPlaceholder: 'Search time report',
       headers: [ 'Id', 'User', 'Month', 'Year', 'Hours'],
       modalTitle: 'Reports',
+      colaborator: 'Colaborator',
+    },
+    AdminCollaborators: {
+      title: 'Collaborators',
+      newBtn: 'Collaborator',
+      searchPlaceholder: 'Search by collaborator',
+      headers: [ 'Id', 'Name', 'email', 'Type', 'Platform', 'Active' ],
+      modalTitle: 'Collaborator',
       colaborator: 'Colaborator',
     },
   },

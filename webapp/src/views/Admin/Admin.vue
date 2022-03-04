@@ -9,6 +9,11 @@
             >
           </li>
           <li class="nav-item">
+            <router-link to="/app/administration/collaborators" class="nav-link"
+              >{{ $t('generic.collaborators') }}</router-link
+            >
+          </li>
+          <li class="nav-item">
             <router-link to="/app/administration/evaluaciones" class="nav-link"
               >{{ $t('AdminEvaluations.evaluations') }}</router-link
             >

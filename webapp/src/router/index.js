@@ -10,6 +10,7 @@ import Technologies from '../views/Admin/Technologies.vue';
 import Origin from '../views/Admin/Origins.vue';
 import AppComponent from '../views/AppComponent.vue';
 import Continuity from '../views/Admin/Continuity.vue';
+import Collaborators from '../views/Admin/Collaborators.vue';
 
 const routes = [
   { path: '/:token?', name: 'Login', component: Login },
@@ -26,6 +27,10 @@ const routes = [
           {
             path: 'users',
             component: Users,
+          },
+          {
+            path: 'collaborators',
+            component: Collaborators,
           },
           {
             path: 'evaluaciones',
