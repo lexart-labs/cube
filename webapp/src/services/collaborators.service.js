@@ -13,16 +13,20 @@ const generateHeader = () => {
 };
 
 const headers = generateHeader();
-const MODEL = 'collaborators/';
+const MODEL = 'collaborators';
 
 const Collaborators = {
-  getByCompany: async function () {
-    const { data } = await axios.get(`${API + MODEL}`, { headers });
-    return data.response ? data.response : [];
+  getQuantityOfPages: async function () {
+    const { data } = await axios.get(`${API + MODEL}/quantity-of-pages`, { headers });
+    return data;
+  },
+  getByCompany: async function (page) {
+    const { data } = await axios.get(`${API + MODEL}?page=${page}`, { headers });
+    return data;
   },
   getByIdUser: async function (id) {
-    const { data } = await axios.get(`${API + MODEL}/${id}`, { headers });
-    return data.response ? data.response : [];
+    const { data } = await axios.get(`${API + MODEL}/by-id/${id}`, { headers });
+    return data;
   },
   createUser: async function (payload) {
     const { data } = await axios.post(`${API + MODEL}`, payload, { headers });

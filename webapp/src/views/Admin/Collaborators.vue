@@ -3,29 +3,31 @@
     v-if="!isLoading"
     translations="AdminCollaborators"
     :tableKeys="['id', 'name', 'email', 'type', 'plataform', 'active']"
-    modalId="#upsertModal"
+    modalId="#upsert-collaborator"
     :tableData="collaborators"
     :onNew="clearStates"
     :onEdit="getCollaboratorById"
     :pager="handlePagination"
-    :pagesCount="pageCount"
+    :pagesCount="totalOfPages"
   >
     <template slot="filters">
       <input
         type="search"
-        :placeholder="$t(`${translations}.searchPlaceholder`)"
+        :placeholder="$t(`AdminCollaborators.searchPlaceholder`)"
         v-model="searchQuery"
+        @input="getAllCollaboratorsByCompanyAndName"
         class="form-control is-rounded search"
       />
     </template>
     <template slot="upsert-modal">
       <div
         class="modal fade"
-        id="upsertModal"
+        id="upsert-collaborator"
         tabindex="-1"
         role="dialog"
-        aria-labelledby="upsertModal"
+        aria-labelledby="exampleModalLabel"
         aria-hidden="true"
+        data-backdrop="static"
       >
         <div
           class="modal-dialog modal-dialog-centered modal-lg"
@@ -33,7 +35,7 @@
         >
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title is-bold" id="upsertModal">
+              <h5 class="modal-title is-bold" id="exampleModalLabel">
                 {{ $t("AdminCollaborators.modalTitle") }}
               </h5>
               <button
@@ -41,6 +43,7 @@
                 class="close"
                 data-dismiss="modal"
                 aria-label="Close"
+                @click="clearStates"
               >
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -85,8 +88,10 @@
                   <div class="col-12 mt-0 mt-md-2">
                     <label>{{ $t("AdminUsers.columnActive") }}</label>
                     <vue-select
-                      v-model="collaborator.name"
-                      :options="['Active', 'Inactive']"
+                      v-model="collaborator.active"
+                      label="text"
+                      :options="[{ value: 1, text: 'Active'}, { value: 0, text: 'Inactive'}]"
+                      :reduce="status => status.value"
                     ></vue-select>
                   </div>
 
@@ -139,40 +144,71 @@ export default {
       collaborators: [],
       isLoading: false,
       isEditing: false,
-      pageCount: 1,
+      totalOfPages: null,
+      actualPage: 0,
       idCompany: 1,
-      platforms: []
+      platforms: [],
+      searchQuery: ""
     };
   },
   async mounted() {
     this.isLoading = true;
-    const idLead = JSON.parse(localStorage.getItem(`id-${APP_NAME}`));
 
-    const [users, platforms] = await Promise.all([
-      CollaboratorsService.getByCompany(),
-      DevOriginsService.getAll()
-    ]);
-
-    this.pageCount = 0;
-    this.collaborators = users;
-    this.platforms = platforms
-
+    this.getDevOrigins();
+    this.getAllCollaboratorsByCompany();
+    this.getQuantityOfPages();
     this.isLoading = false;
   },
   methods: {
-    clearStates() {
-      this.report = {
-        year: 2022,
-        month: "",
-        idColaborator: 0,
-        name: "",
-        continuity: "0:00",
-      };
-      this.isEditing = false;
+    getQuantityOfPages: async function () {
+      const quantityOfPages = await CollaboratorsService.getQuantityOfPages();
+
+      if(quantityOfPages.status === 200) {
+        this.totalOfPages = quantityOfPages.response[0].totalOfPages;
+      } else {
+        Vue.toasted.show(
+          'Error getting total of pages, try again',
+          { type: "info", duration: 2000 }
+        );
+      }
     },
+
+    getDevOrigins: async function () {
+      const platforms = await DevOriginsService.getAll();
+
+      if(platforms.length > 0) {
+        this.platforms = platforms;
+      } else {
+        Vue.toasted.show(
+          Translations[this.$store.state.language].dashboard.errorGettingInfos,
+          { type: "info", duration: 2000 }
+        );
+      }
+    },
+
+    getAllCollaboratorsByCompany: async function () {
+      const users = await CollaboratorsService.getByCompany(this.actualPage);
+
+      if(users.status === 200) {
+        this.collaborators = users.response;
+      } else {
+        Vue.toasted.show(
+          Translations[this.$store.state.language].dashboard.errorGettingInfos,
+          { type: "info", duration: 2000 }
+        );
+      }
+    },
+
+    getAllCollaboratorsByCompanyAndName: function () {
+      this.getAllCollaboratorsByCompany()
+    },
+
     getCollaboratorById: async function (id) {
+      this.clearStates()
+
       const collaborator = await CollaboratorsService.getByIdUser(id);
-      if(collaborator.length > 0) this.collaborator = collaborator[0];
+
+      if(collaborator.status === 200) this.collaborator = collaborator.response[0];
       else {
         Vue.toasted.show(
           Translations[this.$store.state.language].dashboard.errorGettingInfos,
@@ -182,32 +218,54 @@ export default {
       
       this.isEditing = true;
     },
-    handlePagination: async function(page) {
-    },
+
     upsertCollaborator: async function() {
-      let res = {};
-      if(Object.values(this.collaborator).some(val => !val))
+      let res, type, message;
+
+      this.checkIfIsAll
+
+      $("#upsert-collaborator").modal("hide");
+
       this.isLoading = true;
-      console.log(this.collaborator.id, this.collaborator, this.isEditing)
 
       if(this.isEditing) res = await CollaboratorsService.editUser(this.collaborator.id, this.collaborator)
       else res = await CollaboratorsService.createUser(this.collaborator)
 
       if(res.status === 200) {
-        Vue.toasted.show(
-          Translations[this.$store.state.language].AdminCollaborators.successToAdd,
-          { type: "success", duration: 2000 }
-        );
+        type = 'success',
+        message = 'successToAdd';
+        this.actualPage = this.collaborators.length === 10 ? this.totalOfPages : this.actualPage
       } else if(res.status === 400) {
-        Vue.toasted.show(
-          Translations[this.$store.state.language].AdminCollaborators.errorToAdd,
-          { type: "error", duration: 2000 }
-        );
+        type = 'error',
+        message = 'errorToAdd';
       }
 
-      $("#upsertModal").modal("hide");
+      Vue.toasted.show(
+        Translations[this.$store.state.language].AdminCollaborators[message],
+        { type: type, duration: 2000 }
+      );
+
+      await this.getAllCollaboratorsByCompany();
 
       this.isLoading = false;
+    },
+
+    clearStates: function () {
+      this.collaborator = {
+        name: "",
+        email: "",
+        password: "",
+        type: "",
+        idPlataform: null,
+        active: null,
+      },
+
+      this.isEditing = false;
+    },
+
+    handlePagination: async function(page) {
+      this.actualPage = page;
+      this.getAllCollaboratorsByCompany()
     },
   },
 };
