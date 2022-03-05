@@ -14,12 +14,21 @@
           + {{$t('AdminEvaluations.evaluation')}}
         </button>
     </header>
-    <input
-      type="search"
-      :placeholder="$t('AdminEvaluations.searchPlaceholder')"
-      v-model="searchQuery"
-      class="form-control is-rounded search"
-    />
+    <div class="grp-icon-input">
+      <input
+        type="search"
+        :placeholder="$t('AdminEvaluations.searchPlaceholder')"
+        v-model="searchQuery"
+        class="form-control is-rounded search"
+        v-on:keydown.enter="getEvaluations"
+      />
+      <button
+        v-on:click="getEvaluations"
+        class="btn btn-primary btn-sm col-1 btn-search-eval"
+      >
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
     <div>
       <table class="table table-admin col-12">
         <thead class="is-bold">
@@ -34,7 +43,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(course, i) in resultQuery" :key="`course${i}`">
+          <tr v-for="(course, i) in courses" :key="`course${i}`">
             <td>{{ course.id }}</td>
             <td>{{ course.name }}</td>
             <td>{{ course.user.name }}</td>
@@ -128,11 +137,11 @@
                   />
                 </div>
                 <div class="col-md-3 col-sm-12">
-                  <v-select
+                  <vue-select
                     v-model="course.user"
                     label="name"
                     :options="users"
-                  ></v-select>
+                  ></vue-select>
                 </div>
                 <div class="col-md-3 col-sm-12">
                   <select class="form-control is-rounded" v-model="course.active">
@@ -449,6 +458,7 @@
 
 <script>
 import Spinner from '../../components/Spinner.vue';
+import vueSelect from "vue-select";
 import { verifyToken, copy } from '../../services/helpers';
 import CourseService from '../../services/course.service';
 import UserService from '../../services/user.service';
@@ -457,7 +467,7 @@ import { APP_NAME } from '../../../env';
 
 export default {
   name: 'EvaluationsAdmin',
-  components: { Spinner },
+  components: { Spinner, vueSelect },
   data() {
     return {
       title: 'Evaluations management',
@@ -836,7 +846,7 @@ export default {
       this.isLoading = true;
       this.courses = [];
       this.page = page + 1;
-      const { data: res } = await CourseService().getAllCourses(page);
+      const { data: res } = await CourseService().getAllCourses(page, this.searchQuery);
 
       if (!res.error) {
         const courses = res.response;
@@ -861,7 +871,27 @@ export default {
     },
     cancelEvaluation: function () {
       this.course = {}
-    }
+    },
+    getEvaluations: async function () {
+      this.isLoading = true;
+      this.courses = [];
+
+      const { data: pageLength} = await CourseService().getPagesLength(this.searchQuery);
+      const { data: res } = await CourseService().getAllCourses(0, this.searchQuery);
+      if (!res.error) {
+        this.courses = res.response;
+        this.pagesLength = pageLength.response;
+        this.page = 1;
+      } else {
+        this.$toasted.show('Error when trying to get the evaluations, refresh your screen to try again', {
+          type: 'error',
+          duration: 3000,
+        });
+        this.error = res.error;
+      }
+
+      this.isLoading = false;
+    },
   },
   async mounted() {
     const id = this.$route.params.id ? this.$route.params.id : undefined;
@@ -885,7 +915,7 @@ export default {
     const { data: totalOfPages } = await CourseService().getPagesLength();
     this.pagesLength = !totalOfPages.error ? totalOfPages.response : '';
 
-    UserService().getAllUsers(null, (res) => {
+    UserService().getAllUsers(null, '', (res) => {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
@@ -895,17 +925,7 @@ export default {
       }
     });
   },
-  computed: {
-    resultQuery() {
-      if (this.searchQuery) {
-        return this.courses.filter((item) => this.searchQuery
-          .toLowerCase()
-          .split(' ')
-          .every((v) => item.name.toLowerCase().includes(v)));
-      }
-      return this.courses;
-    },
-  },
+  computed: { },
 };
 </script>
 
@@ -919,6 +939,6 @@ export default {
   }
   .courseContainer {
   padding: 1rem 0;
-}
+  }
 }
 </style>
