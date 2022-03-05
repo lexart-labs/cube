@@ -12,7 +12,7 @@ let Course = {
 		// Obtener los usuarios
 		const sql = `
 			SELECT id, name, active, json_data FROM ${tablaNombre}
-			WHERE idUser = ? ${ query ? filterQuery : ''}
+			WHERE idUser = ? ${ query ? filterQuery : '' }
 			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []

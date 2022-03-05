@@ -11,7 +11,7 @@ let User = {
 	all: async function (idAdmin, page, query) {
 		let error = { "error": "Error al obtener usuarios" };
 		const filter = query ? `AND u.name LIKE '%${query}%'` : '';
-
+		
 		// Obtener los usuarios
 		const sql = `
 			SELECT
@@ -25,7 +25,7 @@ let User = {
 			LEFT JOIN careers c ON uc.idPosition = c.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
 			WHERE (u.idUser = ? OR u.id = ?) ${filter}
-			${page ? `LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}` : ''}
+			${parseInt(page) ? `LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}` : ''}
 		`
 		let response = []
 
@@ -432,7 +432,7 @@ let User = {
 		const filter = q ? `AND u.name LIKE '%${q}%'` : '';
 		const sql = `
 			SELECT COUNT(*) AS total FROM users AS u
-			WHERE (u.idUser = ? OR u.idLextracking = ?) ${filter}
+			WHERE (u.idUser = ? OR u.id = ?) ${filter}
 		`;
 		const error = { "error": "Error al obtener usuarios" };
 		let response = 0;
