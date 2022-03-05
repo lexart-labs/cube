@@ -89,7 +89,8 @@ export default {
             // Guardar en el localStorage
             // Token del response
             localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
-            localStorage.setItem(`id-${APP_NAME}`, rs.response.idLextracking);
+            localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
+            localStorage.setItem('_company-slug', 'lexart_labs');
 
             window.localStorage.setItem(
               `_lextracking_user-${APP_NAME}`,

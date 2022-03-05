@@ -957,4 +957,7 @@ span.badge.badge-primary {
     max-width: 35%;
   }
 
+  .grp-icon-input {
+    width: 100%;
+  }
 }

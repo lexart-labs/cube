@@ -57,9 +57,9 @@ router.get('/lextracking-ids', async function (_req, res) {
     res.send(response);
 })
 
-router.post('/upsert', Mdl.middleware, async function (req, res) {
+router.post('/upsert', async function (req, res) {
 	let post 	 = req.body;
-	let response = await User.upsert(post, req.headers['user-id']);
+	let response = await User.upsert(post, req.headers['user-id'], req.headers["company_slug"]);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);

@@ -118,7 +118,9 @@ export default {
 
 
     // Busco las horas menuales por año
+    console.log(this.id)
     const monthlyHours = await this.getMonthHours(this.id, this.year);
+    console.log(monthlyHours)
   
 
     // Calculo los datos para armar el grafico

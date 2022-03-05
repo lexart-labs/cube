@@ -26,13 +26,14 @@ const Team = {
         idLead=?,
         team=?,
         name=?,
-        mainStack=?
+        mainStack=?,
         updatedAt=CURRENT_TIMESTAMP
       WHERE id = ?
     `;
 
     try {
       response = await conn.query(sql, [idLead, JSON.stringify(team), name, JSON.stringify(stack), id]);
+      console.log(response)
     } catch (e) {
       console.log(e.message);
       error.message = e.message;
