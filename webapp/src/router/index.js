@@ -9,8 +9,10 @@ import EvaluationsAdmin from '../views/Admin/Evaluations.vue';
 import Technologies from '../views/Admin/Technologies.vue';
 import Origin from '../views/Admin/Origins.vue';
 import AppComponent from '../views/AppComponent.vue';
+import RegisterCompany from '../views/RegisterCompany.vue';
 
 const routes = [
+  { path: '/rcompany', name: 'Register Company', component: RegisterCompany },
   { path: '/:token?', name: 'Login', component: Login },
   {
     path: '/app',

@@ -21,26 +21,34 @@
         <h2>Cube Platform</h2>
         <small>By Lexart Factory</small>
       </header>
-      <form style="margin-top: 1rem" id="login-form">
+      <form @submit.prevent="registerCompany" style="margin-top: 1rem" id="login-form">
+        <input
+          type="text"
+          v-model="cpy.company"
+          placeholder="Company Name"
+          class="form-control"
+          required
+        />
         <input
           type="email"
-          v-model="usr.email"
+          v-model="cpy.email"
           placeholder="Email"
           class="form-control"
+          required
         />
         <input
           type="password"
-          v-model="usr.password"
-          placeholder="Clave"
+          v-model="cpy.password"
+          placeholder="Password"
           class="form-control"
+          required
         />
         <button
-          type="button"
+          type="submit"
           class="btn btn-black btn-block"
           v-bind:disabled="isLoading"
-          v-on:click="loginUser"
         >
-          <span>Login</span>
+          <span>Register</span>
         </button>
         <footer>
           <span>con</span>
@@ -51,7 +59,7 @@
         </footer>
       </form>
       <div>
-        <router-link to="/rcompany" class="rcompany">Es una empresa?</router-link>
+        <router-link to="/" class="rcompany">Iniciar sesión?</router-link>
       </div>
     </div>
   </div>
@@ -60,15 +68,14 @@
 <script>
 /* eslint-disable no-underscore-dangle */
 import axios from "axios";
-import Vue from "vue";
 import { copy } from "../services/helpers";
-import { API, APP_NAME } from "../../env";
+import { API } from "../../env";
 
 export default {
-  name: "Login",
+  name: "RegisterCompany",
   data() {
     return {
-      usr: {},
+      cpy: {},
       error: "",
       isLoading: false,
       api: API,
@@ -79,28 +86,18 @@ export default {
     };
   },
   methods: {
-    loginUser() {
+    registerCompany() {
       this.isLoading = true;
-      const user = copy(this.usr);
+      const user = copy(this.cpy);
 
-      axios.post(`${API}users/login`, user).then(
+      axios.post(`${API}companies/`, user).then(
         (res) => {
+
           const rs = res.data;
           this.isLoading = false;
 
           if (!rs.error) {
-            // Guardar en el localStorage
-            // Token del response
-            localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
-            localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
-            localStorage.setItem('_company-slug', 'lexart_labs');
-
-            window.localStorage.setItem(
-              `_lextracking_user-${APP_NAME}`,
-              JSON.stringify(rs.response)
-            );
-
-            this.$router.push("/app/dashboard");
+            this.$router.push("/");
           } else {
             this.error = rs.error;
           }
@@ -114,35 +111,6 @@ export default {
   },
   mounted() {
     localStorage.clear();
-
-    // Obtengo la información de la escuela si tengo token
-    const { token } = this.$route.params;
-    if (token) {
-      axios.get(`${API}users/school/${token}`).then(
-        (res) => {
-          if (!res.data.error) {
-            this.setting = res.data.response;
-            // Bypass del token al storage
-            this.setting.token = token;
-            window.localStorage.setItem(
-              `_setting-${APP_NAME}`,
-              JSON.stringify(this.setting)
-            );
-          } else {
-            Vue.toasted.show("Error en obtener la institución", {
-              type: "error",
-              duration: 2000,
-            });
-          }
-        },
-        () => {
-          Vue.toasted.show("Error en obtener la institución", {
-            type: "error",
-            duration: 2000,
-          });
-        }
-      );
-    }
   },
 };
 </script>
