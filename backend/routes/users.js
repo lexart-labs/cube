@@ -30,7 +30,9 @@ router.post('/check-type', Mdl.middleware, async function (req, res) {
 
 router.get('/all', async function (req, res) {
 	const { page, query } = req.query;
-	let response = await User.all(req.headers['user-id'], page || null, query);
+	const company_slug = req.headers.company_slug;
+	
+	let response = await User.all(req.headers['user-id'], page || null, query, company_slug);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
@@ -38,9 +40,10 @@ router.get('/all', async function (req, res) {
 
 router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
 	const { minified } = req.query;
-	let response = await User.allUserLextracking(req, minified);
-
 	res.set(['Content-Type', 'application/json']);
+
+	let response = await User.allUserLextracking(req, minified, res);
+
     res.send(response);
 })
 

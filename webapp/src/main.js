@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import vSelect from 'vue-select';
+import VueTheMask from 'vue-the-mask'
 import Toasted from 'vue-toasted';
 import VueRouter from 'vue-router';
 import VueI18n from 'vue-i18n';
@@ -13,6 +14,7 @@ Vue.config.productionTip = false;
 
 Vue.use(Toasted, { router });
 Vue.use(VueI18n);
+Vue.use(VueTheMask);
 Vue.use(VueRouter);
 Vue.use(Vuex);
 

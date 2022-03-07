@@ -91,7 +91,7 @@ const UserService = function () {
         cb(data)
       });
     },
-  };
+  }
 };
 
 export default UserService;
