@@ -1,5 +1,6 @@
 const utils = require('./utils.service');
 const UserSkills = require('./userSkills.service');
+const CollaboratorsService = require('./collaborators.service');
 const Course = require('./courses.service');
 const { setUpData } = require('./EvaluationsHandler.service');
 const axios = require('axios');
@@ -35,25 +36,32 @@ let User = {
 
 		return response.length > 0 ? { response: response } : error;
 	},
-	allUserLextracking: async function (req, shouldOmit) {
-		let error = { "error": "Error al obtener usuarios" }
-		let model = 'user/all'
-		let { data: { response } } = await axios.get(API_LEXTRACKING + model,
-			{
-				"headers": {
-					"token": req.headers.token
-				}
-			})
-		if (shouldOmit && response.length) {
-			response = response.reduce((acc, { name, id, email, role }) => {
-				if (role == 'developer') {
-					acc.push({ name, id, email });
-				}
-				return acc;
-			}, []);
-		}
+	allUserLextracking: async function (req, shouldOmit, res) {
+		const company_slug = req.headers.company_slug;
+		let error = { "error": "Error al obtener usuarios" };
+		let model = 'user/all';
 
-		return response.length > 0 ? { response } : error;
+		if(company_slug === 'lexart_labs') {
+			let { data: { response } } = await axios.get(API_LEXTRACKING + model,
+				{
+					"headers": {
+						"token": req.headers.token
+					}
+				})
+			if (shouldOmit && response.length) {
+				response = response.reduce((acc, { name, id, email, role }) => {
+					if (role == 'developer') {
+						acc.push({ name, id, email });
+					}
+					return acc;
+				}, []);
+			}
+	
+			return response.length > 0 ? { response } : error;
+		} else {
+			let cubeUsers = await CollaboratorsService.getByCompany(company_slug, null, null, res);
+			return cubeUsers;
+		}
 	},
 	one: async function (id, token) {
 		let error = { "error": "Error al obtener usuarios" }
@@ -112,35 +120,30 @@ let User = {
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
 	},
-	updateOne: async function (usuario, idAdmin) {
+	updateOne: async function (usuario, idAdmin, id_company) {
 		const tablaNombre = 'users';
 		let response, stack, token;
 		let shouldCreatePosition = true;
-
-		// Defino en cual clave esta el id de lextracking
-		// const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
-
-		// const { positionId, levelId, idPlataform } = usuario;
 		token = utils.makeToken(usuario.email, usuario.id, 'public');
-		const password = md5(usuario.password);
-		
-		// if (usuario.passwordCopy) { 
-		// }
 
 		// Compara los ids de cargo y nível, si los nuevos son iguales a los atuales
-		const currentPosition = await conn.query(
+		const currentPosition = usuario.idPosition 
+		? await conn.query(
 			'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
-		);
+		) : [{idPosition: null, idLevel: null}];
 
+		
 		if (currentPosition[0]) {
 			shouldCreatePosition = (
 				currentPosition[0].idPosition == usuario.positionId
 				&& currentPosition[0].idLevel == usuario.levelId
 			) ? false : true;
 		}
+			
+		console.log(currentPosition, shouldCreatePosition)
 
 		const idPosition = shouldCreatePosition
-			? await this.updatePosition(usuario.idLextracking, usuario.positionId, usuario.levelId)
+			? await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId)
 			: usuario.idPosition;
 
 		const sql = `
@@ -148,7 +151,6 @@ let User = {
 			SET name = ?,
 				email  = ?,
 				type   = ?,
-				password = ?,
 				active = ?,
 				idUser = ?,
 				token = ?,
@@ -162,13 +164,12 @@ let User = {
 			usuario.name,
 			usuario.email,
 			usuario.type,
-			password,
 			parseInt(usuario.active),
 			idAdmin,
 			token,
 			idPosition,
 			usuario.idPlataform || null,
-			usuario.idCompany,
+			id_company,
 			usuario.id,
 		];
 
@@ -186,14 +187,10 @@ let User = {
 
 		return { response, stack, arr, sql };
 	},
-	insertOne: async function (usuario, idAdmin, company_slug) {
+	insertOne: async function (usuario, idAdmin, company_slug, id_company) {
 		const tablaNombre = 'users';
 		let response, stack, idPosition;
 		let password = md5(usuario.password);
-
-		const queryGetIdCompany =  `SELECT id FROM companies WHERE slug = ?`
-		let company = await conn.query(queryGetIdCompany, [company_slug]);
-		let idCompany = company[0].id;
 
 		if(company_slug === "lexart_labs") {
 			const result = await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId);
@@ -221,7 +218,7 @@ let User = {
 			usuario.active,
 			idPosition,
 			usuario.idPlataform || null,
-			idCompany
+			id_company
 		];
 
 		try {
@@ -246,14 +243,16 @@ let User = {
 		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 		const idLead = usuario.lead ? usuario.lead.id : idLextracking;
 
-		const userSearchResult = await this.checkUserAlreadyExists(usuario.email, usuario.idCompany);
+		const id_company = await utils.getIdCompanyBySlug(company_slug)
+
+		const userSearchResult = await this.checkUserAlreadyExists(usuario.email, id_company);
 
 		if (userSearchResult.status === 404) {
-			result = await this.insertOne(usuario, idLead, company_slug);
+			result = await this.insertOne(usuario, idLead, company_slug, id_company);
 			// await this.changeLeader(idLead, idLextracking);
 		} else if (userSearchResult.status === 200) {
 			usuario.sync = false;
-			result = await this.updateOne(usuario, idLead);
+			result = await this.updateOne(usuario, idLead, id_company);
 			if (idLead != currentLeadId) {
 				await this.changeLeader(idLead, idLextracking);
 			}
@@ -268,6 +267,7 @@ let User = {
 		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
 	checkUserAlreadyExists: async function (email, idCompany) {
+		console.log(email, idCompany);
 		const sql = `
 			SELECT
 				u.id,

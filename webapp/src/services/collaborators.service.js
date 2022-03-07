@@ -16,12 +16,12 @@ const headers = generateHeader();
 const MODEL = 'collaborators';
 
 const Collaborators = {
-  getQuantityOfPages: async function () {
-    const { data } = await axios.get(`${API + MODEL}/quantity-of-pages`, { headers });
+  getQuantityOfPages: async function (name) {
+    const { data } = await axios.get(`${API + MODEL}/quantity-of-pages${name ? '?name=' + name : ''}`, { headers });
     return data;
   },
-  getByCompany: async function (page) {
-    const { data } = await axios.get(`${API + MODEL}?page=${page}`, { headers });
+  getByCompany: async function (page, name) {
+    const { data } = await axios.get(`${API + MODEL}?page=${page}${name ? '&name=' + name : ''}`,{ headers });
     return data;
   },
   getByIdUser: async function (id) {

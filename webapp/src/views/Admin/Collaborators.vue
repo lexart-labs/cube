@@ -9,15 +9,24 @@
     :onEdit="getCollaboratorById"
     :pager="handlePagination"
     :pagesCount="totalOfPages"
+    :actualPage="actualPage"
   >
     <template slot="filters">
-      <input
-        type="search"
-        :placeholder="$t(`AdminCollaborators.searchPlaceholder`)"
-        v-model="searchQuery"
-        @input="getAllCollaboratorsByCompanyAndName"
-        class="form-control is-rounded search"
-      />
+      <div class="grp-icon-input">
+        <input
+          type="search"
+          :placeholder="$t('AdminUsers.searchPlaceholder')"
+          v-model="searchQuery"
+          class="form-control is-rounded search"
+          @keydown.enter="getAllCollaboratorsByCompanyAndName"
+        />
+        <button
+          class="btn btn-primary btn-sm col-1 btn-search-eval"
+          @click="getAllCollaboratorsByCompanyAndName"
+        >
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
     </template>
     <template slot="upsert-modal">
       <div
@@ -64,7 +73,7 @@
 
                   <div class="col-12 mt-0 mt-md-2">
                     <label>{{ $t("generic.password") }}</label>
-                    <input type="text" class="form-control is-rounded" v-model="collaborator.password">
+                    <input :type="isEditing ? 'password' : 'text'" class="form-control is-rounded" v-model="collaborator.password">
                   </div>
 
                   <div class="col-12 col-md-6 mt-0 mt-md-2">
@@ -129,7 +138,7 @@ import vueSelect from "vue-select";
 import Translations from "../../data/translate";
 
 export default {
-  name: "Continuity",
+  name: "Collaborators",
   components: { ExplorerTable, vueSelect },
   data() {
     return {
@@ -161,7 +170,7 @@ export default {
   },
   methods: {
     getQuantityOfPages: async function () {
-      const quantityOfPages = await CollaboratorsService.getQuantityOfPages();
+      const quantityOfPages = await CollaboratorsService.getQuantityOfPages(this.searchQuery);
 
       if(quantityOfPages.status === 200) {
         this.totalOfPages = quantityOfPages.response[0].totalOfPages;
@@ -187,7 +196,7 @@ export default {
     },
 
     getAllCollaboratorsByCompany: async function () {
-      const users = await CollaboratorsService.getByCompany(this.actualPage);
+      const users = await CollaboratorsService.getByCompany(this.actualPage, this.searchQuery);
 
       if(users.status === 200) {
         this.collaborators = users.response;
@@ -199,8 +208,10 @@ export default {
       }
     },
 
-    getAllCollaboratorsByCompanyAndName: function () {
-      this.getAllCollaboratorsByCompany()
+    getAllCollaboratorsByCompanyAndName: async function () {
+      this.actualPage = 0;
+      await this.getQuantityOfPages();
+      this.getAllCollaboratorsByCompany();
     },
 
     getCollaboratorById: async function (id) {
@@ -220,34 +231,37 @@ export default {
     },
 
     upsertCollaborator: async function() {
+      this.collaborators = [];
       let res, type, message;
 
-      this.checkIfIsAll
+      // this.checkIfIsAll
 
       $("#upsert-collaborator").modal("hide");
 
-      this.isLoading = true;
-
       if(this.isEditing) res = await CollaboratorsService.editUser(this.collaborator.id, this.collaborator)
-      else res = await CollaboratorsService.createUser(this.collaborator)
+      else res = await CollaboratorsService.createUser(this.collaborator);
 
-      if(res.status === 200) {
+      if(res.status == 200) {
         type = 'success',
         message = 'successToAdd';
-        this.actualPage = this.collaborators.length === 10 ? this.totalOfPages : this.actualPage
-      } else if(res.status === 400) {
+        if(!this.isEditing) {
+          await this.getQuantityOfPages()
+          this.actualPage = this.totalOfPages - 1;
+        }
+      } else if(res.status == 400) {
         type = 'error',
         message = 'errorToAdd';
+      } else if(res.status == 500) {
+        type = 'error';
+        message = res.message;
       }
 
       Vue.toasted.show(
-        Translations[this.$store.state.language].AdminCollaborators[message],
+        res.status == 500 ? message : Translations[this.$store.state.language].AdminCollaborators[message],
         { type: type, duration: 2000 }
       );
 
       await this.getAllCollaboratorsByCompany();
-
-      this.isLoading = false;
     },
 
     clearStates: function () {
