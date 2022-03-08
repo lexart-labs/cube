@@ -44,7 +44,7 @@ router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
 
 	let response = await User.allUserLextracking(req, minified, res);
 
-    res.send(response);
+  res.send(response);
 })
 
 router.get('/count', Mdl.middleware, async function (req, res) {
