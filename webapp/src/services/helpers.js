@@ -17,5 +17,16 @@ export const compareDBUsers = (listIds, listUsers) => {
   const result = listUsers.filter(el => (
     !listIds.includes(parseInt(el.id))
   ));
+
+  result.sort((a, b) => {
+    if (a.name > b.name) {
+      return 1;
+    }
+    if (a.name < b.name) {
+      return -1;
+    }
+    return 0;
+  });
+
   return result;
 };

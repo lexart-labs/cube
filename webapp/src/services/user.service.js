@@ -40,10 +40,11 @@ const UserService = function () {
         cb(res.data);
       });
     },
-    getAllUsersLextracking(cb) {
+    getAllUsersLextracking(cb, minified = false) {
       const headers = buildHeaders();
+      const endpoint = `${API + model}lextracking/all`
 
-      axios.get(`${API + model}lextracking/all`, { headers }).then((res) => {
+      axios.get(`${endpoint}${minified ? '?minified=true' : ''}`, { headers }).then((res) => {
         cb(res.data);
       });
     },

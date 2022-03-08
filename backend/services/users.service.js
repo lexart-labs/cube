@@ -39,16 +39,17 @@ let User = {
 	allUserLextracking: async function (req, shouldOmit, res) {
 		const company_slug = req.headers.company_slug;
 		let error = { "error": "Error al obtener usuarios" };
-		let model = 'user/all';
+		let model = 'user/all/1';
 
-		if(company_slug === 'lexart_labs') {
-			let { data: { response } } = await axios.get(API_LEXTRACKING + model,
+		if (company_slug === 'lexart_labs') {
+			let { data } = await axios.get(API_LEXTRACKING + model,
 				{
 					"headers": {
 						"token": req.headers.token
 					}
 				})
-			if (shouldOmit && response.length) {
+			let response = data.response;
+			if (shouldOmit == 'true' && response?.length) {
 				response = response.reduce((acc, { name, id, email, role }) => {
 					if (role == 'developer') {
 						acc.push({ name, id, email });
@@ -56,8 +57,8 @@ let User = {
 					return acc;
 				}, []);
 			}
-	
-			return response.length > 0 ? { response } : error;
+
+			return response?.length > 0 ? { response } : error;
 		} else {
 			let cubeUsers = await CollaboratorsService.getByCompany(company_slug, null, null, res);
 			return cubeUsers;
@@ -127,19 +128,19 @@ let User = {
 		token = utils.makeToken(usuario.email, usuario.id, 'public');
 
 		// Compara los ids de cargo y nível, si los nuevos son iguales a los atuales
-		const currentPosition = usuario.idPosition 
-		? await conn.query(
-			'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
-		) : [{idPosition: null, idLevel: null}];
+		const currentPosition = usuario.idPosition
+			? await conn.query(
+				'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
+			) : [{ idPosition: null, idLevel: null }];
 
-		
+
 		if (currentPosition[0]) {
 			shouldCreatePosition = (
 				currentPosition[0].idPosition == usuario.positionId
 				&& currentPosition[0].idLevel == usuario.levelId
 			) ? false : true;
 		}
-			
+
 		console.log(currentPosition, shouldCreatePosition)
 
 		const idPosition = shouldCreatePosition
@@ -192,7 +193,7 @@ let User = {
 		let response, stack, idPosition;
 		let password = md5(usuario.password);
 
-		if(company_slug === "lexart_labs") {
+		if (company_slug === "lexart_labs") {
 			const result = await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId);
 			idPosition = result.error ? null : result;
 		}
@@ -223,7 +224,7 @@ let User = {
 
 		try {
 			response = await conn.query(sql, arr);
-			if(company_slug === "lexart_labs") {
+			if (company_slug === "lexart_labs") {
 				await UserSkills.insert({
 					idUser: usuario.id,
 					skills: usuario.skills,
@@ -283,10 +284,10 @@ let User = {
 
 		try {
 			let search = await conn.query(sql, arr);
-			
-			response = search[0] 
-			? { status: 200, response: search[0] }
-			: { status: 404, response: "User not found" };
+
+			response = search[0]
+				? { status: 200, response: search[0] }
+				: { status: 404, response: "User not found" };
 		} catch (e) {
 			response = { status: 500, error: "Request failed" };
 		}
@@ -414,7 +415,7 @@ let User = {
 	},
 	updatePosition: async function (id, idPosition, idLevel) {
 		const error = { error: '¡No fue posible actualizar la posición!' };
-		
+
 		const sql = `
 			INSERT INTO user_position_level (idUser, idPosition, idLevel)
 			VALUES (?, ?, ?)
@@ -528,7 +529,7 @@ let User = {
 
 		const devsObj = devInfos.reduce((acc, cur) => {
 			const key = cur.name;
-			return { ...acc, [key]: cur};
+			return { ...acc, [key]: cur };
 		}, {});
 
 		try {
@@ -550,7 +551,7 @@ let User = {
 	countDevs: async function (techs) {
 		const PAGE_LENGTH = 10;
 		let sql = '';
-		if(techs && techs.length) {
+		if (techs && techs.length) {
 			const techsFilter = techs.map((el) => `'${el}'`).join();
 			sql = `
 				SELECT
@@ -608,7 +609,7 @@ let User = {
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},
-	getLeaderDevs: async function(idLead) {
+	getLeaderDevs: async function (idLead) {
 		const sql = `
 			SELECT
 				users.name,
@@ -624,7 +625,7 @@ let User = {
 		} catch (e) {
 			console.log('response->', response);
 			console.log(e.message);
-		}		
+		}
 
 		return { response };
 	},
