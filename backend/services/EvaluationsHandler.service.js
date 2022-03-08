@@ -1,10 +1,12 @@
+require('dotenv').config();
 const axios = require('axios');
 
+const API_LEXTRACKING = process.env.API_LEXTRACKING;
+
 const syncWithTracking = async (token) => {
-	const API_LEXTRACKING = 'https://api.lexart.com.uy/lextracking-dev/';
-	const ENDPOINT_BASE = `${API_LEXTRACKING}public/tracks-by-year`;
+	const ENDPOINT_BASE = `${API_LEXTRACKING}/tracks-by-year`;
 	const DEFAULT_TRACK = { month, metric: "seconds", tracks: 0 };
-	const headers = { token };
+	const headers = { Authorization: token };
 	const year = (new Date()).getFullYear();
 	const month = (new Date()).getMonth();
 
@@ -32,6 +34,14 @@ const syncWithTracking = async (token) => {
 			conn.query(sqlUpsert, [idColaborator, continuity, idColaborator, continuity, idColaborator])
 		})
 	);
+};
+
+const getTrackingToken = async (email, password) => {
+	const { data } = await axios.post(API_LEXTRACKING + 'login', { email, password });
+	const response = data.resposne;
+
+	if(response?.token) return response.token;
+	return 'error';
 };
 
 
@@ -135,4 +145,6 @@ const setUpData = async (idLextracking, year, token, evaluations) => {
 
 module.exports = {
 	setUpData,
+	syncWithTracking,
+	getTrackingToken,
 };
