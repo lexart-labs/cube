@@ -257,6 +257,8 @@ const translations = {
       headers: [ 'Id', 'Usuario', 'Mes', 'Año', 'Horas'],
       modalTitle: 'Colaborador',
       colaborator: 'Colaborador',
+      successToAdd: "Usuario editado/creado correctamente",
+      errorToAdd: "Error al intentar editar/crear un usuario"
     },
   },
   en: {
@@ -517,6 +519,8 @@ const translations = {
       headers: [ 'Id', 'Name', 'email', 'Type', 'Platform', 'Active' ],
       modalTitle: 'Collaborator',
       colaborator: 'Colaborator',
+      successToAdd: "User created/edited successfully",
+      errorToAdd: "Error trying to create/edit an user"
     },
   },
   pt: {},

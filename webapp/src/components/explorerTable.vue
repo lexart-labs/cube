@@ -85,7 +85,10 @@ export default {
   watch: {
     pagesCount: function (o, n) {
       this.pagesLength = o;
-    }, 
+    },
+    actualPage: function () {
+      this.page = this.actualPage + 1;
+    }
   },
   props: {
     translations: String,
@@ -96,6 +99,7 @@ export default {
     onEdit: Function,
     pager: Function,
     pagesCount: Number,
+    actualPage: Number
   },
   data() {
     return {

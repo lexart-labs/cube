@@ -1,19 +1,46 @@
+const UtilsService = require("./utils.service")
 const TABLE_NAME = 'users';
-const ERROR = { error: 'Request failed, contact the administrator' };
+const ERROR = 'Something went wrong, please contact the administrator';
+const PAGE_SIZE = 10;
 
 const Collaborators = {
-  generalGet: async function (sql, arr, company_slug) {
+  generalQuery: async function (sql, arr, action, res) {
+    let toReturn = {};
     let response = [];
     try {
-      const [{ companyId }] = await conn.query(`SELECT id AS companyId FROM companies WHERE slug = ?`, [company_slug]);
-      
-      response = await conn.query(sql, [companyId, ...arr]);
+      response = await conn.query(sql, arr);
+
+      const checkByActionType = {
+        write: function (response) {
+          if(response.affectedRows === 1) toReturn = { status: 200, message: 'ok' }
+          else toReturn = { status: 400, message: response.sqlMessage }
+        },
+
+        read: function (response) {
+          if(response.sqlMessage) toReturn = { status: 400, message: response.sqlMessage }
+          else toReturn = { status: 200, response: response, message: 'ok' }
+        },
+
+        count: function (response) {
+          if(response.sqlMessage) toReturn = { status: 400, message: response.sqlMessage }
+          else {
+            let res = { totalOfPages: Math.ceil(response[0].total / PAGE_SIZE), registersByPage: PAGE_SIZE};
+            toReturn = { status: 200, response: [res], message: 'ok' }
+          }
+        }
+      }
+
+      checkByActionType[action](response)
+
+      return toReturn
     } catch (e) {
-      response = ERROR;
+      toReturn = { status: 500, error: ERROR };
+      return toReturn
     }
-    return {response};
   },
-  getByIdUser: async (id, company_slug) => {
+  getByIdUser: async (id, company_slug, res) => {
+    const companyId = await UtilsService.getIdCompanyBySlug(company_slug, res);
+
     const sql = `
       SELECT 
         u.id, 
@@ -27,10 +54,18 @@ const Collaborators = {
       LEFT JOIN hiring_plataforms hp ON hp.id = u.idPlataform
       WHERE u.idCompany = ? AND u.id = ?
     `;
-    const arr = [id];
-    return Collaborators.generalGet(sql, arr, company_slug);
+
+    const arr = [companyId, parseInt(id)];
+
+    return Collaborators.generalQuery(sql, arr, 'read', res);
   },
-  getByCompany: async (company_slug) => {
+  getByCompany: async (company_slug, page_number, name_to_filter, res) => {
+    const companyId = await UtilsService.getIdCompanyBySlug(company_slug, res);
+
+    console.log(companyId)
+    const queryByName = name_to_filter ? `AND u.name LIKE '%${name_to_filter}%'` : '';
+    const queryByPage = page_number ? `LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page_number}` : '';
+
     const sql = `
       SELECT 
         u.id, 
@@ -38,18 +73,20 @@ const Collaborators = {
         u.email, 
         u.type, 
         u.active,
-        u.idPlataform, 
+        u.idPlataform,
         hp.plataform
       FROM ${TABLE_NAME} AS u
       LEFT JOIN hiring_plataforms hp ON hp.id = u.idPlataform
-      WHERE u.idCompany = ?
+      WHERE u.idCompany = ? ${queryByName}
+      ${queryByPage}
     `;
-    const arr = [];
-    return Collaborators.generalGet(sql, arr, company_slug);
+    console.log(sql)
+    const arr = [companyId];
+    
+    return Collaborators.generalQuery(sql, arr, 'read', res);
   },
-  insert: async (payload) => {
-    const { plataform } = payload;
-    let response = '';
+  insert: async (payload, company_slug, res) => {
+    const companyId = await UtilsService.getIdCompanyBySlug(company_slug, res);
 
     const sql = `
       INSERT INTO ${TABLE_NAME}
@@ -57,40 +94,73 @@ const Collaborators = {
       VALUES
         (?, ?, ?, ?, ?, ?, ?)
     `;
+    
+    const arr = [
+      payload.name, 
+      payload.email, 
+      md5(payload.password),
+      payload.type,
+      parseInt(payload.active),
+      payload.idPlataform,
+      companyId,
+    ];
+
+    return Collaborators.generalQuery(sql, arr, 'write', res);
+  },
+  update: async (id, payload, company_slug, res) => {
+    const companyId = await UtilsService.getIdCompanyBySlug(company_slug, res);
+
+    const queryToGetPassword = `SELECT password FROM ${TABLE_NAME} WHERE idCompany = ? AND id = ?`;
 
     try {
-      response = await conn.query(sql, [plataform]);
-    } catch (e) {
-      console.log(e.message);
+      const userCurrentPassword = await conn.query(queryToGetPassword, [companyId, payload.id]);
+
+      const passwordToSend = payload.password ? md5(payload.password) : userCurrentPassword[0].password;
+
+      const sql = `
+        UPDATE ${TABLE_NAME}
+        SET 
+          name = ?,
+          email = ?,
+          password = ?,
+          type = ?,
+          active = ?,
+          idPlataform = ?,
+          idCompany = ?,
+          dateEdited = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `;
+
+      const arr = [
+        payload.name,
+        payload.email,
+        passwordToSend,
+        payload.type,
+        payload.active,
+        payload.idPlataform,
+        companyId,
+        id
+      ];
+
+      return Collaborators.generalQuery(sql, arr, 'write', res);
+    } catch (error) {
+      res.send({ status: 500, message: ERROR });
     }
-    return response.affectedRows === 1 ? { response: 'ok' } : { error: response.sqlMessage };
   },
-  update: async (id, payload) => {
-    const { plataform } = payload;
-    let response = '';
+  countPages: async (company_slug, name_to_filter, res) => {
+    const companyId = await UtilsService.getIdCompanyBySlug(company_slug, res);
+    const queryByName = name_to_filter ? `AND u.name LIKE '%${name_to_filter}%'` : '';
+
     const sql = `
-      UPDATE ${TABLE_NAME}
-      SET 
-        name = ?,
-        email = ?,
-        password = ?,
-        type = ?,
-        active= ?,
-        idPlataform = ?,
-        idCompany = ?,
-        updatedAt = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `;
+			SELECT COUNT(*) AS total FROM ${TABLE_NAME} AS u
+			WHERE u.idCompany = ? ${queryByName}
+		`;
+    
+    const arr = [companyId];
 
-    try {
-      response = await conn.query(sql, [plataform, id]);
-    } catch (e) {
-      console.log(e.message);
-    }
-
-    return response.affectedRows === 1 ? { response: 'ok' } : { error: response.sqlMessage };
+    return Collaborators.generalQuery(sql, arr, 'count', res);
   },
-  remove: async (id) => {
+  remove: async (id, res) => {
     const sql = `DELETE FROM ${TABLE_NAME} WHERE id = ?`;
     let error = { error: 'It wasn\'t possible to delete this element'};
     let response = '';
