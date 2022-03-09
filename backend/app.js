@@ -17,12 +17,9 @@ const careersRouter = require('./routes/careers');
 const technologies = require('./routes/technologies');
 const teams = require('./routes/teams');
 const Plataforms = require('./routes/Plataforms');
-<<<<<<< HEAD
 const Companies = require('./routes/Companies');
-=======
 const Collaborators = require('./routes/collaborators');
 const Hours = require("./routes/hours");
->>>>>>> develop
 
 const port 	  	 = process.env.API_PORT;
 const seed       = 100000000000000
