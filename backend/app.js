@@ -60,12 +60,9 @@ app.use('/levels', levelsRouter)
 app.use('/technologies', technologies)
 app.use('/teams', teams)
 app.use('/plataforms', Plataforms)
-<<<<<<< HEAD
 app.use('/companies', Companies)
-=======
 app.use('/collaborators', Collaborators)
 app.use('/hours', Hours)
->>>>>>> develop
 app.use('/public', express.static('public'));
 
 app.post('/upload-file', upload.single('file-image'), function (req, res, next) {
