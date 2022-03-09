@@ -14,9 +14,12 @@ import { APP_NAME } from '../../env';
 
 export default {
   name: 'Rombo',
-  props: ['evaluations', 'year'],
+  props: ['evaluations', 'year', 'id'],
   watch: {
     evaluations: function(newVal, oldVal) {
+      this.setUpData();
+    },
+    id: function(newVal, oldVal) {
       this.setUpData();
     }
   },

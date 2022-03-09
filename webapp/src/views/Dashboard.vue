@@ -97,6 +97,7 @@
                 <div class="graphics-ctl">
                   <graphic v-if="resources.length" :evaluations="resources" />
                   <Rombo
+                    :id="isPersonifying ? myDev.id : myUser.id"
                     v-if="resources.length"
                     :evaluations="resources"
                     :year="year"
