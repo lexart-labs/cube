@@ -9,10 +9,12 @@ import EvaluationsAdmin from '../views/Admin/Evaluations.vue';
 import Technologies from '../views/Admin/Technologies.vue';
 import Origin from '../views/Admin/Origins.vue';
 import AppComponent from '../views/AppComponent.vue';
+import RegisterCompany from '../views/RegisterCompany.vue';
 import Continuity from '../views/Admin/Continuity.vue';
 import Collaborators from '../views/Admin/Collaborators.vue';
 
 const routes = [
+  { path: '/rcompany', name: 'Register Company', component: RegisterCompany },
   { path: '/:token?', name: 'Login', component: Login },
   {
     path: '/app',
