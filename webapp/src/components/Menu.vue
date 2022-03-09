@@ -16,7 +16,7 @@
           >{{ $t("dashboard.administration")}}</router-link
         >
         <router-link
-          v-bind:to="setting.token ? '/' + setting.token : '/'"
+          v-bind:to="`/${slug}/login`"
           class="nav-link logout"
         >
           <small>{{ $t("generic.exit")}}</small>
@@ -51,6 +51,7 @@ export default {
   data() {
     return {
       isAdmin: false,
+      slug: localStorage.getItem('_company-slug'),
       setting: {
         web: '',
         escuela: '',
