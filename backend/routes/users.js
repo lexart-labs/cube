@@ -5,8 +5,8 @@ const Technologies = require('../services/technologies.service');
 
 
 router.post('/login', async function (req, res) {
-	let post = req.body;
-	let response = await User.loginLextracking(post.email, post.password);
+	const  { email, password, slug } = req.body;
+	let response = await User.loginCube(email, password, slug);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);

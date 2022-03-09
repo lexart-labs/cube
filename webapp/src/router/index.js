@@ -13,7 +13,7 @@ import Continuity from '../views/Admin/Continuity.vue';
 import Collaborators from '../views/Admin/Collaborators.vue';
 
 const routes = [
-  { path: '/:token?', name: 'Login', component: Login },
+  { path: '/:slug/login', name: 'Login', component: Login },
   {
     path: '/app',
     component: AppComponent,

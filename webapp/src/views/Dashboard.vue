@@ -865,7 +865,7 @@ export default {
       this.isLoading = true;
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
-      const headers = { token, "user-id": userId };
+      const headers = { token, "user-id": userId , 'company_slug': localStorage.getItem("_company-slug") };
 
       const {
         data: { response: trckUsrs },
@@ -1142,6 +1142,7 @@ export default {
     const headers = {
       token,
       "user-id": userId,
+      'company_slug': localStorage.getItem("_company-slug"),
     };
 
     if (id) {

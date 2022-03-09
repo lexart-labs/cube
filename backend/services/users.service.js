@@ -48,8 +48,8 @@ let User = {
 						"token": req.headers.token
 					}
 				})
-			if (shouldOmit && response.length) {
-				response = response.reduce((acc, { name, id, email, role }) => {
+			if (shouldOmit && response?.length) {
+				response = response?.reduce((acc, { name, id, email, role }) => {
 					if (role == 'developer') {
 						acc.push({ name, id, email });
 					}
@@ -57,7 +57,7 @@ let User = {
 				}, []);
 			}
 	
-			return response.length > 0 ? { response } : error;
+			return response?.length > 0 ? { response } : error;
 		} else {
 			let cubeUsers = await CollaboratorsService.getByCompany(company_slug, null, null, res);
 			return cubeUsers;
@@ -293,39 +293,8 @@ let User = {
 
 		return response;
 	},
-	loginLextracking: async function (email, password) {
-		let error = { "error": "Error al obtener usuarios" }
-		let model = 'login'
-		const res = await axios.post(API_LEXTRACKING + model, { email: email, password: password })
-		const response = res.data
-
-		if (response.response) {
-			// Obtengo el usuario dentro del cube
-			const lxUser = response.response
-
-			// console.log("lxUser: ", lxUser)
-
-			// Si no hay usuario en el cube
-			response.response.idLextracking = response.response.id
-
-			const cubeUser = await this.loginCube(lxUser.email);
-
-			if (cubeUser.response) {
-				response.response.cubeUser = cubeUser.response
-				response.response.cubeExist = true
-				response.response.active = cubeUser.response.active
-				response.response.idUser = cubeUser.response.idUser
-				// Local ID
-				response.response.id = cubeUser.response.id
-				response.response.idLextracking = cubeUser.response.idLextracking
-			} else if (response.response.role != "admin" && response.response.role != "pm") {
-				return { error: "Usuario no disponible en la plataforma." };
-			}
-		}
-
-		return response.response ? { response: response.response } : error;
-	},
-	loginCube: async function (email) {
+	loginCube: async function (email, password, company) {
+		const sqlCompany = `SELECT id FROM companies WHERE slug = ?`;
 		const sql = `
 			SELECT
 				u.id,
@@ -339,13 +308,16 @@ let User = {
 				uc.idLevel
 			FROM ${tablaNombre} u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
-			WHERE u.email = ? AND u.active = 1
+			WHERE u.email = ? AND u.password = MD5(?) AND u.idCompany = ? AND u.active = 1
 		`
 		let response = [];
 
 		try {
-			response = await conn.query(sql, [email]);
-		} catch (e) { }
+			const [{ id: idCompany }] = await conn.query(sqlCompany, [company]);
+			response = await conn.query(sql, [email, password, idCompany]);
+		} catch (e) {
+			console.log(e.message);
+		}
 
 		return response.length > 0 ? { response: response[0] } : { error: 'Usuario y/o clave incorrecta.' };
 	},

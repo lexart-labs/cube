@@ -57,7 +57,6 @@
 <script>
 /* eslint-disable no-underscore-dangle */
 import axios from "axios";
-import Vue from "vue";
 import { copy } from "../services/helpers";
 import { API, APP_NAME } from "../../env";
 
@@ -79,23 +78,17 @@ export default {
     loginUser() {
       this.isLoading = true;
       const user = copy(this.usr);
+      const { slug } = this.$route.params;
 
-      axios.post(`${API}users/login`, user).then(
+      axios.post(`${API}users/login`, {...user, slug }).then(
         (res) => {
           const rs = res.data;
           this.isLoading = false;
 
           if (!rs.error) {
-            // Guardar en el localStorage
-            // Token del response
             localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
             localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
-            localStorage.setItem('_company-slug', 'lexart_labs');
-
-            window.localStorage.setItem(
-              `_lextracking_user-${APP_NAME}`,
-              JSON.stringify(rs.response)
-            );
+            localStorage.setItem('_company-slug', slug);
 
             this.$router.push("/app/dashboard");
           } else {
@@ -111,35 +104,6 @@ export default {
   },
   mounted() {
     localStorage.clear();
-
-    // Obtengo la información de la escuela si tengo token
-    const { token } = this.$route.params;
-    if (token) {
-      axios.get(`${API}users/school/${token}`).then(
-        (res) => {
-          if (!res.data.error) {
-            this.setting = res.data.response;
-            // Bypass del token al storage
-            this.setting.token = token;
-            window.localStorage.setItem(
-              `_setting-${APP_NAME}`,
-              JSON.stringify(this.setting)
-            );
-          } else {
-            Vue.toasted.show("Error en obtener la institución", {
-              type: "error",
-              duration: 2000,
-            });
-          }
-        },
-        () => {
-          Vue.toasted.show("Error en obtener la institución", {
-            type: "error",
-            duration: 2000,
-          });
-        }
-      );
-    }
   },
 };
 </script>
