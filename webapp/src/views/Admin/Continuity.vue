@@ -157,6 +157,7 @@ import vueSelect from "vue-select";
 import translations from "../../data/translate";
 
 const PAGES_SIZE = 10;
+const CURRENT_YEAR = new Date().getFullYear();
 
 export default {
   name: "Continuity",
@@ -228,11 +229,10 @@ export default {
     },
     upsertReport: async function () {
       this.isLoading = true;
-      const month = this.filters.month;
-      const year = this.filters.year;
+      const month = 0;
+      const year  = CURRENT_YEAR;
 
       const isValid = this.validatePayload();
-      console.log(isValid);
       if (isValid !== 'true') {
         this.error = isValid;
         return;
@@ -242,13 +242,13 @@ export default {
         await HoursService.update(this.report.id, this.report);
       } else {
         await HoursService.insert(this.report);
+        this.pageCount = await HoursService.countPages(month, year);
       }
 
       $("#upsert-report").modal("hide");
-      this.pageCount =
-        this.pageCount === PAGES_SIZE ? this.pageCount + 1 : this.pageCount;
       this.clearStates();
       const reports = await HoursService.getAll(this.idCompany, month, year, 0);
+      this.filters = { year, month };
       this.reports = reports;
 
       this.isLoading = false;
