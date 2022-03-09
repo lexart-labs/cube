@@ -8,6 +8,7 @@
     :onEdit="getReportById"
     :pager="handlePagination"
     :pagesCount="pageCount"
+    :actualPage="actualPage"
   >
     <template slot="filters">
       <div class="filters-ctl">
@@ -138,6 +139,7 @@
                 type="button"
                 class="btn btn-primary"
                 @click="upsertReport"
+                :disabled="isLoading"
               >
                 {{ $t("generic.save") }}
               </button>
@@ -156,7 +158,6 @@ import ExplorerTable from "../../components/explorerTable.vue";
 import vueSelect from "vue-select";
 import translations from "../../data/translate";
 
-const PAGES_SIZE = 10;
 const CURRENT_YEAR = new Date().getFullYear();
 
 export default {
@@ -192,6 +193,7 @@ export default {
       pageCount: 1,
       idCompany: 1,
       error: '',
+      actualPage: 1,
     };
   },
   methods: {
@@ -243,6 +245,7 @@ export default {
       } else {
         await HoursService.insert(this.report);
         this.pageCount = await HoursService.countPages(month, year);
+        this.actualPage = 0;
       }
 
       $("#upsert-report").modal("hide");
