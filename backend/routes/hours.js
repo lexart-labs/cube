@@ -36,6 +36,14 @@ router.get('/count', async (req, res) => {
   return res.send(response);
 });
 
+router.get('/all-year-hours/:id/:year', async (req, res) => {
+  const { id, year } = req.params;
+
+  const response = await Hours.sumUserHoursByYear(id, year);
+  res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   const response = await Hours.getOne(id);

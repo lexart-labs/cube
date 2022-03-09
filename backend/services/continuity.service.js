@@ -123,6 +123,27 @@ const Hours = {
       return { error: 'Operation failed'};
     }
   },
+  sumUserHoursByYear: async (idUser, year) => {
+    const sql = `
+      SELECT
+        SUM(continuity) AS 'tracks',
+        'seconds' AS 'metric',
+        month
+      FROM colaborators_continuity
+      WHERE year = ? AND idColaborator = ?
+      GROUP BY month;
+    `;
+    let response = [];
+
+    try {
+      response = await conn.query(sql, [year, idUser]);
+    } catch (e) {
+      console.log('Continuity service -->', e.message, response);
+      return { error: 'Operation Failed'};
+    }
+
+	  return response.length ? { response } : { error: 'No hours found for this user' };
+  },
 };
 
 module.exports = Hours;

@@ -8,6 +8,7 @@ const generateHeader = () => {
   return { token, 'user-id': userId };
 };
 const MODEL = 'hours';
+const CURRENT_YEAR = (new Date()).getFullYear();
 
 const HoursService = {
   update: async (id, payload) => {
@@ -35,10 +36,15 @@ const HoursService = {
     const { data } = await axios.get(`${API + MODEL}/${id}`, { headers });
     return data.response ? data.response[0] : {};
   },
-  countPages: async (m = 0, y = (new Date()).getFullYear()) => {
+  countPages: async (m = 0, y = CURRENT_YEAR) => {
     const headers = generateHeader();
     const { data } = await axios.get(`${API + MODEL}/count?month=${m}&year=${y}`, { headers });
     return data.response ? data.response : 1;
+  },
+  userYearHours: async (id, year = CURRENT_YEAR) => {
+    const headers = generateHeader();
+    const { data } = await axios.get(`${API + MODEL}/all-year-hours/${id}/${year}`, { headers });
+    return data.response ? data.response : [];
   },
 };
 
