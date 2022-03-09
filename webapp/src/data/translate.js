@@ -21,6 +21,8 @@ const translations = {
       confirmRemove: '¿Estás seguro que desas borrar este time?',
       teamSaved: '¡Time salvo con suceso!',
       teamRemoved: '¡Time borrado con suceso!',
+      profileDetailsEdit: 'Editar perfil',
+      companyDetailsEdit: 'Editar empresa',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -283,6 +285,8 @@ const translations = {
       confirmRemove: 'Are you sure you want to remove this team?',
       teamSaved: 'Team successfully saved!',
       teamRemoved: 'Team successfully removed',
+      profileDetailsEdit: 'Edit profile',
+      companyDetailsEdit: 'Edit company',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',

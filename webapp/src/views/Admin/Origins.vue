@@ -186,6 +186,7 @@ export default {
     height: 50vh;
     overflow-y: scroll;
     box-shadow: rgba(0, 0, 0, 0.109) 0px 2px 4px 0px inset;
+    width: 100%;
   }
 
   h4 {
