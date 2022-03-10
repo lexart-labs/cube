@@ -21,26 +21,35 @@
         <h2>Cube Platform</h2>
         <small>By Lexart Factory</small>
       </header>
-      <form style="margin-top: 1rem" id="login-form">
+      <form @submit.prevent="registerCompany" style="margin-top: 1rem" id="login-form">
+        <h2>Datos de la organización:</h2>
+        <input
+          type="text"
+          v-model="cpy.company"
+          placeholder="Nombre de la organización"
+          class="form-control"
+          required
+        />
         <input
           type="email"
-          v-model="usr.email"
+          v-model="cpy.email"
           placeholder="Email"
           class="form-control"
+          required
         />
         <input
           type="password"
-          v-model="usr.password"
+          v-model="cpy.password"
           placeholder="Clave"
           class="form-control"
+          required
         />
         <button
-          type="button"
+          type="submit"
           class="btn btn-black btn-block"
           v-bind:disabled="isLoading"
-          v-on:click="loginUser"
         >
-          <span>Login</span>
+          <span>Register</span>
         </button>
         <footer>
           <div v-if="error" class="alert alert-danger">
@@ -49,7 +58,7 @@
         </footer>
       </form>
       <div>
-        <router-link to="/rcompany" class="rcompany">Registre su organización</router-link>
+        <router-link to="/" class="rcompany">Iniciar sesión</router-link>
       </div>
     </div>
   </div>
@@ -59,13 +68,13 @@
 /* eslint-disable no-underscore-dangle */
 import axios from "axios";
 import { copy } from "../services/helpers";
-import { API, APP_NAME } from "../../env";
+import { API } from "../../env";
 
 export default {
-  name: "Login",
+  name: "RegisterCompany",
   data() {
     return {
-      usr: {},
+      cpy: {},
       error: "",
       isLoading: false,
       api: API,
@@ -76,22 +85,18 @@ export default {
     };
   },
   methods: {
-    loginUser() {
+    registerCompany() {
       this.isLoading = true;
-      const user = copy(this.usr);
-      const { slug } = this.$route.params;
+      const user = copy(this.cpy);
 
-      axios.post(`${API}users/login`, {...user, slug }).then(
+      axios.post(`${API}companies/`, user).then(
         (res) => {
+
           const rs = res.data;
           this.isLoading = false;
 
           if (!rs.error) {
-            localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
-            localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
-            localStorage.setItem('_company-slug', slug);
-
-            this.$router.push("/app/dashboard");
+            this.$router.push("/");
           } else {
             this.error = rs.error;
           }
