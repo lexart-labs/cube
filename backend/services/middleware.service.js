@@ -1,19 +1,12 @@
-const utils  = require('./utils.service')
-const axios  = require('axios')
+require('dotenv').config();
+const axios  = require('axios');
+const jwt = require('jsonwebtoken');
+const User = require('./users.service');
+
 
 const Mdl = {
 	middleware: async function (req, res, next) {
-		
-		let error = { "error": "Token inválido" };
 		let userCorrect = false;
-
-
-		let errorOutput = () => {
-			error.yourToken = req.headers.token;
-
-			res.set(['Content-Type', 'application/json']);
-			res.send(error);
-		}
 
 		axios.get(MIDDLEWARE_LEXTRACKING + req.headers['user-id'], 
 		{
@@ -36,6 +29,32 @@ const Mdl = {
 		}).catch( error => {
 			errorOutput()
 		})
+	},
+	authMmiddleware: async function (req, res, next) {
+		const { token } = req.headers;
+		const secret = process.env.SECRET;
+		const error = { error: "Token inválido" };
+		const errorOutput = () => {
+			error.yourToken = req.headers.token;
+
+			res.set(['Content-Type', 'application/json']);
+			res.send(error);
+		};
+
+		if (!token) {
+			res.set(['Content-Type', 'application/json']);
+			res.send(error);
+		}
+		try {
+			const { data: { email, idCompany } } = jwt.verify(token, secret);
+			const user = await User.getByEmail(email, idCompany);
+			if (!user) return errorOutput();
+			req.user = user;
+			next();
+		} catch ({ message }) {
+			console.log('error -->', message);
+			return errorOutput();
+		}
 	},
 	middlewareCourse: async function (req, res, next){
 		

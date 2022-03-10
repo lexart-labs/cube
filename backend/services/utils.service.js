@@ -1,5 +1,6 @@
 global.md5 		  = require('md5');
 require('dotenv').config();
+const jwt = require('jsonwebtoken');
 
 const Utils = {
 	makeToken: function (usr) {

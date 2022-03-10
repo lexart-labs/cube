@@ -63,7 +63,7 @@ let User = {
 			return cubeUsers;
 		}
 	},
-	one: async function (id, token) {
+	one: async function (id) {
 		let error = { "error": "Error al obtener usuarios" }
 		let response = [];
 		let stack;
@@ -99,6 +99,18 @@ let User = {
 
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
+	},
+	getByEmail: async function (email, idCompany) {
+		const error = { error: 'User not found' };
+		const sql = `SELECT * FROM users u WHERE u.email = ? AND u.idCompany = ?`;
+
+		try {
+			const response = await conn.query(sql, [email, idCompany]);
+			return response.length ? response[0] : error;
+		} catch ({message}) {
+			console.log(message);
+			return error;
+		}
 	},
 	byToken: async function (token) {
 		let error = { "error": "Error al obtener la configuración" }
@@ -320,7 +332,8 @@ let User = {
 
 			if(!response.length) return error;
 
-			const { password, ...usr } = response[0];
+			const { password: p, ...usr } = response[0];
+			console.log(usr);
 			token = utils.makeToken(usr);
 		} catch (e) {
 			console.log(e.message);
