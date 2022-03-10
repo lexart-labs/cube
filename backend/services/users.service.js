@@ -327,6 +327,7 @@ let User = {
 			if(!response.length) return error;
 
 			const { password: p, ...usr } = response[0];
+			if(!usr.idUser) return error;
 			token = utils.makeToken(usr);
 			response = { ...usr, token, lexToken: utils.makeLexToken(password, email) };
 			return { response };
