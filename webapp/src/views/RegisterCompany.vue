@@ -22,10 +22,11 @@
         <small>By Lexart Factory</small>
       </header>
       <form @submit.prevent="registerCompany" style="margin-top: 1rem" id="login-form">
+        <h2>Datos de la organización:</h2>
         <input
           type="text"
           v-model="cpy.company"
-          placeholder="Company Name"
+          placeholder="Nombre de la organización"
           class="form-control"
           required
         />
@@ -39,7 +40,7 @@
         <input
           type="password"
           v-model="cpy.password"
-          placeholder="Password"
+          placeholder="Clave"
           class="form-control"
           required
         />
@@ -50,16 +51,9 @@
         >
           <span>Register</span>
         </button>
-        <footer>
-          <span>con</span>
-          <img src="../assets/lextracking-logo.svg" alt="" />
-          <div v-if="error" class="alert alert-danger">
-            {{ error }}
-          </div>
-        </footer>
       </form>
       <div>
-        <router-link to="/" class="rcompany">Iniciar sesión?</router-link>
+        <router-link to="/" class="rcompany">Iniciar sesión</router-link>
       </div>
     </div>
   </div>

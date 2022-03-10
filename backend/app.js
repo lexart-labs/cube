@@ -17,7 +17,7 @@ const careersRouter = require('./routes/careers');
 const technologies = require('./routes/technologies');
 const teams = require('./routes/teams');
 const Plataforms = require('./routes/Plataforms');
-const Companies = require('./routes/Companies');
+const companies = require('./routes/companies');
 const Collaborators = require('./routes/collaborators');
 const Hours = require("./routes/hours");
 
@@ -57,7 +57,7 @@ app.use('/levels', levelsRouter)
 app.use('/technologies', technologies)
 app.use('/teams', teams)
 app.use('/plataforms', Plataforms)
-app.use('/companies', Companies)
+app.use('/companies', companies)
 app.use('/collaborators', Collaborators)
 app.use('/hours', Hours)
 app.use('/public', express.static('public'));
