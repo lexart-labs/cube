@@ -5,32 +5,32 @@ const User = require('./users.service');
 
 
 const Mdl = {
-	middleware: async function (req, res, next) {
-		let userCorrect = false;
+	// middleware: async function (req, res, next) {
+	// 	let userCorrect = false;
 
-		axios.get(MIDDLEWARE_LEXTRACKING + req.headers['user-id'], 
-		{
-		  "headers": {
-			"token": req.headers.token
-		  }
-		}).then( res => {
-			if(!res.data.error){
-				// Viene en un array
-				let user = res.data.response[0]
-				if(user.idUser == req.headers['user-id']){
-					next();
-				} else {
-					errorOutput()
-				}
-			} else {
-				error.error = 'Lextracking error: ' + res.data.error
-				errorOutput()
-			}
-		}).catch( error => {
-			errorOutput()
-		})
-	},
-	authMmiddleware: async function (req, res, next) {
+	// 	axios.get(MIDDLEWARE_LEXTRACKING + req.headers['user-id'], 
+	// 	{
+	// 	  "headers": {
+	// 		"token": req.headers.token
+	// 	  }
+	// 	}).then( res => {
+	// 		if(!res.data.error){
+	// 			// Viene en un array
+	// 			let user = res.data.response[0]
+	// 			if(user.idUser == req.headers['user-id']){
+	// 				next();
+	// 			} else {
+	// 				errorOutput()
+	// 			}
+	// 		} else {
+	// 			error.error = 'Lextracking error: ' + res.data.error
+	// 			errorOutput()
+	// 		}
+	// 	}).catch( error => {
+			
+	// 	})
+	// },
+	middleware: async function (req, res, next) {
 		const { token } = req.headers;
 		const secret = process.env.SECRET;
 		const error = { error: "Token inválido" };

@@ -333,13 +333,13 @@ let User = {
 			if(!response.length) return error;
 
 			const { password: p, ...usr } = response[0];
-			console.log(usr);
 			token = utils.makeToken(usr);
+			response = { ...usr, token };
+			return { response };
 		} catch (e) {
 			console.log(e.message);
+			return error;
 		}
-
-		return response.length > 0 ? { response: { ...usr, token } } : error;
 	},
 	courses: async function (id) {
 
