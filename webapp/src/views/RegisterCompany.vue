@@ -58,7 +58,7 @@
         </footer>
       </form>
       <div>
-        <router-link to="/" class="rcompany">Iniciar sesión</router-link>
+        <router-link to="/lexart_labs/login" class="rcompany">Iniciar sesión</router-link>
       </div>
     </div>
   </div>
