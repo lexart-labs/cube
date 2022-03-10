@@ -1,11 +1,15 @@
 global.md5 		  = require('md5');
+require('dotenv').config();
+
 const Utils = {
-	makeToken: function (a, b, salt) {
-		try {
-			return md5(a + b + salt).toUpperCase()
-		} catch (e){
-			return md5(Math.random()).toUpperCase()
-		}
+	makeToken: function (usr) {
+		const jwtConfig = {
+      expiresIn: '1d',
+      algorithm: 'HS256',
+    };
+		const secret = process.env.SECRET;
+		const token = jwt.sign({ data: usr }, secret, jwtConfig);
+		return token;
 	},
 	getIdCompanyBySlug: async function (company_slug, res = false) {
 		try {

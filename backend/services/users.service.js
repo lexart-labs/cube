@@ -295,6 +295,7 @@ let User = {
 	},
 	loginCube: async function (email, password, company) {
 		const sqlCompany = `SELECT id FROM companies WHERE slug = ?`;
+		const error = { error: 'Usuario y/o clave incorrecta.' };
 		const sql = `
 			SELECT
 				u.id,
@@ -311,15 +312,21 @@ let User = {
 			WHERE u.email = ? AND u.password = MD5(?) AND u.idCompany = ? AND u.active = 1
 		`
 		let response = [];
+		let token = '';
 
 		try {
 			const [{ id: idCompany }] = await conn.query(sqlCompany, [company]);
 			response = await conn.query(sql, [email, password, idCompany]);
+
+			if(!response.length) return error;
+
+			const { password, ...usr } = response[0];
+			token = utils.makeToken(usr);
 		} catch (e) {
 			console.log(e.message);
 		}
 
-		return response.length > 0 ? { response: response[0] } : { error: 'Usuario y/o clave incorrecta.' };
+		return response.length > 0 ? { response: { ...usr, token } } : error;
 	},
 	courses: async function (id) {
 
