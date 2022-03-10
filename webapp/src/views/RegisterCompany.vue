@@ -51,6 +51,11 @@
         >
           <span>Register</span>
         </button>
+        <footer>
+          <div v-if="error" class="alert alert-danger">
+            {{ error }}
+          </div>
+        </footer>
       </form>
       <div>
         <router-link to="/" class="rcompany">Iniciar sesión</router-link>
