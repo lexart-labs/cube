@@ -10,7 +10,6 @@
 import axios from 'axios';
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
-import am4themes_animated from '@amcharts/amcharts4/themes/animated';
 import { APP_NAME, API_LEXTRACKING } from '../../env';
 
 export default {
@@ -71,7 +70,7 @@ export default {
 
       // Para teste local:
       const ENDPOINT_BASE = `${API_LEXTRACKING}public/tracks-by-year`;
-      const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      const token = localStorage.getItem('lexToken');
 
       const headers = { token };
 
