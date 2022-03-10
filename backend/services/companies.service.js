@@ -33,7 +33,7 @@ const Companies = {
     const error = { error: 'Failed to register'}
     const sql = `
       INSERT INTO ${TABLE_NAME} (company, email, slug)
-      VALUES (?, ?, ?,aaa)
+      VALUES (?, ?, ?)
     `;
 
     const sql2 = `

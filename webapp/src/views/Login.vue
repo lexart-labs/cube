@@ -43,15 +43,13 @@
           <span>Login</span>
         </button>
         <footer>
-          <span>con</span>
-          <img src="../assets/lextracking-logo.svg" alt="" />
           <div v-if="error" class="alert alert-danger">
             {{ error }}
           </div>
         </footer>
       </form>
       <div>
-        <router-link to="/rcompany" class="rcompany">Es una empresa?</router-link>
+        <router-link to="/rcompany" class="rcompany">Registre su organización</router-link>
       </div>
     </div>
   </div>
