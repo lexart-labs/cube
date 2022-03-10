@@ -282,7 +282,7 @@ export default {
 
     this.pageCount = pageCount;
     this.reports = reports;
-    this.colaborators = users;
+    this.colaborators = users.response;
 
     this.isLoading = false;
   },

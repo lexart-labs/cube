@@ -151,8 +151,6 @@ let User = {
 				&& currentPosition[0].idLevel == usuario.levelId
 			) ? false : true;
 		}
-			
-		console.log(currentPosition, shouldCreatePosition)
 
 		const idPosition = shouldCreatePosition
 			? await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId)
@@ -279,7 +277,6 @@ let User = {
 		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
 	checkUserAlreadyExists: async function (email, idCompany) {
-		console.log(email, idCompany);
 		const sql = `
 			SELECT
 				u.id,
@@ -643,7 +640,6 @@ let User = {
 			let result = {};
 			try {
 				result = await conn.query(sql, [devId]);
-				console.log(result)
 			} catch (e) {
 				console.log('callBackBasics ->', e.message);
 			}

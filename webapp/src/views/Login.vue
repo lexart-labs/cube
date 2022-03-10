@@ -90,6 +90,7 @@ export default {
             localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
             localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
             localStorage.setItem('_company-slug', slug);
+            localStorage.setItem('cubeUser', JSON.stringify(rs.response));
 
             this.$router.push("/app/dashboard");
           } else {
