@@ -87,10 +87,12 @@ export default {
           this.isLoading = false;
 
           if (!rs.error) {
+            const { lexToken, token, ...cubeUsr} = rs.response;
             localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
             localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
             localStorage.setItem('_company-slug', slug);
-            localStorage.setItem('cubeUser', JSON.stringify(rs.response));
+            localStorage.setItem('lexToken', rs.response.lexToken);
+            localStorage.setItem('cubeUser', JSON.stringify(cubeUsr));
 
             this.$router.push("/app/dashboard");
           } else {

@@ -41,9 +41,13 @@ router.get('/all', async function (req, res) {
 router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
 	const { minified } = req.query;
 	res.set(['Content-Type', 'application/json']);
+	let response = {};
 
-	let response = await User.allUserLextracking(req, minified, res);
-
+	try {
+		response = await User.allUserLextracking(req, minified, res);
+	} catch ({ message }) {
+		console.log('error -->', message);
+	}
     res.send(response);
 })
 

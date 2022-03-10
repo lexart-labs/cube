@@ -37,17 +37,14 @@ let User = {
 		return response.length > 0 ? { response: response } : error;
 	},
 	allUserLextracking: async function (req, shouldOmit, res) {
-		const company_slug = req.headers.company_slug;
+		const { company_slug, lextoken } = req.headers;
 		let error = { "error": "Error al obtener usuarios" };
-		let model = 'user/all';
+		let model = 'user/all/1';
+		const headers = { token: lextoken };
 
 		if(company_slug === 'lexart_labs') {
-			let { data: { response } } = await axios.get(API_LEXTRACKING + model,
-				{
-					"headers": {
-						"token": req.headers.token
-					}
-				})
+			let { data } = await axios.get(API_LEXTRACKING + model, { headers });
+				let response = data.response;
 			if (shouldOmit && response?.length) {
 				response = response?.reduce((acc, { name, id, email, role }) => {
 					if (role == 'developer') {
@@ -331,7 +328,7 @@ let User = {
 
 			const { password: p, ...usr } = response[0];
 			token = utils.makeToken(usr);
-			response = { ...usr, token };
+			response = { ...usr, token, lexToken: utils.makeLexToken(password, email) };
 			return { response };
 		} catch (e) {
 			console.log(e.message);
