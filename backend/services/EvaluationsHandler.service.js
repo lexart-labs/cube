@@ -4,7 +4,8 @@ const axios = require('axios');
 const API_LEXTRACKING = process.env.API_LEXTRACKING;
 
 const syncWithTracking = async (token) => {
-	const ENDPOINT_BASE = `${API_LEXTRACKING}/tracks-by-year`;
+	const local = 'http://localhost/lextracking/api/';
+	const ENDPOINT_BASE = `${local}/tracks-by-year`;
 	const DEFAULT_TRACK = { month, metric: "seconds", tracks: 0 };
 	const headers = { Authorization: token };
 	const year = (new Date()).getFullYear();
@@ -38,10 +39,9 @@ const syncWithTracking = async (token) => {
 
 const getTrackingToken = async (email, password) => {
 	const { data } = await axios.post(API_LEXTRACKING + 'login', { email, password });
-	const response = data.resposne;
+	const response = data.response;
 
-	if(response?.token) return response.token;
-	return 'error';
+	return response ? response.token : 'error';
 };
 
 
