@@ -380,9 +380,6 @@ export default {
     };
   },
   methods: {
-    staticBackdrop() {
-      this.dialog = true;
-    },
     newUser() {
       this.activeTab("perfil");
       const lead = {

@@ -1,4 +1,5 @@
 <template>
+<div>
   <header id="menu--component" class="navbar navbar-dark bg-dark">
     <nav class="menu">
       <div>
@@ -15,42 +16,40 @@
           class="nav-link is-bold"
           >{{ $t("dashboard.administration")}}</router-link
         >
+        <!-- LOGOUT
         <router-link
           v-bind:to="setting.token ? '/' + setting.token : '/'"
           class="nav-link logout"
         >
           <small>{{ $t("generic.exit")}}</small>
-        </router-link>
-        <!-- BRAND -->
+        </router-link> -->
+        <!-- BRAND
         <a v-bind:href="setting.web" class="nav-link" target="_new">
           <small>{{ setting.escuela }}</small></a
-        >
+        > -->
       </div>
       <div class="right">
-
         <div class="profile">
           <ul>
             <li class="dropdown">
               <a href="#" data-toggle="dropdown" class="dropdown-toggle user-action">
                 <img src="../assets/avatar-placeholder.png" class="avatar rounded-circle" alt="Avatar">
-                <span>Álik Welyn</span>
-                <!-- NOME AQUI -->
+                <span>{{ user.name }}</span>
                 <b class="caret"></b>
               </a>
               <ul class="dropdown-menu">
                 <li>
                   <a
                     data-toggle="modal"
-                    data-target="#staticBackdrop"
-                    v-on:click="getUserById(user.id)"
+                    data-target="#editUserData"
                     ><i class="bi bi-person"></i> {{ $t("dashboard.profileDetailsEdit")}}</a
                   >
                 </li>
                 <li>
-                  <router-link
+                  <a
                     v-if="isAdmin"
                     to=""
-                    ><i class="bi bi-building"></i> {{ $t("dashboard.companyDetailsEdit")}}</router-link
+                    ><i class="bi bi-building"></i> {{ $t("dashboard.companyDetailsEdit")}}</a
                   >
                 </li>
                 <li>
@@ -75,14 +74,70 @@
             </option>
           </select>
         </div>
-
       </div>
     </nav>
   </header>
+
+    <div
+      class="modal fade"
+      id="editUserData"
+      data-backdrop="static"
+      data-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="editUserDataLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-l modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 id="editUserDataLabel">
+              User {{ user.id ? "#" + user.id : "" }}
+            </h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <form role="form">
+                <div class="col-md-12">
+                  <label for="">Name</label>
+                </div>
+                <div class="col-md-12">
+                  <input type="text" v-model="user.name" class="form-control is-rounded" placeholder="Name"/>
+                </div>
+                <div class="col-md-12">
+                  <label for="">Password</label>
+                </div>
+                <div class="col-md-12">
+                  <input type="text" v-model="user.password" class="form-control" placeholder="Password"/>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" @click="onSave()">Save changes</button>
+            <div
+              v-if="error"
+              class="alert alert-danger mx-auto"
+              style="margin-top: 1rem"
+            >
+              {{ error }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</div>
+
+
 </template>
 
 <script>
 import AuthService from '../services/auth.service';
+import UserService from '../services/user.service';
 import { verifyToken } from '../services/helpers';
 import { API, APP_NAME } from '../../env';
 
@@ -101,6 +156,14 @@ export default {
         {value:'es', label: 'SP'},
         {value:'en', label: 'EN'}
       ],
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        password: '',
+      },
+      myId: localStorage.getItem(`id-${APP_NAME}`),
+      error: '',
     };
   },
   methods: {
@@ -108,12 +171,37 @@ export default {
       const lang = e.target.value;
       this.$store.dispatch('changeLang', lang);
     },
-    openModal() {
-      this.$refs.modal.staticBackdrop();
+    getUserById(){
+      UserService().getUserById(this.myId, (data) => {
+        if(!data.error) {
+          this.user = data.response
+        }
+      })
+    },
+    onSave(){
+      UserService().upsertUser(this.user, (data) => {
+        if(data.error) {
+          this.error = data.error;
+          return;
+        }
+        $("#editUserData").modal("hide");
+      })
     },
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
+
+    // Get name from localStorage
+    try {
+      const userLextracking = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`));
+      if (userLextracking) {
+        this.user.name = userLextracking.name;
+        //console.log(userLextracking);
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+
     try {
       const setting = JSON.parse(localStorage.getItem(`_setting-${APP_NAME}`));
       if (setting) {
@@ -122,6 +210,8 @@ export default {
     } catch (e) {
       console.log(e.message);
     }
+
+    this.getUserById();
 
     // Verifico el token
     verifyToken(token);
@@ -178,6 +268,9 @@ export default {
   .profile .dropdown-menu {
     margin: 1.45rem 0 0;
   }
+  .profile .dropdown-menu a {
+    cursor: pointer;
+  }
   .profile ul li i {
 		font-size: 18px;
 	}
@@ -213,6 +306,31 @@ export default {
     justify-self: flex-end;
   }
 
+  .loading-cover {
+  background-color: rgba(71, 71, 71, 0.842);
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  }
+
+  #editUserData .modal-content {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #editUserData .row{
+    flex-direction: column;
+  }
+  #editUserData label{
+    margin: .5em 0;
+  }
+
+
   @media (min-width: 481px) and (max-width: 915px) and (orientation: landscape) {
     .menu {
       padding: 0.5rem 0;
@@ -242,11 +360,17 @@ export default {
     .nav-link {
       padding: .5rem .5rem;
     }
+    .profile img {
+      width: 20px;
+      height: 20px;
+      margin: -5px 0;
+      margin-right: 5px;
+  }
     .locale-changer select {
-      width: 4.8vh;
+      width: 5vh;
       height: 3vh;
       line-height: 14px;
-      font-size: var(--mini);
+      font-size: 7px;
     }
     .locale-changer select option {
       font-size: var(--mini);

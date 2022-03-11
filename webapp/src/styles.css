@@ -76,7 +76,8 @@ body {
   font-size: var(--mid);
   font-weight: 100;
   background-color: var(--color-bg);
-  margin-top: calc(var(--header-height) + 1rem);
+  margin-top: calc(var(--header-height) - 2rem);
+ /*before user edit profile = margin-top: calc(var(--header-height) + 1rem);*/
 }
 b {
   font-weight: 800;
@@ -204,7 +205,8 @@ label {
 #dashboard--component {
   width: 80vw;
   padding: 0;
-  margin: calc(var(--header-height) + 2rem) auto 5rem;
+  margin: calc(var(--header-height)) auto 5rem;
+  /*before user edit profile = margin: calc(var(--header-height) + 2rem) auto 5rem;*/
   background-color: var(--white);
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }

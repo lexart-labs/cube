@@ -62,7 +62,6 @@ const Collaborators = {
   getByCompany: async (company_slug, page_number, name_to_filter, res) => {
     const companyId = await UtilsService.getIdCompanyBySlug(company_slug, res);
 
-    console.log(companyId)
     const queryByName = name_to_filter ? `AND u.name LIKE '%${name_to_filter}%'` : '';
     const queryByPage = page_number ? `LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page_number}` : '';
 
@@ -80,7 +79,6 @@ const Collaborators = {
       WHERE u.idCompany = ? ${queryByName}
       ${queryByPage}
     `;
-    console.log(sql)
     const arr = [companyId];
     
     return Collaborators.generalQuery(sql, arr, 'read', res);

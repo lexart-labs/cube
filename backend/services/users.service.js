@@ -39,7 +39,7 @@ let User = {
 	allUserLextracking: async function (req, shouldOmit, res) {
 		const company_slug = req.headers.company_slug;
 		let error = { "error": "Error al obtener usuarios" };
-		let model = 'user/all';
+		let model = 'user/all/1';
 
 		if(company_slug === 'lexart_labs') {
 			let { data: { response } } = await axios.get(API_LEXTRACKING + model,
@@ -48,7 +48,7 @@ let User = {
 						"token": req.headers.token
 					}
 				})
-			if (shouldOmit && response.length) {
+			if (shouldOmit && response?.length) {
 				response = response.reduce((acc, { name, id, email, role }) => {
 					if (role == 'developer') {
 						acc.push({ name, id, email });
@@ -57,7 +57,7 @@ let User = {
 				}, []);
 			}
 	
-			return response.length > 0 ? { response } : error;
+			return response?.length > 0 ? { response } : error;
 		} else {
 			let cubeUsers = await CollaboratorsService.getByCompany(company_slug, null, null, res);
 			return cubeUsers;
@@ -243,8 +243,8 @@ let User = {
 		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 		const idLead = usuario.lead ? usuario.lead.id : idLextracking;
 
-		const id_company = await utils.getIdCompanyBySlug(company_slug)
-
+		const id_company = await utils.getIdCompanyBySlug(company_slug);
+		
 		const userSearchResult = await this.checkUserAlreadyExists(usuario.email, id_company);
 
 		if (userSearchResult.status === 404) {
@@ -267,7 +267,6 @@ let User = {
 		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
 	checkUserAlreadyExists: async function (email, idCompany) {
-		console.log(email, idCompany);
 		const sql = `
 			SELECT
 				u.id,
@@ -290,7 +289,6 @@ let User = {
 		} catch (e) {
 			response = { status: 500, error: "Request failed" };
 		}
-
 		return response;
 	},
 	loginLextracking: async function (email, password) {

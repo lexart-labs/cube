@@ -1142,6 +1142,7 @@ export default {
     const headers = {
       token,
       "user-id": userId,
+      "company-slug": localStorage.getItem(`_company-slug`),
     };
 
     if (id) {
