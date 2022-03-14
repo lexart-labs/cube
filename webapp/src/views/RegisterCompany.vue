@@ -96,7 +96,7 @@ export default {
           this.isLoading = false;
 
           if (!rs.error) {
-            this.$router.push("/");
+            this.$router.push(`${this.cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`);
           } else {
             this.error = rs.error;
           }
