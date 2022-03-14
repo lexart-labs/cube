@@ -107,16 +107,25 @@
                   <input type="text" v-model="user.name" class="form-control is-rounded" placeholder="Name"/>
                 </div>
                 <div class="col-md-12">
-                  <label for="">Password</label>
+                  <label for="">New Password</label>
                 </div>
                 <div class="col-md-12">
-                  <input type="text" v-model="user.password" class="form-control" placeholder="Password"/>
+                  <input type="password" v-model="passwordManager.password" class="form-control is-rounded" placeholder="Password"/>
                 </div>
+                <div class="col-md-12">
+                  <label for="">Confirm New Password</label>
+                </div>
+                <div class="col-md-12">
+                  <input type="password" class="form-control is-rounded" placeholder="New Password"/>
+                </div>
+                <!--<div class="col-md-12">
+                  <input type="text" v-model="user.email" class="form-control" placeholder="Email"/>
+                </div>-->
               </form>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="clearStates()">Close</button>
             <button type="button" class="btn btn-primary" @click="onSave()">Save changes</button>
             <div
               v-if="error"
@@ -136,6 +145,7 @@
 </template>
 
 <script>
+import crypto from 'crypto';
 import AuthService from '../services/auth.service';
 import UserService from '../services/user.service';
 import { verifyToken } from '../services/helpers';
@@ -162,6 +172,10 @@ export default {
         email: '',
         password: '',
       },
+      passwordManager: {
+        password: '',
+        confirmPassword: '',
+      },
       myId: localStorage.getItem(`id-${APP_NAME}`),
       error: '',
     };
@@ -174,18 +188,35 @@ export default {
     getUserById(){
       UserService().getUserById(this.myId, (data) => {
         if(!data.error) {
-          this.user = data.response
+          this.user = data.response;
         }
       })
     },
     onSave(){
+      if(this.passwordManager.password !== ''){
+        this.user.password = this.hashPassword(this.passwordManager.password);
+      }
       UserService().upsertUser(this.user, (data) => {
         if(data.error) {
           this.error = data.error;
           return;
         }
         $("#editUserData").modal("hide");
+        this.clearStates();
       })
+    },
+    hashPassword(password){
+      const result = crypto.createHash('md5')
+      .update(password)
+      .digest('hex');
+
+      return result;
+    },
+    clearStates(){
+      this.passwordManager = {
+        password: '',
+        confirmPassword: '',
+      }
     },
   },
   mounted() {
@@ -196,7 +227,6 @@ export default {
       const userLextracking = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`));
       if (userLextracking) {
         this.user.name = userLextracking.name;
-        //console.log(userLextracking);
       }
     } catch (e) {
       console.log(e.message);
@@ -211,6 +241,7 @@ export default {
       console.log(e.message);
     }
 
+    // GetUserById
     this.getUserById();
 
     // Verifico el token

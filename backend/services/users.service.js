@@ -140,7 +140,7 @@ let User = {
 			) ? false : true;
 		}
 			
-		console.log(currentPosition, shouldCreatePosition)
+		//console.log(currentPosition, shouldCreatePosition)
 
 		const idPosition = shouldCreatePosition
 			? await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId)
@@ -150,6 +150,7 @@ let User = {
 			UPDATE ${tablaNombre}
 			SET name = ?,
 				email  = ?,
+				password = ?,
 				type   = ?,
 				active = ?,
 				idUser = ?,
@@ -163,6 +164,7 @@ let User = {
 		const arr = [
 			usuario.name,
 			usuario.email,
+			usuario.password,
 			usuario.type,
 			parseInt(usuario.active),
 			idAdmin,
