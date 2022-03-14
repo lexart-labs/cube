@@ -16,7 +16,7 @@
         "
       />
     </div>
-    <div class="formContainer__login">
+    <div class="formContainer__login" v-if="!warning">
       <header>
         <h2>Cube Platform</h2>
         <small>By Lexart Factory</small>
@@ -47,14 +47,23 @@
             <small v-if="error" class="alert alert-danger">
               {{ error }}
             </small>
-            <small v-if="warning" class="alert alert-warning">
-              {{ warning }}
-            </small>
           </div>
         </footer>
       </form>
       <div>
         <router-link to="/rcompany" class="rcompany">Registre su organización</router-link>
+      </div>
+    </div>
+    <div v-if="warning" class="alert-error">
+      <div class="alert alert-warning" role="alert">
+        <h4 class="is-bold"><i class="fas fa-exclamation-triangle"/> Warning!</h4>
+        <hr>
+        <p>
+          Apparently, you have not settled your company at the link to login page. 
+          The link to login must follow the format:
+        </p>
+        <p><b>cube.lexartlabs.com/YOUR_COMPANY_NAME/login</b></p>
+        <p>Please, try again using a valid link.</p>
       </div>
     </div>
   </div>
@@ -65,7 +74,6 @@
 import axios from "axios";
 import { copy } from "../services/helpers";
 import { API, APP_NAME } from "../../env";
-import translations from "../data/translate";
 
 export default {
   name: "Login",
@@ -116,7 +124,7 @@ export default {
   mounted() {
     localStorage.clear();
     if (!this.$route.params.slug || this.$route.params.slug === 'login') {
-      this.warning = 'Please, make sure the url contains your company name.';
+      this.warning = true;
     }
   },
 };
@@ -128,5 +136,16 @@ footer > div {
   max-width: 100%;
   flex-flow: column wrap;
   font-size: 0.8rem;
+}
+.alert-error {
+  max-width: 800px;
+  font-size: 1.2rem
+}
+.alert-error h4 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.alert-error p {
+  margin-bottom: 1rem;
 }
 </style>
