@@ -16,6 +16,7 @@ import Collaborators from '../views/Admin/Collaborators.vue';
 const routes = [
   { path: '/:slug/login', name: 'Login', component: Login },
   { path: '/rcompany', name: 'Register Company', component: RegisterCompany },
+  { path: '/:slug/', component: Login },
   {
     path: '/app',
     component: AppComponent,
@@ -54,6 +55,7 @@ const routes = [
       },
     ],
   },
+  { path: '*', redirect: '/rcompany' }
 ];
 
 const router = new VueRouter({

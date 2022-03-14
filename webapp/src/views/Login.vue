@@ -43,8 +43,13 @@
           <span>Login</span>
         </button>
         <footer>
-          <div v-if="error" class="alert alert-danger">
-            {{ error }}
+          <div>
+            <small v-if="error" class="alert alert-danger">
+              {{ error }}
+            </small>
+            <small v-if="warning" class="alert alert-warning">
+              {{ warning }}
+            </small>
           </div>
         </footer>
       </form>
@@ -60,6 +65,7 @@
 import axios from "axios";
 import { copy } from "../services/helpers";
 import { API, APP_NAME } from "../../env";
+import translations from "../data/translate";
 
 export default {
   name: "Login",
@@ -67,6 +73,7 @@ export default {
     return {
       usr: {},
       error: "",
+      warning: '',
       isLoading: false,
       api: API,
       setting: {
@@ -108,6 +115,18 @@ export default {
   },
   mounted() {
     localStorage.clear();
+    if (!this.$route.params.slug || this.$route.params.slug === 'login') {
+      this.warning = 'Please, make sure the url contains your company name.';
+    }
   },
 };
 </script>
+
+<style scoped>
+footer > div {
+  display: flex;
+  max-width: 100%;
+  flex-flow: column wrap;
+  font-size: 0.8rem;
+}
+</style>
