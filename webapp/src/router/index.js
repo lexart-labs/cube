@@ -55,6 +55,7 @@ const routes = [
       },
     ],
   },
+  { path: '*', redirect: '/rcompany'}
 ];
 
 const router = new VueRouter({
