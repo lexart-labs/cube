@@ -18,7 +18,7 @@ const Mdl = {
 
 		if (!token) {
 			res.set(['Content-Type', 'application/json']);
-			res.send(error);
+			return res.send(error);
 		}
 		try {
 			const { data: { email, idCompany } } = jwt.verify(token, secret);
