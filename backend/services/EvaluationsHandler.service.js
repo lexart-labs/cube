@@ -4,22 +4,24 @@ const axios = require('axios');
 const API_LEXTRACKING = process.env.API_LEXTRACKING;
 
 const syncWithTracking = async (token) => {
-	const local = 'http://localhost/lextracking/api/';
+	const local = 'http://localhost/lextracking/api';
 	const ENDPOINT_BASE = `${local}/tracks-by-year`;
-	const DEFAULT_TRACK = { month, metric: "seconds", tracks: 0 };
 	const headers = { Authorization: token };
-	const year = (new Date()).getFullYear();
-	const month = (new Date()).getMonth();
+	let year = (new Date()).getFullYear();
+	let month = (new Date()).getMonth();
+
+	if(month === 0) {
+		year -= 1;
+		month = 12;
+	}
+
+	const DEFAULT_TRACK = { month, metric: "seconds", tracks: 0 };
 
 	const sql = `SELECT id, idLextracking FROM users WHERE idCompany = 1`;
 	const sqlUpsert = `
-		IF EXISTS (SELECT 1 FROM colaborators_continuity WHERE idColaborator = ? AND month = ${month})
-			UPDATE colaborators_continuity SET continuity = ? WHERE idColaborator = ? AND month = ${month}
-		ELSE
-			INSERT INTO colaborators_continuity
-				(month, year, continuity, idColaborator)
-			VALUES (${month}, ${year}, ?, ?)
-		END
+		INSERT INTO colaborators_continuity
+			(month, year, continuity, idColaborator)
+		VALUES (${month}, ${year}, ?, ?) ON DUPLICATE KEY UPDATE continuity = ?;
 	`;
 
 	const devIds = await conn.query(sql);
@@ -28,11 +30,11 @@ const syncWithTracking = async (token) => {
 		return data.response ? data.response[0] : DEFAULT_TRACK;
 	};
 	const Hours = await Promise.all(devIds.map(el => requestHourFromTracking(el.idLextracking)));
-	await Promise.all(
+	Promise.all(
 		Hours.map(({ tracks }, i) => {
 			const idColaborator = devIds[i].id;
 			const continuity = +tracks;
-			conn.query(sqlUpsert, [idColaborator, continuity, idColaborator, continuity, idColaborator])
+			conn.query(sqlUpsert, [continuity, idColaborator, continuity]);
 		})
 	);
 };
