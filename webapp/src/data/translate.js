@@ -23,6 +23,11 @@ const translations = {
       teamRemoved: '¡Time borrado con suceso!',
       profileDetailsEdit: 'Editar perfil',
       companyDetailsEdit: 'Editar empresa',
+      profileEditLabel: 'Configuración de perfil',
+      profileEditName: 'Nombre',
+      profileEditPass: 'Nueva contraseña',
+      profileEditConfirmPass: 'Confirmar nueva contraseña',
+      profileEditErrorPassword: 'Las contraseñas no coinciden',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -287,6 +292,11 @@ const translations = {
       teamRemoved: 'Team successfully removed',
       profileDetailsEdit: 'Edit profile',
       companyDetailsEdit: 'Edit company',
+      profileEditLabel: 'Profile settings',
+      profileEditName: 'Name',
+      profileEditPass: 'New password',
+      profileEditConfirmPass: 'Confirm new password',
+      profileEditErrorPassword: 'Passwords dont match',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',

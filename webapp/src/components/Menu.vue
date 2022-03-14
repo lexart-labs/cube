@@ -91,9 +91,9 @@
         <div class="modal-content">
           <div class="modal-header">
             <h4 id="editUserDataLabel">
-              User {{ user.id ? "#" + user.id : "" }}
+              {{ $t("dashboard.profileEditLabel") }}
             </h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="clearStates()">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -101,32 +101,29 @@
             <div class="row">
               <form role="form">
                 <div class="col-md-12">
-                  <label for="">Name</label>
+                  <label for="">{{ $t("dashboard.profileEditName") }}</label>
                 </div>
                 <div class="col-md-12">
-                  <input type="text" v-model="user.name" class="form-control is-rounded" placeholder="Name"/>
+                  <input type="text" v-model="user.name" class="form-control is-rounded"/>
                 </div>
                 <div class="col-md-12">
-                  <label for="">New Password</label>
+                  <label for="">{{ $t("dashboard.profileEditPass") }}</label>
                 </div>
                 <div class="col-md-12">
-                  <input type="password" v-model="passwordManager.password" class="form-control is-rounded" placeholder="Password"/>
+                  <input type="password" v-model="passwordManager.password" class="form-control is-rounded"/>
                 </div>
                 <div class="col-md-12">
-                  <label for="">Confirm New Password</label>
+                  <label for="">{{ $t("dashboard.profileEditConfirmPass") }}</label>
                 </div>
                 <div class="col-md-12">
-                  <input type="password" class="form-control is-rounded" placeholder="New Password"/>
+                  <input type="password" v-model="passwordManager.confirmPassword" class="form-control is-rounded"/>
                 </div>
-                <!--<div class="col-md-12">
-                  <input type="text" v-model="user.email" class="form-control" placeholder="Email"/>
-                </div>-->
               </form>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="clearStates()">Close</button>
-            <button type="button" class="btn btn-primary" @click="onSave()">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="clearStates()">{{ $t("generic.close") }}</button>
+            <button type="button" class="btn btn-primary" @click="onSave()">{{ $t("generic.save") }}</button>
             <div
               v-if="error"
               class="alert alert-danger mx-auto"
@@ -150,6 +147,7 @@ import AuthService from '../services/auth.service';
 import UserService from '../services/user.service';
 import { verifyToken } from '../services/helpers';
 import { API, APP_NAME } from '../../env';
+import Translations from "../data/translate";
 
 export default {
   name: 'Menu',
@@ -193,6 +191,10 @@ export default {
       })
     },
     onSave(){
+      if(this.passwordManager.password != this.passwordManager.confirmPassword){
+        this.error = Translations[this.$store.state.language].dashboard.profileEditErrorPassword;
+        return
+      }
       if(this.passwordManager.password !== ''){
         this.user.password = this.hashPassword(this.passwordManager.password);
       }
@@ -216,13 +218,14 @@ export default {
       this.passwordManager = {
         password: '',
         confirmPassword: '',
-      }
+      };
+      this.error = '';
     },
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
 
-    // Get name from localStorage
+    /* Get name from localStorage
     try {
       const userLextracking = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`));
       if (userLextracking) {
@@ -230,7 +233,7 @@ export default {
       }
     } catch (e) {
       console.log(e.message);
-    }
+    }*/
 
     try {
       const setting = JSON.parse(localStorage.getItem(`_setting-${APP_NAME}`));
