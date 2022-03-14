@@ -29,20 +29,22 @@ const Companies = {
   insert: async (payload) => {
     const {company, email, password} = payload;
     let response = {};
-    //console.log(company)
-    const error = { error: 'Failed to register'}
+    const error = { error: 'Failed to register'};
+    const LAST_USER_ID = `(SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'lexart_cube' AND TABLE_NAME = 'users')`;
     const sql = `
       INSERT INTO ${TABLE_NAME} (company, email, slug)
       VALUES (?, ?, ?)
     `;
 
     const sql2 = `
-      INSERT INTO users (name, email, type, password, active, idCompany)
-      VALUES (?, ?, ?, ?, ?, LAST_INSERT_ID())
+      INSERT INTO users
+        (name, email, type, password, active, idCompany, idUser)
+      VALUES
+        (?, ?, ?, ?, ?, LAST_INSERT_ID(), ${LAST_USER_ID})
     `;
 
     try {
-      response = await conn.query(sql, [company, email, company.toLowerCase().replace(/\s+/g,'-')]);
+      response = await conn.query(sql, [company, email, company.toLowerCase().replace(/\s+/g,'_')]);
 			response = await conn.query(sql2, [company, email, 'admin', md5(password), '1']);
     } catch (e) {
       console.log(e.message);
