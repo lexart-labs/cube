@@ -132,7 +132,7 @@ label {
 }
 .formContainer__login {
   max-width: 700px;
-  width: 20vw;
+  width: 430px;
   gap: 1rem;
   display: flex;
   flex-direction: column;
@@ -148,6 +148,11 @@ label {
   justify-content: center;
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
   padding: 3rem 8% 8%;
+}
+.formContainer__login > form h2 {
+  color: var(--color-header);
+  font-size: var(--mid);
+  font-weight: 800;
 }
 .formContainer__login > header {
   color: var(--text-color-bright);
@@ -175,6 +180,10 @@ label {
 .formContainer__login footer img {
   font-size: var(--small);
   width: 5rem;
+}
+.formContainer__login .rcompany {
+  font-size: var(--mid);
+  color: var(--white);
 }
 .vs__search::placeholder {
   color: var(--text-color-mid) !important;
