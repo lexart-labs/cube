@@ -4,9 +4,8 @@ const axios = require('axios');
 const API_LEXTRACKING = process.env.API_LEXTRACKING;
 
 const syncWithTracking = async (token) => {
-	const local = 'http://localhost/lextracking/api';
-	const ENDPOINT_BASE = `${local}/tracks-by-year`;
-	const headers = { Authorization: token };
+	const ENDPOINT_BASE = `${API_LEXTRACKING}/tracks-by-year`;
+	const headers = { Authorization: token, token: token };
 	let year = (new Date()).getFullYear();
 	let month = (new Date()).getMonth();
 
