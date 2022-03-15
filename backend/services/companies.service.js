@@ -1,5 +1,5 @@
+require('dotenv').config();
 const TABLE_NAME = 'companies';
-const ERROR = { error: 'No fue possible recuperar los datos' };
 
 const Companies = {
   getAll: async () => {
@@ -30,7 +30,7 @@ const Companies = {
     const {company, email, password} = payload;
     let response = {};
     const error = { error: 'Failed to register'};
-    const LAST_USER_ID = `(SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'lexart_cube' AND TABLE_NAME = 'users')`;
+    const LAST_USER_ID = `(SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ${process.env.DATABASE} AND TABLE_NAME = 'users')`;
     const sql = `
       INSERT INTO ${TABLE_NAME} (company, email, slug)
       VALUES (?, ?, ?)
