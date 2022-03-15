@@ -30,7 +30,8 @@ router.delete('/:id', async (req, res) => {
 
 router.get('/count', async (req, res) => {
   const {month, year } = req.query;
-  const response = await Hours.count(month, year);
+  const { company_slug } = req.headers;
+  const response = await Hours.count(month, year, company_slug);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
@@ -55,7 +56,7 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
   const { month, year, idCompany, p } = req.query;
   const response = await Hours.getAll(
-    Number(idCompany),
+    idCompany,
     Number(month),
     Number(year),
     Number(p)

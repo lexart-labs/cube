@@ -191,7 +191,7 @@ export default {
       isLoading: false,
       isEditing: false,
       pageCount: 1,
-      idCompany: 1,
+      companySlug: localStorage.getItem('_company-slug'),
       error: '',
       actualPage: 1,
     };
@@ -221,7 +221,7 @@ export default {
     },
     handlePagination: async function (page) {
       const reports = await HoursService.getAll(
-        this.idCompany,
+        this.companySlug,
         this.filters.month,
         this.filters.year,
         page
@@ -250,7 +250,7 @@ export default {
 
       $("#upsert-report").modal("hide");
       this.clearStates();
-      const reports = await HoursService.getAll(this.idCompany, month, year, 0);
+      const reports = await HoursService.getAll(this.companySlug, month, year, 0);
       this.filters = { year, month };
       this.reports = reports;
 
@@ -279,7 +279,7 @@ export default {
 
     const [pageCount, reports, users] = await Promise.all([
       HoursService.countPages(month, year),
-      HoursService.getAll(this.idCompany, month, year, 0),
+      HoursService.getAll(this.companySlug, month, year, 0),
       Collaborators.getByCompany(),
     ]);
 
