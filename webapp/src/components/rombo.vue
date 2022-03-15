@@ -10,7 +10,7 @@
 import HoursService from '../services/hours.service';
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
-import { APP_NAME } from '../../env';
+import { APP_NAME, API_LEXTRACKING } from '../../env';
 
 export default {
   name: 'Rombo',

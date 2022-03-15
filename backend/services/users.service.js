@@ -37,34 +37,30 @@ let User = {
 		return response.length > 0 ? { response: response } : error;
 	},
 	allUserLextracking: async function (req, shouldOmit, res) {
-		const company_slug = req.headers.company_slug;
+		const { company_slug, lextoken } = req.headers;
 		let error = { "error": "Error al obtener usuarios" };
 		let model = 'user/all/1';
+		const headers = { token: lextoken };
 
-		if (company_slug === 'lexart_labs') {
-			let { data } = await axios.get(API_LEXTRACKING + model,
-				{
-					"headers": {
-						"token": req.headers.token
-					}
-				})
-			let response = data.response;
-			if (shouldOmit == 'true' && response?.length) {
-				response = response.reduce((acc, { name, id, email, role }) => {
+		if(company_slug === 'lexart_labs') {
+			let { data } = await axios.get(API_LEXTRACKING + model, { headers });
+				let response = data.response;
+			if (shouldOmit && response?.length) {
+				response = response?.reduce((acc, { name, id, email, role }) => {
 					if (role == 'developer') {
 						acc.push({ name, id, email });
 					}
 					return acc;
 				}, []);
 			}
-
+	
 			return response?.length > 0 ? { response } : error;
 		} else {
 			let cubeUsers = await CollaboratorsService.getByCompany(company_slug, null, null, res);
 			return cubeUsers;
 		}
 	},
-	one: async function (id, token) {
+	one: async function (id) {
 		let error = { "error": "Error al obtener usuarios" }
 		let response = [];
 		let stack;
@@ -100,6 +96,18 @@ let User = {
 
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
+	},
+	getByEmail: async function (email, idCompany) {
+		const error = { error: 'User not found' };
+		const sql = `SELECT * FROM users u WHERE u.email = ? AND u.idCompany = ?`;
+
+		try {
+			const response = await conn.query(sql, [email, idCompany]);
+			return response.length ? response[0] : error;
+		} catch ({message}) {
+			console.log(message);
+			return error;
+		}
 	},
 	byToken: async function (token) {
 		let error = { "error": "Error al obtener la configuración" }
@@ -140,8 +148,6 @@ let User = {
 				&& currentPosition[0].idLevel == usuario.levelId
 			) ? false : true;
 		}
-
-		console.log(currentPosition, shouldCreatePosition)
 
 		const idPosition = shouldCreatePosition
 			? await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId)
@@ -268,7 +274,6 @@ let User = {
 		return (response.changedRows || response.insertId) ? { response: "Usuario ingresado correctamente" } : error;
 	},
 	checkUserAlreadyExists: async function (email, idCompany) {
-		console.log(email, idCompany);
 		const sql = `
 			SELECT
 				u.id,
@@ -294,39 +299,9 @@ let User = {
 
 		return response;
 	},
-	loginLextracking: async function (email, password) {
-		let error = { "error": "Error al obtener usuarios" }
-		let model = 'login'
-		const res = await axios.post(API_LEXTRACKING + model, { email: email, password: password })
-		const response = res.data
-
-		if (response.response) {
-			// Obtengo el usuario dentro del cube
-			const lxUser = response.response
-
-			// console.log("lxUser: ", lxUser)
-
-			// Si no hay usuario en el cube
-			response.response.idLextracking = response.response.id
-
-			const cubeUser = await this.loginCube(lxUser.email);
-
-			if (cubeUser.response) {
-				response.response.cubeUser = cubeUser.response
-				response.response.cubeExist = true
-				response.response.active = cubeUser.response.active
-				response.response.idUser = cubeUser.response.idUser
-				// Local ID
-				response.response.id = cubeUser.response.id
-				response.response.idLextracking = cubeUser.response.idLextracking
-			} else if (response.response.role != "admin" && response.response.role != "pm") {
-				return { error: "Usuario no disponible en la plataforma." };
-			}
-		}
-
-		return response.response ? { response: response.response } : error;
-	},
-	loginCube: async function (email) {
+	loginCube: async function (email, password, company) {
+		const sqlCompany = `SELECT id FROM companies WHERE slug = ?`;
+		const error = { error: 'Usuario y/o clave incorrecta.' };
 		const sql = `
 			SELECT
 				u.id,
@@ -340,15 +315,26 @@ let User = {
 				uc.idLevel
 			FROM ${tablaNombre} u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
-			WHERE u.email = ? AND u.active = 1
+			WHERE u.email = ? AND u.password = MD5(?) AND u.idCompany = ? AND u.active = 1
 		`
 		let response = [];
+		let token = '';
 
 		try {
-			response = await conn.query(sql, [email]);
-		} catch (e) { }
+			const [{ id: idCompany }] = await conn.query(sqlCompany, [company]);
+			response = await conn.query(sql, [email, password, idCompany]);
 
-		return response.length > 0 ? { response: response[0] } : { error: 'Usuario y/o clave incorrecta.' };
+			if(!response.length) return error;
+
+			const { password: p, ...usr } = response[0];
+			if(!usr.idUser) return error;
+			token = utils.makeToken(usr);
+			response = { ...usr, token, lexToken: utils.makeLexToken(password, email) };
+			return { response };
+		} catch (e) {
+			console.log(e.message);
+			return error;
+		}
 	},
 	courses: async function (id) {
 
