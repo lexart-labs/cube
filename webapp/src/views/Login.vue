@@ -124,7 +124,7 @@ export default {
   mounted() {
     localStorage.clear();
     if (!this.$route.params.slug || this.$route.params.slug === 'login') {
-      this.warning = true;
+      this.$router.push('lexart_labs/login');
     }
   },
 };

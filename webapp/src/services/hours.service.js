@@ -4,10 +4,12 @@ import { APP_NAME, API } from '../../env';
 const generateHeader = () => {
   const token = localStorage.getItem(`token-app-${APP_NAME}`);
   const userId = localStorage.getItem(`id-${APP_NAME}`);
+  const company_slug = localStorage.getItem('_company-slug');
 
-  return { token, 'user-id': userId };
+  return { token, 'user-id': userId, company_slug };
 };
 const MODEL = 'hours';
+const CURRENT_YEAR = (new Date()).getFullYear();
 
 const HoursService = {
   update: async (id, payload) => {
@@ -35,10 +37,15 @@ const HoursService = {
     const { data } = await axios.get(`${API + MODEL}/${id}`, { headers });
     return data.response ? data.response[0] : {};
   },
-  countPages: async (m = 0, y = (new Date()).getFullYear()) => {
+  countPages: async (m = 0, y = CURRENT_YEAR) => {
     const headers = generateHeader();
     const { data } = await axios.get(`${API + MODEL}/count?month=${m}&year=${y}`, { headers });
     return data.response ? data.response : 1;
+  },
+  userYearHours: async (id, year = CURRENT_YEAR) => {
+    const headers = generateHeader();
+    const { data } = await axios.get(`${API + MODEL}/all-year-hours/${id}/${year}`, { headers });
+    return data.response ? data.response : [];
   },
 };
 

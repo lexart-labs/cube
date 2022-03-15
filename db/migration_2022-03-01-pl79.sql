@@ -10,3 +10,5 @@ CREATE TABLE `lexart_cube`.`colaborators_continuity` (
 ) ENGINE = InnoDB;
 
 ALTER TABLE colaborators_continuity ADD FOREIGN KEY (idColaborator) REFERENCES users(id);
+
+ALTER TABLE colaborators_continuity ADD CONSTRAINT uq_colaborators_continuity UNIQUE (month, year, idColaborator);

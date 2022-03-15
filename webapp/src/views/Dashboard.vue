@@ -97,6 +97,7 @@
                 <div class="graphics-ctl">
                   <graphic v-if="resources.length" :evaluations="resources" />
                   <Rombo
+                    :id="isPersonifying ? myDev.id : myUser.id"
                     v-if="resources.length"
                     :evaluations="resources"
                     :year="year"
@@ -104,10 +105,14 @@
                 </div>
               </div>
             </section>
-            <section v-show="show === 'Evaluations'" class="dashboard--resources">
+            <section
+              v-show="show === 'Evaluations'"
+              class="dashboard--resources"
+            >
               <h4 class="text-center" v-if="years.length === 0">
                 {{
-                  translations[$store.state.language].dashboard.userHaventEvaluations
+                  translations[$store.state.language].dashboard
+                    .userHaventEvaluations
                 }}
               </h4>
               <evaluation-viewer
@@ -199,7 +204,8 @@
                 </h2>
               </div>
             </section>
-            <section v-show="show === 'leadTree'"
+            <section
+              v-show="show === 'leadTree'"
               v-if="['admin', 'pm'].includes(myUser.type)"
             >
               <ul class="nav nav-tabs">
@@ -238,9 +244,12 @@
                           <li
                             v-for="(dev, j) in lead.devs"
                             :key="`dev${j}`"
-                            style="padding: 0.5rem;"
+                            style="padding: 0.5rem"
                           >
-                            <b>{{ dev.name }}</b> - {{ dev.position }} ({{ dev.time }} {{$t('generic.days')}})
+                            <b>{{ dev.name }}</b> - {{ dev.position }} ({{
+                              dev.time
+                            }}
+                            {{ $t("generic.days") }})
                           </li>
                         </ul>
                       </td>
@@ -331,13 +340,13 @@
                     </button>
                   </div>
                   <div class="order">
-                      <vue-select
-                        :options="indicators"
-                        v-model="filters.sorter"
-                        id="filterInput"
-                        :placeholder="$t('generic.order')"
-                      >
-                      </vue-select>
+                    <vue-select
+                      :options="indicators"
+                      v-model="filters.sorter"
+                      id="filterInput"
+                      :placeholder="$t('generic.order')"
+                    >
+                    </vue-select>
                     <abbr title="Teams" style="cursor: pointer">
                       <i
                         class="fas fa-list-ul"
@@ -353,21 +362,20 @@
                     </abbr>
                   </div>
                 </div>
-                  <h4 class="tag">
-                    <span
-                      class="badge badge-primary"
-                      v-for="(item, i) in filters.technologies"
-                      :key="`usrStk${i}`"
-                      style="width: 10rem;"
-                    >
-                      {{ item }}
-                      <i
-                        class="fas fa-times-circle remove-icon"
-                        v-on:click="unsetFilter(item)"
-                      />
-                    </span>
-                  </h4>
-
+                <h4 class="tag">
+                  <span
+                    class="badge badge-primary"
+                    v-for="(item, i) in filters.technologies"
+                    :key="`usrStk${i}`"
+                    style="width: 10rem"
+                  >
+                    {{ item }}
+                    <i
+                      class="fas fa-times-circle remove-icon"
+                      v-on:click="unsetFilter(item)"
+                    />
+                  </span>
+                </h4>
               </header>
               <div v-for="(dev, i) in filteredCards" :key="`dev${i}`">
                 <UserCard
@@ -475,7 +483,9 @@
                           <div class="team-card">
                             <div>
                               <div class="team-card-title">
-                                <h5 style="font-size: 1.5rem"><b>{{ team.name }}</b></h5>
+                                <h5 style="font-size: 1.5rem">
+                                  <b>{{ team.name }}</b>
+                                </h5>
                                 <span>{{
                                   formatDate(team.updatedAt).split(".")[0]
                                 }}</span>
@@ -869,16 +879,16 @@ export default {
       const headers = { token, lexToken, "user-id": userId , 'company_slug': localStorage.getItem("_company-slug") };
 
       const {
-        data: { response: trckUsrs },
-      } = await axios.get(`${API}users/lextracking/all?minified=true`, {
-        headers,
-      });
-      const {
         data: { response: cubeIds },
       } = await axios.get(`${API}users/lextracking-ids`, { headers });
 
-      this.isLoading = false;
-      return compareDBUsers(cubeIds, trckUsrs);
+      UserService().getAllUsersLextracking((res) => {
+        if (!res.error) {
+          const trckUsrs = res.response;
+          this.unasignedDevs = compareDBUsers(cubeIds, trckUsrs);
+        }
+        this.isLoading = false;
+      }, true);
     },
     setFilter() {
       const exists = this.filters.technologies.some(
@@ -1194,17 +1204,7 @@ export default {
               this.developersByLead = data.response;
             });
 
-          this.findUnasignedDevs().then((res) => {
-            this.unasignedDevs = res.sort((a, b) => {
-              if (a.name > b.name) {
-                return 1;
-              }
-              if (a.name < b.name) {
-                return -1;
-              }
-              return 0;
-            });
-          });
+          this.findUnasignedDevs();
 
           this.getTeams();
         }

@@ -136,12 +136,12 @@ let User = {
 		token = utils.makeToken(usuario.email, usuario.id, 'public');
 
 		// Compara los ids de cargo y nível, si los nuevos son iguales a los atuales
-		const currentPosition = usuario.idPosition 
-		? await conn.query(
-			'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
-		) : [{idPosition: null, idLevel: null}];
+		const currentPosition = usuario.idPosition
+			? await conn.query(
+				'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
+			) : [{ idPosition: null, idLevel: null }];
 
-		
+
 		if (currentPosition[0]) {
 			shouldCreatePosition = (
 				currentPosition[0].idPosition == usuario.positionId
@@ -199,7 +199,7 @@ let User = {
 		let response, stack, idPosition;
 		let password = md5(usuario.password);
 
-		if(company_slug === "lexart_labs") {
+		if (company_slug === "lexart_labs") {
 			const result = await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId);
 			idPosition = result.error ? null : result;
 		}
@@ -230,7 +230,7 @@ let User = {
 
 		try {
 			response = await conn.query(sql, arr);
-			if(company_slug === "lexart_labs") {
+			if (company_slug === "lexart_labs") {
 				await UserSkills.insert({
 					idUser: usuario.id,
 					skills: usuario.skills,
@@ -289,10 +289,10 @@ let User = {
 
 		try {
 			let search = await conn.query(sql, arr);
-			
-			response = search[0] 
-			? { status: 200, response: search[0] }
-			: { status: 404, response: "User not found" };
+
+			response = search[0]
+				? { status: 200, response: search[0] }
+				: { status: 404, response: "User not found" };
 		} catch (e) {
 			response = { status: 500, error: "Request failed" };
 		}
@@ -401,7 +401,7 @@ let User = {
 	},
 	updatePosition: async function (id, idPosition, idLevel) {
 		const error = { error: '¡No fue posible actualizar la posición!' };
-		
+
 		const sql = `
 			INSERT INTO user_position_level (idUser, idPosition, idLevel)
 			VALUES (?, ?, ?)
@@ -515,7 +515,7 @@ let User = {
 
 		const devsObj = devInfos.reduce((acc, cur) => {
 			const key = cur.name;
-			return { ...acc, [key]: cur};
+			return { ...acc, [key]: cur };
 		}, {});
 
 		try {
@@ -537,7 +537,7 @@ let User = {
 	countDevs: async function (techs) {
 		const PAGE_LENGTH = 10;
 		let sql = '';
-		if(techs && techs.length) {
+		if (techs && techs.length) {
 			const techsFilter = techs.map((el) => `'${el}'`).join();
 			sql = `
 				SELECT
@@ -584,7 +584,7 @@ let User = {
 		} else {
 			sql = `
 				SELECT
-					id AS 'id'
+					idLextracking AS 'id'
 				FROM users WHERE type = 'developer'
 				LIMIT ${PAGE_LENGTH} OFFSET ${(currentPage - 1) * PAGE_LENGTH};
 		`;
@@ -595,7 +595,7 @@ let User = {
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},
-	getLeaderDevs: async function(idLead) {
+	getLeaderDevs: async function (idLead) {
 		const sql = `
 			SELECT
 				users.name,
@@ -611,7 +611,7 @@ let User = {
 		} catch (e) {
 			console.log('response->', response);
 			console.log(e.message);
-		}		
+		}
 
 		return { response };
 	},
@@ -624,7 +624,6 @@ let User = {
 				l.level AS level,
 				u.name,
 				u.id,
-				u.idLextracking,
 				GROUP_CONCAT(t.name) AS 'technologies'
 			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition

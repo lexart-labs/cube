@@ -58,14 +58,13 @@
         </footer>
       </form>
       <div>
-        <router-link to="/login" class="rcompany">Iniciar sesión</router-link>
+        <router-link to="/lexart_labs/login" class="rcompany">Iniciar sesión</router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-/* eslint-disable no-underscore-dangle */
 import axios from "axios";
 import { copy } from "../services/helpers";
 import { API } from "../../env";

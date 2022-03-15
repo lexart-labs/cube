@@ -128,12 +128,10 @@
 </template>
 
 <script>
-import Vue from 'vue'
-import HoursService from "../../services/hours.service";
+import Vue from 'vue';
 import DevOriginsService from "../../services/plataforms.service";
 import CollaboratorsService from "../../services/collaborators.service";
 import ExplorerTable from "../../components/explorerTable.vue";
-import { APP_NAME } from "../../../env";
 import vueSelect from "vue-select";
 import Translations from "../../data/translate";
 

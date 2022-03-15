@@ -8,6 +8,7 @@
     :onEdit="getReportById"
     :pager="handlePagination"
     :pagesCount="pageCount"
+    :actualPage="actualPage"
   >
     <template slot="filters">
       <div class="filters-ctl">
@@ -138,6 +139,7 @@
                 type="button"
                 class="btn btn-primary"
                 @click="upsertReport"
+                :disabled="isLoading"
               >
                 {{ $t("generic.save") }}
               </button>
@@ -156,7 +158,7 @@ import ExplorerTable from "../../components/explorerTable.vue";
 import vueSelect from "vue-select";
 import translations from "../../data/translate";
 
-const PAGES_SIZE = 10;
+const CURRENT_YEAR = new Date().getFullYear();
 
 export default {
   name: "Continuity",
@@ -189,8 +191,9 @@ export default {
       isLoading: false,
       isEditing: false,
       pageCount: 1,
-      idCompany: 1,
+      companySlug: localStorage.getItem('_company-slug'),
       error: '',
+      actualPage: 1,
     };
   },
   methods: {
@@ -218,7 +221,7 @@ export default {
     },
     handlePagination: async function (page) {
       const reports = await HoursService.getAll(
-        this.idCompany,
+        this.companySlug,
         this.filters.month,
         this.filters.year,
         page
@@ -228,11 +231,10 @@ export default {
     },
     upsertReport: async function () {
       this.isLoading = true;
-      const month = this.filters.month;
-      const year = this.filters.year;
+      const month = 0;
+      const year  = CURRENT_YEAR;
 
       const isValid = this.validatePayload();
-      console.log(isValid);
       if (isValid !== 'true') {
         this.error = isValid;
         return;
@@ -242,13 +244,14 @@ export default {
         await HoursService.update(this.report.id, this.report);
       } else {
         await HoursService.insert(this.report);
+        this.pageCount = await HoursService.countPages(month, year);
+        this.actualPage = 0;
       }
 
       $("#upsert-report").modal("hide");
-      this.pageCount =
-        this.pageCount === PAGES_SIZE ? this.pageCount + 1 : this.pageCount;
       this.clearStates();
-      const reports = await HoursService.getAll(this.idCompany, month, year, 0);
+      const reports = await HoursService.getAll(this.companySlug, month, year, 0);
+      this.filters = { year, month };
       this.reports = reports;
 
       this.isLoading = false;
@@ -276,7 +279,7 @@ export default {
 
     const [pageCount, reports, users] = await Promise.all([
       HoursService.countPages(month, year),
-      HoursService.getAll(this.idCompany, month, year, 0),
+      HoursService.getAll(this.companySlug, month, year, 0),
       Collaborators.getByCompany(),
     ]);
 

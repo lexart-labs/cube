@@ -379,7 +379,7 @@ const translations = {
         "February",
         "March",
         "April",
-        "may",
+        "May",
         "June",
         "July",
         "August",
