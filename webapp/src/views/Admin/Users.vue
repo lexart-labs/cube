@@ -342,9 +342,7 @@ export default {
   data() {
     return {
       title: "My developers",
-      mySelfieCube: JSON.parse(
-        localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-      ).cubeUser,
+      mySelfieCube: JSON.parse(localStorage.getItem('cubeUser')),
       users: [],
       changePositionTime: 0,
       error: "",

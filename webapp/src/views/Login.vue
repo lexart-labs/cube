@@ -16,7 +16,7 @@
         "
       />
     </div>
-    <div class="formContainer__login">
+    <div class="formContainer__login" v-if="!warning">
       <header>
         <h2>Cube Platform</h2>
         <small>By Lexart Factory</small>
@@ -43,13 +43,27 @@
           <span>Login</span>
         </button>
         <footer>
-          <div v-if="error" class="alert alert-danger">
-            {{ error }}
+          <div>
+            <small v-if="error" class="alert alert-danger">
+              {{ error }}
+            </small>
           </div>
         </footer>
       </form>
       <div>
         <router-link to="/rcompany" class="rcompany">Registre su organización</router-link>
+      </div>
+    </div>
+    <div v-if="warning" class="alert-error">
+      <div class="alert alert-warning" role="alert">
+        <h4 class="is-bold"><i class="fas fa-exclamation-triangle"/> Warning!</h4>
+        <hr>
+        <p>
+          Apparently, you have not settled your company at the link to login page. 
+          The link to login must follow the format:
+        </p>
+        <p><b>cube.lexartlabs.com/YOUR_COMPANY_NAME/login</b></p>
+        <p>Please, try again using a valid link.</p>
       </div>
     </div>
   </div>
@@ -58,7 +72,6 @@
 <script>
 /* eslint-disable no-underscore-dangle */
 import axios from "axios";
-import Vue from "vue";
 import { copy } from "../services/helpers";
 import { API, APP_NAME } from "../../env";
 
@@ -68,6 +81,7 @@ export default {
     return {
       usr: {},
       error: "",
+      warning: '',
       isLoading: false,
       api: API,
       setting: {
@@ -80,23 +94,20 @@ export default {
     loginUser() {
       this.isLoading = true;
       const user = copy(this.usr);
+      const { slug } = this.$route.params;
 
-      axios.post(`${API}users/login`, user).then(
+      axios.post(`${API}users/login`, {...user, slug }).then(
         (res) => {
           const rs = res.data;
           this.isLoading = false;
 
           if (!rs.error) {
-            // Guardar en el localStorage
-            // Token del response
+            const { lexToken, token, ...cubeUsr} = rs.response;
             localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
             localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
-            localStorage.setItem('_company-slug', 'lexart_labs');
-
-            window.localStorage.setItem(
-              `_lextracking_user-${APP_NAME}`,
-              JSON.stringify(rs.response)
-            );
+            localStorage.setItem('_company-slug', slug);
+            localStorage.setItem('lexToken', rs.response.lexToken);
+            localStorage.setItem('cubeUser', JSON.stringify(cubeUsr));
 
             this.$router.push("/app/dashboard");
           } else {
@@ -112,35 +123,29 @@ export default {
   },
   mounted() {
     localStorage.clear();
-
-    // Obtengo la información de la escuela si tengo token
-    const { token } = this.$route.params;
-    if (token) {
-      axios.get(`${API}users/school/${token}`).then(
-        (res) => {
-          if (!res.data.error) {
-            this.setting = res.data.response;
-            // Bypass del token al storage
-            this.setting.token = token;
-            window.localStorage.setItem(
-              `_setting-${APP_NAME}`,
-              JSON.stringify(this.setting)
-            );
-          } else {
-            Vue.toasted.show("Error en obtener la institución", {
-              type: "error",
-              duration: 2000,
-            });
-          }
-        },
-        () => {
-          Vue.toasted.show("Error en obtener la institución", {
-            type: "error",
-            duration: 2000,
-          });
-        }
-      );
+    if (!this.$route.params.slug || this.$route.params.slug === 'login') {
+      this.warning = true;
     }
   },
 };
 </script>
+
+<style scoped>
+footer > div {
+  display: flex;
+  max-width: 100%;
+  flex-flow: column wrap;
+  font-size: 0.8rem;
+}
+.alert-error {
+  max-width: 800px;
+  font-size: 1.2rem
+}
+.alert-error h4 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.alert-error p {
+  margin-bottom: 1rem;
+}
+</style>

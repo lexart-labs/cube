@@ -58,7 +58,7 @@
         </footer>
       </form>
       <div>
-        <router-link to="/" class="rcompany">Iniciar sesión</router-link>
+        <router-link to="/login" class="rcompany">Iniciar sesión</router-link>
       </div>
     </div>
   </div>
@@ -96,7 +96,7 @@ export default {
           this.isLoading = false;
 
           if (!rs.error) {
-            this.$router.push("/");
+            this.$router.push(`${this.cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`);
           } else {
             this.error = rs.error;
           }
