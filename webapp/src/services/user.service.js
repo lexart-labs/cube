@@ -6,11 +6,13 @@ import { APP_NAME, API } from '../../env';
 const buildHeaders = () => {
   const token = localStorage.getItem(`token-app-${APP_NAME}`);
   const userId = localStorage.getItem(`id-${APP_NAME}`);
+  const lexToken = localStorage.getItem('lexToken');
 
   const headers = {
     token,
     'user-id': userId,
-    'company_slug': localStorage.getItem("_company-slug")
+    'company_slug': localStorage.getItem("_company-slug"),
+    lexToken,
   };
 
   return headers;
