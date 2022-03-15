@@ -55,7 +55,7 @@ const routes = [
       },
     ],
   },
-  { path: '*', redirect: '/rcompany'}
+  { path: '*', redirect: '/lexart_labs/login'}
 ];
 
 const router = new VueRouter({

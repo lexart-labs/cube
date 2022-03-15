@@ -584,7 +584,7 @@ let User = {
 		} else {
 			sql = `
 				SELECT
-					id AS 'id'
+					idLextracking AS 'id'
 				FROM users WHERE type = 'developer'
 				LIMIT ${PAGE_LENGTH} OFFSET ${(currentPage - 1) * PAGE_LENGTH};
 		`;

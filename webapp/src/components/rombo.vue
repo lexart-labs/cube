@@ -10,7 +10,7 @@
 import HoursService from '../services/hours.service';
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
-import { APP_NAME, API_LEXTRACKING } from '../../env';
+import { APP_NAME } from '../../env';
 
 export default {
   name: 'Rombo',
@@ -49,7 +49,6 @@ export default {
     ],
       isLoading: false,
       monthlyHours: [],
-      id: JSON.parse(localStorage.getItem(`id-${APP_NAME}`)),
     };
   },
   methods: {
@@ -111,9 +110,7 @@ export default {
 
 
     // Busco las horas menuales por año
-    console.log(this.id)
     const monthlyHours = await this.getMonthHours(this.id, this.year);
-    console.log(monthlyHours)
   
 
     // Calculo los datos para armar el grafico
