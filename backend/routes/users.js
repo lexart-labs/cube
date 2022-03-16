@@ -72,8 +72,9 @@ router.post('/upsert', async function (req, res) {
     res.send(response);
 })
 
-router.get('/leads', Mdl.middleware, async function (_req, res) {
-	let response = await User.getLeads();
+router.get('/leads', Mdl.middleware, async function (req, res) {
+	const { company_slug } = req.headers;
+	let response = await User.getLeads(company_slug);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
