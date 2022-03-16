@@ -114,12 +114,12 @@ router.get('/dev-indexes/:id', async (req, res) => {
 })
 
 router.post('/dev-indexes', async (req, res) => {
-	const { token } = req.headers;
+	const { token, company_slug } = req.headers;
 	const { year, page } = req.query;
 	const { techs } = req.body;
 
 	const response = await User.allDevelopersIndicators(
-		token, Number(year), techs, page
+		token, Number(year), techs, page, company_slug
 	);
 	
 	res.set(['Content-Type', 'application/json']);

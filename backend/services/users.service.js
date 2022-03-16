@@ -566,9 +566,10 @@ let User = {
 
 		return response > 0 ? { response } : error;
 	},
-	devIds: async function (techs, page) {
+	devIds: async function (techs, page, slug = 'lexart_labs') {
 		const PAGE_LENGTH = 10;
 		const currentPage = page || 1;
+		const idCompany = await utils.getIdCompanyBySlug(slug);
 		let sql = '';
 		if (techs && techs.length) {
 			const techsFilter = techs.map((el) => `'${el}'`).join();
@@ -578,14 +579,15 @@ let User = {
 				FROM user_skills us
 				INNER JOIN technologies t ON us.idTechnology = t.id
 				INNER JOIN users u ON u.id = us.idUser
-				WHERE u.type = 'developer' AND t.name IN (${techsFilter})
+				WHERE u.type = 'developer' AND t.name IN (${techsFilter}) AND u.idCompany = ${idCompany}
 				LIMIT ${PAGE_LENGTH} OFFSET ${(currentPage - 1) * PAGE_LENGTH}
 			`;
 		} else {
 			sql = `
 				SELECT
 					idLextracking AS 'id'
-				FROM users WHERE type = 'developer'
+				FROM users
+				WHERE type = 'developer' AND idCompany = ${idCompany}
 				LIMIT ${PAGE_LENGTH} OFFSET ${(currentPage - 1) * PAGE_LENGTH};
 		`;
 		}
@@ -615,8 +617,9 @@ let User = {
 
 		return { response };
 	},
-	allDevelopersIndicators: async function (token, query, techs, page) {
-		const { response: devsIds } = await this.devIds(techs, page);
+	allDevelopersIndicators: async function (token, query, techs, page, slug) {
+		const idCompany = await utils.getIdCompanyBySlug(slug);
+		const { response: devsIds } = await this.devIds(techs, page, slug);
 
 		const sql = `
 			SELECT
@@ -631,12 +634,12 @@ let User = {
 			LEFT JOIN levels l ON uc.idLevel = l.id
 			INNER JOIN user_skills us ON u.id = us.idUser
 			INNER JOIN technologies t ON t.id = us.idTechnology
-			WHERE u.id = ?;
+			WHERE u.id = ? AND u.idCompany = ?;
 		`;
 		const callbackBasics = async (devId) => {
 			let result = {};
 			try {
-				result = await conn.query(sql, [devId]);
+				result = await conn.query(sql, [devId, idCompany]);
 			} catch (e) {
 				console.log('callBackBasics ->', e.message);
 			}
