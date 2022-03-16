@@ -237,6 +237,7 @@ export default {
       const isValid = this.validatePayload();
       if (isValid !== 'true') {
         this.error = isValid;
+        this.isLoading = false;
         return;
       };
 
