@@ -275,7 +275,7 @@ export default {
         idPlataform: null,
         active: null,
       },
-
+      this.showPassword = false;
       this.isEditing = false;
     },
 
