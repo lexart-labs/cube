@@ -696,5 +696,18 @@ let User = {
 		if (!evaluations) return defaultIndicators;
 		return setUpData(idDev, year, token, evaluations);
 	},
+	findUnasigneds: async function (slug) {
+		const idCompany = await utils.getIdCompanyBySlug(slug);
+		const sql = `SELECT name FROM ${tablaNombre} WHERE idUser IS NULL AND idCompany = ?`;
+		let response = [];
+
+		try {
+			response = await conn.query(sql, [idCompany]);
+		} catch ({ message }) {
+			console.log(message);
+		}
+
+		return response.length ? { response } : { error: 'No users found'}
+	},
 }
 module.exports = User;

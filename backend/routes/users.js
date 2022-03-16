@@ -51,6 +51,13 @@ router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
     res.send(response);
 })
 
+router.get('/unasigned', Mdl.middleware, async function (req, res) {
+	const { company_slug } = req. headers;
+	const response = await User.findUnasigneds(company_slug);
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
 router.get('/count', Mdl.middleware, async function (req, res) {
 	const { q } = req.query;
 	let response = await User.countResults(req.headers['user-id'], q);

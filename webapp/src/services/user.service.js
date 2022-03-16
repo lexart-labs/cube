@@ -94,6 +94,11 @@ const UserService = function () {
         cb(data)
       });
     },
+    getUnasigned: async () => {
+      const headers = buildHeaders();
+      const { data } = await axios.get(`${API + model}unasigned`, { headers });
+      return data.response ? data.response : [];
+    },
   }
 };
 
