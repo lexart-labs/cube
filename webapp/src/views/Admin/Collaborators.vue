@@ -73,7 +73,10 @@
 
                   <div class="col-12 mt-0 mt-md-2">
                     <label>{{ $t("generic.password") }}</label>
-                    <input :type="isEditing ? 'password' : 'text'" class="form-control is-rounded" v-model="collaborator.password">
+                    <div class="icon-ctl">
+                      <input :type="showPassword ? 'text' : 'password'" class="form-control is-rounded has-icon" v-model="collaborator.password">
+                      <i class="fas is-icon" :class="!showPassword ? 'fa-eye-slash': 'fa-eye'" @click="showPassword = !showPassword" />
+                    </div>
                   </div>
 
                   <div class="col-12 col-md-6 mt-0 mt-md-2">
@@ -155,7 +158,8 @@ export default {
       actualPage: 0,
       idCompany: 1,
       platforms: [],
-      searchQuery: ""
+      searchQuery: "",
+      showPassword: false
     };
   },
   async mounted() {
@@ -282,3 +286,19 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.icon-ctl {
+  display: flex;
+  align-items: center;
+}
+.has-icon {
+  position: relative;
+}
+.is-icon {
+  position: absolute;
+  right: 1.6rem;
+  cursor: pointer;
+  color: #6c757d;
+}
+</style>
