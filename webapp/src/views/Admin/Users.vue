@@ -150,7 +150,7 @@
             </div>
             <div class="perfil">
               <form enctype="multipart/form-data" v-show="tabs.perfil">
-                <label for="">LexTracking user</label>
+                <label for="">User</label>
                 <vue-select
                   v-model="user"
                   label="name"
