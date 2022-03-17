@@ -92,8 +92,9 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
+
             <!-- General -->
-            <div class="modal-body" v-if="tabs.general">
+            <div class="modal-body">
               <div class="coursesTab" style="margin-bottom: 1rem;">
                 <ul class="nav nav-tabs">
                   <li class="nav-item">
@@ -119,48 +120,50 @@
                   </li>
                 </ul>
               </div>
-              <div class="row" style="margin-bottom: 2rem;">
-                <div class="col-md-3 col-sm-12">
-                  <input
-                    type="text"
-                    placeholder="Descripción"
-                    class="form-control is-rounded"
-                    v-model="course.name"
-                  />
+              <div v-if="tabs.general">
+                <div class="row" style="margin-bottom: 2rem;">
+                  <div class="col-md-3 col-sm-12">
+                    <input
+                      type="text"
+                      placeholder="Descripción"
+                      class="form-control is-rounded"
+                      v-model="course.name"
+                    />
+                  </div>
+                  <div class="col-md-3 col-sm-12">
+                    <input
+                      type="datetime-local"
+                      :placeholder="$t('generic.date')"
+                      class="form-control is-rounded"
+                      v-model="course.fecha"
+                    />
+                  </div>
+                  <div class="col-md-3 col-sm-12">
+                    <vue-select
+                      v-model="course.user"
+                      label="name"
+                      :options="users"
+                    ></vue-select>
+                  </div>
+                  <div class="col-md-3 col-sm-12">
+                    <select class="form-control is-rounded" v-model="course.active">
+                      <option value="1">Active</option>
+                      <option value="0">Inactive</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="col-md-3 col-sm-12">
-                  <input
-                    type="datetime-local"
-                    :placeholder="$t('generic.date')"
-                    class="form-control is-rounded"
-                    v-model="course.fecha"
-                  />
-                </div>
-                <div class="col-md-3 col-sm-12">
-                  <vue-select
-                    v-model="course.user"
-                    label="name"
-                    :options="users"
-                  ></vue-select>
-                </div>
-                <div class="col-md-3 col-sm-12">
-                  <select class="form-control is-rounded" v-model="course.active">
-                    <option value="1">Active</option>
-                    <option value="0">Inactive</option>
-                  </select>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-12">
-                  <label for="" class="obs--title">{{$t('generic.observations')}}</label>
-                  <textarea
-                    name=""
-                    id=""
-                    cols="30"
-                    rows="5"
-                    class="form-control"
-                    v-model="course.observaciones"
-                  ></textarea>
+                <div class="row">
+                  <div class="col-12">
+                    <label for="" class="obs--title">{{$t('generic.observations')}}</label>
+                    <textarea
+                      name=""
+                      id=""
+                      cols="30"
+                      rows="5"
+                      class="form-control"
+                      v-model="course.observaciones"
+                    ></textarea>
+                  </div>
                 </div>
               </div>
             </div>
@@ -218,8 +221,8 @@
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>{{ $t('generic.topic')}}</th>
-                        <th>{{ $t('generic.score')}}</th>
+                        <th><b>{{ $t('generic.topic')}}</b></th>
+                        <th><b>{{ $t('generic.score')}}</b></th>
                         <th></th>
                       </tr>
                     </thead>
@@ -258,8 +261,8 @@
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>{{ $t('generic.topic')}}</th>
-                        <th>{{ $t('generic.score')}}</th>
+                        <th><b>{{ $t('generic.topic')}}</b></th>
+                        <th><b>{{ $t('generic.score')}}</b></th>
                         <th></th>
                       </tr>
                     </thead>
