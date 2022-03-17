@@ -483,7 +483,8 @@ let User = {
 			? { response }
 			: { error: 'No leaders found for this user' };
 	},
-	getLeaderDevTree: async function () {
+	getLeaderDevTree: async function (slug = 'lexart_labs') {
+		const companyId = await utils.getIdCompanyBySlug(slug);
 		const sql = `
 			SELECT
 				users.name AS 'name',
@@ -493,7 +494,7 @@ let User = {
 					WHERE dev.idUser = users.id AND dev.id <> users.id
 				) AS 'devs'
 			FROM users
-			WHERE users.type IN ('admin', 'pm');
+			WHERE users.type IN ('admin', 'pm') AND users.idCompany = ?;
 		`;
 		const sqlDevsInfo = `
 			SELECT
@@ -506,11 +507,12 @@ let User = {
 			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
 			LEFT JOIN careers c ON uc.idPosition = c.id
+			WHERE u.idCompany = ?
 		`;
 
 		const [response, devInfos] = await Promise.all([
-			conn.query(sql),
-			conn.query(sqlDevsInfo)
+			conn.query(sql, [companyId]),
+			conn.query(sqlDevsInfo, [companyId])
 		]);
 		let fixed = [];
 
@@ -522,7 +524,7 @@ let User = {
 		try {
 			fixed = response.reduce((acc, el) => {
 				if (el.devs) {
-					const devs = el.devs.split(',').map(dev => devsObj[dev]);
+					const devs = el.devs.split(',').map(dev => devsObj[dev] || { name: dev, position: 'No position asigned', time: 0 });
 					acc.push({ ...el, devs });
 				}
 				return acc;
@@ -697,6 +699,19 @@ let User = {
 
 		if (!evaluations) return defaultIndicators;
 		return setUpData(idDev, year, token, evaluations);
+	},
+	findUnasigneds: async function (slug) {
+		const idCompany = await utils.getIdCompanyBySlug(slug);
+		const sql = `SELECT name FROM ${tablaNombre} WHERE idUser IS NULL AND idCompany = ?`;
+		let response = [];
+
+		try {
+			response = await conn.query(sql, [idCompany]);
+		} catch ({ message }) {
+			console.log(message);
+		}
+
+		return response.length ? { response } : { error: 'No users found'}
 	},
 }
 module.exports = User;

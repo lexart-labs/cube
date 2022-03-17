@@ -615,6 +615,7 @@ export default {
       success: "",
       translations,
       myUser: {},
+      slug: localStorage.getItem("_company-slug"),
 
       // Evaluations
       courses: [],
@@ -877,6 +878,12 @@ export default {
       const lexToken = localStorage.getItem('lexToken');
       const userId = localStorage.getItem(`id-${APP_NAME}`);
       const headers = { token, lexToken, "user-id": userId , 'company_slug': localStorage.getItem("_company-slug") };
+
+      if(this.slug !== 'lexart_labs') {
+        this.unasignedDevs = await UserService().getUnasigned();
+        this.isLoading = false;
+        return;
+      }
 
       const {
         data: { response: cubeIds },
@@ -1153,7 +1160,7 @@ export default {
     const headers = {
       token,
       "user-id": userId,
-      'company_slug': localStorage.getItem("_company-slug"),
+      'company_slug': this.slug,
     };
 
     if (id) {
