@@ -142,7 +142,7 @@
                     v-bind:class="{ active: tabs.roadmap }"
                     v-on:click="activeTab('roadmap')"
                     class="nav-link"
-                    v-show="user.idLextracking"
+                    v-show="user.idPosition"
                     >Roadmap</a
                   >
                 </li>
