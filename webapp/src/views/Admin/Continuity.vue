@@ -97,28 +97,44 @@
                     ></vue-select>
                   </div>
                   <div class="col">
-                    <label
-                      >{{ $t("generic.year") }}
+                    <label class="has-label-space"
+                      >{{ $t("generic.year") }}</label>
                       <input
                         type="number"
                         v-model="report.year"
                         max="9999"
+                        min="2000"
                         class="form-control is-rounded"
                       />
-                    </label>
+                  </div>
+                </div>
+                <div class="row" style="margin-top: 1rem;">
+                  <div class="col">
+                    <label class="has-label-space"
+                      >{{ $t("generic.hours") }}</label>
+                      <input
+                        v-model="hours.hrs"
+                        class="form-control is-rounded"
+                        maxlength="3"
+                      />
+                  </div>
+                  <div class="col">
+                    <label class="has-label-space"
+                      >{{ $t("generic.hours") }}</label>
+                      <input
+                        v-model="hours.min"
+                        maxlength="2"
+                        class="form-control is-rounded"
+                      />
                   </div>
                   <div class="col">
                     <label
-                      >{{ $t("generic.hours") }}
+                      >{{ $t("generic.hours") }}</label>
                       <input
-                        type="tel"
-                        v-mask="['##:##:##', '###:##:##']"
-                        placeholder="00:00:00"
-                        masked
-                        v-model="report.continuity"
+                        v-model="hours.sec"
+                        maxlength="2"
                         class="form-control is-rounded"
                       />
-                    </label>
                   </div>
                 </div>
                 <div class="row col-12">
@@ -182,11 +198,16 @@ export default {
         month: "",
         idColaborator: 0,
         name: "",
-        continuity: "",
+        continuity: '',
       },
       filters: {
         year: new Date().getFullYear(),
         month: 0,
+      },
+      hours: {
+        hrs: '00',
+        min: '00',
+        sec: '00'
       },
       isLoading: false,
       isEditing: false,
@@ -204,6 +225,11 @@ export default {
         idColaborator: 0,
         name: "",
         continuity: "",
+      };
+      this.hours = {
+        hrs: '00',
+        min: '00',
+        sec: '00'
       };
       this.isEditing = false;
       this.error = '';
@@ -263,12 +289,15 @@ export default {
       await this.handlePagination(0);
     },
     validatePayload() {
+      this.report.continuity = `${this.hours.hrs}:${this.hours.min}:${this.hours.sec}`;
       const translate = translations[this.$store.state.language].AdminContinuity.errorMsgs;
       const { month, idColaborator, year, continuity} = this.report;
-      if(!month) return translate.month;
+      const hasNonNumbers = continuity.split(':').some(el => isNaN(Number(el)));
+
       if(!idColaborator) return translate.user;
+      if(!month) return translate.month;
       if(!year || year < 2000) return translate.year;
-      if(!continuity || continuity.length < 7 || continuity == '00:00:00') return translate.continuity;
+      if(!continuity || hasNonNumbers || continuity.length < 7 || continuity == '00:00:00') return translate.continuity;
       return 'true';
     },
   },
@@ -319,5 +348,8 @@ small {
   justify-self: flex-end;
   margin: 1rem;
   margin-right: 0;
+}
+.has-label-space {
+  margin-bottom: 0.5rem;
 }
 </style>
