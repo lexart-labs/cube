@@ -523,7 +523,7 @@ let User = {
 		try {
 			fixed = response.reduce((acc, el) => {
 				if (el.devs) {
-					const devs = el.devs.split(',').map(dev => devsObj[dev]);
+					const devs = el.devs.split(',').map(dev => devsObj[dev] || { name: dev, position: 'No position asigned', time: 0 });
 					acc.push({ ...el, devs });
 				}
 				return acc;
