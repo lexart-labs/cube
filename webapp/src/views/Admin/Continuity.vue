@@ -297,12 +297,10 @@ export default {
     },
     validatePayload() {
       this.report.continuity = `${this.hours.hrs}:${this.hours.min}:${this.hours.sec}`;
-      const translate =
-        translations[this.$store.state.language].AdminContinuity.errorMsgs;
+      const translate = translations[this.$store.state.language].AdminContinuity.errorMsgs;
       const { month, idColaborator, year, continuity } = this.report;
-      const hasNonNumbers = continuity
-        .split(":")
-        .some((el) => isNaN(Number(el)));
+      const [h, m, s] = continuity.split(":");
+      const hasNonNumbers =  [h, m, s].some((el) => isNaN(Number(el)));      
 
       if (!idColaborator) return translate.user;
       if (!month) return translate.month;
@@ -310,6 +308,8 @@ export default {
       if (
         !continuity ||
         hasNonNumbers ||
+        m > 59 ||
+        s > 59 ||
         continuity.length < 7 ||
         continuity == "00:00:00"
       )
