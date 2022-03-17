@@ -13,14 +13,14 @@
     <template slot="filters">
       <div class="filters-ctl">
         <div>
-          <label style="margin-bottom: 0;"
+          <label style="margin-bottom: 0"
             >{{ $t("generic.year") }}
             <input
               type="number"
               v-model="filters.year"
               max="9999"
               class="form-control is-rounded"
-              style="height: 2.1rem;"
+              style="height: 2.1rem"
             />
           </label>
         </div>
@@ -42,7 +42,7 @@
         </button>
       </div>
     </template>
-  
+
     <template slot="upsert-modal">
       <div
         class="modal fade"
@@ -97,44 +97,46 @@
                     ></vue-select>
                   </div>
                   <div class="col">
-                    <label class="has-label-space"
-                      >{{ $t("generic.year") }}</label>
-                      <input
-                        type="number"
-                        v-model="report.year"
-                        max="9999"
-                        min="2000"
-                        class="form-control is-rounded"
-                      />
+                    <label class="has-label-space">{{
+                      $t("generic.year")
+                    }}</label>
+                    <input
+                      type="number"
+                      v-model="report.year"
+                      max="9999"
+                      min="2000"
+                      class="form-control is-rounded"
+                    />
                   </div>
                 </div>
-                <div class="row" style="margin-top: 1rem;">
+                <div class="row" style="margin-top: 1rem">
                   <div class="col">
-                    <label class="has-label-space"
-                      >{{ $t("generic.hours") }}</label>
-                      <input
-                        v-model="hours.hrs"
-                        class="form-control is-rounded"
-                        maxlength="3"
-                      />
+                    <label class="has-label-space">{{
+                      $t("generic.hours")
+                    }}</label>
+                    <input
+                      v-model="hours.hrs"
+                      class="form-control is-rounded"
+                      maxlength="3"
+                    />
                   </div>
                   <div class="col">
-                    <label class="has-label-space"
-                      >{{ $t("generic.hours") }}</label>
-                      <input
-                        v-model="hours.min"
-                        maxlength="2"
-                        class="form-control is-rounded"
-                      />
+                    <label class="has-label-space">{{
+                      $t("generic.minutes")
+                    }}</label>
+                    <input
+                      v-model="hours.min"
+                      maxlength="2"
+                      class="form-control is-rounded"
+                    />
                   </div>
                   <div class="col">
-                    <label
-                      >{{ $t("generic.hours") }}</label>
-                      <input
-                        v-model="hours.sec"
-                        maxlength="2"
-                        class="form-control is-rounded"
-                      />
+                    <label>{{ $t("generic.seconds") }}</label>
+                    <input
+                      v-model="hours.sec"
+                      maxlength="2"
+                      class="form-control is-rounded"
+                    />
                   </div>
                 </div>
                 <div class="row col-12">
@@ -184,7 +186,7 @@ export default {
       reports: [],
       colaborators: [],
       monthsFilter: [
-        { name: 'All', value: 0 },
+        { name: "All", value: 0 },
         ...translations[this.$store.state.language].generic.months.map(
           (el, i) => ({
             name: el,
@@ -198,22 +200,22 @@ export default {
         month: "",
         idColaborator: 0,
         name: "",
-        continuity: '',
+        continuity: "",
       },
       filters: {
         year: new Date().getFullYear(),
         month: 0,
       },
       hours: {
-        hrs: '00',
-        min: '00',
-        sec: '00'
+        hrs: "00",
+        min: "00",
+        sec: "00",
       },
       isLoading: false,
       isEditing: false,
       pageCount: 1,
-      companySlug: localStorage.getItem('_company-slug'),
-      error: '',
+      companySlug: localStorage.getItem("_company-slug"),
+      error: "",
       actualPage: 1,
     };
   },
@@ -227,12 +229,12 @@ export default {
         continuity: "",
       };
       this.hours = {
-        hrs: '00',
-        min: '00',
-        sec: '00'
+        hrs: "00",
+        min: "00",
+        sec: "00",
       };
       this.isEditing = false;
-      this.error = '';
+      this.error = "";
     },
     getPagesLength: async function () {
       const year = this.filters.year;
@@ -258,14 +260,14 @@ export default {
     upsertReport: async function () {
       this.isLoading = true;
       const month = 0;
-      const year  = CURRENT_YEAR;
+      const year = CURRENT_YEAR;
 
       const isValid = this.validatePayload();
-      if (isValid !== 'true') {
+      if (isValid !== "true") {
         this.error = isValid;
         this.isLoading = false;
         return;
-      };
+      }
 
       if (this.isEditing) {
         await HoursService.update(this.report.id, this.report);
@@ -277,28 +279,42 @@ export default {
 
       $("#upsert-report").modal("hide");
       this.clearStates();
-      const reports = await HoursService.getAll(this.companySlug, month, year, 0);
+      const reports = await HoursService.getAll(
+        this.companySlug,
+        month,
+        year,
+        0
+      );
       this.filters = { year, month };
       this.reports = reports;
 
       this.isLoading = false;
     },
-    onSearch: async function() {
+    onSearch: async function () {
       const pagesLength = await this.getPagesLength();
       this.pageCount = pagesLength;
       await this.handlePagination(0);
     },
     validatePayload() {
       this.report.continuity = `${this.hours.hrs}:${this.hours.min}:${this.hours.sec}`;
-      const translate = translations[this.$store.state.language].AdminContinuity.errorMsgs;
-      const { month, idColaborator, year, continuity} = this.report;
-      const hasNonNumbers = continuity.split(':').some(el => isNaN(Number(el)));
+      const translate =
+        translations[this.$store.state.language].AdminContinuity.errorMsgs;
+      const { month, idColaborator, year, continuity } = this.report;
+      const hasNonNumbers = continuity
+        .split(":")
+        .some((el) => isNaN(Number(el)));
 
-      if(!idColaborator) return translate.user;
-      if(!month) return translate.month;
-      if(!year || year < 2000) return translate.year;
-      if(!continuity || hasNonNumbers || continuity.length < 7 || continuity == '00:00:00') return translate.continuity;
-      return 'true';
+      if (!idColaborator) return translate.user;
+      if (!month) return translate.month;
+      if (!year || year < 2000) return translate.year;
+      if (
+        !continuity ||
+        hasNonNumbers ||
+        continuity.length < 7 ||
+        continuity == "00:00:00"
+      )
+        return translate.continuity;
+      return "true";
     },
   },
   async mounted() {
@@ -334,7 +350,7 @@ export default {
 <style scoped>
 .filters-ctl {
   display: flex;
-  align-items:flex-end;
+  align-items: flex-end;
   justify-content: flex-start;
   margin: 1rem auto 3rem;
   gap: 1rem;
