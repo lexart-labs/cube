@@ -433,14 +433,15 @@ let User = {
 
 		return response > 0 ? { response } : error;
 	},
-	getLeads: async function () {
+	getLeads: async function (slug) {
+		const idCompany = await utils.getIdCompanyBySlug(slug);
 		const sql = `
-			SELECT * FROM ${tablaNombre} WHERE type IN ('admin', 'pm')
+			SELECT * FROM ${tablaNombre} WHERE type IN ('admin', 'pm') AND idCompany = ?
 		`;
 		let response = [];
 
 		try {
-			response = await conn.query(sql);
+			response = await conn.query(sql, [idCompany]);
 		} catch (e) {
 			console.log(e.message);
 		}
