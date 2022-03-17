@@ -246,6 +246,12 @@ export default {
       this.isEditing = true;
       const report = await HoursService.getOne(id);
       this.report = report;
+      const splitedContinuity = this.report.continuity.split(':')
+      this.hours = {
+        hrs: splitedContinuity[0],
+        min: splitedContinuity[1],
+        sec: splitedContinuity[2]
+      }
     },
     handlePagination: async function (page) {
       const reports = await HoursService.getAll(
