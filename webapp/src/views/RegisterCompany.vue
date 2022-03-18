@@ -95,6 +95,7 @@ export default {
   methods: {
     registerCompany() {
       this.isLoading = true;
+      this.error = '';
       const user = copy(this.cpy);
 
       axios.post(`${API}companies/`, user).then(
