@@ -52,7 +52,7 @@ const Companies = {
     }
 
     //return response.insertId ? { response: 'ok' } : error;
-    return response.insertId ? { response: 'Successfully registered' } : { error: error };
+    return response.insertId ? { response: 'Successfully registered' } : error;
     //console.log(response.insertId);
     //return response.insertId ? { response: 'ok' } : { error: response.sqlMessage };
   },

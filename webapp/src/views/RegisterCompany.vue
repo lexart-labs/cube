@@ -55,11 +55,18 @@
           <div v-if="error" class="alert alert-danger">
             {{ error }}
           </div>
+          <div v-if="success" class="alert alert-primary" role="alert">
+            <h4 class="alert-heading"><b>Succesfully created!</b></h4>
+            <hr>
+            <p>Link to login page:</p>
+            <br>
+            <router-link :to="`${cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`">{{ `${base}${cpy.company.toLowerCase().replace(/\s+/g,'_')}/login` }}</router-link>
+          </div>
         </footer>
       </form>
-      <div>
+      <!-- <div>
         <router-link to="/lexart_labs/login" class="rcompany">Iniciar sesión</router-link>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -67,7 +74,7 @@
 <script>
 import axios from "axios";
 import { copy } from "../services/helpers";
-import { API } from "../../env";
+import { API, BASE_URL } from "../../env";
 
 export default {
   name: "RegisterCompany",
@@ -76,7 +83,9 @@ export default {
       cpy: {},
       error: "",
       isLoading: false,
+      success: false,
       api: API,
+      base: BASE_URL,
       setting: {
         background: "",
         logo: "",
@@ -86,6 +95,7 @@ export default {
   methods: {
     registerCompany() {
       this.isLoading = true;
+      this.error = '';
       const user = copy(this.cpy);
 
       axios.post(`${API}companies/`, user).then(
@@ -95,7 +105,8 @@ export default {
           this.isLoading = false;
 
           if (!rs.error) {
-            this.$router.push(`${this.cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`);
+            // this.$router.push(`${this.cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`);
+            this.success = true;
           } else {
             this.error = rs.error;
           }
@@ -112,3 +123,12 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+footer {
+  display: flex;
+  max-width: 100%;
+  flex-flow: column wrap;
+  font-size: 0.9rem;
+}
+</style>
