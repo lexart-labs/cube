@@ -45,10 +45,10 @@
                     ><i class="bi bi-person"></i> {{ $t("dashboard.profileDetailsEdit")}}</a
                   >
                 </li>
-                <li>
+                <li v-if="isAdmin">
                   <a
-                    v-if="isAdmin"
-                    to=""
+                    data-toggle="modal"
+                    data-target="#editCompanyData"
                     ><i class="bi bi-building"></i> {{ $t("dashboard.companyDetailsEdit")}}</a
                   >
                 </li>
@@ -136,6 +136,52 @@
       </div>
     </div>
 
+     <div
+      class="modal fade"
+      id="editCompanyData"
+      data-backdrop="static"
+      data-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="editCompanyDataLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-l modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 id="editUserDataLabel">
+              {{ $t("dashboard.companyEditLabel") }}
+            </h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="clearStates()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <form role="form">
+                <div class="col-md-12">
+                  <label for="">{{ $t("dashboard.companyEditName") }}</label>
+                </div>
+                <div class="col-md-12">
+                  <input type="text" v-model="company" class="form-control is-rounded"/>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="clearStates()">{{ $t("generic.close") }}</button>
+            <button type="button" class="btn btn-primary" @click="onSaveCompany()">{{ $t("generic.save") }}</button>
+            <div
+              v-if="error"
+              class="alert alert-danger mx-auto"
+              style="margin-top: 1rem"
+            >
+              {{ error }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
 </div>
 
 
@@ -145,6 +191,7 @@
 import crypto from 'crypto';
 import AuthService from '../services/auth.service';
 import UserService from '../services/user.service';
+import Companies from '../services/companies.service';
 import { verifyToken } from '../services/helpers';
 import { API, APP_NAME } from '../../env';
 import Translations from "../data/translate";
@@ -165,17 +212,19 @@ export default {
         {value:'es', label: 'SP'},
         {value:'en', label: 'EN'}
       ],
+      myId: localStorage.getItem(`id-${APP_NAME}`),
       user: {
         id: '',
         name: '',
         email: '',
         password: '',
+        idCompany: '',
       },
       passwordManager: {
         password: '',
         confirmPassword: '',
       },
-      myId: localStorage.getItem(`id-${APP_NAME}`),
+      company: '',
       error: '',
     };
   },
@@ -184,13 +233,20 @@ export default {
       const lang = e.target.value;
       this.$store.dispatch('changeLang', lang);
     },
-    getUserById(){
+    getUserById: async function (){
       UserService().getUserById(this.myId, (data) => {
         if(!data.error) {
           this.user = data.response;
+          this.getCompanyById();
         }
       })
     },
+
+    getCompanyById: async function () {
+      const data = await Companies.getById(this.user.idCompany);
+      this.company = data.company;
+    },
+
     onSave(){
       if(this.passwordManager.password != this.passwordManager.confirmPassword){
         this.error = Translations[this.$store.state.language].dashboard.profileEditErrorPassword;
@@ -215,6 +271,12 @@ export default {
 
       return result;
     },
+    onSaveCompany: async function(){
+      const result = await Companies.update(this.user.idCompany, this.company);
+      $("#editCompanyData").modal("hide");
+      this.getCompanyById(this.user.idCompany);
+      return result;
+    },
     clearStates(){
       this.passwordManager = {
         password: '',
@@ -223,7 +285,7 @@ export default {
       this.error = '';
     },
   },
-  mounted() {
+  mounted: async function () {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
 
     /* Get name from localStorage
@@ -246,7 +308,7 @@ export default {
     }
 
     // GetUserById
-    this.getUserById();
+    await this.getUserById();
 
     // Verifico el token
     verifyToken(token);
@@ -354,14 +416,17 @@ export default {
   align-items: center;
   }
 
-  #editUserData .modal-content {
+  #editUserData .modal-content,
+  #editCompanyData .modal-content {
     display: flex !important;
     flex-direction: column !important;
   }
-  #editUserData .row{
+  #editUserData .row,
+  #editCompanyData .row{
     flex-direction: column;
   }
-  #editUserData label{
+  #editUserData label,
+  #editCompanyData label{
     margin: .5em 0;
   }
 

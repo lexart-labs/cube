@@ -28,6 +28,8 @@ const translations = {
       profileEditPass: 'Nueva contraseña',
       profileEditConfirmPass: 'Confirmar nueva contraseña',
       profileEditErrorPassword: 'Las contraseñas no coinciden',
+      companyEditLabel: 'Configuración de la organización',
+      companyEditName: 'Nombre de la organización',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -299,6 +301,8 @@ const translations = {
       profileEditPass: 'New password',
       profileEditConfirmPass: 'Confirm new password',
       profileEditErrorPassword: 'Passwords dont match',
+      companyEditLabel: 'Company settings',
+      companyEditName: 'Company',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
