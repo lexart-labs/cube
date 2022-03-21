@@ -37,19 +37,16 @@ let User = {
 		return response.length > 0 ? { response: response } : error;
 	},
 	allUserLextracking: async function (req, shouldOmit, res) {
-		const company_slug = req.headers.company_slug;
+		const { company_slug, lextoken } = req.headers;
 		let error = { "error": "Error al obtener usuarios" };
 		let model = 'user/all/1';
+		const headers = { token: lextoken };
 
 		if(company_slug === 'lexart_labs') {
-			let { data: { response } } = await axios.get(API_LEXTRACKING + model,
-				{
-					"headers": {
-						"token": req.headers.token
-					}
-				})
+			let { data } = await axios.get(API_LEXTRACKING + model, { headers });
+				let response = data.response;
 			if (shouldOmit && response?.length) {
-				response = response.reduce((acc, { name, id, email, role }) => {
+				response = response?.reduce((acc, { name, id, email, role }) => {
 					if (role == 'developer') {
 						acc.push({ name, id, email });
 					}
@@ -63,7 +60,7 @@ let User = {
 			return cubeUsers;
 		}
 	},
-	one: async function (id, token) {
+	one: async function (id) {
 		let error = { "error": "Error al obtener usuarios" }
 		let response = [];
 		let stack;
@@ -100,6 +97,18 @@ let User = {
 		error.stack = stack
 		return response.length > 0 ? { response: response[0] } : error;
 	},
+	getByEmail: async function (email, idCompany) {
+		const error = { error: 'User not found' };
+		const sql = `SELECT * FROM users u WHERE u.email = ? AND u.idCompany = ?`;
+
+		try {
+			const response = await conn.query(sql, [email, idCompany]);
+			return response.length ? response[0] : error;
+		} catch ({message}) {
+			console.log(message);
+			return error;
+		}
+	},
 	byToken: async function (token) {
 		let error = { "error": "Error al obtener la configuración" }
 
@@ -127,20 +136,18 @@ let User = {
 		token = utils.makeToken(usuario.email, usuario.id, 'public');
 
 		// Compara los ids de cargo y nível, si los nuevos son iguales a los atuales
-		const currentPosition = usuario.idPosition 
-		? await conn.query(
-			'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
-		) : [{idPosition: null, idLevel: null}];
+		const currentPosition = usuario.idPosition
+			? await conn.query(
+				'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
+			) : [{ idPosition: null, idLevel: null }];
 
-		
+
 		if (currentPosition[0]) {
 			shouldCreatePosition = (
 				currentPosition[0].idPosition == usuario.positionId
 				&& currentPosition[0].idLevel == usuario.levelId
 			) ? false : true;
 		}
-			
-		//console.log(currentPosition, shouldCreatePosition)
 
 		const idPosition = shouldCreatePosition
 			? await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId)
@@ -194,7 +201,7 @@ let User = {
 		let response, stack, idPosition;
 		let password = md5(usuario.password);
 
-		if(company_slug === "lexart_labs") {
+		if (company_slug === "lexart_labs") {
 			const result = await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId);
 			idPosition = result.error ? null : result;
 		}
@@ -225,7 +232,7 @@ let User = {
 
 		try {
 			response = await conn.query(sql, arr);
-			if(company_slug === "lexart_labs") {
+			if (company_slug === "lexart_labs") {
 				await UserSkills.insert({
 					idUser: usuario.id,
 					skills: usuario.skills,
@@ -284,48 +291,18 @@ let User = {
 
 		try {
 			let search = await conn.query(sql, arr);
-			
-			response = search[0] 
-			? { status: 200, response: search[0] }
-			: { status: 404, response: "User not found" };
+
+			response = search[0]
+				? { status: 200, response: search[0] }
+				: { status: 404, response: "User not found" };
 		} catch (e) {
 			response = { status: 500, error: "Request failed" };
 		}
 		return response;
 	},
-	loginLextracking: async function (email, password) {
-		let error = { "error": "Error al obtener usuarios" }
-		let model = 'login'
-		const res = await axios.post(API_LEXTRACKING + model, { email: email, password: password })
-		const response = res.data
-
-		if (response.response) {
-			// Obtengo el usuario dentro del cube
-			const lxUser = response.response
-
-			// console.log("lxUser: ", lxUser)
-
-			// Si no hay usuario en el cube
-			response.response.idLextracking = response.response.id
-
-			const cubeUser = await this.loginCube(lxUser.email);
-
-			if (cubeUser.response) {
-				response.response.cubeUser = cubeUser.response
-				response.response.cubeExist = true
-				response.response.active = cubeUser.response.active
-				response.response.idUser = cubeUser.response.idUser
-				// Local ID
-				response.response.id = cubeUser.response.id
-				response.response.idLextracking = cubeUser.response.idLextracking
-			} else if (response.response.role != "admin" && response.response.role != "pm") {
-				return { error: "Usuario no disponible en la plataforma." };
-			}
-		}
-
-		return response.response ? { response: response.response } : error;
-	},
-	loginCube: async function (email) {
+	loginCube: async function (email, password, company) {
+		const sqlCompany = `SELECT id FROM companies WHERE slug = ?`;
+		const error = { error: 'Usuario y/o clave incorrecta.' };
 		const sql = `
 			SELECT
 				u.id,
@@ -339,15 +316,26 @@ let User = {
 				uc.idLevel
 			FROM ${tablaNombre} u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
-			WHERE u.email = ? AND u.active = 1
+			WHERE u.email = ? AND u.password = MD5(?) AND u.idCompany = ? AND u.active = 1
 		`
 		let response = [];
+		let token = '';
 
 		try {
-			response = await conn.query(sql, [email]);
-		} catch (e) { }
+			const [{ id: idCompany }] = await conn.query(sqlCompany, [company]);
+			response = await conn.query(sql, [email, password, idCompany]);
 
-		return response.length > 0 ? { response: response[0] } : { error: 'Usuario y/o clave incorrecta.' };
+			if(!response.length) return error;
+
+			const { password: p, ...usr } = response[0];
+			if(!usr.idUser) return error;
+			token = utils.makeToken(usr);
+			response = { ...usr, token, lexToken: utils.makeLexToken(password, email) };
+			return { response };
+		} catch (e) {
+			console.log(e.message);
+			return error;
+		}
 	},
 	courses: async function (id) {
 
@@ -414,7 +402,7 @@ let User = {
 	},
 	updatePosition: async function (id, idPosition, idLevel) {
 		const error = { error: '¡No fue posible actualizar la posición!' };
-		
+
 		const sql = `
 			INSERT INTO user_position_level (idUser, idPosition, idLevel)
 			VALUES (?, ?, ?)
@@ -446,14 +434,15 @@ let User = {
 
 		return response > 0 ? { response } : error;
 	},
-	getLeads: async function () {
+	getLeads: async function (slug) {
+		const idCompany = await utils.getIdCompanyBySlug(slug);
 		const sql = `
-			SELECT * FROM ${tablaNombre} WHERE type IN ('admin', 'pm')
+			SELECT * FROM ${tablaNombre} WHERE type IN ('admin', 'pm') AND idCompany = ?
 		`;
 		let response = [];
 
 		try {
-			response = await conn.query(sql);
+			response = await conn.query(sql, [idCompany]);
 		} catch (e) {
 			console.log(e.message);
 		}
@@ -495,7 +484,8 @@ let User = {
 			? { response }
 			: { error: 'No leaders found for this user' };
 	},
-	getLeaderDevTree: async function () {
+	getLeaderDevTree: async function (slug = 'lexart_labs') {
+		const companyId = await utils.getIdCompanyBySlug(slug);
 		const sql = `
 			SELECT
 				users.name AS 'name',
@@ -505,7 +495,7 @@ let User = {
 					WHERE dev.idUser = users.id AND dev.id <> users.id
 				) AS 'devs'
 			FROM users
-			WHERE users.type IN ('admin', 'pm');
+			WHERE users.type IN ('admin', 'pm') AND users.idCompany = ?;
 		`;
 		const sqlDevsInfo = `
 			SELECT
@@ -518,23 +508,24 @@ let User = {
 			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
 			LEFT JOIN careers c ON uc.idPosition = c.id
+			WHERE u.idCompany = ?
 		`;
 
 		const [response, devInfos] = await Promise.all([
-			conn.query(sql),
-			conn.query(sqlDevsInfo)
+			conn.query(sql, [companyId]),
+			conn.query(sqlDevsInfo, [companyId])
 		]);
 		let fixed = [];
 
 		const devsObj = devInfos.reduce((acc, cur) => {
 			const key = cur.name;
-			return { ...acc, [key]: cur};
+			return { ...acc, [key]: cur };
 		}, {});
 
 		try {
 			fixed = response.reduce((acc, el) => {
 				if (el.devs) {
-					const devs = el.devs.split(',').map(dev => devsObj[dev]);
+					const devs = el.devs.split(',').map(dev => devsObj[dev] || { name: dev, position: 'No position asigned', time: 0 });
 					acc.push({ ...el, devs });
 				}
 				return acc;
@@ -550,7 +541,7 @@ let User = {
 	countDevs: async function (techs) {
 		const PAGE_LENGTH = 10;
 		let sql = '';
-		if(techs && techs.length) {
+		if (techs && techs.length) {
 			const techsFilter = techs.map((el) => `'${el}'`).join();
 			sql = `
 				SELECT
@@ -579,9 +570,10 @@ let User = {
 
 		return response > 0 ? { response } : error;
 	},
-	devIds: async function (techs, page) {
+	devIds: async function (techs, page, slug = 'lexart_labs') {
 		const PAGE_LENGTH = 10;
 		const currentPage = page || 1;
+		const idCompany = await utils.getIdCompanyBySlug(slug);
 		let sql = '';
 		if (techs && techs.length) {
 			const techsFilter = techs.map((el) => `'${el}'`).join();
@@ -591,14 +583,15 @@ let User = {
 				FROM user_skills us
 				INNER JOIN technologies t ON us.idTechnology = t.id
 				INNER JOIN users u ON u.id = us.idUser
-				WHERE u.type = 'developer' AND t.name IN (${techsFilter})
+				WHERE u.type = 'developer' AND t.name IN (${techsFilter}) AND u.idCompany = ${idCompany}
 				LIMIT ${PAGE_LENGTH} OFFSET ${(currentPage - 1) * PAGE_LENGTH}
 			`;
 		} else {
 			sql = `
 				SELECT
-					id AS 'id'
-				FROM users WHERE type = 'developer'
+					idLextracking AS 'id'
+				FROM users
+				WHERE type = 'developer' AND idCompany = ${idCompany}
 				LIMIT ${PAGE_LENGTH} OFFSET ${(currentPage - 1) * PAGE_LENGTH};
 		`;
 		}
@@ -608,7 +601,7 @@ let User = {
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},
-	getLeaderDevs: async function(idLead) {
+	getLeaderDevs: async function (idLead) {
 		const sql = `
 			SELECT
 				users.name,
@@ -624,12 +617,13 @@ let User = {
 		} catch (e) {
 			console.log('response->', response);
 			console.log(e.message);
-		}		
+		}
 
 		return { response };
 	},
-	allDevelopersIndicators: async function (token, query, techs, page) {
-		const { response: devsIds } = await this.devIds(techs, page);
+	allDevelopersIndicators: async function (token, query, techs, page, slug) {
+		const idCompany = await utils.getIdCompanyBySlug(slug);
+		const { response: devsIds } = await this.devIds(techs, page, slug);
 
 		const sql = `
 			SELECT
@@ -637,7 +631,6 @@ let User = {
 				l.level AS level,
 				u.name,
 				u.id,
-				u.idLextracking,
 				GROUP_CONCAT(t.name) AS 'technologies'
 			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
@@ -645,13 +638,12 @@ let User = {
 			LEFT JOIN levels l ON uc.idLevel = l.id
 			INNER JOIN user_skills us ON u.id = us.idUser
 			INNER JOIN technologies t ON t.id = us.idTechnology
-			WHERE u.id = ?;
+			WHERE u.id = ? AND u.idCompany = ?;
 		`;
 		const callbackBasics = async (devId) => {
 			let result = {};
 			try {
-				result = await conn.query(sql, [devId]);
-				console.log(result)
+				result = await conn.query(sql, [devId, idCompany]);
 			} catch (e) {
 				console.log('callBackBasics ->', e.message);
 			}
@@ -708,6 +700,19 @@ let User = {
 
 		if (!evaluations) return defaultIndicators;
 		return setUpData(idDev, year, token, evaluations);
+	},
+	findUnasigneds: async function (slug) {
+		const idCompany = await utils.getIdCompanyBySlug(slug);
+		const sql = `SELECT name FROM ${tablaNombre} WHERE idUser IS NULL AND idCompany = ?`;
+		let response = [];
+
+		try {
+			response = await conn.query(sql, [idCompany]);
+		} catch ({ message }) {
+			console.log(message);
+		}
+
+		return response.length ? { response } : { error: 'No users found'}
 	},
 }
 module.exports = User;

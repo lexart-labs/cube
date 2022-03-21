@@ -1,8 +1,26 @@
+require('dotenv').config();
 const express 	 = require('express');
 const bodyParser = require('body-parser');
 const cors 		   = require('cors');
 const multer     = require('multer')
 const app 	  	 = express();
+const cron       = require('node-cron');
+const { syncWithTracking, getTrackingToken } = require('./services/EvaluationsHandler.service');
+
+// Sync hours report with tracking every 1st at 1:30am
+cron.schedule('30 1 1 * *', () => {
+  const email = process.env.LOGIN_EMAIL;
+  const password = process.env.LOGIN_PASSWORD;
+
+  console.log('Syncronizing hours with tracking...');
+
+  getTrackingToken(email, password)
+    .then((res) => {
+      if(res === 'error') return console.log('---- Syncronizing operation failed ----');
+      syncWithTracking(res).then(res => console.log('---- Syncronized successfully! ----'));
+    })
+    .catch(e => console.log('---- Syncronizing operation failed ----'));
+});
 
 // Requiero de manera global la conexión con la base de datos
 global.conn  = require('./config/conn');
@@ -17,8 +35,10 @@ const careersRouter = require('./routes/careers');
 const technologies = require('./routes/technologies');
 const teams = require('./routes/teams');
 const Plataforms = require('./routes/Plataforms');
+const companies = require('./routes/companies');
 const Collaborators = require('./routes/collaborators');
 const Hours = require("./routes/hours");
+const { login } = require('./services/courses.service');
 
 const port 	  	 = process.env.API_PORT;
 const seed       = 100000000000000
@@ -56,6 +76,7 @@ app.use('/levels', levelsRouter)
 app.use('/technologies', technologies)
 app.use('/teams', teams)
 app.use('/plataforms', Plataforms)
+app.use('/companies', companies)
 app.use('/collaborators', Collaborators)
 app.use('/hours', Hours)
 app.use('/public', express.static('public'));

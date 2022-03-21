@@ -142,7 +142,7 @@
                     v-bind:class="{ active: tabs.roadmap }"
                     v-on:click="activeTab('roadmap')"
                     class="nav-link"
-                    v-show="user.idLextracking"
+                    v-show="user.idPosition"
                     >Roadmap</a
                   >
                 </li>
@@ -150,7 +150,7 @@
             </div>
             <div class="perfil">
               <form enctype="multipart/form-data" v-show="tabs.perfil">
-                <label for="">LexTracking user</label>
+                <label for="">User</label>
                 <vue-select
                   v-model="user"
                   label="name"
@@ -342,9 +342,7 @@ export default {
   data() {
     return {
       title: "My developers",
-      mySelfieCube: JSON.parse(
-        localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-      ).cubeUser,
+      mySelfieCube: JSON.parse(localStorage.getItem('cubeUser')),
       users: [],
       changePositionTime: 0,
       error: "",

@@ -8,18 +8,19 @@
     :onEdit="getReportById"
     :pager="handlePagination"
     :pagesCount="pageCount"
+    :actualPage="actualPage"
   >
     <template slot="filters">
       <div class="filters-ctl">
         <div>
-          <label style="margin-bottom: 0;"
+          <label style="margin-bottom: 0"
             >{{ $t("generic.year") }}
             <input
               type="number"
               v-model="filters.year"
               max="9999"
               class="form-control is-rounded"
-              style="height: 2.1rem;"
+              style="height: 2.1rem"
             />
           </label>
         </div>
@@ -41,7 +42,7 @@
         </button>
       </div>
     </template>
-  
+
     <template slot="upsert-modal">
       <div
         class="modal fade"
@@ -96,28 +97,46 @@
                     ></vue-select>
                   </div>
                   <div class="col">
-                    <label
-                      >{{ $t("generic.year") }}
-                      <input
-                        type="number"
-                        v-model="report.year"
-                        max="9999"
-                        class="form-control is-rounded"
-                      />
-                    </label>
+                    <label class="has-label-space">{{
+                      $t("generic.year")
+                    }}</label>
+                    <input
+                      type="number"
+                      v-model="report.year"
+                      max="9999"
+                      min="2000"
+                      class="form-control is-rounded"
+                    />
+                  </div>
+                </div>
+                <div class="row" style="margin-top: 1rem">
+                  <div class="col">
+                    <label class="has-label-space">{{
+                      $t("generic.hours")
+                    }}</label>
+                    <input
+                      v-model="hours.hrs"
+                      class="form-control is-rounded"
+                      maxlength="3"
+                    />
                   </div>
                   <div class="col">
-                    <label
-                      >{{ $t("generic.hours") }}
-                      <input
-                        type="tel"
-                        v-mask="['##:##:##', '###:##:##']"
-                        placeholder="00:00:00"
-                        masked
-                        v-model="report.continuity"
-                        class="form-control is-rounded"
-                      />
-                    </label>
+                    <label class="has-label-space">{{
+                      $t("generic.minutes")
+                    }}</label>
+                    <input
+                      v-model="hours.min"
+                      maxlength="2"
+                      class="form-control is-rounded"
+                    />
+                  </div>
+                  <div class="col">
+                    <label>{{ $t("generic.seconds") }}</label>
+                    <input
+                      v-model="hours.sec"
+                      maxlength="2"
+                      class="form-control is-rounded"
+                    />
                   </div>
                 </div>
                 <div class="row col-12">
@@ -138,6 +157,7 @@
                 type="button"
                 class="btn btn-primary"
                 @click="upsertReport"
+                :disabled="isLoading"
               >
                 {{ $t("generic.save") }}
               </button>
@@ -156,7 +176,7 @@ import ExplorerTable from "../../components/explorerTable.vue";
 import vueSelect from "vue-select";
 import translations from "../../data/translate";
 
-const PAGES_SIZE = 10;
+const CURRENT_YEAR = new Date().getFullYear();
 
 export default {
   name: "Continuity",
@@ -166,7 +186,7 @@ export default {
       reports: [],
       colaborators: [],
       monthsFilter: [
-        { name: 'All', value: 0 },
+        { name: "All", value: 0 },
         ...translations[this.$store.state.language].generic.months.map(
           (el, i) => ({
             name: el,
@@ -186,11 +206,17 @@ export default {
         year: new Date().getFullYear(),
         month: 0,
       },
+      hours: {
+        hrs: "00",
+        min: "00",
+        sec: "00",
+      },
       isLoading: false,
       isEditing: false,
       pageCount: 1,
-      idCompany: 1,
-      error: '',
+      companySlug: localStorage.getItem("_company-slug"),
+      error: "",
+      actualPage: 1,
     };
   },
   methods: {
@@ -202,8 +228,13 @@ export default {
         name: "",
         continuity: "",
       };
+      this.hours = {
+        hrs: "00",
+        min: "00",
+        sec: "00",
+      };
       this.isEditing = false;
-      this.error = '';
+      this.error = "";
     },
     getPagesLength: async function () {
       const year = this.filters.year;
@@ -215,10 +246,16 @@ export default {
       this.isEditing = true;
       const report = await HoursService.getOne(id);
       this.report = report;
+      const splitedContinuity = this.report.continuity.split(':')
+      this.hours = {
+        hrs: splitedContinuity[0],
+        min: splitedContinuity[1],
+        sec: splitedContinuity[2]
+      }
     },
     handlePagination: async function (page) {
       const reports = await HoursService.getAll(
-        this.idCompany,
+        this.companySlug,
         this.filters.month,
         this.filters.year,
         page
@@ -228,44 +265,62 @@ export default {
     },
     upsertReport: async function () {
       this.isLoading = true;
-      const month = this.filters.month;
-      const year = this.filters.year;
+      const month = 0;
+      const year = CURRENT_YEAR;
 
       const isValid = this.validatePayload();
-      console.log(isValid);
-      if (isValid !== 'true') {
+      if (isValid !== "true") {
         this.error = isValid;
+        this.isLoading = false;
         return;
-      };
+      }
 
       if (this.isEditing) {
         await HoursService.update(this.report.id, this.report);
       } else {
         await HoursService.insert(this.report);
+        this.pageCount = await HoursService.countPages(month, year);
+        this.actualPage = 0;
       }
 
       $("#upsert-report").modal("hide");
-      this.pageCount =
-        this.pageCount === PAGES_SIZE ? this.pageCount + 1 : this.pageCount;
       this.clearStates();
-      const reports = await HoursService.getAll(this.idCompany, month, year, 0);
+      const reports = await HoursService.getAll(
+        this.companySlug,
+        month,
+        year,
+        0
+      );
+      this.filters = { year, month };
       this.reports = reports;
 
       this.isLoading = false;
     },
-    onSearch: async function() {
+    onSearch: async function () {
       const pagesLength = await this.getPagesLength();
       this.pageCount = pagesLength;
       await this.handlePagination(0);
     },
     validatePayload() {
+      this.report.continuity = `${this.hours.hrs}:${this.hours.min}:${this.hours.sec}`;
       const translate = translations[this.$store.state.language].AdminContinuity.errorMsgs;
-      const { month, idColaborator, year, continuity} = this.report;
-      if(!month) return translate.month;
-      if(!idColaborator) return translate.user;
-      if(!year || year < 2000) return translate.year;
-      if(!continuity || continuity.length < 7 || continuity == '00:00:00') return translate.continuity;
-      return 'true';
+      const { month, idColaborator, year, continuity } = this.report;
+      const [h, m, s] = continuity.split(":");
+      const hasNonNumbers =  [h, m, s].some((el) => isNaN(Number(el)));      
+
+      if (!idColaborator) return translate.user;
+      if (!month) return translate.month;
+      if (!year || year < 2000) return translate.year;
+      if (
+        !continuity ||
+        hasNonNumbers ||
+        m > 59 ||
+        s > 59 ||
+        continuity.length < 7 ||
+        continuity == "00:00:00"
+      )
+        return translate.continuity;
+      return "true";
     },
   },
   async mounted() {
@@ -276,13 +331,13 @@ export default {
 
     const [pageCount, reports, users] = await Promise.all([
       HoursService.countPages(month, year),
-      HoursService.getAll(this.idCompany, month, year, 0),
+      HoursService.getAll(this.companySlug, month, year, 0),
       Collaborators.getByCompany(),
     ]);
 
     this.pageCount = pageCount;
     this.reports = reports;
-    this.colaborators = users;
+    this.colaborators = users.response;
 
     this.isLoading = false;
   },
@@ -301,7 +356,7 @@ export default {
 <style scoped>
 .filters-ctl {
   display: flex;
-  align-items:flex-end;
+  align-items: flex-end;
   justify-content: flex-start;
   margin: 1rem auto 3rem;
   gap: 1rem;
@@ -315,5 +370,8 @@ small {
   justify-self: flex-end;
   margin: 1rem;
   margin-right: 0;
+}
+.has-label-space {
+  margin-bottom: 0.5rem;
 }
 </style>

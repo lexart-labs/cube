@@ -7,17 +7,19 @@
 </template>
 
 <script>
-import axios from 'axios';
+import HoursService from '../services/hours.service';
 import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
-import am4themes_animated from '@amcharts/amcharts4/themes/animated';
-import { APP_NAME, API_LEXTRACKING } from '../../env';
+import { APP_NAME } from '../../env';
 
 export default {
   name: 'Rombo',
-  props: ['evaluations', 'year'],
+  props: ['evaluations', 'year', 'id'],
   watch: {
     evaluations: function(newVal, oldVal) {
+      this.setUpData();
+    },
+    id: function(newVal, oldVal) {
       this.setUpData();
     }
   },
@@ -47,7 +49,6 @@ export default {
     ],
       isLoading: false,
       monthlyHours: [],
-      id: JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`)).idLextracking,
     };
   },
   methods: {
@@ -66,22 +67,13 @@ export default {
       const result = (points * 100) / maxTotal;
       return result;
     },
-    getMonthHours: async function(idLextracking, year) {
+    getMonthHours: async function(id, year) {
       this.isLoading = true;
-
-      // Para teste local:
-      const ENDPOINT_BASE = `${API_LEXTRACKING}public/tracks-by-year`;
-      const token = localStorage.getItem(`token-app-${APP_NAME}`);
-
-      const headers = { token };
-
-      const { data } =  await axios.get(`${ENDPOINT_BASE}/${idLextracking}/${year}`, { headers });
-      if (data.response) {
-        this.monthlyHours = data.response;
-      }
+      const monthlyHours = await HoursService.userYearHours(id, year);
+      this.monthlyHours = monthlyHours;
 
       this.isLoading = false;
-      return data.response;
+      return monthlyHours;
     },
     sumAll(array, key) {
       return array.reduce((acc, cur) => acc += Number(cur[key]), 0);
@@ -118,9 +110,7 @@ export default {
 
 
     // Busco las horas menuales por año
-    console.log(this.id)
     const monthlyHours = await this.getMonthHours(this.id, this.year);
-    console.log(monthlyHours)
   
 
     // Calculo los datos para armar el grafico

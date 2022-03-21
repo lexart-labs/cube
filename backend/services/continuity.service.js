@@ -1,3 +1,4 @@
+const Utils = require('./utils.service');
 const tablaNombre = 'colaborators_continuity';
 const PAGE_SIZE = 10;
 
@@ -66,7 +67,8 @@ const Hours = {
 
     return response.changedRows ? { response: 'ok' } : { error: 'Operation failed' };
   },
-  getAll: async (idCompany, month, year, page) => {
+  getAll: async (companySlug, month, year, page) => {
+    const idCompany = await Utils.getIdCompanyBySlug(companySlug);
     const sql = `
       SELECT
         cc.*,
@@ -109,19 +111,43 @@ const Hours = {
 
     return { response };
   },
-  count: async (month, year) => {
+  count: async (month, year, slug = 'lexart_labs') => {
+    const idCompany =  await Utils.getIdCompanyBySlug(slug);
     const sql = `
       SELECT COUNT(*) AS 'docsAmount'
-      FROM ${tablaNombre} WHERE year = ? ${parseInt(month) ? 'AND month = ?' : ''}
+      FROM ${tablaNombre} h
+      INNER JOIN users u ON u.id = h.idColaborator
+      WHERE h.year = ? AND u.idCompany = ? ${parseInt(month) ? 'AND h.month = ?' : ''}
     `;
 
     try {
-      const response = await conn.query(sql, [+year, +month]);
+      const response = await conn.query(sql, [+year, idCompany, +month]);
       return { response: Math.ceil(response[0]['docsAmount'] / PAGE_SIZE) };
     } catch (e) {
       console.log('Continuity Service -->', e.message);
       return { error: 'Operation failed'};
     }
+  },
+  sumUserHoursByYear: async (idUser, year) => {
+    const sql = `
+      SELECT
+        SUM(continuity) AS 'tracks',
+        'seconds' AS 'metric',
+        month
+      FROM colaborators_continuity
+      WHERE year = ? AND idColaborator = ?
+      GROUP BY month;
+    `;
+    let response = [];
+
+    try {
+      response = await conn.query(sql, [year, idUser]);
+    } catch (e) {
+      console.log('Continuity service -->', e.message, response);
+      return { error: 'Operation Failed'};
+    }
+
+	  return response.length ? { response } : { error: 'No hours found for this user' };
   },
 };
 

@@ -6,11 +6,13 @@ import { APP_NAME, API } from '../../env';
 const buildHeaders = () => {
   const token = localStorage.getItem(`token-app-${APP_NAME}`);
   const userId = localStorage.getItem(`id-${APP_NAME}`);
+  const lexToken = localStorage.getItem('lexToken');
 
   const headers = {
     token,
     'user-id': userId,
-    'company_slug': localStorage.getItem("_company-slug")
+    'company_slug': localStorage.getItem("_company-slug"),
+    lexToken,
   };
 
   return headers;
@@ -39,10 +41,11 @@ const UserService = function () {
         cb(res.data);
       });
     },
-    getAllUsersLextracking(cb) {
+    getAllUsersLextracking(cb, minified = false) {
       const headers = buildHeaders();
+      const endpoint = `${API + model}lextracking/all`
 
-      axios.get(`${API + model}lextracking/all`, { headers }).then((res) => {
+      axios.get(`${endpoint}${minified ? '?minified=true' : ''}`, { headers }).then((res) => {
         cb(res.data);
       });
     },
@@ -89,6 +92,11 @@ const UserService = function () {
       axios.post(`${API + model}dev-indexes/count`, { techs }, { headers }).then(({data}) => {
         cb(data)
       });
+    },
+    getUnasigned: async () => {
+      const headers = buildHeaders();
+      const { data } = await axios.get(`${API + model}unasigned`, { headers });
+      return data.response ? data.response : [];
     },
   }
 };

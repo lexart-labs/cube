@@ -9,11 +9,14 @@ import EvaluationsAdmin from '../views/Admin/Evaluations.vue';
 import Technologies from '../views/Admin/Technologies.vue';
 import Origin from '../views/Admin/Origins.vue';
 import AppComponent from '../views/AppComponent.vue';
+import RegisterCompany from '../views/RegisterCompany.vue';
 import Continuity from '../views/Admin/Continuity.vue';
 import Collaborators from '../views/Admin/Collaborators.vue';
 
 const routes = [
-  { path: '/:token?', name: 'Login', component: Login },
+  { path: '/:slug/login', name: 'Login', component: Login },
+  { path: '/rcompany', name: 'Register Company', component: RegisterCompany },
+  { path: '/:slug/', name: 'Login2', component: Login },
   {
     path: '/app',
     component: AppComponent,
@@ -52,6 +55,7 @@ const routes = [
       },
     ],
   },
+  { path: '*', redirect: '/lexart_labs/login'}
 ];
 
 const router = new VueRouter({

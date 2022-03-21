@@ -1,22 +1,74 @@
+require('dotenv').config();
 const axios = require('axios');
+
+const API_LEXTRACKING = process.env.API_LEXTRACKING;
+
+const syncWithTracking = async (token) => {
+	const ENDPOINT_BASE = `${API_LEXTRACKING}/tracks-by-year`;
+	const headers = { Authorization: token, token };
+	let year = (new Date()).getFullYear();
+	let month = (new Date()).getMonth();
+
+	if(month === 0) {
+		year -= 1;
+		month = 12;
+	}
+
+	const DEFAULT_TRACK = { month, metric: "seconds", tracks: 0 };
+
+	const sql = `SELECT id, idLextracking FROM users WHERE idCompany = 1`;
+	const sqlUpsert = `
+		INSERT INTO colaborators_continuity
+			(month, year, continuity, idColaborator)
+		VALUES (${month}, ${year}, ?, ?) ON DUPLICATE KEY UPDATE continuity = ?;
+	`;
+
+	const devIds = await conn.query(sql);
+	const requestHourFromTracking = async (idLextracking) => {
+		const { data } = await axios.get(`${ENDPOINT_BASE}/${idLextracking}/${year}?month=${month}`, { headers });
+		return data.response ? data.response[0] : DEFAULT_TRACK;
+	};
+	const Hours = await Promise.all(devIds.map(el => requestHourFromTracking(el.idLextracking)));
+	Promise.all(
+		Hours.map(({ tracks }, i) => {
+			const idColaborator = devIds[i].id;
+			const continuity = +tracks;
+			conn.query(sqlUpsert, [continuity, idColaborator, continuity]);
+		})
+	);
+};
+
+const getTrackingToken = async (email, password) => {
+	const { data } = await axios.post(API_LEXTRACKING + 'login', { email, password });
+	const response = data.response;
+
+	return response ? response.token : 'error';
+};
+
 
 const sumAll = (array, key) => array.reduce((acc, cur) => acc += Number(cur[key]), 0);
 
 // Get user hours by year on lextracking
-const getMonthHours = async (idLextracking, year, token) => {
-	const API_LEXTRACKING = 'https://api.lexart.com.uy/lextracking-dev/';
-	const ENDPOINT_BASE = `${API_LEXTRACKING}public/tracks-by-year`;
-	const headers = { token };
+const getMonthHours = async (id, year) => {
+	const sql = `
+		SELECT
+			SUM(continuity) AS 'tracks',
+			'seconds' AS 'metric',
+			month
+		FROM colaborators_continuity
+		WHERE year = ? AND idColaborator = ?
+		GROUP BY month;
+	`;
 
-	const { data } =  await axios.get(`${ENDPOINT_BASE}/${idLextracking}/${year}`, { headers });
+	const data = await conn.query(sql, [year, id]);
 
-	return data.response || [];
+	return data.length ? data : [];
 };
 
 // Sum all item at some evaluation topic and pass it to percentage
 const parseEvaluation = (evaluation, key) => {
 	const MAX_VALUE = 5;
-	if(!evaluation.indicadores || !evaluation.indicadores[key]) return 0;
+	if (!evaluation.indicadores || !evaluation.indicadores[key]) return 0;
 
 	const valuesArray = evaluation.indicadores[key];
 	const maxTotal = valuesArray.length * MAX_VALUE;
@@ -93,5 +145,7 @@ const setUpData = async (idLextracking, year, token, evaluations) => {
 };
 
 module.exports = {
-  setUpData,
+	setUpData,
+	syncWithTracking,
+	getTrackingToken,
 };
