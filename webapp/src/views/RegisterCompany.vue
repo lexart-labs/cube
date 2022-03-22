@@ -35,6 +35,7 @@
           v-model="cpy.email"
           placeholder="Email"
           class="form-control"
+          autocomplete="off"
           required
         />
         <input
@@ -42,9 +43,12 @@
           v-model="cpy.password"
           placeholder="Clave"
           class="form-control"
+          autocomplete="off"
           required
         />
-        <Captcha />
+        <div class="captcha-ctl">
+          <Captcha />
+        </div>
         <button
           type="submit"
           class="btn btn-black btn-block"
@@ -73,7 +77,7 @@
 import axios from "axios";
 import Captcha from "../components/captcha.vue";
 import { copy } from "../services/helpers";
-import { API, BASE_URL } from "../../env";
+import { API, BASE_URL, SITE_KEY } from "../../env";
 
 export default {
   name: "RegisterCompany",
@@ -86,6 +90,7 @@ export default {
       success: false,
       api: API,
       base: BASE_URL,
+      siteKey: SITE_KEY,
       setting: {
         background: "",
         logo: "",
@@ -119,8 +124,14 @@ export default {
       );
     },
   },
+  // created() {
+    // this.$nextTick(() => {
+    //   grecaptcha.render('g-captcha');
+    // });
+  // },
   mounted() {
     localStorage.clear();
+    grecaptcha.render('g-captcha');
   },
 };
 </script>
@@ -131,5 +142,11 @@ footer {
   max-width: 100%;
   flex-flow: column wrap;
   font-size: 0.9rem;
+}
+.captcha-ctl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 </style>
