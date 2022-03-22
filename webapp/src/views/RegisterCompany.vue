@@ -35,6 +35,7 @@
           v-model="cpy.email"
           placeholder="Email"
           class="form-control"
+          autocomplete="off"
           required
         />
         <input
@@ -42,8 +43,15 @@
           v-model="cpy.password"
           placeholder="Clave"
           class="form-control"
+          autocomplete="off"
           required
         />
+        <div class="captcha-ctl">
+          <vue-recaptcha
+            :sitekey="siteKey"
+            @verify="setCaptchaResponse"
+          ></vue-recaptcha>
+        </div>
         <button
           type="submit"
           class="btn btn-black btn-block"
@@ -55,28 +63,38 @@
           <div v-if="error" class="alert alert-danger">
             {{ error }}
           </div>
+          <div v-if="success" class="alert alert-primary" role="alert">
+            <h4 class="alert-heading"><b>Succesfully created!</b></h4>
+            <hr>
+            <p>Link to login page:</p>
+            <br>
+            <router-link :to="`${cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`">{{ `${base}${cpy.company.toLowerCase().replace(/\s+/g,'_')}/login` }}</router-link>
+          </div>
         </footer>
       </form>
-      <div>
-        <router-link to="/lexart_labs/login" class="rcompany">Iniciar sesión</router-link>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { VueRecaptcha } from 'vue-recaptcha';
 import { copy } from "../services/helpers";
-import { API } from "../../env";
+import { API, BASE_URL, SITE_KEY } from "../../env";
 
 export default {
   name: "RegisterCompany",
+  components: { VueRecaptcha },
   data() {
     return {
       cpy: {},
       error: "",
+      captchaResponse: '',
       isLoading: false,
+      success: false,
       api: API,
+      base: BASE_URL,
+      siteKey: SITE_KEY,
       setting: {
         background: "",
         logo: "",
@@ -84,18 +102,24 @@ export default {
     };
   },
   methods: {
-    registerCompany() {
+    setCaptchaResponse(tk) {
+      this.captchaResponse = tk;
+    },
+    registerCompany: async function() {
       this.isLoading = true;
+      this.error = '';
       const user = copy(this.cpy);
+      const captcha = this.captchaResponse;
 
-      axios.post(`${API}companies/`, user).then(
+      axios.post(`${API}companies/`, {...user, captcha }).then(
         (res) => {
 
           const rs = res.data;
           this.isLoading = false;
 
           if (!rs.error) {
-            this.$router.push(`${this.cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`);
+            // this.$router.push(`${this.cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`);
+            this.success = true;
           } else {
             this.error = rs.error;
           }
@@ -107,8 +131,28 @@ export default {
       );
     },
   },
+  // created() {
+    // this.$nextTick(() => {
+    //   grecaptcha.render('g-captcha');
+    // });
+  // },
   mounted() {
     localStorage.clear();
   },
 };
 </script>
+
+<style scoped>
+footer {
+  display: flex;
+  max-width: 100%;
+  flex-flow: column wrap;
+  font-size: 0.9rem;
+}
+.captcha-ctl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+</style>

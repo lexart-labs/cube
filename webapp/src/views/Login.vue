@@ -33,6 +33,7 @@
           v-model="usr.password"
           placeholder="Clave"
           class="form-control"
+          autocomplete="off"
         />
         <button
           type="button"
