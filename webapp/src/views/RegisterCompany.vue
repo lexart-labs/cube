@@ -44,6 +44,7 @@
           class="form-control"
           required
         />
+        <Captcha />
         <button
           type="submit"
           class="btn btn-black btn-block"
@@ -64,20 +65,19 @@
           </div>
         </footer>
       </form>
-      <!-- <div>
-        <router-link to="/lexart_labs/login" class="rcompany">Iniciar sesión</router-link>
-      </div> -->
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import Captcha from "../components/captcha.vue";
 import { copy } from "../services/helpers";
 import { API, BASE_URL } from "../../env";
 
 export default {
   name: "RegisterCompany",
+  components: { Captcha },
   data() {
     return {
       cpy: {},
@@ -93,12 +93,13 @@ export default {
     };
   },
   methods: {
-    registerCompany() {
+    registerCompany: async function() {
       this.isLoading = true;
       this.error = '';
       const user = copy(this.cpy);
+      const captcha = localStorage.getItem('captchatoken');
 
-      axios.post(`${API}companies/`, user).then(
+      axios.post(`${API}companies/`, {...user, captcha }).then(
         (res) => {
 
           const rs = res.data;
