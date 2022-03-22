@@ -47,7 +47,10 @@
           required
         />
         <div class="captcha-ctl">
-          <Captcha />
+          <vue-recaptcha
+            :sitekey="siteKey"
+            @verify="setCaptchaResponse"
+          ></vue-recaptcha>
         </div>
         <button
           type="submit"
@@ -75,17 +78,18 @@
 
 <script>
 import axios from "axios";
-import Captcha from "../components/captcha.vue";
+import { VueRecaptcha } from 'vue-recaptcha';
 import { copy } from "../services/helpers";
 import { API, BASE_URL, SITE_KEY } from "../../env";
 
 export default {
   name: "RegisterCompany",
-  components: { Captcha },
+  components: { VueRecaptcha },
   data() {
     return {
       cpy: {},
       error: "",
+      captchaResponse: '',
       isLoading: false,
       success: false,
       api: API,
@@ -98,11 +102,14 @@ export default {
     };
   },
   methods: {
+    setCaptchaResponse(tk) {
+      this.captchaResponse = tk;
+    },
     registerCompany: async function() {
       this.isLoading = true;
       this.error = '';
       const user = copy(this.cpy);
-      const captcha = localStorage.getItem('captchatoken');
+      const captcha = this.captchaResponse;
 
       axios.post(`${API}companies/`, {...user, captcha }).then(
         (res) => {
@@ -131,7 +138,6 @@ export default {
   // },
   mounted() {
     localStorage.clear();
-    grecaptcha.render('g-captcha');
   },
 };
 </script>
