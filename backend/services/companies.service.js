@@ -1,10 +1,13 @@
 require('dotenv').config();
 const TABLE_NAME = 'companies';
+const axios = require('axios');
+
+const SECRET_KEY = process.env.SECRET_KEY;
 
 const Companies = {
   getAll: async () => {
     const sql = `SELECT * FROM ${TABLE_NAME}`;
-    const error = { error: 'Error to get the results from db'}
+    const error = { error: 'Error to get the results from db' }
     let response = [];
     try {
       response = await conn.query(sql);
@@ -15,8 +18,8 @@ const Companies = {
   },
 
   getById: async (id) => {
-    const sql =`SELECT * FROM ${TABLE_NAME} WHERE id = ?`;
-    const error = { error: 'Error to get information about this company'}
+    const sql = `SELECT * FROM ${TABLE_NAME} WHERE id = ?`;
+    const error = { error: 'Error to get information about this company' }
     let response = [];
     try {
       response = await conn.query(sql, [id]);
@@ -26,10 +29,19 @@ const Companies = {
     return Array.isArray(response) ? { response } : { error: error };
   },
 
-  insert: async (payload) => {
-    const {company, email, password} = payload;
+  validateCaptcha: async function (tk) {
+    if (!tk) return false;
+    const urlParams = `secret=${SECRET_KEY}&response=${tk}`;
+
+    const { data } = await axios.post(`https://www.google.com/recaptcha/api/siteverify?${urlParams}`);
+
+    return data.success;
+  },
+
+  insert: async function (payload) {
+    const { company, email, password, captcha } = payload;
     let response = {};
-    const error = { error: 'Failed to register'};
+    const error = { error: 'Failed to register' };
     const LAST_USER_ID = `(SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA ='${process.env.DATABASE}' AND TABLE_NAME = 'users')`;
     const sql = `
       INSERT INTO ${TABLE_NAME} (company, email, slug)
@@ -44,8 +56,10 @@ const Companies = {
     `;
 
     try {
-      response = await conn.query(sql, [company, email, company.toLowerCase().replace(/\s+/g,'_')]);
-			response = await conn.query(sql2, [company, email, 'admin', md5(password), '1']);
+      const isValid = await this.validateCaptcha(captcha);
+      if(!isValid) return {error: 'Invalid human verification. please try again.'};
+      response = await conn.query(sql, [company, email, company.toLowerCase().replace(/\s+/g, '_')]);
+      response = await conn.query(sql2, [company, email, 'admin', md5(password), '1']);
     } catch (e) {
       console.log(e.message);
       error.message = e.message;
@@ -59,7 +73,7 @@ const Companies = {
 
   update: async (id, payload) => {
     const { company, email } = payload;
-    let error = { error: 'Cannot update this company'};
+    let error = { error: 'Cannot update this company' };
     let response = '';
     const sql = `
       UPDATE ${TABLE_NAME}
@@ -91,7 +105,7 @@ const Companies = {
     WHERE c.id = ?
     `;
 
-    let error = { error: 'Cannot delete company because it is associated with a user'};
+    let error = { error: 'Cannot delete company because it is associated with a user' };
     let response = '';
     try {
       response = await conn.query(sql, [id]);
