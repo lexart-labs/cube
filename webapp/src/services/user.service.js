@@ -23,7 +23,6 @@ const UserService = function () {
   return {
     getUserById(id, cb) {
       const headers = buildHeaders();
-      console.log(headers)
 
       axios.get(API + model + id, { headers }).then((res) => {
         cb(res.data);

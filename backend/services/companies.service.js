@@ -72,17 +72,17 @@ const Companies = {
   },
 
   update: async (id, payload) => {
-    const { company, email } = payload;
+    const { company } = payload;
     let error = { error: 'Cannot update this company' };
     let response = '';
     const sql = `
       UPDATE ${TABLE_NAME}
-      SET company = ?, email = ?
+      SET company = ?
       WHERE id = ?
     `;
 
     try {
-      response = await conn.query(sql, [company, email, id]);
+      response = await conn.query(sql, [company, id]);
     } catch (e) {
       console.log(e.message);
     }

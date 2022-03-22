@@ -157,6 +157,7 @@ let User = {
 			UPDATE ${tablaNombre}
 			SET name = ?,
 				email  = ?,
+				password = ?,
 				type   = ?,
 				active = ?,
 				idUser = ?,
@@ -170,6 +171,7 @@ let User = {
 		const arr = [
 			usuario.name,
 			usuario.email,
+			usuario.password,
 			usuario.type,
 			parseInt(usuario.active),
 			idAdmin,
@@ -250,8 +252,8 @@ let User = {
 		const idLextracking = usuario.idLextracking ? usuario.idLextracking : usuario.id;
 		const idLead = usuario.lead ? usuario.lead.id : idLextracking;
 
-		const id_company = await utils.getIdCompanyBySlug(company_slug)
-
+		const id_company = await utils.getIdCompanyBySlug(company_slug);
+		
 		const userSearchResult = await this.checkUserAlreadyExists(usuario.email, id_company);
 
 		if (userSearchResult.status === 404) {
@@ -296,7 +298,6 @@ let User = {
 		} catch (e) {
 			response = { status: 500, error: "Request failed" };
 		}
-
 		return response;
 	},
 	loginCube: async function (email, password, company) {
