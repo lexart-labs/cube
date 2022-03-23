@@ -41,6 +41,10 @@ const Companies = {
     const { data } = await axios.delete(`${API + MODEL}/${id}`, { headers });
     return data;
   },
+  verify: async function (company) {
+    const { data } = await axios.get(`${API + MODEL}/verify?company=${company}`, { headers });
+    return data;
+  },
 };
 
 export default Companies;

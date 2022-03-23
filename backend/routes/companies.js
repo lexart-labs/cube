@@ -9,6 +9,15 @@ router.get('/', async (_req, res) => {
   return res.send(response);
 });
 
+router.get('/verify', async (req, res) => {
+  const { company } = req.query;
+
+  const response = await Companies.exists(company);
+
+  res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
 

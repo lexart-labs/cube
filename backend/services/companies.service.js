@@ -3,6 +3,7 @@ const TABLE_NAME = 'companies';
 const axios = require('axios');
 
 const SECRET_KEY = process.env.SECRET_KEY;
+const parseToSlug = (str) => str.toLowerCase().replace(/\s+/g, '_');
 
 const Companies = {
   getAll: async () => {
@@ -113,6 +114,19 @@ const Companies = {
       console.log(e.message);
     }
     return (response.affectedRows === 1) ? { response: 'Successfully removed company' } : { error: error };
+  },
+
+  exists: async (company) => {
+    const slug = parseToSlug(company);
+    const sql = `SELECT * FROM ${TABLE_NAME} where slug = ?`;
+    let response = [];
+    try {
+      response = await conn.query(sql, [slug]);
+    } catch ({message}) {
+      console.log(message);
+    }
+
+    return response.length ? { response: 'ok', slug } : { error: 'Company not found' };
   },
 
 };
