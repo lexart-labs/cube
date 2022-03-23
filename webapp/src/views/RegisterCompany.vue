@@ -21,7 +21,11 @@
         <h2>Cube Platform</h2>
         <small>By Lexart Factory</small>
       </header>
-      <form @submit.prevent="registerCompany" style="margin-top: 1rem" id="login-form">
+      <form
+        @submit.prevent="registerCompany"
+        style="margin-top: 1rem"
+        id="register-form"
+      >
         <h2>Datos de la organización:</h2>
         <input
           type="text"
@@ -46,6 +50,42 @@
           autocomplete="off"
           required
         />
+        <div class="legal-info">
+          <p>
+            Lexart is committed to protecting and respecting your privacy, and
+            we'll only use your personal information to administer your
+            account and to provide the products and services you requested
+            from us. From time to time, we would like to contact you about our
+            products and services, as well as other content that may be of
+            interest to you. If you consent to us contacting you for this
+            purpose, please tick below to say how you would like us to contact
+            you:
+          </p>
+          <br />
+          <div class="form-check mb-2">
+            <input
+              class="mr-2"
+              type="checkbox"
+              v-model="agreementComunication"
+              id="agree-1"
+            />
+            <label class="form-check-label" for="agree-1">
+              I agree to receive other communications from Lexart. (opcional)
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="mr-2"
+              type="checkbox"
+              v-model="agreementPersonalData"
+              id="agree-2"
+            />
+            <label class="form-check-label" for="agree-2">
+              I agree to allow Lexart to store and process my personal data.<span>*</span>
+              (Required)
+            </label>
+          </div>
+        </div>
         <div class="captcha-ctl">
           <vue-recaptcha
             :sitekey="siteKey"
@@ -55,7 +95,7 @@
         <button
           type="submit"
           class="btn btn-black btn-block"
-          v-bind:disabled="isLoading"
+          :disabled="isLoading || !agreementPersonalData"
         >
           <span>Register</span>
         </button>
@@ -78,7 +118,7 @@
 
 <script>
 import axios from "axios";
-import { VueRecaptcha } from 'vue-recaptcha';
+import { VueRecaptcha } from "vue-recaptcha";
 import { copy } from "../services/helpers";
 import { API, BASE_URL, SITE_KEY } from "../../env";
 
@@ -89,9 +129,11 @@ export default {
     return {
       cpy: {},
       error: "",
-      captchaResponse: '',
+      captchaResponse: "",
       isLoading: false,
       success: false,
+      agreementPersonalData: false,
+      agreementComunication: true,
       api: API,
       base: BASE_URL,
       siteKey: SITE_KEY,
@@ -105,15 +147,14 @@ export default {
     setCaptchaResponse(tk) {
       this.captchaResponse = tk;
     },
-    registerCompany: async function() {
+    registerCompany: async function () {
       this.isLoading = true;
-      this.error = '';
+      this.error = "";
       const user = copy(this.cpy);
       const captcha = this.captchaResponse;
 
-      axios.post(`${API}companies/`, {...user, captcha }).then(
+      axios.post(`${API}companies/`, { ...user, captcha }).then(
         (res) => {
-
           const rs = res.data;
           this.isLoading = false;
 
@@ -132,9 +173,9 @@ export default {
     },
   },
   // created() {
-    // this.$nextTick(() => {
-    //   grecaptcha.render('g-captcha');
-    // });
+  // this.$nextTick(() => {
+  //   grecaptcha.render('g-captcha');
+  // });
   // },
   mounted() {
     localStorage.clear();
@@ -143,6 +184,10 @@ export default {
 </script>
 
 <style scoped>
+form {
+  gap: 0.8rem !important;
+  padding: 6.5%;
+}
 footer {
   display: flex;
   max-width: 100%;
@@ -154,5 +199,23 @@ footer {
   justify-content: center;
   align-items: center;
   width: 100%;
+}
+.legal-info {
+  font-size: 8px;
+  text-align: justify;
+}
+.form-check {
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+.legal-info label {
+  font-size: 10px;
+}
+.legal-info span {
+  color: red;
+}
+#register-form {
+  z-index: 2;
 }
 </style>
