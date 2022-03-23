@@ -66,9 +66,9 @@
           <div v-if="success" class="alert alert-primary" role="alert">
             <h4 class="alert-heading"><b>Succesfully created!</b></h4>
             <hr>
-            <p>Link to login page:</p>
-            <br>
-            <router-link :to="`${cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`">{{ `${base}${cpy.company.toLowerCase().replace(/\s+/g,'_')}/login` }}</router-link>
+            <p>Link to login page: 
+            <router-link :to="`${cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`">Here</router-link> .
+            </p>
           </div>
         </footer>
       </form>
