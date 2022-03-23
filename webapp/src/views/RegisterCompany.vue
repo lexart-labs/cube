@@ -23,7 +23,6 @@
       </header>
       <form
         @submit.prevent="registerCompany"
-        style="margin-top: 1rem"
         id="register-form"
       >
         <h2>Datos de la organización:</h2>
@@ -100,12 +99,12 @@
           <span>Register</span>
         </button>
         <footer>
-          <div v-if="error" class="alert alert-danger">
+          <div v-if="error" class="alert alert-danger register-alert">
             {{ error }}
           </div>
-          <div v-if="success" class="alert alert-primary" role="alert">
+          <div v-if="success" class="alert alert-primary register-alert" role="alert">
             <h4 class="alert-heading"><b>Succesfully created!</b></h4>
-            <hr>
+            <hr class="hr-alert">
             <p>Link to login page: 
             <router-link :to="`${cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`">Here</router-link> .
             </p>
@@ -217,5 +216,11 @@ footer {
 }
 #register-form {
   z-index: 2;
+}
+.hr-alert {
+  margin: 9px 0;
+}
+.register-alert {
+  margin-bottom: 0;
 }
 </style>
