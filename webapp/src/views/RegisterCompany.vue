@@ -99,7 +99,7 @@
                   v-model="agreementPersonalData"
                   id="agree-2"
                 />
-                I agree to allow Lexart to store and process my personal data.*
+                I agree to allow Lexart to store and process my personal data.<span>*</span>
                 (Required)
               </label>
             </div>
@@ -228,6 +228,9 @@ footer {
 }
 .legal-info label {
   font-size: 12px;
+}
+.legal-info span {
+  color: red;
 }
 #register-form {
   z-index: 2;
