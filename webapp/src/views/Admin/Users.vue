@@ -4,15 +4,21 @@
       <h4 class="is-bold">
         <span>{{ $t("AdminUsers.title") }}</span>
       </h4>
-      <button
-        type="button"
-        class="btn btn-success"
-        data-toggle="modal"
-        data-target="#staticBackdrop"
-        v-on:click="newUser"
-      >
-        + Developers
-      </button>
+      <div>
+        <button
+          type="button"
+          class="btn btn-success"
+          data-toggle="modal"
+          data-target="#staticBackdrop"
+          style="margin-right: 0.6rem;"
+          v-on:click="newUser"
+        >
+          + Developers
+        </button>
+        <button class="btn btn-primary" disabled="disabled">
+          {{ $t('generic.import')}} CSV
+        </button>
+      </div>
     </header>
     <div class="grp-icon-input">
       <input
