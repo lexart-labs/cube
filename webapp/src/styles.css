@@ -109,6 +109,10 @@ label {
 .vs--searchable .vs__dropdown-toggle {
   border-radius: 1rem;
 }
+.has-import-btn {
+  display: flex;
+  justify-content: space-between;
+}
 
 
 /* Login */

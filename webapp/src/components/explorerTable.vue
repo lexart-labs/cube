@@ -4,15 +4,21 @@
       <h4 class="is-bold">
         {{ $t(`${translations}.title`) }}
       </h4>
-      <button
+      <div>
+        <button
           type="button"
           class="btn btn-success"
           data-toggle="modal"
           :data-target="modalId"
           v-on:click="onNew"
+          style="margin-right: 0.6rem;"
         >
           + {{$t(`${translations}.newBtn`)}}
-      </button>
+        </button>
+        <button class="btn btn-primary" disabled="disabled">
+          {{ $t('generic.import')}} CSV
+        </button>
+      </div>
     </header>
     <slot name="filters"></slot>
     <div>
