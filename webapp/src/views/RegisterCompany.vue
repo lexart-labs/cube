@@ -51,61 +51,40 @@
           required
         />
         <div class="legal-info">
-          <hr />
-          <div>
-            <p>
-              Lexart is committed to protecting and respecting your privacy, and
-              we'll only use your personal information to administer your
-              account and to provide the products and services you requested
-              from us. From time to time, we would like to contact you about our
-              products and services, as well as other content that may be of
-              interest to you. If you consent to us contacting you for this
-              purpose, please tick below to say how you would like us to contact
-              you:
-            </p>
-            <br />
-            <div class="form-check">
-              <label class="form-check-label" for="agree-1">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  v-model="agreementComunication"
-                  id="agree-1"
-                />
-                I agree to receive other communications from Lexart. (opcional)
-              </label>
-            </div>
-            <br />
-            <p>
-              You can unsubscribe from these communications at any time. For
-              more information on how to unsubscribe, our privacy practices, and
-              how we are committed to protecting and respecting your privacy,
-              please review our Privacy Policy.
-            </p>
-          </div>
+          <p>
+            Lexart is committed to protecting and respecting your privacy, and
+            we'll only use your personal information to administer your
+            account and to provide the products and services you requested
+            from us. From time to time, we would like to contact you about our
+            products and services, as well as other content that may be of
+            interest to you. If you consent to us contacting you for this
+            purpose, please tick below to say how you would like us to contact
+            you:
+          </p>
           <br />
-          <div>
-            <p>
-              In order to provide you the content requested, we need to store
-              and process your personal data. If you consent to us storing your
-              personal data for this purpose, please tick the checkbox below.
-            </p>
-            <br />
-            <div class="form-check">
-              <label class="form-check-label" for="agree-2">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  v-model="agreementPersonalData"
-                  id="agree-2"
-                />
-                I agree to allow Lexart to store and process my personal data.<span>*</span>
-                (Required)
-              </label>
-            </div>
+          <div class="form-check mb-2">
+            <input
+              class="mr-2"
+              type="checkbox"
+              v-model="agreementComunication"
+              id="agree-1"
+            />
+            <label class="form-check-label" for="agree-1">
+              I agree to receive other communications from Lexart. (opcional)
+            </label>
           </div>
-          <br />
-          <hr />
+          <div class="form-check">
+            <input
+              class="mr-2"
+              type="checkbox"
+              v-model="agreementPersonalData"
+              id="agree-2"
+            />
+            <label class="form-check-label" for="agree-2">
+              I agree to allow Lexart to store and process my personal data.<span>*</span>
+              (Required)
+            </label>
+          </div>
         </div>
         <div class="captcha-ctl">
           <vue-recaptcha
@@ -126,15 +105,10 @@
           </div>
           <div v-if="success" class="alert alert-primary" role="alert">
             <h4 class="alert-heading"><b>Succesfully created!</b></h4>
-            <hr />
-            <p>Link to login page:</p>
-            <br />
-            <router-link
-              :to="`${cpy.company.toLowerCase().replace(/\s+/g, '_')}/login`"
-              >{{
-                `${base}${cpy.company.toLowerCase().replace(/\s+/g, "_")}/login`
-              }}</router-link
-            >
+            <hr>
+            <p>Link to login page: 
+            <router-link :to="`${cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`">Here</router-link> .
+            </p>
           </div>
         </footer>
       </form>
@@ -210,6 +184,10 @@ export default {
 </script>
 
 <style scoped>
+form {
+  gap: 0.8rem !important;
+  padding: 6.5%;
+}
 footer {
   display: flex;
   max-width: 100%;
@@ -223,11 +201,16 @@ footer {
   width: 100%;
 }
 .legal-info {
-  font-size: 10px;
+  font-size: 8px;
   text-align: justify;
 }
+.form-check {
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
 .legal-info label {
-  font-size: 12px;
+  font-size: 10px;
 }
 .legal-info span {
   color: red;

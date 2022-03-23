@@ -1,8 +1,13 @@
 <template>
   <div>
-    <h4 class="courseTitle is-bold">
-      <span>{{ $t("AdminTechnologies.title") }}</span>
-      <spinner v-if="isLoading"></spinner>
+    <h4 class="courseTitle is-bold has-import-btn">
+      <div>
+        <span>{{ $t("AdminTechnologies.title") }}</span>
+        <spinner v-if="isLoading"></spinner>
+      </div>
+      <button class="btn btn-primary" disabled="disabled">
+        {{ $t('generic.import')}} CSV
+      </button>
     </h4>
 
     <div class="row" id="inputTech">
@@ -10,7 +15,7 @@
         type="text"
         v-model="newTechnology.name"
         :placeholder="$t('AdminTechnologies.placeholder')"
-        class="form-control col-7 is-rounded"
+        class="form-control col-6 is-rounded"
       />
       <select v-model="newTechnology.plataform" class="form-control col-2 is-rounded">
         <option value="" disabled>Selecione</option>
