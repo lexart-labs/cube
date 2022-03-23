@@ -67,6 +67,12 @@
             Verify
           </button>
         </div>
+        <div class="captcha-ctl">
+          <vue-recaptcha
+            :sitekey="siteKey"
+            @verify="setCaptchaResponse"
+          ></vue-recaptcha>
+        </div>
         <small v-if="error" class="alert alert-danger">
           {{ error }}
         </small>
@@ -97,21 +103,25 @@
 <script>
 /* eslint-disable no-underscore-dangle */
 import axios from "axios";
+import { VueRecaptcha } from "vue-recaptcha";
 import { copy } from "../services/helpers";
 import Companies from "../services/companies.service";
-import { API, APP_NAME } from "../../env";
+import { API, APP_NAME, SITE_KEY } from "../../env";
 
 export default {
   name: "Login",
+  components: { VueRecaptcha },
   data() {
     return {
       usr: {},
       error: "",
       warning: "",
+      captchaResponse: "",
       isLoading: false,
       company: "",
       hasSlug: true,
       api: API,
+      siteKey: SITE_KEY,
       setting: {
         background: "",
         logo: "",
@@ -150,9 +160,16 @@ export default {
     },
     verifyCompany: async function () {
       this.isLoading = true;
-      this.error = '';
+      this.error = "";
+      const captcha = this.captchaResponse;
 
-      const result = await Companies.verify(this.company);
+      if(!captcha) {
+        this.error = "please, make sure to check the reCaptcha challenge.";
+        this.isLoading = false;
+        return;
+      }
+
+      const result = await Companies.verify(this.company, captcha);
       this.isLoading = false;
       if (result.error) {
         this.error = result.error;
@@ -160,6 +177,9 @@ export default {
         this.$router.push(`${result.slug}/login`);
         this.hasSlug = true;
       }
+    },
+    setCaptchaResponse(tk) {
+      this.captchaResponse = tk;
     },
   },
   mounted() {
@@ -196,5 +216,11 @@ footer > div {
   display: flex;
   justify-content: space-between;
   gap: 0.6rem;
+}
+.captcha-ctl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 </style>

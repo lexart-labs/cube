@@ -116,11 +116,14 @@ const Companies = {
     return (response.affectedRows === 1) ? { response: 'Successfully removed company' } : { error: error };
   },
 
-  exists: async (company) => {
+  exists: async function(company, captcha) {
     const slug = parseToSlug(company);
     const sql = `SELECT * FROM ${TABLE_NAME} where slug = ?`;
     let response = [];
     try {
+      const isValid = await this.validateCaptcha(captcha);
+      if(!isValid) return {error: 'Invalid human verification. please try again.'};
+
       response = await conn.query(sql, [slug]);
     } catch ({message}) {
       console.log(message);
