@@ -4,11 +4,12 @@ const PAGE_SIZE = 10;
 
 const Payments = {
   update: async (id, payload) => {
-    const { idUser, salary, billing, datePromotion } = payload;
+    const { idUser, salary, billing, datePromotion, currency } = payload;
     const sql = `
       UPDATE ${tablaNombre} SET
         idUser= ?,
         salary=?,
+        currency=?
         billing=?,
         datePromotion=?
       WHERE id = ?
@@ -16,7 +17,7 @@ const Payments = {
     let response;
 
     try {
-      response = await conn.query(sql, [idUser, salary, billing, datePromotion, id]);
+      response = await conn.query(sql, [idUser, salary, currency, billing, datePromotion, id]);
     } catch (e) {
       console.log('Payments service error --->', e.message, response);
     }
@@ -24,17 +25,17 @@ const Payments = {
     return response.changedRows ? { response: 'ok' } : { error: 'Operation failed' };
   },
   insert: async (payload) => {
-    const { idUser, salary, billing, datePromotion } = payload;
+    const { idUser, salary, billing, currency, datePromotion } = payload;
     const sql = `
       INSERT INTO ${tablaNombre}
-        (idUser, salary, billing, datePromotion)
+        (idUser, salary, currency, billing, datePromotion)
       VALUES
-        (?, ?, ?, ?)
+        (?, ?, ?, ?, ?)
     `;
     let response;
 
     try {
-      response = await conn.query(sql, [idUser, salary, billing, datePromotion]);
+      response = await conn.query(sql, [idUser, salary, currency, billing, datePromotion]);
     } catch (e) {
       console.log('Payments service error --->', e.message, response);
     }

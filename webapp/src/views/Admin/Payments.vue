@@ -1,11 +1,11 @@
 <template>
   <ExplorerTable
-    translations="AdminContinuity"
-    :tableKeys="['id', 'name', 'month', 'year', 'continuity']"
-    modalId="#upsert-report"
-    :tableData="ReportsWithLiteralMonths"
+    translations="AdminPayments"
+    :tableKeys="['id', 'name', 'salary', 'currency', 'billing', 'datePromotion', 'updatedAt']"
+    modalId="#upsert-salary"
+    :tableData="salaries"
     :onNew="clearStates"
-    :onEdit="getReportById"
+    :onEdit="getSalaryById"
     :pager="handlePagination"
     :pagesCount="pageCount"
     :actualPage="actualPage"
@@ -24,7 +24,7 @@
             />
           </label>
         </div>
-        <div>
+        <!-- <div>
           <label>{{ $t("generic.month") }}</label>
           <vue-select
             v-model="filters.month"
@@ -32,7 +32,7 @@
             :options="monthsFilter"
             :reduce="(el) => el.value"
           ></vue-select>
-        </div>
+        </div> -->
         <button
           class="btn btn-primary btn-sm col-1 is-rounded"
           @click="onSearch"
@@ -46,10 +46,10 @@
     <template slot="upsert-modal">
       <div
         class="modal fade"
-        id="upsert-report"
+        id="upsert-salary"
         tabindex="-1"
         role="dialog"
-        aria-labelledby="exampleModalLabel"
+        aria-labelledby="salariy-modal-title"
         aria-hidden="true"
       >
         <div
@@ -58,8 +58,8 @@
         >
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title is-bold" id="exampleModalLabel">
-                {{ $t("AdminContinuity.modalTitle") }}
+              <h5 class="modal-title is-bold" id="salariy-modal-title">
+                {{ $t("AdminPayments.modalTitle") }}
               </h5>
               <button
                 type="button"
@@ -73,71 +73,13 @@
             <div class="modal-body">
               <form>
                 <div class="form-group">
-                  <label>{{ $t("AdminContinuity.colaborator") }}</label>
+                  <label>{{ $t("AdminPayments.colaborator") }}</label>
                   <vue-select
-                    v-model="report.idColaborator"
+                    v-model="salary.idUser"
                     label="name"
                     :options="colaborators"
                     :reduce="(usr) => usr.id"
                   ></vue-select>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <label>{{ $t("generic.month") }}</label>
-                    <vue-select
-                      v-model="report.month"
-                      label="name"
-                      :options="
-                        $t('generic.months').map((el, i) => ({
-                          name: el,
-                          value: i + 1,
-                        }))
-                      "
-                      :reduce="(el) => el.value"
-                    ></vue-select>
-                  </div>
-                  <div class="col">
-                    <label class="has-label-space">{{
-                      $t("generic.year")
-                    }}</label>
-                    <input
-                      type="number"
-                      v-model="report.year"
-                      max="9999"
-                      min="2000"
-                      class="form-control is-rounded"
-                    />
-                  </div>
-                </div>
-                <div class="row" style="margin-top: 1rem">
-                  <div class="col">
-                    <label class="has-label-space">{{
-                      $t("generic.hours")
-                    }}</label>
-                    <input
-                      v-model="hours.hrs"
-                      class="form-control is-rounded"
-                      maxlength="3"
-                    />
-                  </div>
-                  <div class="col">
-                    <label class="has-label-space">{{
-                      $t("generic.minutes")
-                    }}</label>
-                    <input
-                      v-model="hours.min"
-                      maxlength="2"
-                      class="form-control is-rounded"
-                    />
-                  </div>
-                  <div class="col">
-                    <label>{{ $t("generic.seconds") }}</label>
-                    <input
-                      v-model="hours.sec"
-                      maxlength="2"
-                      class="form-control is-rounded"
-                    />
-                  </div>
                 </div>
                 <div class="row col-12">
                   <small v-if="error">{{ error }}</small>
@@ -156,7 +98,7 @@
               <button
                 type="button"
                 class="btn btn-primary"
-                @click="upsertReport"
+                @click="upsertSalary"
                 :disabled="isLoading"
               >
                 {{ $t("generic.save") }}
@@ -170,7 +112,7 @@
 </template>
 
 <script>
-import HoursService from "../../services/hours.service";
+import PaymentsService from "../../services/payments.service";
 import Collaborators from "../../services/collaborators.service";
 import ExplorerTable from "../../components/explorerTable.vue";
 import vueSelect from "vue-select";
@@ -183,33 +125,24 @@ export default {
   components: { ExplorerTable, vueSelect },
   data() {
     return {
-      reports: [],
+      salaries: [],
       colaborators: [],
-      monthsFilter: [
-        { name: "All", value: 0 },
-        ...translations[this.$store.state.language].generic.months.map(
-          (el, i) => ({
-            name: el,
-            value: i + 1,
-          })
-        ),
-      ],
-      report: {
+      billings: [],
+      currencies: [],
+      salary: {
         id: 0,
-        year: 2022,
-        month: "",
-        idColaborator: 0,
-        name: "",
-        continuity: "",
+        salary: 0,
+        billing: '',
+        currency: '',
+        datePromotion: '',
+        dateCreated: '',
+        dateUpdated: '',
+        idUser: 0,
+        name: '',
       },
       filters: {
         year: new Date().getFullYear(),
-        month: 0,
-      },
-      hours: {
-        hrs: "00",
-        min: "00",
-        sec: "00",
+        idUser: 0,
       },
       isLoading: false,
       isEditing: false,
@@ -221,51 +154,39 @@ export default {
   },
   methods: {
     clearStates() {
-      this.report = {
-        year: 2022,
-        month: "",
-        idColaborator: 0,
-        name: "",
-        continuity: "",
-      };
-      this.hours = {
-        hrs: "00",
-        min: "00",
-        sec: "00",
+      this.salary = {
+        id: 0,
+        salary: 0,
+        billing: '',
+        currency: '',
+        datePromotion: '',
+        dateCreated: '',
+        dateUpdated: '',
+        idUser: 0,
+        name: '',
       };
       this.isEditing = false;
       this.error = "";
     },
     getPagesLength: async function () {
       const year = this.filters.year;
-      const month = this.filters.month;
+      const idUser = this.filters.idUser;
 
-      return await HoursService.countPages(month, year);
+      return await PaymentsService.countPages(year, idUser);
     },
-    getReportById: async function (id) {
+    getSalaryById: async function (id) {
       this.isEditing = true;
-      const report = await HoursService.getOne(id);
-      this.report = report;
-      const splitedContinuity = this.report.continuity.split(':')
-      this.hours = {
-        hrs: splitedContinuity[0],
-        min: splitedContinuity[1],
-        sec: splitedContinuity[2]
-      }
+      const salary = await PaymentsService.getOne(id);
+      this.salary = salary;
     },
     handlePagination: async function (page) {
-      const reports = await HoursService.getAll(
-        this.companySlug,
-        this.filters.month,
-        this.filters.year,
-        page
-      );
+      const { year, idUser } = this.filters;
+      const salaries = await PaymentsService.getAll(year, page, idUser);
 
-      this.reports = reports;
+      this.salaries = salaries;
     },
-    upsertReport: async function () {
+    upsertSalary: async function () {
       this.isLoading = true;
-      const month = 0;
       const year = CURRENT_YEAR;
 
       const isValid = this.validatePayload();
@@ -276,23 +197,18 @@ export default {
       }
 
       if (this.isEditing) {
-        await HoursService.update(this.report.id, this.report);
+        await PaymentsService.update(this.salary.id, this.salary);
       } else {
-        await HoursService.insert(this.report);
-        this.pageCount = await HoursService.countPages(month, year);
+        await PaymentsService.insert(this.salary);
+        this.pageCount = await PaymentsService.countPages(year, 0);
         this.actualPage = 0;
       }
 
-      $("#upsert-report").modal("hide");
+      $("#upsert-salary").modal("hide");
       this.clearStates();
-      const reports = await HoursService.getAll(
-        this.companySlug,
-        month,
-        year,
-        0
-      );
-      this.filters = { year, month };
-      this.reports = reports;
+      const salaries = await PaymentsService.getAll(year, 0, 0);
+      this.filters = { year, idUser: 0 };
+      this.salaries = salaries;
 
       this.isLoading = false;
     },
@@ -302,54 +218,37 @@ export default {
       await this.handlePagination(0);
     },
     validatePayload() {
-      this.report.continuity = `${this.hours.hrs}:${this.hours.min}:${this.hours.sec}`;
-      const translate = translations[this.$store.state.language].AdminContinuity.errorMsgs;
-      const { month, idColaborator, year, continuity } = this.report;
-      const [h, m, s] = continuity.split(":");
-      const hasNonNumbers =  [h, m, s].some((el) => isNaN(Number(el)));      
+      const translate = translations[this.$store.state.language].AdminPayments.errorMsgs;
+      const { salary, idUser, billing, datePromotion, currency } = this.salary;     
 
-      if (!idColaborator) return translate.user;
-      if (!month) return translate.month;
-      if (!year || year < 2000) return translate.year;
-      if (
-        !continuity ||
-        hasNonNumbers ||
-        m > 59 ||
-        s > 59 ||
-        continuity.length < 7 ||
-        continuity == "00:00:00"
-      )
-        return translate.continuity;
+      if (!salary) return translate.salary;
+      if (!idUser) return translate.user;
+      if (!billing) return translate.billing;
+      if (!currency) return translate.currency;
+      if (!datePromotion) return translate.date;
+
       return "true";
     },
   },
   async mounted() {
     this.isLoading = true;
 
-    const month = this.filters.month;
     const year = this.filters.year;
+    const idUser = this.filters.idUser;
 
-    const [pageCount, reports, users] = await Promise.all([
-      HoursService.countPages(month, year),
-      HoursService.getAll(this.companySlug, month, year, 0),
+    const [pageCount, salaries, users] = await Promise.all([
+      PaymentsService.countPages(year, idUser),
+      PaymentsService.getAll(year, 0, idUser),
       Collaborators.getByCompany(),
     ]);
 
     this.pageCount = pageCount;
-    this.reports = reports;
+    this.salaries = salaries;
     this.colaborators = users.response;
 
     this.isLoading = false;
   },
-  computed: {
-    ReportsWithLiteralMonths() {
-      return this.reports.map((el) => ({
-        ...el,
-        month:
-          translations[this.$store.state.language].generic.months[el.month - 1],
-      }));
-    },
-  },
+  computed: {},
 };
 </script>
 

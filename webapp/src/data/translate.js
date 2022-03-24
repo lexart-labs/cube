@@ -273,6 +273,20 @@ const translations = {
       successToAdd: "Usuario editado/creado correctamente",
       errorToAdd: "Error al intentar editar/crear un usuario"
     },
+    AdminPayments: {
+      title: 'Pagos',
+      headers: ['Id', 'Nombre', 'Sueldo', 'Moneda', 'Facturación', 'Creado', 'Actualizado'],
+      modalTitle: 'Sueldo',
+      colaborator: 'Colaborador',
+      newBtn: 'Sueldo',
+      errorMsgs: {
+        salary: '¡Sueldo es requerido!',
+        user: 'Por favor, eleige a un colaborador.',
+        billing: 'Por favor especificar el periodo de facturación.',
+        date: 'Por favor especificar un afecha de promocción.',
+        currency: 'Moneda es un campo requerido',
+      },
+    },
   },
   en: {
     dashboard: {
@@ -547,6 +561,20 @@ const translations = {
       colaborator: 'Colaborator',
       successToAdd: "User created/edited successfully",
       errorToAdd: "Error trying to create/edit an user"
+    },
+    AdminPayments: {
+      title: 'Payments',
+      headers: ['Id', 'Name', 'Salary', 'Currency', 'Billing', 'Created', 'Updated'],
+      modalTitle: 'Payment',
+      colaborator: 'Colaborator',
+      newBtn: 'Salary',
+      errorMsgs: {
+        salary: 'Payment field is required.',
+        user: 'User field is required.',
+        billing: 'Billing field is required.',
+        date: 'Date of promotion is required.',
+        currency: 'Currency is requiered.',
+      },
     },
   },
   pt: {},

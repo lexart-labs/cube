@@ -2,6 +2,7 @@ CREATE TABLE `lexart_cube`.`user_payments` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `idUser` INT NOT NULL,
   `salary` DOUBLE(20, 2) NOT NULL,
+  `currency` VARCHAR(20) DEFAULT NULL,
   `billing` VARCHAR(20) NULL DEFAULT 'hour',
   `datePromotion` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
