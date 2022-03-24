@@ -9,7 +9,7 @@ const Payments = {
       UPDATE ${tablaNombre} SET
         idUser= ?,
         salary=?,
-        currency=?
+        currency=?,
         billing=?,
         datePromotion=?
       WHERE id = ?
