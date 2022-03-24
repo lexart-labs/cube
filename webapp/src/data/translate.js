@@ -279,6 +279,10 @@ const translations = {
       modalTitle: 'Sueldo',
       colaborator: 'Colaborador',
       newBtn: 'Sueldo',
+      currency: 'Moneda',
+      billing: 'Facturación',
+      promotion: 'Fecha de promoción',
+      salary: 'Sueldo',
       errorMsgs: {
         salary: '¡Sueldo es requerido!',
         user: 'Por favor, eleige a un colaborador.',
@@ -568,6 +572,10 @@ const translations = {
       modalTitle: 'Payment',
       colaborator: 'Colaborator',
       newBtn: 'Salary',
+      currency: 'Currency',
+      billing: 'Billing',
+      promotion: 'Promotion date',
+      salary: 'Salary',
       errorMsgs: {
         salary: 'Payment field is required.',
         user: 'User field is required.',
