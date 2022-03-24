@@ -3,7 +3,7 @@
     translations="AdminPayments"
     :tableKeys="['id', 'name', 'salary', 'currency', 'billing', 'datePromotion', 'updatedAt']"
     modalId="#upsert-salary"
-    :tableData="salaries"
+    :tableData="formatedSalaries"
     :onNew="clearStates"
     :onEdit="getSalaryById"
     :pager="handlePagination"
@@ -66,6 +66,7 @@
                 class="close"
                 data-dismiss="modal"
                 aria-label="Close"
+                @click="clearStates"
               >
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -80,6 +81,42 @@
                     :options="colaborators"
                     :reduce="(usr) => usr.id"
                   ></vue-select>
+                </div>
+                <div class="row">
+                  <div class="form-group col">
+                    <label>{{ $t("AdminPayments.currency") }}</label>
+                    <vue-select
+                      v-model="salary.currency"
+                      :options="currencies"
+                    ></vue-select>
+                  </div>
+                  <div class="form-group col">
+                    <label>{{ $t("AdminPayments.billing") }}</label>
+                    <vue-select
+                      v-model="salary.billing"
+                      :options="billings"
+                    ></vue-select>
+                  </div>
+                  <div class="form-group col">
+                    <label>{{ $t("AdminPayments.salary") }}</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      class="form-control is-rounded"
+                      v-model="salary.salary"
+                    />
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-4">
+                    <label>{{ $t('AdminPayments.promotion')}}</label>
+                    <input
+                      type="datetime-local"
+                      :placeholder="$t('generic.date')"
+                      class="form-control is-rounded"
+                      v-model="salary.datePromotion"
+                    />
+                  </div>
                 </div>
                 <div class="row col-12">
                   <small v-if="error">{{ error }}</small>
@@ -196,6 +233,8 @@ export default {
         return;
       }
 
+      this.salary.datePromotion = new Date(this.salary.datePromotion).toISOString();
+
       if (this.isEditing) {
         await PaymentsService.update(this.salary.id, this.salary);
       } else {
@@ -221,10 +260,10 @@ export default {
       const translate = translations[this.$store.state.language].AdminPayments.errorMsgs;
       const { salary, idUser, billing, datePromotion, currency } = this.salary;     
 
-      if (!salary) return translate.salary;
       if (!idUser) return translate.user;
-      if (!billing) return translate.billing;
       if (!currency) return translate.currency;
+      if (!salary) return translate.salary;
+      if (!billing) return translate.billing;
       if (!datePromotion) return translate.date;
 
       return "true";
@@ -248,7 +287,17 @@ export default {
 
     this.isLoading = false;
   },
-  computed: {},
+  computed: {
+    formatedSalaries() {
+      return this.salaries.map(el => {
+        const datePromotion = new Date(el.datePromotion).toLocaleString('pt-br');
+        const createdAt = new Date(el.createdAt).toLocaleString('pt-br');
+        const updatedAt = new Date(el.updatedAt).toLocaleString('pt-br');
+
+        return { ...el, datePromotion, createdAt, updatedAt };
+      });
+    },
+  },
 };
 </script>
 

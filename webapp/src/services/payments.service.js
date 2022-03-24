@@ -35,7 +35,13 @@ const PaymentsService = {
   getOne: async (id) => {
     const headers = generateHeader();
     const { data } = await axios.get(`${API + MODEL}/${id}`, { headers });
-    return data.response ? data.response[0] : {};
+    if(data.response) {
+      const result = data.response;
+      let { datePromotion } = result;
+      datePromotion = datePromotion.substring(0, 16);
+      return { ...result, datePromotion };
+    }
+    return {};
   },
   countPages: async (year = CURRENT_YEAR, idUser = 0) => {
     const headers = generateHeader();
