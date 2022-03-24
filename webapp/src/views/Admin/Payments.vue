@@ -164,7 +164,7 @@ export default {
     return {
       salaries: [],
       colaborators: [],
-      billings: ['Hour', 'Monthy', 'Week', 'Day', 'Year'],
+      billings: ['Hour', 'Month', 'Week', 'Day', 'Year'],
       currencies: ['R$','USD', '$U', '$', '£', '₽'],
       salary: {
         id: 0,
