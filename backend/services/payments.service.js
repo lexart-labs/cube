@@ -18,7 +18,7 @@ const Payments = {
     try {
       response = await conn.query(sql, [month, year, toSecond(continuity), idColaborator, id]);
     } catch (e) {
-      console.log('Continuity service error --->', e.message, response);
+      console.log('Payments service error --->', e.message, response);
     }
 
     return response.changedRows ? { response: 'ok' } : { error: 'Operation failed' };
@@ -36,7 +36,7 @@ const Payments = {
     try {
       response = await conn.query(sql, [month, year, toSecond(continuity), idColaborator]);
     } catch (e) {
-      console.log('Continuity service error --->', e.message, response);
+      console.log('Payments service error --->', e.message, response);
     }
 
     return response.insertId ? { response: 'ok' } : { error: 'Operation failed' };
@@ -48,29 +48,28 @@ const Payments = {
     try {
       response = await conn.query(sql, [id]);
     } catch (e) {
-      console.log('Continuity service error --->', e.message, response);
+      console.log('Payments service error --->', e.message, response);
     }
 
     return response.changedRows ? { response: 'ok' } : { error: 'Operation failed' };
   },
-  getAll: async (companySlug, month, year, page) => {
-    const idCompany = await Utils.getIdCompanyBySlug(companySlug);
+  getAll: async (slug, year, page, idUser) => {
+    const idCompany = await Utils.getIdCompanyBySlug(slug);
     const sql = `
       SELECT
-        cc.*,
+        up.*,
         u.name
-      FROM ${tablaNombre} cc
-      INNER JOIN users u ON u.id = cc.idColaborator
-      WHERE u.idCompany = ? AND cc.year = ? ${month ? 'AND cc.month = ?' : ''}
+      FROM ${tablaNombre} up
+      INNER JOIN users u ON u.id = up.idUser
+      WHERE u.idCompany = ? AND YEAR(up.datePromotion) = ? ${ idUser? 'AND up.idUser = ?' : ''}
       LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
     `;
     let response;
 
     try {
-      response = await conn.query(sql, [idCompany, year, month]);
-      response = response.map(el => ({...el, continuity: toTimeString(el.continuity)}));
+      response = await conn.query(sql, [idCompany, year, idUser]);
     } catch (e) {
-      console.log('Continuity service -->', e.message, response);
+      console.log('Payments service -->', e.message, response);
       return { error: 'Operation Failed'};
     }
 
@@ -79,31 +78,30 @@ const Payments = {
   getOne: async (id) => {
     const sql = `
       SELECT
-        cc.*,
+        up.*,
         u.name
-      FROM ${tablaNombre} cc
-      INNER JOIN users u ON u.id = cc.idColaborator
-      WHERE cc.id = ?
+      FROM ${tablaNombre} up
+      INNER JOIN users u ON u.id = up.idUser
+      WHERE up.id = ?
     `;
     let response;
 
     try {
       response = await conn.query(sql, [parseInt(id)]);
-      response[0].continuity = toTimeString(response[0].continuity);
     } catch (e) {
-      console.log('Continuity service error --->', e.message, response);
+      console.log('Payments service error --->', e.message, response);
       return { error: 'Operation failed' };
     }
 
     return { response };
   },
-  count: async (idUser, year, slug) => {
+  count: async (year, slug, idUser) => {
     const idCompany =  await Utils.getIdCompanyBySlug(slug);
     const sql = `
       SELECT COUNT(*) AS 'docsAmount'
       FROM ${tablaNombre} up
       INNER JOIN users u ON u.id = up.idUser
-      WHERE u.idCompany = ? AND up.year = ? ${idUser ? 'AND up.idUser = ?' : ''}
+      WHERE u.idCompany = ? AND YEAR(up.datePromotion) = ? ${idUser ? 'AND up.idUser = ?' : ''}
     `;
 
     try {
