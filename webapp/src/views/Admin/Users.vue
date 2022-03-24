@@ -429,7 +429,6 @@ export default {
             res.response.id
           );
           this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
-          console.log(resp, this.managerUserTechs.userTechs)
         }
         this.isFeching = false;
       });
@@ -617,7 +616,6 @@ export default {
         );
       }
 
-      console.log(this.currentTech, this.managerUserTechs)
       this.currentTech = {};
       return;
     },
