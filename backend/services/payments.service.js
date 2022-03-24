@@ -54,7 +54,7 @@ const Payments = {
 
     return response.changedRows ? { response: 'ok' } : { error: 'Operation failed' };
   },
-  getAll: async (slug, year, page, idUser) => {
+  getAll: async (slug, year, page, idUser = 0) => {
     const idCompany = await Utils.getIdCompanyBySlug(slug);
     const sql = `
       SELECT
@@ -96,7 +96,7 @@ const Payments = {
 
     return { response };
   },
-  count: async (year, slug, idUser) => {
+  count: async (year, slug, idUser = 0) => {
     const idCompany =  await Utils.getIdCompanyBySlug(slug);
     const sql = `
       SELECT COUNT(*) AS 'docsAmount'

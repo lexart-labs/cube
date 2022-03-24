@@ -24,15 +24,15 @@
             />
           </label>
         </div>
-        <!-- <div>
-          <label>{{ $t("generic.month") }}</label>
+        <div>
+          <label>{{ $t("generic.collaborators") }}</label>
           <vue-select
-            v-model="filters.month"
+            v-model="filters.idUser"
             label="name"
-            :options="monthsFilter"
-            :reduce="(el) => el.value"
+            :options="colaborators"
+            :reduce="(el) => el.id"
           ></vue-select>
-        </div> -->
+        </div>
         <button
           class="btn btn-primary btn-sm col-1 is-rounded"
           @click="onSearch"
@@ -127,8 +127,8 @@ export default {
     return {
       salaries: [],
       colaborators: [],
-      billings: [],
-      currencies: [],
+      billings: ['Hour', 'Monthy', 'Week', 'Day', 'Year'],
+      currencies: ['R$','USD', '$U', '$', '£', '₽'],
       salary: {
         id: 0,
         salary: 0,
