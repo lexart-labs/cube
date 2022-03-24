@@ -162,6 +162,7 @@ const translations = {
       name: 'Nombre',
       userType: 'Tipo usuario',
       password: 'Contraseña',
+      payments: 'Pagos',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -436,6 +437,7 @@ const translations = {
       name: 'Name',
       userType: 'User type',
       password: 'Password',
+      payments: 'Payments',
     },
     positionAssignments: {
       'EntryLevel Developer': [
