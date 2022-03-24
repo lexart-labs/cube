@@ -1,3 +1,4 @@
+require('dotenv').config();
 const utils = require('./utils.service');
 const UserSkills = require('./userSkills.service');
 const CollaboratorsService = require('./collaborators.service');
@@ -5,7 +6,9 @@ const Course = require('./courses.service');
 const { setUpData } = require('./EvaluationsHandler.service');
 const axios = require('axios');
 
+
 const tablaNombre = 'users';
+const trackingApi = process.env.API_LEXTRACKING;
 const PAGE_SIZE = 10;
 
 let User = {
@@ -28,18 +31,25 @@ let User = {
 			WHERE (u.idUser = ? OR u.id = ?) ${filter}
 			${parseInt(page) ? `LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}` : ''}
 		`
-		let response = []
+		let response = [];
+		let fixedRsp = [];
 
 		try {
 			response = await conn.query(sql, [idAdmin, idAdmin]);
-		} catch (e) { }
+			fixedRsp = response.map(el => {
+				const { password, ...all } = el;
+				return all;
+			});
+		} catch (e) {
+			console.log(e.message);
+		}
 
-		return response.length > 0 ? { response: response } : error;
+		return response.length > 0 ? { response: fixedRsp } : error;
 	},
 	allUserLextracking: async function (req, shouldOmit, res) {
 		const { company_slug, lextoken } = req.headers;
 		let error = { "error": "Error al obtener usuarios" };
-		let model = 'user/all/1';
+		let model = trackingApi.includes('dev') ? 'user/all/1' : 'user/all';
 		const headers = { token: lextoken };
 
 		if(company_slug === 'lexart_labs') {
@@ -157,7 +167,7 @@ let User = {
 			UPDATE ${tablaNombre}
 			SET name = ?,
 				email  = ?,
-				password = ?,
+				${usuario.password ? `password = '${usuario.password}',` : ''}
 				type   = ?,
 				active = ?,
 				idUser = ?,
@@ -171,7 +181,6 @@ let User = {
 		const arr = [
 			usuario.name,
 			usuario.email,
-			usuario.password,
 			usuario.type,
 			parseInt(usuario.active),
 			idAdmin,
