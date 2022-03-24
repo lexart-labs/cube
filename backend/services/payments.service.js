@@ -88,7 +88,7 @@ const Payments = {
     let response;
 
     try {
-      response = await conn.query(sql, [parseInt(id)]);
+      [response] = await conn.query(sql, [parseInt(id)]);
     } catch (e) {
       console.log('Payments service error --->', e.message, response);
       return { error: 'Operation failed' };
