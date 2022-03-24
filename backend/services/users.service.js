@@ -1,3 +1,4 @@
+require('dotenv').config();
 const utils = require('./utils.service');
 const UserSkills = require('./userSkills.service');
 const CollaboratorsService = require('./collaborators.service');
@@ -5,7 +6,9 @@ const Course = require('./courses.service');
 const { setUpData } = require('./EvaluationsHandler.service');
 const axios = require('axios');
 
+
 const tablaNombre = 'users';
+const trackingApi = process.env.API_LEXTRACKING;
 const PAGE_SIZE = 10;
 
 let User = {
@@ -39,7 +42,7 @@ let User = {
 	allUserLextracking: async function (req, shouldOmit, res) {
 		const { company_slug, lextoken } = req.headers;
 		let error = { "error": "Error al obtener usuarios" };
-		let model = 'user/all/1';
+		let model = trackingApi.includes('dev') ? 'user/all/1' : 'user/all';
 		const headers = { token: lextoken };
 
 		if(company_slug === 'lexart_labs') {
