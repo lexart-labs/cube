@@ -31,7 +31,7 @@ router.delete('/:id', async (req, res) => {
 router.get('/count', async (req, res) => {
   const { year, idUser } = req.query;
   const { company_slug: slug } = req.headers;
-  const response = await Payments.count(year, slug, idUser);
+  const response = await Payments.count(year, slug, +idUser);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
@@ -48,9 +48,7 @@ router.get('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
   const { year, p: page, idUser } = req.query;
   const { company_slug: slug } = req.headers;
-  const response = await Payments.getAll(
-    slug, year, page, idUser || false
-  );
+  const response = await Payments.getAll(slug, year, page, +idUser);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
