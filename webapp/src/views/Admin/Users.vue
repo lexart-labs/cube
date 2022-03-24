@@ -342,6 +342,8 @@ import { API, APP_NAME } from "../../../env";
 import minimunTimes from "../../data/positionMinimunTimes";
 import DevOriginsService from "../../services/plataforms.service";
 
+const PAGE_LENGTH = 10;
+
 export default {
   name: "Users",
   components: { Spinner, vueSelect },
@@ -462,7 +464,7 @@ export default {
             duration: 2000,
           });
 
-          if (this.users.length < 5) {
+          if (this.users.length < PAGE_LENGTH) {
             const page = this.page - 1;
             this.handlePagination(page);
           } else {
