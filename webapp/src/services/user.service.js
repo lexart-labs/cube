@@ -6,10 +6,13 @@ import { APP_NAME, API } from '../../env';
 const buildHeaders = () => {
   const token = localStorage.getItem(`token-app-${APP_NAME}`);
   const userId = localStorage.getItem(`id-${APP_NAME}`);
+  const lexToken = localStorage.getItem('lexToken');
 
   const headers = {
     token,
     'user-id': userId,
+    'company_slug': localStorage.getItem("_company-slug"),
+    lexToken,
   };
 
   return headers;
@@ -25,21 +28,24 @@ const UserService = function () {
         cb(res.data);
       });
     },
-    getAllUsers(page, cb) {
+    getAllUsers(page = 0, query, cb) {
       const headers = buildHeaders();
 
-      const sql = page == null
-        ? `${API + model}all`
-        : `${API + model}all?page=${page}`
+      const sql = query
+        ? `${API + model}all?page=${page}&query=${query}`
+        : `${API + model}all?page=${page}`;
+      
+      
 
       axios.get(sql, { headers }).then((res) => {
         cb(res.data);
       });
     },
-    getAllUsersLextracking(cb) {
+    getAllUsersLextracking(cb, minified = false) {
       const headers = buildHeaders();
+      const endpoint = `${API + model}lextracking/all`
 
-      axios.get(`${API + model}lextracking/all`, { headers }).then((res) => {
+      axios.get(`${endpoint}${minified ? '?minified=true' : ''}`, { headers }).then((res) => {
         cb(res.data);
       });
     },
@@ -50,10 +56,10 @@ const UserService = function () {
         cb(res.data);
       });
     },
-    getPagesLength(cb) {
+    getPagesLength(query = '', cb) {
       const headers = buildHeaders();
 
-      axios.get(`${API + model}count`, { headers }).then((res) => {
+      axios.get(`${API + model}count?q=${query}`, { headers }).then((res) => {
         cb(res.data);
       });
     },
@@ -68,13 +74,7 @@ const UserService = function () {
       return axios.get(`${API + model}lead-tree`, { headers });
     },
     getLeaderDevs(idLead) {
-      const token = localStorage.getItem(`token-app-${APP_NAME}`);
-      const userId = localStorage.getItem(`id-${APP_NAME}`);
-
-      const headers = {
-        token,
-        'user-id': userId,
-      };
+      const headers = buildHeaders();
 
       return axios.get(`${API + model}lead-tree/${idLead}`, { headers });
     },
@@ -93,7 +93,12 @@ const UserService = function () {
         cb(data)
       });
     },
-  };
+    getUnasigned: async () => {
+      const headers = buildHeaders();
+      const { data } = await axios.get(`${API + model}unasigned`, { headers });
+      return data.response ? data.response : [];
+    },
+  }
 };
 
 export default UserService;

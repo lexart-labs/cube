@@ -4,22 +4,37 @@
       <h4 class="is-bold">
         {{ $t('AdminEvaluations.title') }}
       </h4>
-      <button
+      <div>
+        <button
           type="button"
           class="btn btn-success"
           data-toggle="modal"
           data-target="#staticBackdrop"
           v-on:click="newCourse"
+          style="margin-right: 0.6rem;"
         >
           + {{$t('AdminEvaluations.evaluation')}}
         </button>
+        <button class="btn btn-primary" disabled="disabled">
+          {{ $t('generic.import')}} CSV
+        </button>
+      </div>
     </header>
-    <input
-      type="search"
-      :placeholder="$t('AdminEvaluations.searchPlaceholder')"
-      v-model="searchQuery"
-      class="form-control is-rounded search"
-    />
+    <div class="grp-icon-input">
+      <input
+        type="search"
+        :placeholder="$t('AdminEvaluations.searchPlaceholder')"
+        v-model="searchQuery"
+        class="form-control is-rounded search"
+        v-on:keydown.enter="getEvaluations"
+      />
+      <button
+        v-on:click="getEvaluations"
+        class="btn btn-primary btn-sm col-1 btn-search-eval"
+      >
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
     <div>
       <table class="table table-admin col-12">
         <thead class="is-bold">
@@ -34,7 +49,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(course, i) in resultQuery" :key="`course${i}`">
+          <tr v-for="(course, i) in courses" :key="`course${i}`">
             <td>{{ course.id }}</td>
             <td>{{ course.name }}</td>
             <td>{{ course.user.name }}</td>
@@ -83,8 +98,9 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
+
             <!-- General -->
-            <div class="modal-body" v-if="tabs.general">
+            <div class="modal-body">
               <div class="coursesTab" style="margin-bottom: 1rem;">
                 <ul class="nav nav-tabs">
                   <li class="nav-item">
@@ -110,48 +126,50 @@
                   </li>
                 </ul>
               </div>
-              <div class="row" style="margin-bottom: 2rem;">
-                <div class="col-md-3 col-sm-12">
-                  <input
-                    type="text"
-                    placeholder="Descripción"
-                    class="form-control is-rounded"
-                    v-model="course.name"
-                  />
+              <div v-if="tabs.general">
+                <div class="row" style="margin-bottom: 2rem;">
+                  <div class="col-md-3 col-sm-12">
+                    <input
+                      type="text"
+                      placeholder="Descripción"
+                      class="form-control is-rounded"
+                      v-model="course.name"
+                    />
+                  </div>
+                  <div class="col-md-3 col-sm-12">
+                    <input
+                      type="datetime-local"
+                      :placeholder="$t('generic.date')"
+                      class="form-control is-rounded"
+                      v-model="course.fecha"
+                    />
+                  </div>
+                  <div class="col-md-3 col-sm-12">
+                    <vue-select
+                      v-model="course.user"
+                      label="name"
+                      :options="users"
+                    ></vue-select>
+                  </div>
+                  <div class="col-md-3 col-sm-12">
+                    <select class="form-control is-rounded" v-model="course.active">
+                      <option value="1">Active</option>
+                      <option value="0">Inactive</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="col-md-3 col-sm-12">
-                  <input
-                    type="datetime-local"
-                    :placeholder="$t('generic.date')"
-                    class="form-control is-rounded"
-                    v-model="course.fecha"
-                  />
-                </div>
-                <div class="col-md-3 col-sm-12">
-                  <v-select
-                    v-model="course.user"
-                    label="name"
-                    :options="users"
-                  ></v-select>
-                </div>
-                <div class="col-md-3 col-sm-12">
-                  <select class="form-control is-rounded" v-model="course.active">
-                    <option value="1">Active</option>
-                    <option value="0">Inactive</option>
-                  </select>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-12">
-                  <label for="" class="obs--title">{{$t('generic.observations')}}</label>
-                  <textarea
-                    name=""
-                    id=""
-                    cols="30"
-                    rows="5"
-                    class="form-control"
-                    v-model="course.observaciones"
-                  ></textarea>
+                <div class="row">
+                  <div class="col-12">
+                    <label for="" class="obs--title">{{$t('generic.observations')}}</label>
+                    <textarea
+                      name=""
+                      id=""
+                      cols="30"
+                      rows="5"
+                      class="form-control"
+                      v-model="course.observaciones"
+                    ></textarea>
+                  </div>
                 </div>
               </div>
             </div>
@@ -209,8 +227,8 @@
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>{{ $t('generic.topic')}}</th>
-                        <th>{{ $t('generic.score')}}</th>
+                        <th><b>{{ $t('generic.topic')}}</b></th>
+                        <th><b>{{ $t('generic.score')}}</b></th>
                         <th></th>
                       </tr>
                     </thead>
@@ -249,8 +267,8 @@
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>{{ $t('generic.topic')}}</th>
-                        <th>{{ $t('generic.score')}}</th>
+                        <th><b>{{ $t('generic.topic')}}</b></th>
+                        <th><b>{{ $t('generic.score')}}</b></th>
                         <th></th>
                       </tr>
                     </thead>
@@ -449,16 +467,16 @@
 
 <script>
 import Spinner from '../../components/Spinner.vue';
+import vueSelect from "vue-select";
 import { verifyToken, copy } from '../../services/helpers';
 import CourseService from '../../services/course.service';
 import UserService from '../../services/user.service';
 import UtilsServices from '../../services/utils.service';
 import { APP_NAME } from '../../../env';
-import Indicadores from '../../data/indicadores';
 
 export default {
   name: 'EvaluationsAdmin',
-  components: { Spinner },
+  components: { Spinner, vueSelect },
   data() {
     return {
       title: 'Evaluations management',
@@ -837,7 +855,7 @@ export default {
       this.isLoading = true;
       this.courses = [];
       this.page = page + 1;
-      const { data: res } = await CourseService().getAllCourses(page);
+      const { data: res } = await CourseService().getAllCourses(page, this.searchQuery);
 
       if (!res.error) {
         const courses = res.response;
@@ -862,7 +880,27 @@ export default {
     },
     cancelEvaluation: function () {
       this.course = {}
-    }
+    },
+    getEvaluations: async function () {
+      this.isLoading = true;
+      this.courses = [];
+
+      const { data: pageLength} = await CourseService().getPagesLength(this.searchQuery);
+      const { data: res } = await CourseService().getAllCourses(0, this.searchQuery);
+      if (!res.error) {
+        this.courses = res.response;
+        this.pagesLength = pageLength.response;
+        this.page = 1;
+      } else {
+        this.$toasted.show('Error when trying to get the evaluations, refresh your screen to try again', {
+          type: 'error',
+          duration: 3000,
+        });
+        this.error = res.error;
+      }
+
+      this.isLoading = false;
+    },
   },
   async mounted() {
     const id = this.$route.params.id ? this.$route.params.id : undefined;
@@ -886,7 +924,7 @@ export default {
     const { data: totalOfPages } = await CourseService().getPagesLength();
     this.pagesLength = !totalOfPages.error ? totalOfPages.response : '';
 
-    UserService().getAllUsers(null, (res) => {
+    UserService().getAllUsers(null, '', (res) => {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
@@ -896,17 +934,7 @@ export default {
       }
     });
   },
-  computed: {
-    resultQuery() {
-      if (this.searchQuery) {
-        return this.courses.filter((item) => this.searchQuery
-          .toLowerCase()
-          .split(' ')
-          .every((v) => item.name.toLowerCase().includes(v)));
-      }
-      return this.courses;
-    },
-  },
+  computed: { },
 };
 </script>
 
@@ -920,6 +948,6 @@ export default {
   }
   .courseContainer {
   padding: 1rem 0;
-}
+  }
 }
 </style>

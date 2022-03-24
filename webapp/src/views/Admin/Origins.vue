@@ -1,8 +1,13 @@
 <template>
   <div>
-    <h4 class="courseTitle is-bold">
-      <span>{{ $t("AdminOrigins.title") }}</span>
-      <spinner v-if="isLoading"></spinner>
+    <h4 class="courseTitle is-bold has-import-btn">
+      <div>
+        <span>{{ $t("AdminOrigins.title") }}</span>
+        <spinner v-if="isLoading"></spinner>
+      </div>
+      <button class="btn btn-primary" disabled="disabled">
+        {{ $t('generic.import')}} CSV
+      </button>
     </h4>
 
     <div class="row" style="gap: 1rem; margin: 1rem auto 3rem;">
@@ -186,6 +191,7 @@ export default {
     height: 50vh;
     overflow-y: scroll;
     box-shadow: rgba(0, 0, 0, 0.109) 0px 2px 4px 0px inset;
+    width: 100%;
   }
 
   h4 {

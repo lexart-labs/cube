@@ -5,8 +5,8 @@ const Technologies = require('../services/technologies.service');
 
 
 router.post('/login', async function (req, res) {
-	let post = req.body;
-	let response = await User.loginLextracking(post.email, post.password);
+	const  { email, password, slug } = req.body;
+	let response = await User.loginCube(email, password, slug);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
@@ -29,8 +29,10 @@ router.post('/check-type', Mdl.middleware, async function (req, res) {
 })
 
 router.get('/all', async function (req, res) {
-	const { page } = req.query;
-	let response = await User.all(req.headers['user-id'], page || null);
+	const { page, query } = req.query;
+	const company_slug = req.headers.company_slug;
+	
+	let response = await User.all(req.headers['user-id'], page || null, query, company_slug);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
@@ -38,14 +40,27 @@ router.get('/all', async function (req, res) {
 
 router.get('/lextracking/all', Mdl.middleware, async function (req, res) {
 	const { minified } = req.query;
-	let response = await User.allUserLextracking(req, minified);
+	res.set(['Content-Type', 'application/json']);
+	let response = {};
 
+	try {
+		response = await User.allUserLextracking(req, minified, res);
+	} catch ({ message }) {
+		console.log('error -->', message);
+	}
+    res.send(response);
+})
+
+router.get('/unasigned', Mdl.middleware, async function (req, res) {
+	const { company_slug } = req. headers;
+	const response = await User.findUnasigneds(company_slug);
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
 })
 
 router.get('/count', Mdl.middleware, async function (req, res) {
-	let response = await User.countResults(req.headers['user-id']);
+	const { q } = req.query;
+	let response = await User.countResults(req.headers['user-id'], q);
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
 })
@@ -56,16 +71,17 @@ router.get('/lextracking-ids', async function (_req, res) {
     res.send(response);
 })
 
-router.post('/upsert', Mdl.middleware, async function (req, res) {
+router.post('/upsert', async function (req, res) {
 	let post 	 = req.body;
-	let response = await User.upsert(post, req.headers['user-id']);
+	let response = await User.upsert(post, req.headers['user-id'], req.headers["company_slug"]);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
 })
 
-router.get('/leads', Mdl.middleware, async function (_req, res) {
-	let response = await User.getLeads();
+router.get('/leads', Mdl.middleware, async function (req, res) {
+	const { company_slug } = req.headers;
+	let response = await User.getLeads(company_slug);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
@@ -79,8 +95,9 @@ router.get('/lead-tree/:id', async (req, res) => {
   res.send(response);
 })
 
-router.get('/lead-tree', async (_req, res) => {
-	const response = await User.getLeaderDevTree();
+router.get('/lead-tree', async (req, res) => {
+	const { company_slug } = req.headers;
+	const response = await User.getLeaderDevTree(company_slug);
 	
 	res.set(['Content-Type', 'application/json']);
   res.send(response);
@@ -106,12 +123,12 @@ router.get('/dev-indexes/:id', async (req, res) => {
 })
 
 router.post('/dev-indexes', async (req, res) => {
-	const { token } = req.headers;
+	const { token, company_slug } = req.headers;
 	const { year, page } = req.query;
 	const { techs } = req.body;
 
 	const response = await User.allDevelopersIndicators(
-		token, Number(year), techs, page
+		token, Number(year), techs, page, company_slug
 	);
 	
 	res.set(['Content-Type', 'application/json']);

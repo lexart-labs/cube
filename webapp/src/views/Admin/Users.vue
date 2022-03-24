@@ -4,23 +4,38 @@
       <h4 class="is-bold">
         <span>{{ $t("AdminUsers.title") }}</span>
       </h4>
-      <button
-        type="button"
-        class="btn btn-success"
-        data-toggle="modal"
-        data-target="#staticBackdrop"
-        v-on:click="newUser"
-      >
-        + Developers
-      </button>
+      <div>
+        <button
+          type="button"
+          class="btn btn-success"
+          data-toggle="modal"
+          data-target="#staticBackdrop"
+          style="margin-right: 0.6rem;"
+          v-on:click="newUser"
+        >
+          + Developers
+        </button>
+        <button class="btn btn-primary" disabled="disabled">
+          {{ $t('generic.import')}} CSV
+        </button>
+      </div>
     </header>
-    <input
-      type="search"
-      :placeholder="$t('AdminUsers.searchPlaceholder')"
-      v-model="searchQuery"
-      class="form-control rounded-input search"
-    />
-    <div class="" v-if="!isLoading" style="width: 100%">
+    <div class="grp-icon-input">
+      <input
+        type="search"
+        :placeholder="$t('AdminUsers.searchPlaceholder')"
+        v-model="searchQuery"
+        class="form-control is-rounded search"
+        @keydown.enter="getUsers"
+      />
+      <button
+        class="btn btn-primary btn-sm col-1 btn-search-eval"
+        @click="getUsers"
+      >
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+    <div v-if="!isLoading" style="width: 100%">
       <table class="table table-admin col-12">
         <thead class="is-bold">
           <tr>
@@ -35,7 +50,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, i) in resultQuery" :key="`usr${i}`">
+          <tr v-for="(user, i) in users" :key="`usr${i}`">
             <td>{{ user.name }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.type }}</td>
@@ -44,14 +59,14 @@
             <td>
               {{ user.active == 1 ? $t("generic.yes") : $t("generic.no") }}
             </td>
-            <td>{{user.plataform}}</td>
+            <td>{{ user.plataform }}</td>
             <td>
               <!-- Trigger modal -->
               <button
                 class="btn btn-primary col-12"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
-                v-on:click="getUserById(user.idLextracking)"
+                v-on:click="getUserById(user.id)"
               >
                 {{ $t("generic.edit") }}
               </button>
@@ -111,6 +126,7 @@
               class="close"
               data-dismiss="modal"
               aria-label="Close"
+              v-on:click="cleanStates"
             >
               <span aria-hidden="true">&times;</span>
             </button>
@@ -132,7 +148,7 @@
                     v-bind:class="{ active: tabs.roadmap }"
                     v-on:click="activeTab('roadmap')"
                     class="nav-link"
-                    v-show="user.idLextracking"
+                    v-show="user.idPosition"
                     >Roadmap</a
                   >
                 </li>
@@ -140,19 +156,19 @@
             </div>
             <div class="perfil">
               <form enctype="multipart/form-data" v-show="tabs.perfil">
-                <label for="">LexTracking user</label>
+                <label for="">User</label>
                 <vue-select
                   v-model="user"
                   label="name"
                   :options="usersLextracking"
                 ></vue-select>
                 <br />
-                <label for="">{{ $t('AdminUsers.hired')}}</label>
+                <label for="">{{ $t("AdminUsers.hired") }}</label>
                 <vue-select
                   v-model="user.idPlataform"
                   label="plataform"
                   :options="plataforms"
-                  :reduce="plat => plat.id"
+                  :reduce="(plat) => plat.id"
                 ></vue-select>
                 <br />
                 <div class="row">
@@ -201,7 +217,7 @@
                   id="lead-select"
                 >
                   <option
-                    :value="{ id: lead.idLextracking, name: lead.name }"
+                    :value="{ id: lead.id, name: lead.name }"
                     :key="`lead${i}`"
                     v-for="(lead, i) in leaders"
                   >
@@ -260,9 +276,7 @@
                 <h3>Habilidades</h3>
                 <span>
                   {{ $t("AdminUsers.daysLeftMessage") }}
-                  <b>
-                    {{ changePositionTime }} d.
-                  </b>
+                  <b> {{ changePositionTime }} d. </b>
                 </span>
               </header>
               <div class="list-group" v-if="user.skills">
@@ -334,9 +348,7 @@ export default {
   data() {
     return {
       title: "My developers",
-      mySelfieCube: JSON.parse(
-        localStorage.getItem(`_lextracking_user-${APP_NAME}`)
-      ).cubeUser,
+      mySelfieCube: JSON.parse(localStorage.getItem('cubeUser')),
       users: [],
       changePositionTime: 0,
       error: "",
@@ -373,11 +385,11 @@ export default {
   },
   methods: {
     newUser() {
-      this.activeTab('perfil');
+      this.activeTab("perfil");
       const lead = {
-        id: this.mySelfieCube.idLextracking,
+        id: this.mySelfieCube.id,
         name: this.mySelfieCube.name,
-      };    
+      };
 
       this.user = {
         name: "",
@@ -393,7 +405,7 @@ export default {
     },
     getUserById(id) {
       const lead = {
-        id: this.mySelfieCube.idLextracking,
+        id: this.mySelfieCube.id,
         name: this.mySelfieCube.name,
       };
 
@@ -411,8 +423,11 @@ export default {
             this.changePositionTime = minimunTimes[position] - since;
           }
 
-          const resp = await TechnologiesService.getByUser(res.response.idLextracking);
+          const resp = await TechnologiesService.getByUser(
+            res.response.id
+          );
           this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
+          console.log(resp, this.managerUserTechs.userTechs)
         }
         this.isFeching = false;
       });
@@ -515,7 +530,7 @@ export default {
         operator === "+" ? (this.page += 1) : (this.page -= 1);
       }
 
-      UserService().getAllUsers(this.page - 1, (res) => {
+      UserService().getAllUsers(this.page - 1, this.searchQuery, (res) => {
         this.isLoading = false;
         if (!res.error) {
           const users = res.response;
@@ -529,7 +544,7 @@ export default {
       this.isLoading = true;
       const Users = UserService();
 
-      Users.getAllUsers(page, (res) => {
+      Users.getAllUsers(page, this.searchQuery, (res) => {
         if (!res.error) {
           const users = res.response;
           this.users = users;
@@ -538,7 +553,7 @@ export default {
         }
       });
 
-      Users.getPagesLength((res) => {
+      Users.getPagesLength(this.searchQuery || '', (res) => {
         this.isLoading = false;
         if (!res.error) {
           this.pagesLength = res.response;
@@ -571,9 +586,10 @@ export default {
     validateChecks() {
       const canChange = this.changePositionTime === 0;
       let allChecked = false;
-      const skillArray = translations.en.positionAssignments[this.user.position];
+      const skillArray =
+        translations.en.positionAssignments[this.user.position];
 
-      if(skillArray) {
+      if (skillArray) {
         allChecked = skillArray.every((el) => this.user.skills[el] === true);
       }
       return !canChange && allChecked ? false : true;
@@ -598,6 +614,8 @@ export default {
           }
         );
       }
+
+      console.log(this.currentTech, this.managerUserTechs)
       this.currentTech = {};
       return;
     },
@@ -613,7 +631,7 @@ export default {
       this.managerUserTechs = { toAdd, toRemove, userTechs };
     },
     handleSkillChanges: async function () {
-      const idUser = this.user.idLextracking || this.user.id;
+      const idUser = this.user.id;
       const { toRemove, toAdd } = this.managerUserTechs;
       await Promise.all(
         toAdd.map((item) => {
@@ -627,12 +645,26 @@ export default {
       );
       this.currentTech = {};
     },
+    getUsers: async function () {
+      this.isLoading = true;
+      this.courses = [];
+
+      UserService().getPagesLength(this.searchQuery, (res) => {
+        this.pagesLength = res.error ? 1 : res.response;
+      });
+      UserService().getAllUsers(0, this.searchQuery, (res) => {
+        this.users = Array.isArray(res.response) ? res.response : [];
+      });
+
+      this.page = 1;
+      this.isLoading = false;
+    },
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
     const User = UserService();
     const lead = {
-      id: this.mySelfieCube.idLextracking,
+      id: this.mySelfieCube.id,
       name: this.mySelfieCube.name,
     };
 
@@ -645,15 +677,17 @@ export default {
     LevelService()
       .getAll()
       .then((res) => (this.levels = res.response));
-    DevOriginsService
-      .getAll()
-      .then(res => this.plataforms = res);
+    DevOriginsService.getAll().then((res) => (this.plataforms = res));
 
     User.getAllUsersLextracking((res) => {
       this.isLoading = false;
       if (!res.error) {
         const users = res.response;
-        this.usersLextracking = users.map((usr) => ({lead, active: 1, ...usr}));
+        this.usersLextracking = users.map((usr) => ({
+          lead,
+          active: 1,
+          ...usr,
+        }));
       } else {
         this.error = res.error;
       }
@@ -674,19 +708,7 @@ export default {
 
     this.handlePagination();
   },
-  computed: {
-    resultQuery() {
-      if (this.searchQuery) {
-        return this.users.filter((item) =>
-          this.searchQuery
-            .toLowerCase()
-            .split(" ")
-            .every((v) => item.name.toLowerCase().includes(v))
-        );
-      }
-      return this.users;
-    },
-  },
+  computed: {},
 };
 </script>
 
@@ -745,29 +767,28 @@ export default {
   gap: 1rem;
   align-items: center;
 }
-.floatRmarginB{
+.floatRmarginB {
   float: right;
-  margin-bottom: 1rem
+  margin-bottom: 1rem;
 }
 
 @media (min-width: 320px) and (max-width: 1000px) {
-.coursesTab {
-  padding: 0;
+  .coursesTab {
+    padding: 0;
+  }
+  .perfil form label {
+    padding-bottom: 1rem;
+  }
+  .modal-footer {
+    border-top: 0 none;
+  }
 }
-.perfil form label{
-  padding-bottom: 1rem;
-}
-.modal-footer {
-  border-top: 0 none;
-}
-}
-
 </style>
 
 <style scoped>
 @media (min-width: 320px) and (max-width: 1000px) {
-.courseContainer {
-  padding: 1rem 0;
-}
+  .courseContainer {
+    padding: 1rem 0;
+  }
 }
 </style>

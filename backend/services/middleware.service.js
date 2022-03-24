@@ -1,41 +1,35 @@
-const utils  = require('./utils.service')
-const axios  = require('axios')
+require('dotenv').config();
+const axios  = require('axios');
+const jwt = require('jsonwebtoken');
+const User = require('./users.service');
+
 
 const Mdl = {
-	middleware: async function (req, res, next){
-		
-		let error = {"error":"Token inválido"}
-		let userCorrect = false;
-
-
-		let errorOutput = () => {
+	middleware: async function (req, res, next) {
+		const { token } = req.headers;
+		const secret = process.env.SECRET;
+		const error = { error: "Token inválido" };
+		const errorOutput = () => {
 			error.yourToken = req.headers.token;
 
 			res.set(['Content-Type', 'application/json']);
 			res.send(error);
-		}
+		};
 
-		axios.get(MIDDLEWARE_LEXTRACKING + req.headers['user-id'], 
-		{
-		  "headers": {
-			"token": req.headers.token
-		  }
-		}).then( res => {
-			if(!res.data.error){
-				// Viene en un array
-				let user = res.data.response[0]
-				if(user.idUser == req.headers['user-id']){
-					next();
-				} else {
-					errorOutput()
-				}
-			} else {
-				error.error = 'Lextracking error: ' + res.data.error
-				errorOutput()
-			}
-		}).catch( error => {
-			errorOutput()
-		})
+		if (!token) {
+			res.set(['Content-Type', 'application/json']);
+			return res.send(error);
+		}
+		try {
+			const { data: { email, idCompany } } = jwt.verify(token, secret);
+			const user = await User.getByEmail(email, idCompany);
+			if (!user) return errorOutput();
+			req.user = user;
+			next();
+		} catch ({ message }) {
+			console.log('error -->', message);
+			return errorOutput();
+		}
 	},
 	middlewareCourse: async function (req, res, next){
 		

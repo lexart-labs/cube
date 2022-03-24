@@ -119,10 +119,10 @@ const Technologies = {
         t.name AS 'name',
         t.id AS 'id',
         t.plataform AS 'plataform'
-      FROM ${TABLE_RELATION_NAME} AS us
-      INNER JOIN users AS u ON us.idUser = u.idLextracking
-      INNER JOIN ${TABLE_NAME} AS t on us.idTechnology = t.id
-      WHERE us.idUser = ?
+      FROM user_skills AS usk
+      INNER JOIN users AS u ON usk.idUser = u.id
+      INNER JOIN technologies AS t on usk.idTechnology = t.id
+      WHERE usk.idUser = ?
     `;
     let response;
 

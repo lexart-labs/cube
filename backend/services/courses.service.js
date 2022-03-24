@@ -1,19 +1,18 @@
-const utils 	  = require('./utils.service')
-const Resource    = require('../services/resources.service')
-const User 		  = require('../services/users.service')
+const utils = require('./utils.service');
 
 const tablaNombre = 'evaluations';
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 let Course = {
-	all: async function (idAdmin, page){
+	all: async function (idAdmin, page, query){
 		
-		let error = {"error":"Error al obtener cursos"}
+		let error = {"error":"Error al obtener cursos"};
+		const filterQuery = `AND name LIKE '%${query}%'`
 
 		// Obtener los usuarios
 		const sql = `
 			SELECT id, name, active, json_data FROM ${tablaNombre}
-			WHERE idUser = ?
+			WHERE idUser = ? ${ query ? filterQuery : '' }
 			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []
@@ -35,7 +34,7 @@ let Course = {
 			})
 		}
 
-		return response.length > 0 ? {response: response} : error;
+		return response.length > 0 ? { response } : error;
 	},
 	calcTotal: function (arr){
 		let indicadores = arr
@@ -48,10 +47,11 @@ let Course = {
 		// console.log("total: ", total)
 		return Math.round((total * 100)/MAX_EVALUACION)
 	},
-	countResults: async function (idAdmin) {
+	countResults: async function (idAdmin, query) {
+		const filterQuery = `AND name LIKE '%${query}%'`;
 		const sql = `
 			SELECT COUNT(*) AS total FROM ${tablaNombre} AS e
-			WHERE e.idUser = ?
+			WHERE e.idUser = ? ${query ? filterQuery : ''}
 		`;
 		const error = { "error": "Error getting total evaluations page" };
 		let response = 0;
@@ -149,7 +149,7 @@ let Course = {
 			delete course.clases
 			delete course.pagos
 			delete course.evaluaciones
-			response = await conn.query(sql, [course.name, idAdmin, course.user.idLextracking, course.active, JSON.stringify(course), json_clases, json_pagos, json_evaluaciones])
+			response = await conn.query(sql, [course.name, idAdmin, course.user.id, course.active, JSON.stringify(course), json_clases, json_pagos, json_evaluaciones])
 		} catch(e){
 			stackTrace = e;
 		}
@@ -190,7 +190,7 @@ let Course = {
 				evaluations.json_data,
 				evaluations.idLextracking
 			FROM evaluations
-			INNER JOIN users ON users.idLextracking = evaluations.idUser
+			INNER JOIN users ON users.id = evaluations.idUser
 			WHERE evaluations.idLextracking = ? AND evaluations.json_data LIKE '%"fecha": "?%' AND evaluations.active = 1
 			GROUP BY evaluations.id
 			ORDER BY evaluations.id ASC
