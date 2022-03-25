@@ -83,7 +83,29 @@ const Collaborators = {
     return Collaborators.generalQuery(sql, arr, 'read', res);
   },
   insert: async (payload, company_slug, res) => {
-    const companyId = await UtilsService.getIdCompanyBySlug(company_slug, res);
+    const [companyId, company] = await Promise.all([
+      UtilsService.getIdCompanyBySlug(company_slug, res),
+      conn.query(`SELECT company FROM companies WHERE slug = '${company_slug}'`),
+    ]);
+    const { email, password, type, active, idPlataform, name } = payload;
+    const message = `
+      <h2>Welcome to Cube!</h2>
+      <hr>
+      <br>
+      <p>
+        Welcomo to cube plataform! Below you have the email and password to access your account,
+        as well as the link to your company's login page;
+      </p>
+      <p><b>Company Name: </b> ${company[0].company || 'not found'}</p>
+      <p><b>Account: </b> ${email}</p>
+      <p><b>Password: </b> ${password}<p>
+      <p><b>Link: </b> app.lexartcube.com/#/${company_slug}/login<p>
+      <br>
+      <p>Please change your password as soon as possible and keep safe.</p>
+      <br>
+      <p>Kind regards,<p>
+      <p><b>Lexart / Cube Team</b><p>
+    `;
 
     const sql = `
       INSERT INTO ${TABLE_NAME}
@@ -93,16 +115,22 @@ const Collaborators = {
     `;
     
     const arr = [
-      payload.name, 
-      payload.email, 
-      md5(payload.password),
-      payload.type,
-      parseInt(payload.active),
-      payload.idPlataform,
+      name, 
+      email, 
+      md5(password),
+      type,
+      parseInt(active),
+      idPlataform,
       companyId,
     ];
 
-    return Collaborators.generalQuery(sql, arr, 'write', res);
+    const result = await Collaborators.generalQuery(sql, arr, 'write', res);
+
+    if(result.status === 200) {
+      UtilsService.sendEmail({ to_email: email, message, topic: 'Access credentials' });
+    }
+
+    return result;
   },
   update: async (id, payload, company_slug, res) => {
     const companyId = await UtilsService.getIdCompanyBySlug(company_slug, res);
