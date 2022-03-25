@@ -47,12 +47,16 @@ const Companies = {
       <h2>Welcome to Cube!</h2>
       <hr>
       <br>
+      <p>
+        Welcomo to cube plataform! Below you have the email and password to access your account,
+        as well as the link to your company's login page;
+      </p>
       <p><b>Company Name: </b> ${company}</p>
       <p><b>Account: </b> ${email}</p>
       <p><b>Password: </b> ${password}<p>
       <p><b>Link: </b> app.lexartcube.com/#/${slug}/login<p>
       <br>
-      <p>Please: change your password as soon as possible and keep safe.</p>
+      <p>Please change your password as soon as possible and keep safe.</p>
       <br>
       <p>Kind regards,<p>
       <p><b>Lexart / Cube Team</b><p>
