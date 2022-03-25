@@ -208,7 +208,7 @@ let User = {
 	insertOne: async function (usuario, idAdmin, company_slug, id_company) {
 		const tablaNombre = 'users';
 		let response, stack, idPosition;
-		let password = md5(usuario.password);
+		let password = company_slug !== 'lexart_labs' ? md5(usuario.password) : usuario.password;
 
 		if (company_slug === "lexart_labs") {
 			const result = await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId);
