@@ -176,7 +176,7 @@ let User = {
 				idPlataform = ?,
 				idCompany = ?,
 				dateEdited = NOW()
-			WHERE id = ?
+			WHERE email = ? AND idCompany = ?
 		`;
 		const arr = [
 			usuario.name,
@@ -188,7 +188,8 @@ let User = {
 			idPosition,
 			usuario.idPlataform || null,
 			id_company,
-			usuario.id,
+			usuario.email,
+			id_company,
 		];
 
 		try {
