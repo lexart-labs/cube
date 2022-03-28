@@ -172,7 +172,9 @@ export default {
       const result = await Companies.verify(this.company, captcha);
       this.isLoading = false;
       if (result.error) {
+        grecaptcha.reset();
         this.error = result.error;
+        this.captchaResponse = '';
       } else {
         this.$router.push(`${result.slug}/login`);
         this.hasSlug = true;
