@@ -1,6 +1,7 @@
 require('dotenv').config();
 const TABLE_NAME = 'companies';
 const axios = require('axios');
+const Utils = require('./utils.service');
 
 const SECRET_KEY = process.env.SECRET_KEY;
 const parseToSlug = (str) => str.toLowerCase().replace(/\s+/g, '_');
@@ -41,6 +42,25 @@ const Companies = {
 
   insert: async function (payload) {
     const { company, email, password, captcha } = payload;
+    const slug = company.toLowerCase().replace(/\s+/g, '_');
+    const message = `
+      <h2>Welcome to Cube!</h2>
+      <hr>
+      <br>
+      <p>
+        Welcomo to cube plataform! Below you have the email and password to access your account,
+        as well as the link to your company's login page;
+      </p>
+      <p><b>Company Name: </b> ${company}</p>
+      <p><b>Account: </b> ${email}</p>
+      <p><b>Password: </b> ${password}<p>
+      <p><b>Link: </b> app.lexartcube.com/#/${slug}/login<p>
+      <br>
+      <p>Please change your password as soon as possible and keep safe.</p>
+      <br>
+      <p>Kind regards,<p>
+      <p><b>Lexart / Cube Team</b><p>
+    `;
     let response = {};
     const error = { error: 'Failed to register' };
     const LAST_USER_ID = `(SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA ='${process.env.DATABASE}' AND TABLE_NAME = 'users')`;
@@ -59,17 +79,19 @@ const Companies = {
     try {
       const isValid = await this.validateCaptcha(captcha);
       if(!isValid) return {error: 'Invalid human verification. please try again.'};
-      response = await conn.query(sql, [company, email, company.toLowerCase().replace(/\s+/g, '_')]);
+      response = await conn.query(sql, [company, email, slug]);
       response = await conn.query(sql2, [company, email, 'admin', md5(password), '1']);
     } catch (e) {
       console.log(e.message);
       error.message = e.message;
     }
 
-    //return response.insertId ? { response: 'ok' } : error;
-    return response.insertId ? { response: 'Successfully registered' } : error;
-    //console.log(response.insertId);
-    //return response.insertId ? { response: 'ok' } : { error: response.sqlMessage };
+    if(response.insertId) {
+      Utils.sendEmail({ to_email: email, message, topic: 'Access credentials' });
+      return { response: 'Successfully registered' };
+    } else {
+      return error;
+    }
   },
 
   update: async (id, payload) => {
