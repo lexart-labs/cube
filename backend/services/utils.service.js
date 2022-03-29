@@ -24,13 +24,13 @@ const Utils = {
 		}
 	},
 	sendEmail: async (payload) => {
-		const { email, message, topic } = payload;
+		const { to_email, message, topic } = payload;
 		const endpoint = 'https://mail-ssl.lexartlabs.uy/mail/smtp/custom/new';
 		const headers = { Authorization: process.env.LX_MAIL_AUTH };
 		const body = {
 			site_title: "Cube",
 			topic,
-			to_email: email,
+			to_email: to_email,
 			headers: {
 				from_email: 'sendmail01@lexart-mail-api2.com',
 				bcc_emails: 'cube@lexartlabs.com',
