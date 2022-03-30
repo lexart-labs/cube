@@ -21,7 +21,7 @@
         <h2>Cube Platform</h2>
         <small>By Lexart Factory</small>
       </header>
-      <form style="margin-top: 1rem" id="login-form">
+      <form style="margin-top: 1rem" id="login-form" v-if="hasSlug">
         <input
           type="email"
           v-model="usr.email"
@@ -51,17 +51,47 @@
           </div>
         </footer>
       </form>
+      <form v-if="!hasSlug">
+        <div id="verify-company">
+          <input
+            type="text"
+            v-model="company"
+            placeholder="Company name"
+            class="form-control"
+          />
+          <button
+            class="btn btn-success"
+            :disabled="!company.length || isLoading"
+            @click="verifyCompany"
+          >
+            Verify
+          </button>
+        </div>
+        <div class="captcha-ctl">
+          <vue-recaptcha
+            :sitekey="siteKey"
+            @verify="setCaptchaResponse"
+          ></vue-recaptcha>
+        </div>
+        <small v-if="error" class="alert alert-danger">
+          {{ error }}
+        </small>
+      </form>
       <div>
-        <router-link to="/rcompany" class="rcompany">Registre su organización</router-link>
+        <router-link to="/rcompany" class="rcompany"
+          >Registre su organización</router-link
+        >
       </div>
     </div>
     <div v-if="warning" class="alert-error">
       <div class="alert alert-warning" role="alert">
-        <h4 class="is-bold"><i class="fas fa-exclamation-triangle"/> Warning!</h4>
-        <hr>
+        <h4 class="is-bold">
+          <i class="fas fa-exclamation-triangle" /> Warning!
+        </h4>
+        <hr />
         <p>
-          Apparently, you have not settled your company at the link to login page. 
-          The link to login must follow the format:
+          Apparently, you have not settled your company at the link to login
+          page. The link to login must follow the format:
         </p>
         <p><b>cube.lexartlabs.com/YOUR_COMPANY_NAME/login</b></p>
         <p>Please, try again using a valid link.</p>
@@ -73,18 +103,25 @@
 <script>
 /* eslint-disable no-underscore-dangle */
 import axios from "axios";
+import { VueRecaptcha } from "vue-recaptcha";
 import { copy } from "../services/helpers";
-import { API, APP_NAME } from "../../env";
+import Companies from "../services/companies.service";
+import { API, APP_NAME, SITE_KEY } from "../../env";
 
 export default {
   name: "Login",
+  components: { VueRecaptcha },
   data() {
     return {
       usr: {},
       error: "",
-      warning: '',
+      warning: "",
+      captchaResponse: "",
       isLoading: false,
+      company: "",
+      hasSlug: true,
       api: API,
+      siteKey: SITE_KEY,
       setting: {
         background: "",
         logo: "",
@@ -97,18 +134,18 @@ export default {
       const user = copy(this.usr);
       const { slug } = this.$route.params;
 
-      axios.post(`${API}users/login`, {...user, slug }).then(
+      axios.post(`${API}users/login`, { ...user, slug }).then(
         (res) => {
           const rs = res.data;
           this.isLoading = false;
 
           if (!rs.error) {
-            const { lexToken, token, ...cubeUsr} = rs.response;
+            const { lexToken, token, ...cubeUsr } = rs.response;
             localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
             localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
-            localStorage.setItem('_company-slug', slug);
-            localStorage.setItem('lexToken', rs.response.lexToken);
-            localStorage.setItem('cubeUser', JSON.stringify(cubeUsr));
+            localStorage.setItem("_company-slug", slug);
+            localStorage.setItem("lexToken", rs.response.lexToken);
+            localStorage.setItem("cubeUser", JSON.stringify(cubeUsr));
 
             this.$router.push("/app/dashboard");
           } else {
@@ -121,11 +158,39 @@ export default {
         }
       );
     },
+    verifyCompany: async function () {
+      this.isLoading = true;
+      this.error = "";
+      const captcha = this.captchaResponse;
+
+      if(!captcha) {
+        this.error = "please, make sure to check the reCaptcha challenge.";
+        this.isLoading = false;
+        return;
+      }
+
+      const result = await Companies.verify(this.company, captcha);
+      this.isLoading = false;
+      if (result.error) {
+        grecaptcha.reset();
+        this.error = result.error;
+        this.captchaResponse = '';
+      } else {
+        this.$router.push(`${result.slug}/login`);
+        this.hasSlug = true;
+      }
+    },
+    setCaptchaResponse(tk) {
+      this.captchaResponse = tk;
+    },
   },
   mounted() {
     localStorage.clear();
-    if (!this.$route.params.slug || this.$route.params.slug === 'login') {
-      this.$router.push('lexart_labs/login');
+    if (!this.$route.params.slug) {
+      this.$router.push("lexart_labs/login");
+    }
+    if (this.$route.params.slug === "login") {
+      this.hasSlug = false;
     }
   },
 };
@@ -140,7 +205,7 @@ footer > div {
 }
 .alert-error {
   max-width: 800px;
-  font-size: 1.2rem
+  font-size: 1.2rem;
 }
 .alert-error h4 {
   font-size: 2rem;
@@ -148,5 +213,16 @@ footer > div {
 }
 .alert-error p {
   margin-bottom: 1rem;
+}
+#verify-company {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.captcha-ctl {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 </style>

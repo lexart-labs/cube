@@ -2,7 +2,7 @@ require('dotenv').config();
 const express 	 = require('express');
 const bodyParser = require('body-parser');
 const cors 		   = require('cors');
-const multer     = require('multer')
+const multer     = require('multer');
 const app 	  	 = express();
 const cron       = require('node-cron');
 const { syncWithTracking, getTrackingToken } = require('./services/EvaluationsHandler.service');
@@ -24,7 +24,8 @@ cron.schedule('30 1 1 * *', () => {
 
 // Requiero de manera global la conexión con la base de datos
 global.conn  = require('./config/conn');
-global.Mdl   = require('./services/middleware.service')
+global.Mdl   = require('./services/middleware.service');
+
 
 // Router
 const usersRouter 	= require('./routes/users');

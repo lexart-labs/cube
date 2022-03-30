@@ -9,6 +9,15 @@ router.get('/', async (_req, res) => {
   return res.send(response);
 });
 
+router.post('/verify', async (req, res) => {
+  const { company, captcha } = req.body;
+
+  const response = await Companies.exists(company, captcha);
+
+  res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
 

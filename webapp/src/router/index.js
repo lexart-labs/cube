@@ -60,7 +60,7 @@ const routes = [
       },
     ],
   },
-  { path: '*', redirect: '/lexart_labs/login'}
+  { path: '*', redirect: '/login'}
 ];
 
 const router = new VueRouter({

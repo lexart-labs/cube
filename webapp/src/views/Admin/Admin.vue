@@ -8,7 +8,7 @@
               >Developers</router-link
             >
           </li>
-          <li class="nav-item">
+          <li class="nav-item" v-if="slug !== 'lexart_labs'">
             <router-link to="/app/administration/collaborators" class="nav-link"
               >{{ $t('generic.collaborators') }}</router-link
             >
@@ -62,6 +62,7 @@ export default {
       isLoading: true,
       searchQuery: null,
       curso: null,
+      slug: localStorage.getItem('_company-slug'),
     };
   },
   methods: {},

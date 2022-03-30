@@ -161,7 +161,9 @@ export default {
             // this.$router.push(`${this.cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`);
             this.success = true;
           } else {
+            grecaptcha.reset();
             this.error = rs.error;
+            this.captchaResponse = '';
           }
         },
         () => {
