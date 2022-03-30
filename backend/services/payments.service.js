@@ -17,7 +17,14 @@ const Payments = {
     let response;
 
     try {
-      response = await conn.query(sql, [idUser, salary, currency, billing, datePromotion, id]);
+      response = await conn.query(sql, [
+        idUser,
+        salary,
+        currency,
+        billing,
+        datePromotion.split('.')[0],
+        id
+      ]);
     } catch (e) {
       console.log('Payments service error --->', e.message, response);
     }
@@ -35,7 +42,7 @@ const Payments = {
     let response;
 
     try {
-      response = await conn.query(sql, [idUser, salary, currency, billing, datePromotion]);
+      response = await conn.query(sql, [idUser, salary, currency, billing, datePromotion.split('.')[0]]);
     } catch (e) {
       console.log('Payments service error --->', e.message, response);
     }
