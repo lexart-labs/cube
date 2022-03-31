@@ -12,6 +12,7 @@ import AppComponent from '../views/AppComponent.vue';
 import RegisterCompany from '../views/RegisterCompany.vue';
 import Continuity from '../views/Admin/Continuity.vue';
 import Collaborators from '../views/Admin/Collaborators.vue';
+import Payments from '../views/Admin/Payments.vue';
 
 const routes = [
   { path: '/:slug/login', name: 'Login', component: Login },
@@ -42,6 +43,10 @@ const routes = [
           {
             path: 'continuity',
             component: Continuity,
+          },
+          {
+            path: 'payments',
+            component: Payments,
           },
           {
             path: 'technologies',
