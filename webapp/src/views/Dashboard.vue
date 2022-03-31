@@ -704,6 +704,7 @@ export default {
 
       //Personifying
       isPersonifying: false,
+      personifyedId: 0,
       myDevs: [],
       myDev: {
         idLextrack: 0,
@@ -767,7 +768,7 @@ export default {
     obtenerEvaluaciones() {
       this.isFetching = true;
 
-      const id = localStorage.getItem(`id-${APP_NAME}`);
+      const id = this.isPersonifying ? this.personifyedId : localStorage.getItem(`id-${APP_NAME}`);
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
 
@@ -910,7 +911,7 @@ export default {
       this.filters.technologies.push(this.currentTechFilter);
       this.currentTechFilter = "";
     },
-    getEvaluations: async function (token, userId, idDev) {
+    getEvaluations: async function (token, userId, idDev, year = (new Date()).getFullYear()) {
       const headers = {
         token,
         "user-id": userId,
@@ -919,12 +920,11 @@ export default {
       const {
         data: { response },
       } = await axios.get(
-        `${API}courses/by-user/${idDev || IdUser}?year=${2022}`,
+        `${API}courses/by-user/${idDev || IdUser}?year=${year}`,
         {
           headers,
         }
       );
-
       if (response) {
         return response;
       } else {
@@ -1125,16 +1125,17 @@ export default {
       this.isLoading = true;
       this.show = "Dashboard";
       this.showEvaluation = 0;
-      this.year = new Date().getFullYear();
+      this.year = (new Date()).getFullYear();
       this.years = [new Date().getFullYear()];
       this.myUser = {};
       this.resources = [];
       this.isPersonifying = toggle;
+      this.personifyedId = id;
 
       // Buscar as informações do novo usuário
       const [myUser, evaluations, years, myTechs] = await Promise.all([
         this.getMyUser(token, idUser, id),
-        this.getEvaluations(token, idUser, id),
+        this.getEvaluations(token, idUser, id, this.year),
         this.getYears(id),
         TechnologiesService.getByUser(id),
       ]);
@@ -1143,10 +1144,12 @@ export default {
 
       // Setar os estados;
       this.myUser = myUser;
-      if (!toggle) {
+      /*if (!toggle) {
         this.years = years;
         this.year = years.length ? years[years.length - 1] : null;
-      }
+      }*/
+      this.years = years;
+      this.year = years.length ? years[years.length - 1] : null;
       this.userStack = Object.values(myTechs)[0] || [];
       this.resources = evaluations;
     },
