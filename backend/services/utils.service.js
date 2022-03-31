@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const sha1 = require('locutus/php/strings/sha1');
 const axios = require('axios');
 
+const ERROR = 'Something went wrong, please contact the administrator';
+
 const Utils = {
 	makeToken: function (usr) {
 		const jwtConfig = {
@@ -23,6 +25,40 @@ const Utils = {
 			res ? res.send({ status: 404, message: "This company doesn't exists" }) : '';
 		}
 	},
+    generalQuery: async function (sql, arr, action, pageSize = 10) {
+        let toReturn = {};
+        let response = [];
+        try {
+            response = await conn.query(sql, arr);
+
+            const checkByActionType = {
+                write: function (response) {
+                    if (response.affectedRows === 1) toReturn = { status: 200, message: 'ok' }
+                    else toReturn = { status: 400, message: response.sqlMessage || "No records found with this id" }
+                },
+
+                read: function (response) {
+                    if (response.sqlMessage) toReturn = { status: 400, message: response.sqlMessage }
+                    else toReturn = { status: 200, response: response, message: 'ok' }
+                },
+
+                count: function (response) {
+                    if (response.sqlMessage) toReturn = { status: 400, message: response.sqlMessage }
+                    else {
+                        let res = { totalOfPages: Math.ceil(response[0].total / pageSize), registersByPage: pageSize };
+                        toReturn = { status: 200, response: [res], message: 'ok' }
+                    }
+                }
+            }
+
+            checkByActionType[action](response)
+
+            return toReturn
+        } catch (e) {
+            toReturn = { status: 500, error: ERROR };
+            return toReturn
+        }
+    },
 	sendEmail: async (payload) => {
 		const { to_email, message, topic } = payload;
 		const endpoint = 'https://mail-ssl.lexartlabs.uy/mail/smtp/custom/new';
