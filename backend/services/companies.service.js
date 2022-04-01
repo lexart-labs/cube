@@ -48,7 +48,7 @@ const Companies = {
       <hr>
       <br>
       <p>
-        Welcomo to cube plataform! Below you have the email and password to access your account,
+        Welcome to cube plataform! Below you have the email and password to access your account,
         as well as the link to your company's login page;
       </p>
       <p><b>Company Name: </b> ${company}</p>
