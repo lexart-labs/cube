@@ -1,0 +1,3 @@
+ALTER TABLE levels
+  ADD COLUMN idCompany NOT NULL INT(11) DEFAULT(1),
+  ADD FOREIGN KEY fk_id_companies_levels REFERENCES companies(id) ON DELETE CASCADE;
