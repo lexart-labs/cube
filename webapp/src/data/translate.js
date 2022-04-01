@@ -162,6 +162,7 @@ const translations = {
       name: 'Nombre',
       userType: 'Tipo usuario',
       password: 'Contraseña',
+      payments: 'Pagos',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -271,6 +272,24 @@ const translations = {
       colaborator: 'Colaborador',
       successToAdd: "Usuario editado/creado correctamente",
       errorToAdd: "Error al intentar editar/crear un usuario"
+    },
+    AdminPayments: {
+      title: 'Pagos',
+      headers: ['Id', 'Nombre', 'Sueldo', 'Moneda', 'Facturación', 'Creado', 'Actualizado'],
+      modalTitle: 'Sueldo',
+      colaborator: 'Colaborador',
+      newBtn: 'Sueldo',
+      currency: 'Moneda',
+      billing: 'Facturación',
+      promotion: 'Fecha de promoción',
+      salary: 'Sueldo',
+      errorMsgs: {
+        salary: '¡Sueldo es requerido!',
+        user: 'Por favor, eleige a un colaborador.',
+        billing: 'Por favor especificar el periodo de facturación.',
+        date: 'Por favor especificar un afecha de promocción.',
+        currency: 'Moneda es un campo requerido',
+      },
     },
   },
   en: {
@@ -436,6 +455,7 @@ const translations = {
       name: 'Name',
       userType: 'User type',
       password: 'Password',
+      payments: 'Payments',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -545,6 +565,24 @@ const translations = {
       colaborator: 'Colaborator',
       successToAdd: "User created/edited successfully",
       errorToAdd: "Error trying to create/edit an user"
+    },
+    AdminPayments: {
+      title: 'Payments',
+      headers: ['Id', 'Name', 'Salary', 'Currency', 'Billing', 'Created', 'Updated'],
+      modalTitle: 'Payment',
+      colaborator: 'Colaborator',
+      newBtn: 'Salary',
+      currency: 'Currency',
+      billing: 'Billing',
+      promotion: 'Promotion date',
+      salary: 'Salary',
+      errorMsgs: {
+        salary: 'Payment field is required.',
+        user: 'User field is required.',
+        billing: 'Billing field is required.',
+        date: 'Date of promotion is required.',
+        currency: 'Currency is requiered.',
+      },
     },
   },
   pt: {},

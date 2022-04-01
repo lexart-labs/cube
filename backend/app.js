@@ -2,7 +2,7 @@ require('dotenv').config();
 const express 	 = require('express');
 const bodyParser = require('body-parser');
 const cors 		   = require('cors');
-const multer     = require('multer')
+const multer     = require('multer');
 const app 	  	 = express();
 const cron       = require('node-cron');
 const { syncWithTracking, getTrackingToken } = require('./services/EvaluationsHandler.service');
@@ -24,7 +24,8 @@ cron.schedule('30 1 1 * *', () => {
 
 // Requiero de manera global la conexión con la base de datos
 global.conn  = require('./config/conn');
-global.Mdl   = require('./services/middleware.service')
+global.Mdl   = require('./services/middleware.service');
+
 
 // Router
 const usersRouter 	= require('./routes/users');
@@ -38,7 +39,7 @@ const Plataforms = require('./routes/Plataforms');
 const companies = require('./routes/companies');
 const Collaborators = require('./routes/collaborators');
 const Hours = require("./routes/hours");
-const { login } = require('./services/courses.service');
+const Payment = require("./routes/payments");
 
 const port 	  	 = process.env.API_PORT;
 const seed       = 100000000000000
@@ -79,6 +80,7 @@ app.use('/plataforms', Plataforms)
 app.use('/companies', companies)
 app.use('/collaborators', Collaborators)
 app.use('/hours', Hours)
+app.use('/payments', Payment)
 app.use('/public', express.static('public'));
 
 app.post('/upload-file', upload.single('file-image'), function (req, res, next) {
