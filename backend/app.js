@@ -39,6 +39,7 @@ const Plataforms = require('./routes/Plataforms');
 const companies = require('./routes/companies');
 const Collaborators = require('./routes/collaborators');
 const Hours = require("./routes/hours");
+const Payment = require("./routes/payments");
 
 const port 	  	 = process.env.API_PORT;
 const seed       = 100000000000000
@@ -79,6 +80,7 @@ app.use('/plataforms', Plataforms)
 app.use('/companies', companies)
 app.use('/collaborators', Collaborators)
 app.use('/hours', Hours)
+app.use('/payments', Payment)
 app.use('/public', express.static('public'));
 
 app.post('/upload-file', upload.single('file-image'), function (req, res, next) {
