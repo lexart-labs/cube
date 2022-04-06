@@ -12,6 +12,16 @@ const Levels = {
     }
     return response.length > 0 ? { response } : ERROR;
   },
+  getByUser: async(id_company, id_career_type)=> {
+    const sql = `SELECT * FROM ${TABLE_NAME} WHERE idCompany=${id_company} AND idCareerType=${id_career_type}`;
+    let response = [];
+    try {
+      response = await conn.query(sql);
+    } catch (e) {
+      console.log(e.message);
+    }
+    return response.length > 0 ? { response } : ERROR;
+  },
   upsert: async (id, level, active) => {
     let sql = '';
     let error = { "error": "Error al ingresar/editar cargo" };
