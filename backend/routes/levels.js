@@ -29,8 +29,9 @@ router.put('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   const { level, active } = req.body;
+  const user_id = req.headers.user_id
 
-  const response = await Level.upsert(null, level, active);
+  const response = await Level.upsert(null, level, active, user_id);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
@@ -38,8 +39,9 @@ router.post('/', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
+  const user_id = req.headers.user_id
 
-  const response = await Level.remove(id);
+  const response = await Level.remove(id, user_id);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
