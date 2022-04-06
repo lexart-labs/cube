@@ -11,7 +11,7 @@ router.get('/', async (_req, res) => {
 });
 
 router.get('/by_user', async (req,res)=> {
-  const user_id = req.headers.id
+  const user_id = req.headers.user_id
   const user = await User.one(user_id)
   const response = await Level.getByUser(user.response.idCompany, user.response.idCareerType)
   return res.send(response);
