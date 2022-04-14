@@ -26,7 +26,7 @@ const Companies = {
     return data;
   },
   getById: async function (id) {
-    const { data } = await axios.get(`${API + MODEL}/${id}`, { headers });
+    const { data } = await axios.get(`${API + MODEL + id}`, { headers });
     return data.response ? data.response[0] : { name: '' };
   },
   insert: async function (payload) {

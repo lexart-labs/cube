@@ -97,6 +97,13 @@ const translations = {
       success: '¡Operación completada con suceso!',
       error: 'No fue possible completar la operación.',
     },
+    AdminPositions: {
+      placeholder:'Agregar una nueva posición',
+      tableHeaders: ['id', 'posición'],
+      title: 'Posicións',
+      success: '¡Operación completada con suceso!',
+      error: 'No fue possible completar la operación.',
+    },
     AdminOrigins: {
       placeholder: 'Adicionar una plataforma',
       title: 'Orígenes',
@@ -122,6 +129,7 @@ const translations = {
       exit: 'Cerrar sección',
       technologies: 'Tecnologías',
       hunting: 'Times',
+      Positions: 'Posición',
       months: [
         "Enero",
         "Febrero",
@@ -390,6 +398,13 @@ const translations = {
       success: 'Operation ran sucessfully',
       error: 'Error when saving this operation',
     },
+    AdminPositions: {
+      placeholder:'Add a new position',
+      tableHeaders: ['id', 'postition'],
+      title: 'Positions',
+      success: 'Operation ran sucessfully',
+      error: 'Error when saving this operation',
+    },
     AdminOrigins: {
       placeholder: 'Add new plataform',
       title: 'Origins',
@@ -415,6 +430,7 @@ const translations = {
       exit: 'Log out',
       technologies: 'Technologies',
       hunting: 'Teams',
+      Positions: 'Position',
       months: [
         "January",
         "February",

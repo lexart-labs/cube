@@ -16,6 +16,25 @@ const CareerService = function () {
       const { data } = await axios.get(`${API + MODEL}`, { headers });
       return data;
     },
+
+    new: async function (body) {
+      const headers = generateHeader();
+      const { data } = await axios.post(`${API + MODEL}`, body,{ headers });
+      return data;
+    },
+
+    put: async function (id, body) {
+      const headers = generateHeader();
+      const { data } = await axios.put(`${API + MODEL + id}`, body,{ headers });
+      return data;
+    },
+
+    del: async function (id) {
+      console.log(id);
+      const headers = generateHeader();
+      const { data } = await axios.delete(`${API + MODEL + id}`,{ headers });
+      return data;
+    }
   };
 };
 
