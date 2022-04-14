@@ -99,8 +99,9 @@ const translations = {
     },
     AdminPositions: {
       placeholder:'Agregar una nueva posición',
-      tableHeaders: ['id', 'posición'],
+      tableHeaders: ['id', 'Posición', 'Empresa', 'Tipo de carrera', 'Roadmap'],
       title: 'Posicións',
+      confirmRemove: '¿Estás seguro que desas borrar esta posición?',
       success: '¡Operación completada con suceso!',
       error: 'No fue possible completar la operación.',
     },
@@ -400,8 +401,9 @@ const translations = {
     },
     AdminPositions: {
       placeholder:'Add a new position',
-      tableHeaders: ['id', 'postition'],
+      tableHeaders: ['id', 'Position', 'Company', 'Career type', 'Roadmap'],
       title: 'Positions',
+      confirmRemove: 'Are you sure you want to delete this position?',
       success: 'Operation ran sucessfully',
       error: 'Error when saving this operation',
     },

@@ -29,24 +29,27 @@
     </div>
 
     <div class="courseContainer">
-      <table class="table col-12">
+      <table class="table table-custom col-12">
         <thead class="is-bold">
           <tr>
             <th v-for="(header, i) in $t('AdminPositions.tableHeaders')" :key="`head${i}`">
               {{ header }}
             </th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(position, i) in positions" :key="`tech${i}`">
+          <tr v-for="(position, i) in positions" :key="`tech${i}`" >
             <td>{{ position.id }}</td>
             <td>{{ position.position }}</td>
-            <td>{{ position.plataform }}</td>
+            <td>{{ position.careerType }}</td>
+            <td>{{ position.company }}</td>
+            <td>{{ position.roadmap }}</td>
             <td style="display: flex; gap: 1rem;justify-content: center;">
               <button class="btn btn-success" data-toggle="modal" v-on:click="setEditing(position)">
                 {{ $t("generic.edit") }}
               </button>
-              <button class="btn btn-secondary" data-toggle="modal" v-on:click="delPosition(position.id)">
+              <button class="btn btn-secondary" data-toggle="modal" v-on:click="() => { positionSelected = position }" data-target="#staticBackdrop">
                 {{ $t("generic.remove") }}
               </button>
             </td>
@@ -58,6 +61,54 @@
     <div v-if="isLoading" class="loading-cover">
       <Spinner />
     </div>
+
+    <div
+        class="modal fade"
+        id="staticBackdrop"
+        data-backdrop="static"
+        data-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-l modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="courseTitle is-bold" id="staticBackdropLabel">
+                {{positionSelected.position}}
+              </h4>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              {{ $t("AdminPositions.confirmRemove") }}
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary col-2"
+                data-dismiss="modal"
+              >
+              {{ $t("generic.close") }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary col-2"
+                v-on:click="delPosition(positionSelected.id)"
+              >
+              {{ $t("generic.remove") }}
+              </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -91,6 +142,7 @@ export default {
       newPosition: { ...DEFAULT_VALUE },
       careerTypes: [],
       token: localStorage.getItem(`token-app-${APP_NAME}`),
+      positionSelected: [],
     };
   },
   methods: {
@@ -167,7 +219,13 @@ export default {
 
     delPosition: function (id) {
       Career().del(id).then((result) => {
+        if(result.error) {
+          return;
+        }
+
         this.positions = this.positions.filter((position) => position.id != id);
+
+        this.positionSelected = [];
       }).catch((err) => {
         
       });
@@ -210,12 +268,17 @@ export default {
 
 <style scoped>
 .courseContainer {
-  display: flex;
   justify-content: center;
   width: 100%;
   height: 50vh;
   overflow-y: scroll;
   box-shadow: rgba(0, 0, 0, 0.109) 0px 2px 4px 0px inset;
+}
+
+.table-custom > tbody > tr > td {
+  border-top: none !important;
+  height: auto;
+  border-bottom: 1px solid #dee2e6;
 }
 
 h4 {
