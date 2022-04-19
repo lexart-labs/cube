@@ -3,27 +3,28 @@ const router = express.Router();
 const Career 	 = require('../services/careers.service');
 const CareersType = require('../services/careersType.service');
 
-router.get('/', async (_req, res) => {
-  const response = await Career.getAll();
+router.get('/', async (req, res) => {
+  const idUser = req.headers['user-id'];
+  const response = await Career.getAll(idUser);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 });
 
 router.put('/:id', async (req, res) => {
-  const { position, active } = req.body;
+  const { position, active, roadmap, idCompany, idCareerType } = req.body;
   const { id } = req.params;
 
-  const response = await Career.upsert(id, position, active);
+  const response = await Career.upsert(id, position, active, roadmap, idCompany, idCareerType);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 });
 
 router.post('/', async (req, res) => {
-  const { position, active } = req.body;
+  const { position, active, roadmap, idCompany, idCareerType } = req.body;
 
-  const response = await Career.upsert(null, position, active);
+  const response = await Career.upsert(null, position, active, roadmap, idCompany, idCareerType);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
@@ -56,7 +57,7 @@ router.post('/type/new', async (req, res) => {
   
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
-})
+});
 
 router.put('/type/edit', async function (req, res) {
   const { company_slug } = req.headers;
@@ -66,7 +67,7 @@ router.put('/type/edit', async function (req, res) {
   
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
-})
+});
 
 router.delete('/type/delete/:careerId', async (req, res) => {
   const { company_slug } = req.headers;
@@ -76,5 +77,14 @@ router.delete('/type/delete/:careerId', async (req, res) => {
   
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
-})
+});
+
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  const response = await Career.getById(id);
+
+  res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
 module.exports = router;
