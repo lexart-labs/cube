@@ -163,6 +163,7 @@ const translations = {
       userType: 'Tipo usuario',
       password: 'Contraseña',
       payments: 'Pagos',
+      careerType: 'Tipo de carrera',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -262,6 +263,12 @@ const translations = {
         user: 'Por favor, elige a un colaborador',
         continuity: 'Valor de horas inválido. Por favor, inserir en el formato HH:MM:SS',
       },
+    },
+    AdminCareerType: {
+      placeholder: 'Adicionar nuevo tipo de carreira',
+      title: 'Career Type',
+      tableHeaders: ['id', 'nombre'],
+      deleteError: 'Error: Please make sure this plataform is not related to any user.',
     },
     AdminCollaborators: {
       title: 'Colaboradores',
@@ -396,6 +403,12 @@ const translations = {
       tableHeaders: ['id', 'plataform'],
       deleteError: 'Error: Please make sure this plataform is not related to any user.',
     },
+    AdminCareerType: {
+      placeholder: 'Add new career type',
+      title: 'Career Type',
+      tableHeaders: ['id', 'name'],
+      deleteError: 'Error: Please make sure this plataform is not related to any user.',
+    },
     generic: {
       cancel: 'Cancel',
       save: 'Save',
@@ -456,6 +469,7 @@ const translations = {
       userType: 'User type',
       password: 'Password',
       payments: 'Payments',
+      careerType: 'Career Type',
     },
     positionAssignments: {
       'EntryLevel Developer': [
