@@ -108,7 +108,6 @@ export default {
       careersType: [],
       token: localStorage.getItem(`token-app-${APP_NAME}`),
       selectCareer: {},
-      lastId: 0,
     };
   },
 
@@ -125,9 +124,7 @@ export default {
         return;
       }
 
-      this.lastId = this.lastId + 1;
-
-      this.newCareerType.id = this.lastId;
+      this.newCareerType.id = response.response.insertId;
       this.careersType.push(this.newCareerType);
 
       return this.newCareerType = {...this.DEFAULT_VALUE};
