@@ -97,6 +97,13 @@ const translations = {
       success: '¡Operación completada con suceso!',
       error: 'No fue possible completar la operación.',
     },
+    AdminLevels: {
+      placeholder:'Adicionar nuevo level',
+      tableHeaders: ['id', 'nombre', 'career', ''],
+      title: 'Levels en Lexart',
+      success: '¡Operación completada con suceso!',
+      error: 'No fue possible completar la operación.',
+    },
     AdminOrigins: {
       placeholder: 'Adicionar una plataforma',
       title: 'Orígenes',
@@ -386,6 +393,13 @@ const translations = {
     AdminTechnologies: {
       placeholder:'Add a new technology',
       tableHeaders: ['id', 'name', 'plataform', ''],
+      title: 'Lexart stack',
+      success: 'Operation ran sucessfully',
+      error: 'Error when saving this operation',
+    },
+    AdminLevels: {
+      placeholder:'Add a new level',
+      tableHeaders: ['id', 'name', 'career', ''],
       title: 'Lexart stack',
       success: 'Operation ran sucessfully',
       error: 'Error when saving this operation',
