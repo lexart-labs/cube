@@ -267,6 +267,7 @@ const translations = {
     AdminCareerType: {
       placeholder: 'Adicionar nuevo tipo de carreira',
       title: 'Career Type',
+      confirmRemove: '¿Está seguro de que desea eliminar este tipo de carrera?',
       tableHeaders: ['id', 'nombre'],
       deleteError: 'Error: Please make sure this plataform is not related to any user.',
     },
@@ -405,6 +406,7 @@ const translations = {
     },
     AdminCareerType: {
       placeholder: 'Add new career type',
+      confirmRemove: 'Are you sure you want to delete this career type?',
       title: 'Career Type',
       tableHeaders: ['id', 'name'],
       deleteError: 'Error: Please make sure this plataform is not related to any user.',

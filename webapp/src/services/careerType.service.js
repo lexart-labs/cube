@@ -21,6 +21,16 @@ const CareerTypeService = function () {
       const headers = generateHeader();
       const { data } = await axios.post(`${API + MODEL}` + 'new', { careerName }, { headers });
       return data;
+    },
+    putCareer: async function (careerName, careerId) {
+      const headers = generateHeader();
+      const { data } = await axios.put(`${API + MODEL}` + 'edit', { careerName, careerId }, { headers });
+      return data;
+    },
+    removeCareer: async function (careerId) {
+      const headers = generateHeader();
+      const { data } = await axios.delete(`${API + MODEL}` + 'delete/' + careerId, { headers });
+      return data;
     }
   };
 };
