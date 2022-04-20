@@ -270,6 +270,8 @@ const translations = {
       confirmRemove: '¿Está seguro de que desea eliminar este tipo de carrera?',
       tableHeaders: ['id', 'nombre'],
       deleteError: 'Error: Please make sure this plataform is not related to any user.',
+      duplicateError: 'Este tipo de carrera ya existe',
+      careerIsUsed: 'Este tipo de carrera se está utilizando'
     },
     AdminCollaborators: {
       title: 'Colaboradores',
@@ -410,6 +412,8 @@ const translations = {
       title: 'Career Type',
       tableHeaders: ['id', 'name'],
       deleteError: 'Error: Please make sure this plataform is not related to any user.',
+      duplicateError: 'This career type already exists',
+      careerIsUsed: 'This type of career is being used'
     },
     generic: {
       cancel: 'Cancel',
