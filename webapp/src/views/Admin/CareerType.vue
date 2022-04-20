@@ -124,9 +124,7 @@ export default {
         return;
       }
 
-      this.newCareerType.id = response.response.insertId;
-      this.careersType.push(this.newCareerType);
-
+      this.loadCareerType();
       return this.newCareerType = {...this.DEFAULT_VALUE};
     },
 
@@ -153,8 +151,6 @@ export default {
         console.log(response.message);
         return;
       }
-
-      this.lastId = response.response[response.response.length - 1].id;
 
       return this.careersType = response.response.map((career) => {
         career.name = career.careerName;
