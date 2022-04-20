@@ -14,7 +14,13 @@ const Levels = {
     return response.length > 0 ? { response } : ERROR;
   },
   getByUser: async(id_company, id_career_type)=> {
-    const sql = `SELECT * FROM ${TABLE_NAME} WHERE idCompany=${id_company} AND idCareerType=${id_career_type}`;
+    const sql = `SELECT u.id, u.level, ct.careerName FROM ${TABLE_NAME} 
+      AS u
+      LEFT JOIN careers_type ct
+      ON u.idCareerType = ct.id
+      WHERE u.idCompany=${id_company} AND u.idCareerType=${id_career_type}
+      ;
+     `;
     let response = [];
     try {
       response = await conn.query(sql);
