@@ -33,7 +33,7 @@ const Utils = {
 
             const checkByActionType = {
                 write: function (response) {
-                    if (response.affectedRows === 1) toReturn = { status: 200, message: 'ok', response }
+                    if (response.affectedRows === 1) toReturn = { status: 200, message: 'ok' }
                     else toReturn = { status: 400, message: response.sqlMessage || "No records found with this id" }
                 },
 
