@@ -13,25 +13,25 @@
     <div class="row" id="inputTech">
       <input
         type="text"
-        v-model="newTechnology.name"
+        v-model="newTechnology.level"
         :placeholder="$t('AdminTechnologies.placeholder')"
         class="form-control col-6 is-rounded"
       />
       <select v-model="newTechnology.plataform" class="form-control col-2 is-rounded">
         <option value="" disabled>Selecione</option>
         <option
-          v-for="(plataform, i) in plataforms"
-          :value="plataform.id"
+          v-for="(level, i) in levels"
+          :value="level.id"
           :key="`plat-${i}`"
         >
-          {{ plataform.level }}
+          {{ level.level }}
         </option>
       </select>
       <button
         type="button"
         class="btn btn-primary col-1"
         v-on:click="isEditing ? updateTech() : addTech()"
-        :disabled="!newTechnology.name"
+        :disabled="!newTechnology.level"
       >
         {{ isEditing ? $t("generic.edit") : $t("generic.save") }}
       </button>
@@ -104,22 +104,24 @@ export default {
       error: '',
       technologies: [],
       newTechnology: { ...DEFAULT_VALUE},
-      plataforms: [],
+      levels: [],
+      user_id: localStorage.getItem(`id-${APP_NAME}`),
       token: localStorage.getItem(`token-app-${APP_NAME}`),
+      company_slug: localStorage.getItem("_company-slug")
     };
   },
   methods: {
     getLevels: async function(){
       const endpoint = `${API}levels/by_user`;
-
+      
       const a = await axios.get(endpoint, { headers: { token: this.token, user_id: 1 }});
-      this.plataforms= a.data.response
+      this.levels= a.data.response
     },
     getTechs: async function (id) {
       this.isLoading = true;
       const endpoint = `${API}levels/by_user`;
 
-      const a = await axios.get(endpoint, { headers: { token: this.token, user_id: 1 }});
+      const a = await axios.get(endpoint, { headers: { token: this.token, user_id: this.user_id }});
       console.log('get techs', a.data.response);
       this.technologies= a.data.response
       this.isLoading = false;
@@ -151,9 +153,9 @@ export default {
     deleteTech: async function(tech) {
       this.isLoading = true;
       const { id } = tech;
-      const endpoint = `${API}technologies/${id}`;
+      const endpoint = `${API}levels/${id}`;
 
-      const { data } = await axios.delete(endpoint, { headers: { token: this.token }});
+      const { data } = await axios.delete(endpoint, { headers: { token: this.token, user_id: this.user_id }});
       
       if(data.response) {
         await this.getTechs();
@@ -173,9 +175,10 @@ export default {
     },
     addTech: async function() {
       this.isLoading = true;
-      const endpoint = `${API}technologies/`;
-
-      const { data } = await axios.post(endpoint, {...this.newTechnology}, { headers: { token: this.token }});
+      const endpoint = `${API}levels`;
+      console.log(this.newTechnology);
+      const { data } = await axios.post(endpoint, {...this.newTechnology, active: 1}, { headers: { token: this.token, user_id: this.user_id }});
+      console.log(data);
       
       if(data.response) {
         this.newTechnology = {...DEFAULT_VALUE};
