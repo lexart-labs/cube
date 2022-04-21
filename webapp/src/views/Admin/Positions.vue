@@ -39,17 +39,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(position, i) in positions" :key="`tech${i}`" >
+          <tr v-for="(position, i) in positions" :key="`tech${i}`">
             <td>{{ position.id }}</td>
             <td>{{ position.position }}</td>
-            <td>{{ position.careerType }}</td>
             <td>{{ position.company }}</td>
+            <td>{{ position.careerType }}</td>
             <td>{{ position.roadmap }}</td>
             <td style="display: flex; gap: 1rem;justify-content: center;">
               <button class="btn btn-success" data-toggle="modal" v-on:click="setEditing(position)">
                 {{ $t("generic.edit") }}
               </button>
-              <button class="btn btn-secondary" data-toggle="modal" v-on:click="() => { positionSelected = position }" data-target="#staticBackdrop">
+              <button class="btn btn-secondary" data-toggle="modal" v-on:click="() => { positionSelected = position }"
+                data-target="#staticBackdrop">
                 {{ $t("generic.remove") }}
               </button>
             </td>
@@ -62,48 +63,29 @@
       <Spinner />
     </div>
 
-    <div
-        class="modal fade"
-        id="staticBackdrop"
-        data-backdrop="static"
-        data-keyboard="false"
-        tabindex="-1"
-        aria-labelledby="staticBackdropLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-l modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="courseTitle is-bold" id="staticBackdropLabel">
-                {{positionSelected.position}}
-              </h4>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              {{ $t("AdminPositions.confirmRemove") }}
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary col-2"
-                data-dismiss="modal"
-              >
+    <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-l modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="courseTitle is-bold" id="staticBackdropLabel">
+              {{ positionSelected.position }}
+            </h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            {{ $t("AdminPositions.confirmRemove") }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary col-2" data-dismiss="modal">
               {{ $t("generic.close") }}
-              </button>
-              <button
-                type="button"
-                class="btn btn-primary col-2"
-                v-on:click="delPosition(positionSelected.id)"
-              >
+            </button>
+            <button type="button" class="btn btn-primary col-2" v-on:click="delPosition(positionSelected.id)"
+              data-dismiss="modal">
               {{ $t("generic.remove") }}
-              </button>
+            </button>
           </div>
         </div>
       </div>
@@ -146,40 +128,22 @@ export default {
     };
   },
   methods: {
-    addPosition: function () {
+    addPosition: async function () {
       this.newPosition.name = this.newPosition.name.trim();
 
-      let body = {
+      const body = {
         position: this.newPosition.name,
         active: 1,
         roadmap: null,
-        idCompany: null,
         idCareerType: this.newPosition.careerType.id
       }
 
-      const promise = new Promise((resolve, reject) => {
-        Utils.getIdCompanyBySlug().then((result) => {
-          resolve(result.data.companyId);
-        });
-      });
+      await Career().new(body);
 
-      promise.then((id) => {
-        body.idCompany = id;
-
-        Career().new(body).then((result) => {
-          const id = this.positions.length + 1;
-          body.id = id;
-          body.careerType = { ...this.careerTypes.filter((item) => item.id == body.idCareerType.id)[0] };
-
-          this.positions.push(body);
-          console.log(body, this.positions);
-        }).catch((err) => {
-          console.log(err);
-        });
-      })
+      this.getCareers();
     },
 
-    putPosition: function (id) {
+    putPosition: async function (id) {
       this.newPosition.name = this.newPosition.name.trim();
 
       let body = {
@@ -187,48 +151,24 @@ export default {
         position: this.newPosition.name,
         active: 1,
         roadmap: null,
-        idCompany: null,
         idCareerType: this.newPosition.careerType.id
       }
 
-      const promise = new Promise((resolve, reject) => {
-        Utils.getIdCompanyBySlug().then((result) => {
-          resolve(result.data.companyId);
-        });
-      });
-
-      promise.then((id) => {
-        body.idCompany = id;
-
-        Career().put(body.id, body).then((result) => {
-
-          this.positions = this.positions.map((position) => {
-            if (position.id === body.id) {
-              position = body;
-            }
-
-            return position;
-          });
-
-          this.onCancelEdit();
-        }).catch((err) => {
-
-        });
-      })
+      await Career().put(body.id, body);
+      
+      this.getCareers();
     },
 
-    delPosition: function (id) {
-      Career().del(id).then((result) => {
-        if(result.error) {
-          return;
-        }
+    delPosition: async function (id) {
+      const response = await Career().del(id);
 
-        this.positions = this.positions.filter((position) => position.id != id);
+      if (response.error) {
+        return;
+      }
 
-        this.positionSelected = [];
-      }).catch((err) => {
-        
-      });
+      this.positions = this.positions.filter((position) => position.id != id);
+
+      this.positionSelected = [];
     },
 
     setEditing: function (position) {
@@ -243,20 +183,16 @@ export default {
       this.isEditing = false;
     },
 
-    getCareersType: function () {
-      CareerType().getByIdCompany().then((result) => {
-        this.careerTypes = result.response;
-      }).catch((err) => {
+    getCareersType: async function () {
+      const response = await CareerType().getByIdCompany();
 
-      });
+      this.careerTypes = response.response;
     },
 
-    getCareers: function () {
-      Career().getAll().then((result) => {
-        this.positions = result.response;
-      }).catch((err) => {
+    getCareers: async function () {
+      const response = await Career().getAll();;
 
-      });
+      this.positions = response.response;
     }
   },
   mounted: function () {
@@ -275,7 +211,7 @@ export default {
   box-shadow: rgba(0, 0, 0, 0.109) 0px 2px 4px 0px inset;
 }
 
-.table-custom > tbody > tr > td {
+.table-custom>tbody>tr>td {
   border-top: none !important;
   height: auto;
   border-bottom: 1px solid #dee2e6;

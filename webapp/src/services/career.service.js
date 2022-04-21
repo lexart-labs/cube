@@ -4,8 +4,9 @@ import { APP_NAME, API } from '../../env';
 const generateHeader = () => {
   const token = localStorage.getItem(`token-app-${APP_NAME}`);
   const userId = localStorage.getItem(`id-${APP_NAME}`);
+  const company_slug = localStorage.getItem(`_company-slug`);
 
-  return { token, 'user-id': userId };
+  return { token, 'user-id': userId, company_slug };
 };
 
 const CareerService = function () {
