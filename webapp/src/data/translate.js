@@ -391,7 +391,7 @@ const translations = {
       ],
     },
     AdminTechnologies: {
-      placeholder:'Add a new technology',
+      placeholder:'Add a new level',
       tableHeaders: ['id', 'name', 'plataform', ''],
       title: 'Lexart stack',
       success: 'Operation ran sucessfully',
