@@ -70,7 +70,8 @@ const Career = {
     let error = { "error": "Error al remover cargo" };
     try {
       const response = await conn.query(sql, [id]);
-      return (response.changedRows === 1) ? { response: 'Removido con éxito'} : error;
+      console.log(response);
+      return (response.affectedRows == 1) ? { response: 'Removido con éxito'} : error;
     } catch (e) {
      console.log(e.message);
      return error;
