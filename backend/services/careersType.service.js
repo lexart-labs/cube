@@ -3,7 +3,7 @@ const TABLE_NAME = 'careers_type';
 const PAGE_SIZE = 10;
 
 const CareersType = {
-    getByIdCompany: async (company_slug, current_page, res) => {
+    getByIdCompany: async (company_slug, current_page = 1, res) => {
         const companyId = await Utils.getIdCompanyBySlug(company_slug, res);
 
         const sql = `
