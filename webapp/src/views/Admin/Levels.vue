@@ -154,7 +154,7 @@ export default {
       const { id } = tech;
       const endpoint = `${API}levels/${id}`;
 
-      const { data } = await axios.delete(endpoint, { headers: { token: this.token, user_id: this.user_id }});
+      const { data } = await axios.delete(endpoint, { headers: { token: this.token, user_id: this.user_id, company_slug: this.company_slug }});
       
       if(data.response) {
         await this.getTechs();
