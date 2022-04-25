@@ -63,7 +63,7 @@ const routes = [
             component: CareerType,
           },
           {
-            path: 'career-type',
+            path: 'career',
             component: Positions,
           },
         ],
