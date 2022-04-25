@@ -15,7 +15,7 @@ const Levels = {
     return response.length > 0 ? { response } : ERROR;
   },
   getByUser: async(id_company, id_career_type)=> {
-    const sql = `SELECT u.id, u.level, ct.careerName FROM ${TABLE_NAME} 
+    const sql = `SELECT u.id, u.level, ct.careerName, ct.id AS idCareerType FROM ${TABLE_NAME} 
       AS u
       LEFT JOIN careers_type ct
       ON u.idCareerType = ct.id
