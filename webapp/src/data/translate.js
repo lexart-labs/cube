@@ -99,7 +99,7 @@ const translations = {
     },
     AdminLevels: {
       placeholder:'Adicionar nuevo level',
-      tableHeaders: ['id', 'nombre', 'career', ''],
+      tableHeaders: ['nombre', 'career', ''],
       title: 'Levels en Lexart',
       success: '¡Operación completada con suceso!',
       error: 'No fue possible completar la operación.',
@@ -399,7 +399,7 @@ const translations = {
     },
     AdminLevels: {
       placeholder:'Add a new level',
-      tableHeaders: ['id', 'name', 'career', ''],
+      tableHeaders: ['name', 'career', ''],
       title: 'Lexart stack',
       success: 'Operation ran sucessfully',
       error: 'Error when saving this operation',
