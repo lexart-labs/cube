@@ -43,6 +43,11 @@
               >{{ $t('generic.Positions') }}</router-link
             >
           </li>
+          <li class="nav-item">
+            <router-link to="/app/administration/career-type" class="nav-link"
+              >{{ $t('generic.careerType') }}</router-link
+            >
+          </li>
         </ul>
       </nav>
       <main>

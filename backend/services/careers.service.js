@@ -1,5 +1,6 @@
 const TABLE_NAME = 'careers';
 const ERROR = { error: 'No fue possible recuperar los datos' };
+const Utils = require('./utils.service');
 
 const Career = {
   getAll: async (idUser) => {
@@ -67,14 +68,9 @@ const Career = {
   },
   remove: async (id) => {
     const sql = `DELETE FROM careers WHERE id = ?`;
-    let error = { "error": "Error al remover cargo" };
-    try {
-      const response = await conn.query(sql, [id]);
-      return (response.changedRows === 1) ? { response: 'Removido con éxito'} : error;
-    } catch (e) {
-     console.log(e.message);
-     return error;
-    }
+    const arr = [id];
+    
+    return await Utils.generalQuery(sql, arr, 'write');
   },
   getById: async (id) => {
     const sql = `
