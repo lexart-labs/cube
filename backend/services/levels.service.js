@@ -74,6 +74,9 @@ const Levels = {
     let error = { "error": "Error al borrar level" };
     try {
       const response = await conn.query(sql, [id, idCompany]);
+      if(response.errno === 1451){
+        error = {'error': "Can't delete a level related to a user", 'cod': 1451}
+      }
       return (response.affectedRows === 1) ? { response: 'Borrado con éxito' } : error;
 
     } catch (e) {

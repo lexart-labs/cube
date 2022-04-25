@@ -103,6 +103,7 @@ const translations = {
       title: 'Levels en Lexart',
       success: '¡Operación completada con suceso!',
       error: 'No fue possible completar la operación.',
+      errorDelete: 'No se puede eliminar un nivel relacionado con un usuario'
     },
     AdminOrigins: {
       placeholder: 'Adicionar una plataforma',
@@ -403,6 +404,7 @@ const translations = {
       title: 'Lexart stack',
       success: 'Operation ran sucessfully',
       error: 'Error when saving this operation',
+      errorDelete: "Can't delete a level related to a user",
     },
     AdminOrigins: {
       placeholder: 'Add new plataform',

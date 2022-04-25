@@ -152,19 +152,19 @@ export default {
       const endpoint = `${API}levels/${id}`;
 
       const { data } = await axios.delete(endpoint, { headers: { token: this.token, company_slug: this.company_slug }});
-      console.log(data);
       
       if(data.response) {
-        await this.getTechs();
+        await this.getLevels();
         Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
             type: "success",
             duration: 2000,
         });
       } else {
         this.isLoading = false;
-
         this.error = data.error;
-        Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.error, {
+        Vue.toasted.show(data.cod 
+        ? translations[this.$store.state.language].AdminLevels.errorDelete
+         : translations[this.$store.state.language].AdminLevels.error, {
             type: "error",
             duration: 2000,
         });
@@ -192,7 +192,7 @@ export default {
     setEditing(tech) {
       this.isEditing = true;
       this.newLevel = {...tech};
-      console.log('set editing:', this.newLevel);
+
     },
     onCancel() {
       this.isEditing = false;
