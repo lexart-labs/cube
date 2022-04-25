@@ -17,14 +17,14 @@
         :placeholder="$t('AdminTechnologies.placeholder')"
         class="form-control col-6 is-rounded"
       />
-      <select v-model="newTechnology.plataform" class="form-control col-2 is-rounded">
+      <select v-model="newTechnology.idCareerType" class="form-control col-2 is-rounded">
         <option value="" disabled>Selecione</option>
         <option
           v-for="(level, i) in levels"
           :value="level.id"
           :key="`plat-${i}`"
         >
-          {{ level.level }}
+          {{ level.careerName }}
         </option>
       </select>
       <button
@@ -112,9 +112,8 @@ export default {
   },
   methods: {
     getLevels: async function(){
-      const endpoint = `${API}levels/by_user`;
-      
-      const a = await axios.get(endpoint, { headers: { token: this.token, user_id: 1 }});
+      const endpoint = `${API}careers/type?page=1`;
+      const a = await axios.get(endpoint, { headers: { token: this.token, company_slug: this.company_slug }});
       this.levels= a.data.response
     },
     getTechs: async function (id) {
@@ -175,11 +174,10 @@ export default {
     },
     addTech: async function() {
       this.isLoading = true;
-      const endpoint = `${API}levels`;
       console.log(this.newTechnology);
-      const { data } = await axios.post(endpoint, {...this.newTechnology, active: 1}, { headers: { token: this.token, user_id: this.user_id }});
-      console.log(data);
-      
+      const endpoint = `${API}levels`;
+      const { data } = await axios.post(endpoint, {...this.newTechnology,active: 1}, { headers: { token: this.token, user_id: this.user_id , company_slug: this.company_slug}});
+      console.log(this.newTechnology);
       if(data.response) {
         this.newTechnology = {...DEFAULT_VALUE};
         await this.getTechs();
