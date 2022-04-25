@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Career 	 = require('../services/careers.service');
 const CareersType = require('../services/careersType.service');
+const Utils = require('../services/utils.service');
 
 router.get('/', async (req, res) => {
   const idUser = req.headers['user-id'];
@@ -12,8 +13,10 @@ router.get('/', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-  const { position, active, roadmap, idCompany, idCareerType } = req.body;
+  const { position, active, roadmap, idCareerType } = req.body;
   const { id } = req.params;
+  const { company_slug } = req.headers;
+  const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
 
   const response = await Career.upsert(id, position, active, roadmap, idCompany, idCareerType);
 
@@ -22,8 +25,10 @@ router.put('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { position, active, roadmap, idCompany, idCareerType } = req.body;
-
+  const { position, active, roadmap, idCareerType } = req.body;
+  const { company_slug } = req.headers;
+  
+  const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
   const response = await Career.upsert(null, position, active, roadmap, idCompany, idCareerType);
 
   res.set(['Content-Type', 'application/json']);
