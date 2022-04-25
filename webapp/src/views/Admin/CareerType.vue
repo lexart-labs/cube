@@ -119,6 +119,7 @@ export default {
     async saveCareerType() {
       const response = await CareerType().newCareerType(this.newCareerType.name);
 
+      if(response.status === 200) Vue.toasted.show('Career type created successfully', { type: 'success', duration: 4000 })
       if (response.status != 200) {
         if(response.message.includes("Duplicate")) {
           Vue.toasted.show( this.$t('AdminCareerType.duplicateError'), { type: "info", duration: 4000 });
@@ -140,6 +141,7 @@ export default {
 
       const response = await CareerType().putCareer(career.name, career.id);
 
+      if(response.status === 200) Vue.toasted.show('Career type edited successfully', { type: 'success', duration: 4000 });
       if (response.status != 200) {
         Vue.toasted.show( 'Internal error', { type: "error", duration: 4000 });
         return;
@@ -188,6 +190,9 @@ export default {
     async removeCareer(id) {
       const response = await CareerType().removeCareer(id);
 
+      if(response.status === 200) {
+        Vue.toasted.show('Career type removed successfully', { type: 'success', duration: 4000 })
+      }
       if (response.status != 200) {
 
         if(response.message.includes("delete or update a parent")) {
