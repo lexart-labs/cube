@@ -115,14 +115,14 @@ export default {
       const endpoint = `${API}careers/type?page=1`;
       const a = await axios.get(endpoint, { headers: { token: this.token, company_slug: this.company_slug }});
       this.levels= a.data.response
+      console.log(this.levels);
     },
     getTechs: async function (id) {
       this.isLoading = true;
       const endpoint = `${API}levels/by_user`;
-
-      const a = await axios.get(endpoint, { headers: { token: this.token, user_id: this.user_id }});
-      console.log('get techs', a.data.response);
-      this.technologies= a.data.response
+      const {data} = await axios.get(endpoint, { headers: { token: this.token, user_id: this.user_id }});
+      this.technologies= data.response
+      console.log(this.technologies);
       this.isLoading = false;
     },
     updateTech: async function() {
@@ -153,7 +153,8 @@ export default {
       const { id } = tech;
       const endpoint = `${API}levels/${id}`;
 
-      const { data } = await axios.delete(endpoint, { headers: { token: this.token, user_id: this.user_id, company_slug: this.company_slug }});
+      const { data } = await axios.delete(endpoint, { headers: { token: this.token, company_slug: this.company_slug }});
+      console.log(data);
       
       if(data.response) {
         await this.getTechs();
@@ -195,6 +196,7 @@ export default {
     setEditing(tech) {
       this.isEditing = true;
       this.newTechnology = {...tech};
+      console.log('set editing:', this.newTechnology);
     },
     onCancel() {
       this.isEditing = false;
