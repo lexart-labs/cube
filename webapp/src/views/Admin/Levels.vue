@@ -129,9 +129,8 @@ export default {
       this.isLoading = true;
       this.isEditing = false;
       const { id } = this.newTechnology;
-      const endpoint = `${API}technologies/${id}`;
-
-      const { data } = await axios.put(endpoint, {...this.newTechnology}, { headers: { token: this.token }});
+      const endpoint = `${API}levels`;
+      const { data } = await axios.post(endpoint, {...this.newTechnology}, { headers: { token: this.token, company_slug: this.company_slug }});
       
       if(data.response) {
         await this.getTechs();
