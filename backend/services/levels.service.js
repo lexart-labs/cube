@@ -24,6 +24,13 @@ const Levels = {
     }
     return response.length > 0 ? { response } : ERROR;
   },
+  getByUserAdmin: async (company_slug, res) => {
+    const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
+    const sql = `SELECT * FROM ${TABLE_NAME} WHERE idCompany = ?`;
+    const arr = [idCompany];
+
+    return Utils.generalQuery(sql, arr, 'read');
+  },
   getByCareerType: async(company_slug, idCareerType, res) => {
     const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
     const sql = `SELECT * FROM ${TABLE_NAME} WHERE idCompany = ? AND idCareerType = ?`;
