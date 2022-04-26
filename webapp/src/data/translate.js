@@ -102,7 +102,13 @@ const translations = {
       tableHeaders: ['id', 'Posición', 'Empresa', 'Tipo de carrera', 'Roadmap'],
       title: 'Posicións',
       confirmRemove: '¿Estás seguro que desas borrar esta posición?',
+      deleted: 'Posición eliminada con éxito.',
+      created: 'Posición creada con éxito.',
+      edited: 'Posición editado con éxito.',
       success: '¡Operación completada con suceso!',
+      duplicateError: 'Esta posición ya existe',
+      deleteError: 'Error: Please make sure this plataform is not related to any user.',
+      positionIsUsed: 'This type of position is being used',
       error: 'No fue possible completar la operación.',
     },
     AdminOrigins: {
@@ -280,7 +286,10 @@ const translations = {
       tableHeaders: ['id', 'nombre'],
       deleteError: 'Error: Please make sure this plataform is not related to any user.',
       duplicateError: 'Este tipo de carrera ya existe',
-      careerIsUsed: 'Este tipo de carrera se está utilizando'
+      careerIsUsed: 'Este tipo de carrera se está utilizando',
+      created: 'Tipo de carrera creado con éxito.',
+      deleted: 'Tipo de carrera eliminado con éxito.',
+      edited: 'Tipo de carrera editado con éxito',
     },
     AdminCollaborators: {
       title: 'Colaboradores',
@@ -415,7 +424,13 @@ const translations = {
       title: 'Positions',
       confirmRemove: 'Are you sure you want to delete this position?',
       success: 'Operation ran sucessfully',
+      deleted: 'Position deleted successfully.',
+      created: 'Position created successfully.',
+      edited: 'Position edited successfully.',
       error: 'Error when saving this operation',
+      duplicateError: 'This position already exists',
+      deleteError: 'Error: Por favor, asegúrese de que esta plataforma no esté relacionada con ningún usuario.',
+      positionIsUsed: 'Este tipo de posición se está utilizando',
     },
     AdminOrigins: {
       placeholder: 'Add new plataform',
@@ -430,7 +445,10 @@ const translations = {
       tableHeaders: ['id', 'name'],
       deleteError: 'Error: Please make sure this plataform is not related to any user.',
       duplicateError: 'This career type already exists',
-      careerIsUsed: 'This type of career is being used'
+      careerIsUsed: 'This type of career is being used',
+      created: 'Career type created successfully.',
+      deleted: 'Career type deleted successfully.',
+      edited: 'Career type edited successfully',
     },
     generic: {
       cancel: 'Cancel',

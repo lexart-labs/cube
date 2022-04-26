@@ -127,6 +127,12 @@ export default {
       positionSelected: [],
     };
   },
+
+  mounted: function () {
+    this.getCareersType();
+    this.getCareers();
+  },
+
   methods: {
     addPosition: async function () {
       this.newPosition.name = this.newPosition.name.trim();
@@ -138,7 +144,22 @@ export default {
         idCareerType: this.newPosition.careerType.id
       }
 
-      await Career().new(body);
+      const response = await Career().new(body);
+
+      console.log(response);
+      if (response.status !== 200) {
+        if(response.message.includes("Duplicate")) {
+          Vue.toasted.show( this.$t('AdminPositions.duplicateError'), { type: "info", duration: 4000 });
+
+          return;
+        }
+
+        Vue.toasted.show( 'Internal error', { type: "error", duration: 4000 });
+
+        return;
+      }
+
+      Vue.toasted.show(this.$t('AdminPositions.created'), { type: 'success', duration: 4000 })
 
       this.getCareers();
     },
@@ -154,7 +175,21 @@ export default {
         idCareerType: this.newPosition.careerType.id
       }
 
-      await Career().put(body.id, body);
+      const response = await Career().put(body.id, body);
+
+      if (response.status !== 200) {
+
+        if(response.message.includes("Duplicate")) {
+          Vue.toasted.show( this.$t('AdminPositions.duplicateError'), { type: "info", duration: 4000 });
+
+          return;
+        }
+
+        Vue.toasted.show( 'Internal error', { type: "error", duration: 4000 });
+        return;
+      }
+
+      Vue.toasted.show(this.$t('AdminPositions.edited'), { type: 'success', duration: 4000 })
       
       this.getCareers();
     },
@@ -162,13 +197,22 @@ export default {
     delPosition: async function (id) {
       const response = await Career().del(id);
 
-      if (response.error) {
+      if (response.status !== 200) {
+
+        if(response.message.includes("delete or update a parent")) {
+          Vue.toasted.show( this.$t('AdminPositions.positionIsUsed'), { type: "info", duration: 4000 });
+
+          return;
+        }
+
+        Vue.toasted.show( 'Internal error', { type: "error", duration: 4000 });
         return;
       }
 
-      this.positions = this.positions.filter((position) => position.id != id);
+      Vue.toasted.show(this.$t('AdminPositions.deleted'), { type: 'success', duration: 4000 })
 
       this.positionSelected = [];
+      return this.getCareers();
     },
 
     setEditing: function (position) {
@@ -194,10 +238,6 @@ export default {
 
       this.positions = response.response;
     }
-  },
-  mounted: function () {
-    this.getCareersType();
-    this.getCareers();
   },
 };
 </script>

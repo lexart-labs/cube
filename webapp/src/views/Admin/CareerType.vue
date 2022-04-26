@@ -119,8 +119,8 @@ export default {
     async saveCareerType() {
       const response = await CareerType().newCareerType(this.newCareerType.name);
 
-      if(response.status === 200) Vue.toasted.show('Career type created successfully', { type: 'success', duration: 4000 })
-      if (response.status != 200) {
+        console.log(response);
+      if (response.status !== 200) {
         if(response.message.includes("Duplicate")) {
           Vue.toasted.show( this.$t('AdminCareerType.duplicateError'), { type: "info", duration: 4000 });
 
@@ -132,6 +132,8 @@ export default {
         return;
       }
 
+      Vue.toasted.show(this.$t('AdminCareerType.created'), { type: 'success', duration: 4000 })
+
       this.loadCareerType();
       return this.newCareerType = {...this.DEFAULT_VALUE};
     },
@@ -141,11 +143,12 @@ export default {
 
       const response = await CareerType().putCareer(career.name, career.id);
 
-      if(response.status === 200) Vue.toasted.show('Career type edited successfully', { type: 'success', duration: 4000 });
-      if (response.status != 200) {
+      if (response.status !== 200) {
         Vue.toasted.show( 'Internal error', { type: "error", duration: 4000 });
         return;
       }
+
+      Vue.toasted.show(this.$t('AdminCareerType.edited'), { type: 'success', duration: 4000 })
 
       this.newCareerType = { ...this.DEFAULT_VALUE }
       this.isEditing = false;
@@ -156,7 +159,7 @@ export default {
     async loadCareerType() {
       const response = await CareerType().getAll();
 
-      if (response.status != 200) {
+      if (response.status !== 200) {
         Vue.toasted.show( 'Internal error', { type: "error", duration: 4000 });
         return;
       }
@@ -190,10 +193,7 @@ export default {
     async removeCareer(id) {
       const response = await CareerType().removeCareer(id);
 
-      if(response.status === 200) {
-        Vue.toasted.show('Career type removed successfully', { type: 'success', duration: 4000 })
-      }
-      if (response.status != 200) {
+      if (response.status !== 200) {
 
         if(response.message.includes("delete or update a parent")) {
           Vue.toasted.show( this.$t('AdminCareerType.careerIsUsed'), { type: "info", duration: 4000 });
@@ -205,8 +205,10 @@ export default {
         return;
       }
 
+      Vue.toasted.show(this.$t('AdminCareerType.deleted'), { type: 'success', duration: 4000 })
+
       this.selectCareer = { ...this.DEFAULT_VALUE };
-      return this.careersType = this.careersType.filter((career) => career.id != id);
+      return this.loadCareerType();
     }
   },
 };
