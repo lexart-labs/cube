@@ -27,7 +27,7 @@ const Levels = {
   getByUserAdmin: async (company_slug, res) => {
     const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
     const sql = `
-      SELECT *, c.careerName FROM ${TABLE_NAME} l
+      SELECT l.id, l.level, l.active, l.idCompany, c.id as idCareerType, c.careerName FROM ${TABLE_NAME} l
         INNER JOIN careers_type c
         ON l.idCareerType = c.id
       WHERE l.idCompany = ?
