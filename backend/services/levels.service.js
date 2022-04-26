@@ -26,7 +26,12 @@ const Levels = {
   },
   getByUserAdmin: async (company_slug, res) => {
     const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
-    const sql = `SELECT * FROM ${TABLE_NAME} WHERE idCompany = ?`;
+    const sql = `
+      SELECT *, c.careerName FROM ${TABLE_NAME} l
+        INNER JOIN careers_type c
+        ON l.idCareerType = c.id
+      WHERE l.idCompany = ?
+    `;
     const arr = [idCompany];
 
     return Utils.generalQuery(sql, arr, 'read');
