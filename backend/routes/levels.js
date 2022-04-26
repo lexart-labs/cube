@@ -43,10 +43,10 @@ router.put('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { level, active, idCareerType } = req.body;
+  const { level, active, idCareerType, id } = req.body;
   const { company_slug } = req.headers;
 
-  const response = await Level.upsert(null, level, active, idCareerType, company_slug, res);
+  const response = await Level.upsert(id, level, active, idCareerType, company_slug, res);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);

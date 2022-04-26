@@ -97,6 +97,14 @@ const translations = {
       success: '¡Operación completada con suceso!',
       error: 'No fue possible completar la operación.',
     },
+    AdminLevels: {
+      placeholder:'Adicionar nuevo level',
+      tableHeaders: ['id','nombre', 'career', ''],
+      title: 'Levels en Lexart',
+      success: '¡Operación completada con suceso!',
+      error: 'No fue possible completar la operación.',
+      errorDelete: 'No se puede eliminar un nivel relacionado con un usuario'
+    },
     AdminOrigins: {
       placeholder: 'Adicionar una plataforma',
       title: 'Orígenes',
@@ -394,11 +402,19 @@ const translations = {
       ],
     },
     AdminTechnologies: {
-      placeholder:'Add a new technology',
+      placeholder:'Add a new level',
       tableHeaders: ['id', 'name', 'plataform', ''],
       title: 'Lexart stack',
       success: 'Operation ran sucessfully',
       error: 'Error when saving this operation',
+    },
+    AdminLevels: {
+      placeholder:'Add a new level',
+      tableHeaders: ['id','name', 'career', ''],
+      title: 'Lexart stack',
+      success: 'Operation ran sucessfully',
+      error: 'Error when saving this operation',
+      errorDelete: "Can't delete a level related to a user",
     },
     AdminOrigins: {
       placeholder: 'Add new plataform',

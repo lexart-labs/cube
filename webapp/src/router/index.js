@@ -13,6 +13,7 @@ import RegisterCompany from '../views/RegisterCompany.vue';
 import Continuity from '../views/Admin/Continuity.vue';
 import Collaborators from '../views/Admin/Collaborators.vue';
 import Payments from '../views/Admin/Payments.vue';
+import Levels from '../views/Admin/Levels.vue'
 import CareerType from '../views/Admin/CareerType';
 
 const routes = [
@@ -56,6 +57,10 @@ const routes = [
           {
             path: 'origins',
             component: Origin,
+          },
+          {
+            path: 'levels',
+            component: Levels
           },
           {
             path: 'career-type',
