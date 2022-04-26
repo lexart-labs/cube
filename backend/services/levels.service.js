@@ -71,7 +71,12 @@ const Levels = {
       operacion = 'insert';
     }
     try {
-      const response = await conn.query(sql, [level, active, idCareerType]);
+      let response;
+      if(operacion === 'update'){
+        response = await conn.query(sql, [level, active, idCareerType]);
+      }else{
+        response = await conn.query(sql, [level, active, idCompany,idCareerType]);
+      }
       return (response.changedRows || response.insertId)
         ? { response: `Operación de ${operacion} realizada con éxito` }
         : error;
@@ -86,6 +91,7 @@ const Levels = {
     let error = { "error": "Error al borrar level" };
     try {
       const response = await conn.query(sql, [id, idCompany]);
+      console.log(response);
       if(response.errno === 1451){
         error = {'error': "Can't delete a level related to a user", 'cod': 1451}
       }
