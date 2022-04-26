@@ -21,30 +21,25 @@ const Career = {
 
     `;
     let response = [];
-    try {
-      response = await conn.query(sql, [idCompany, idCareerType]);
-    } catch (e) {
-      console.log(e.message);
-    }
-    return response.length > 0 ? { response } : ERROR;
+    const arr = [idCompany, idCareerType];
+    
+    return await Utils.generalQuery(sql, arr, 'read');
   },
-  upsert: async (id, position, active, roadmap, idCompany, idCareerType) => {
+  upsert: async (id, position, active, roadmap, idCompany, idCareerType, res) => {
     let sql = '';
-    let error = { "error": "Error al ingresar/editar cargo" };
     let operacion = '';
     let arrayUpsert = [];
     
-
     if (id) {
       sql = `
         UPDATE careers SET 
-	      position=?,
-        active=?,
-        roadmap=?,
-        idCareerType=?
-        WHERE id =${id};
+	      position = ?,
+        active = ?,
+        roadmap = ?,
+        idCareerType = ?
+        WHERE id = ${id};
       `;
-      operacion = 'update';
+      operacion = 'write';
       arrayUpsert = [position, active, roadmap, idCareerType];
     } else {
       sql = `
@@ -52,19 +47,11 @@ const Career = {
 	      (position, active, roadmap, idCompany, idCareerType)
         VALUES (?, ?, ?, ?, ?);
       `;
-      operacion = 'insert';
+      operacion = 'write';
       arrayUpsert = [position, active, roadmap, idCompany, idCareerType];
     }
 
-    try {
-      const response = await conn.query(sql, arrayUpsert);
-      return (response.changedRows || response.insertId)
-        ? { response: `Operación de ${operacion} realizada con éxito`}
-        : error;
-    } catch (e) {
-      console.log(e.message);
-      return error;
-    }
+    return await Utils.generalQuery(sql, arrayUpsert, operacion, res);
   },
   remove: async (id) => {
     const sql = `DELETE FROM careers WHERE id = ?`;
@@ -83,14 +70,9 @@ const Career = {
       INNER JOIN careers_type ct ON ct.id = c.idCareerType
       WHERE c.id = ?
     `;
-    let error = { "error": "Error al buscar cargo" };
-    try {
-      const response = await conn.query(sql, [id]);
-      return response.length ? { response: response[0] } : error;
-    } catch (e) {
-     console.log(e.message);
-     return error;
-    }
+    const arr = [id];
+
+    return await Utils.generalQuery(sql, arr, 'read');
   },
 };
 

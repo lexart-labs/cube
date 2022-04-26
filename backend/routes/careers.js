@@ -18,7 +18,7 @@ router.put('/:id', async (req, res) => {
   const { company_slug } = req.headers;
   const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
 
-  const response = await Career.upsert(id, position, active, roadmap, idCompany, idCareerType);
+  const response = await Career.upsert(id, position, active, roadmap, idCompany, idCareerType, res);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
   const { company_slug } = req.headers;
   
   const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
-  const response = await Career.upsert(null, position, active, roadmap, idCompany, idCareerType);
+  const response = await Career.upsert(null, position, active, roadmap, idCompany, idCareerType, res);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
