@@ -118,8 +118,8 @@ export default {
     },
     getLevels: async function () {
       this.isLoading = true;
-      const endpoint = `${API}levels/by_user`;
-      const {data} = await axios.get(endpoint, { headers: { token: this.token, user_id: this.user_id }});
+      const endpoint = `${API}levels/by_user_admin`;
+      const {data} = await axios.get(endpoint, { headers: { token: this.token, user_id: this.user_id, company_slug: this.company_slug }});
       this.levels= data.response
       this.isLoading = false;
     },
