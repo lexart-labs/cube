@@ -59,6 +59,7 @@
         </thead>
         <tbody>
           <tr v-for="(level, i) in levels" :key="`tech${i}`">
+            <td>{{level.id}}</td>
             <td>{{ level.level }}</td>
             <td>{{ level.careerName }}</td>
             <td style="display: flex; gap: 1rem;justify-content: center;">
