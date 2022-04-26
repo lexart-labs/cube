@@ -46,8 +46,8 @@ const Levels = {
     if(id) {
       sql = `
         UPDATE levels SET
-	        level=?, active=?
-        WHERE id = ${id} AND idCompany = ? AND idCareerType = ?;
+	        level=?, active=?, idCareerType=?
+          WHERE id = ${id};
       `;
       operacion = 'update';
     } else {
@@ -59,7 +59,7 @@ const Levels = {
       operacion = 'insert';
     }
     try {
-      const response = await conn.query(sql, [level, active, idCompany, idCareerType]);
+      const response = await conn.query(sql, [level, active, idCareerType]);
       return (response.changedRows || response.insertId)
         ? { response: `Operación de ${operacion} realizada con éxito` }
         : error;
