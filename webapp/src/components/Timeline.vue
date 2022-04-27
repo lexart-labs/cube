@@ -91,8 +91,8 @@ export default {
 
       $("#myModal").modal();
     },
-    getCareers: async function() {
-      const { data: { response: careers }} = await axios.get(`${API}careers`);
+    getCareers: async function(headers) {
+      const { data: { response: careers }} = await axios.get(`${API}careers`, { headers });
       return careers || [];
     },
     getUserInfo: async function(id, headers) {
@@ -261,7 +261,7 @@ export default {
     this.isLoading = true;
     
     const [careers] = await Promise.all([
-      this.getCareers(),
+      this.getCareers({ "user-id": userId }),
     ]);
 
     this.isLoading = false;
