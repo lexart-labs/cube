@@ -18,7 +18,6 @@ const Career = {
       INNER JOIN companies cp ON cp.id = c.idCompany
       INNER JOIN careers_type ct ON ct.id = c.idCareerType
       WHERE c.idCompany = ? AND c.idCareerType = ?
-
     `;
     let response = [];
     try {
@@ -28,7 +27,26 @@ const Career = {
     }
     return response.length > 0 ? { response } : ERROR;
   },
-  upsert: async (id, position, active, roadmap, idCompany, idCareerType) => {
+  getAllAdmin: async (company_slug, res) => {
+    const idCompany = await Utils.getIdCompanyBySlug(company_slug, res)
+
+    const sql = `
+      SELECT
+        c.*,
+        ct.careerName AS 'careerType',
+        cp.company
+      FROM ${TABLE_NAME} c
+      INNER JOIN companies cp ON cp.id = c.idCompany
+      INNER JOIN careers_type ct ON ct.id = c.idCareerType
+      WHERE c.idCompany = ?
+    `;
+    const arr = [idCompany]
+
+    const response = Utils.generalQuery(sql, arr, 'read')
+
+    return response;
+  },
+  upsert: async (id, position, active, roadmap, idCompany, idCareerType, minimumTime) => {
     let sql = '';
     let error = { "error": "Error al ingresar/editar cargo" };
     let operacion = '';
@@ -38,22 +56,23 @@ const Career = {
     if (id) {
       sql = `
         UPDATE careers SET 
-	      position=?,
-        active=?,
-        roadmap=?,
-        idCareerType=?
+          position=?,
+          active=?,
+          roadmap=?,
+          idCareerType=?,
+          minimumTime=?
         WHERE id =${id};
       `;
       operacion = 'update';
-      arrayUpsert = [position, active, roadmap, idCareerType];
+      arrayUpsert = [position, active, roadmap, idCareerType, minimumTime];
     } else {
       sql = `
         INSERT INTO careers 
-	      (position, active, roadmap, idCompany, idCareerType)
-        VALUES (?, ?, ?, ?, ?);
+	      (position, active, roadmap, idCompany, idCareerType, minimumTime)
+        VALUES (?, ?, ?, ?, ?, ?);
       `;
       operacion = 'insert';
-      arrayUpsert = [position, active, roadmap, idCompany, idCareerType];
+      arrayUpsert = [position, active, roadmap, idCompany, idCareerType, minimumTime];
     }
 
     try {
