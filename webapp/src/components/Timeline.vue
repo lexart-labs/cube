@@ -243,9 +243,13 @@ export default {
       labelBullet.setStateOnChildren = true;
       labelBullet.states.create("hover").properties.scale = 1.2;
 
-      if (usr.since < minimunTimes[usr.position]) {
-        this.changePositionTime =
-          minimunTimes[usr.position] - usr.since;
+      const currentCareer = this.careers.find(position => position.id === usr.positionId);
+
+      if(currentCareer) {
+
+        if (usr.since < currentCareer.minimumTime) {
+          this.changePositionTime = currentCareer.minimumTime - usr.since;
+        }
       }
     },
   },
