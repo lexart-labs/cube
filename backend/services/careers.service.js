@@ -3,12 +3,7 @@ const ERROR = { error: 'No fue possible recuperar los datos' };
 const Utils = require('./utils.service');
 
 const Career = {
-  getIdCareerType: async (idUser) => {
-    const [careerInfo] = await conn.query('SELECT idCompany, idCareerType FROM users WHERE id = ?', [idUser]);
-    if(!careerInfo) return ERROR;
-
-    const { idCompany, idCareerType } = careerInfo;
-
+  getIdCareerType: async (idCareerType, idCompany) => {
     const sql = `
       SELECT
         c.*,

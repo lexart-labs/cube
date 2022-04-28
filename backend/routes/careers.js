@@ -12,9 +12,13 @@ router.get('/byUser', async (req, res) => {
   return res.send(response);
 });
 
-router.get('/byIdCareerType/:id', async (req, res) => {
-  const idUser = req.headers['user-id'];
-  const response = await Career.getIdCareerType(idUser);
+router.get('/byIdCareerType/:idCareer', async (req, res) => {
+  const { company_slug } = req.headers;
+  
+  const idCompany = await Utils.getIdCompanyBySlug(company_slug, res)
+  const { idCareer } = req.params;
+
+  const response = await Career.getIdCareerType(idCareer, idCompany);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
