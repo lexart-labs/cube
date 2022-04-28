@@ -3,7 +3,23 @@ const ERROR = { error: 'No fue possible recuperar los datos' };
 const Utils = require('./utils.service');
 
 const Career = {
-  getAll: async (idUser) => {
+  getIdCareerType: async (idCareerType, idCompany) => {
+    const sql = `
+      SELECT
+        c.*,
+        ct.careerName AS 'careerType',
+        cp.company
+      FROM ${TABLE_NAME} c
+      INNER JOIN companies cp ON cp.id = c.idCompany
+      INNER JOIN careers_type ct ON ct.id = c.idCareerType
+      WHERE c.idCompany = ? AND c.idCareerType = ?
+    `;
+    let response = [];
+    const arr = [idCompany, idCareerType];
+    
+    return await Utils.generalQuery(sql, arr, 'read');
+  },
+  getByUser: async (idUser) => {
     const [careerInfo] = await conn.query('SELECT idCompany, idCareerType FROM users WHERE id = ?', [idUser]);
     if(!careerInfo) return ERROR;
 
@@ -20,16 +36,11 @@ const Career = {
       WHERE c.idCompany = ? AND c.idCareerType = ?
     `;
     let response = [];
-    try {
-      response = await conn.query(sql, [idCompany, idCareerType]);
-    } catch (e) {
-      console.log(e.message);
-    }
-    return response.length > 0 ? { response } : ERROR;
+    const arr = [idCompany, idCareerType];
+    
+    return await Utils.generalQuery(sql, arr, 'read');
   },
-  getAllAdmin: async (company_slug, res) => {
-    const idCompany = await Utils.getIdCompanyBySlug(company_slug, res)
-
+  getByCompany: async (idCompany) => {
     const sql = `
       SELECT
         c.*,
@@ -48,11 +59,9 @@ const Career = {
   },
   upsert: async (id, position, active, roadmap, idCompany, idCareerType, minimumTime) => {
     let sql = '';
-    let error = { "error": "Error al ingresar/editar cargo" };
     let operacion = '';
     let arrayUpsert = [];
     
-
     if (id) {
       sql = `
         UPDATE careers SET 
@@ -63,7 +72,7 @@ const Career = {
           minimumTime=?
         WHERE id =${id};
       `;
-      operacion = 'update';
+      operacion = 'write';
       arrayUpsert = [position, active, roadmap, idCareerType, minimumTime];
     } else {
       sql = `
@@ -71,19 +80,11 @@ const Career = {
 	      (position, active, roadmap, idCompany, idCareerType, minimumTime)
         VALUES (?, ?, ?, ?, ?, ?);
       `;
-      operacion = 'insert';
+      operacion = 'write';
       arrayUpsert = [position, active, roadmap, idCompany, idCareerType, minimumTime];
     }
 
-    try {
-      const response = await conn.query(sql, arrayUpsert);
-      return (response.changedRows || response.insertId)
-        ? { response: `Operación de ${operacion} realizada con éxito`}
-        : error;
-    } catch (e) {
-      console.log(e.message);
-      return error;
-    }
+    return await Utils.generalQuery(sql, arrayUpsert, operacion);
   },
   remove: async (id) => {
     const sql = `DELETE FROM careers WHERE id = ?`;
@@ -102,14 +103,9 @@ const Career = {
       INNER JOIN careers_type ct ON ct.id = c.idCareerType
       WHERE c.id = ?
     `;
-    let error = { "error": "Error al buscar cargo" };
-    try {
-      const response = await conn.query(sql, [id]);
-      return response.length ? { response: response[0] } : error;
-    } catch (e) {
-     console.log(e.message);
-     return error;
-    }
+    const arr = [id];
+
+    return await Utils.generalQuery(sql, arr, 'read');
   },
 };
 
