@@ -92,7 +92,7 @@ export default {
       $("#myModal").modal();
     },
     getCareers: async function(headers) {
-      const { data: { response: careers }} = await axios.get(`${API}careers`, { headers });
+      const { data: { response: careers }} = await axios.get(`${API}careers/byUser`, { headers });
       return careers || [];
     },
     getUserInfo: async function(id, headers) {
