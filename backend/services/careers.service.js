@@ -17,13 +17,31 @@ const Career = {
       FROM ${TABLE_NAME} c
       INNER JOIN companies cp ON cp.id = c.idCompany
       INNER JOIN careers_type ct ON ct.id = c.idCareerType
-      WHERE c.idCompany = ?`;
+      WHERE c.idCompany = ? AND c.idCareerType = ?
+    `;
     let response = [];
     const arr = [idCompany, idCareerType];
     
     return await Utils.generalQuery(sql, arr, 'read');
   },
-  upsert: async (id, position, active, roadmap, idCompany, idCareerType, res) => {
+  getAllAdmin: async (idCompany) => {
+    const sql = `
+      SELECT
+        c.*,
+        ct.careerName AS 'careerType',
+        cp.company
+      FROM ${TABLE_NAME} c
+      INNER JOIN companies cp ON cp.id = c.idCompany
+      INNER JOIN careers_type ct ON ct.id = c.idCareerType
+      WHERE c.idCompany = ?
+    `;
+    const arr = [idCompany]
+
+    const response = Utils.generalQuery(sql, arr, 'read')
+
+    return response;
+  },
+  upsert: async (id, position, active, roadmap, idCompany, idCareerType, minimumTime) => {
     let sql = '';
     let operacion = '';
     let arrayUpsert = [];
@@ -31,25 +49,26 @@ const Career = {
     if (id) {
       sql = `
         UPDATE careers SET 
-	      position = ?,
-        active = ?,
-        roadmap = ?,
-        idCareerType = ?
-        WHERE id = ${id};
+          position=?,
+          active=?,
+          roadmap=?,
+          idCareerType=?,
+          minimumTime=?
+        WHERE id =${id};
       `;
-      operacion = 'write';
-      arrayUpsert = [position, active, roadmap, idCareerType];
+      operacion = 'update';
+      arrayUpsert = [position, active, roadmap, idCareerType, minimumTime];
     } else {
       sql = `
         INSERT INTO careers 
-	      (position, active, roadmap, idCompany, idCareerType)
-        VALUES (?, ?, ?, ?, ?);
+	      (position, active, roadmap, idCompany, idCareerType, minimumTime)
+        VALUES (?, ?, ?, ?, ?, ?);
       `;
       operacion = 'write';
-      arrayUpsert = [position, active, roadmap, idCompany, idCareerType];
+      arrayUpsert = [position, active, roadmap, idCompany, idCareerType, minimumTime];
     }
 
-    return await Utils.generalQuery(sql, arrayUpsert, operacion, res);
+    return await Utils.generalQuery(sql, arrayUpsert, operacion);
   },
   remove: async (id) => {
     const sql = `DELETE FROM careers WHERE id = ?`;
