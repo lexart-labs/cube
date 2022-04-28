@@ -17,9 +17,7 @@ const Career = {
       FROM ${TABLE_NAME} c
       INNER JOIN companies cp ON cp.id = c.idCompany
       INNER JOIN careers_type ct ON ct.id = c.idCareerType
-      WHERE c.idCompany = ? AND c.idCareerType = ?
-
-    `;
+      WHERE c.idCompany = ?`;
     let response = [];
     const arr = [idCompany, idCareerType];
     
