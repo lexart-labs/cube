@@ -173,13 +173,36 @@
                 <br />
                 <div class="row">
                   <div class="col">
-                    <label for="career">{{
+                    <label for="careerType">{{
+                      $t("AdminUsers.columnCareerType")
+                    }}</label>
+
+                    <select
+                      @change="getLevels(), getPositions()"
+                      class="form-control is-rounded"
+                      v-model="user.idCareerType"
+                      id="careerType"
+                    >
+                      <option
+                        v-for="(careerType, i) in careersType"
+                        :value="careerType.id"
+                        :key="`carType${i}`"
+                        :selected="careerType.id == user.idCareerType"
+                      >
+                        {{ careerType.careerName }}
+                      </option>
+                    </select>
+
+                  </div>
+                  <div class="col">
+                    <label for="positions">{{
                       $t("AdminUsers.columnCharge")
                     }}</label>
                     <select
                       class="form-control is-rounded"
                       v-model="user.positionId"
                       id="career"
+                      :disabled="!user.idCareerType"
                     >
                       <option
                         v-for="(career, i) in careers"
@@ -189,7 +212,9 @@
                       >
                         {{ career.position }}
                       </option>
+
                     </select>
+
                   </div>
                   <div class="col">
                     <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
@@ -197,6 +222,7 @@
                       class="form-control is-rounded"
                       v-model="user.levelId"
                       id="lvl"
+                      :disabled="!user.idCareerType"
                     >
                       <option
                         v-for="(level, i) in levels"
@@ -334,6 +360,7 @@ import Spinner from "../../components/Spinner.vue";
 import vueSelect from "vue-select";
 import UserService from "../../services/user.service";
 import CareerService from "../../services/career.service";
+import CareerTypeService from "../../services/careerType.service";
 import LevelService from "../../services/level.service";
 import TechnologiesService from "../../services/technologies.service";
 import { verifyToken } from "../../services/helpers";
@@ -367,6 +394,7 @@ export default {
       usersLextracking: [],
       levels: [],
       careers: [],
+      careersType: [],
       pagesLength: 1,
       page: 1,
       tabs: {
@@ -659,6 +687,16 @@ export default {
       this.page = 1;
       this.isLoading = false;
     },
+    getPositions: async function(){
+      CareerService()
+        .getByCareerType(this.user.idCareerType)
+        .then((res) => (this.careers = res.response));
+    },
+    getLevels: async function(){
+      LevelService()
+        .getByCareerType(this.user.idCareerType)
+        .then((res) => (this.levels = res.response));
+    }
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
@@ -671,12 +709,10 @@ export default {
     // Verifico el token
     verifyToken(token);
 
-    CareerService()
-      .getAll()
-      .then((res) => (this.careers = res.response));
-    LevelService()
-      .getAll()
-      .then((res) => (this.levels = res.response));
+    CareerTypeService().getAll().then((res) => {
+      this.careersType = res.response;
+    });
+
     DevOriginsService.getAll().then((res) => (this.plataforms = res));
 
     User.getAllUsersLextracking((res) => {
