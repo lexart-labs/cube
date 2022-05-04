@@ -85,9 +85,10 @@ export default {
   },
   methods: {
     showJobDetails(charge) {
-      this.jobAssignments = translations.en.positionAssignments[charge];
-      this.jobAssignmentsTranslated =
-        translations[this.$store.state.language].positionAssignments[charge];
+      let foundCareer = this.careers.find((career)=> career.position == charge).roadmap;
+      foundCareer = JSON.parse(foundCareer)
+      this.jobAssignments = foundCareer
+      this.jobAssignmentsTranslated = foundCareer
 
       $("#myModal").modal();
     },
