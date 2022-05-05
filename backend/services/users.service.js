@@ -175,6 +175,7 @@ let User = {
 				idPosition = ?,
 				idPlataform = ?,
 				idCompany = ?,
+				idCareerType = ?,
 				dateEdited = NOW()
 			WHERE email = ? AND idCompany = ?
 		`;
@@ -188,8 +189,9 @@ let User = {
 			idPosition,
 			usuario.idPlataform || null,
 			id_company,
+			usuario.idCareerType,
 			usuario.email,
-			id_company,
+			id_company
 		];
 
 		try {
@@ -221,9 +223,9 @@ let User = {
 
 		const sql = `
 			INSERT INTO ${tablaNombre}
-				(idUser, idLextracking, name, email, type, password, token, active, idPosition, idPlataform, idCompany)
+				(idUser, idLextracking, name, email, type, password, token, active, idPosition, idPlataform, idCompany, idCareerType)
 			VALUES
-				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`;
 
 		const arr = [
@@ -237,7 +239,8 @@ let User = {
 			usuario.active,
 			idPosition,
 			usuario.idPlataform || null,
-			id_company
+			id_company,
+			usuario.idCareerType
 		];
 
 		try {
