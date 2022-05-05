@@ -316,7 +316,7 @@
                     type="checkbox"
                     v-model="user.skills[item]"
                   />
-                  {{ $t(`positionAssignments['${user.position}'][${i}]`) }}
+                  {{ item }}
                 </label>
               </div>
             </div>
@@ -366,7 +366,6 @@ import TechnologiesService from "../../services/technologies.service";
 import { verifyToken } from "../../services/helpers";
 import translations from "../../data/translate";
 import { API, APP_NAME } from "../../../env";
-import minimunTimes from "../../data/positionMinimunTimes";
 import DevOriginsService from "../../services/plataforms.service";
 
 const PAGE_LENGTH = 10;
@@ -441,16 +440,17 @@ export default {
 
       this.user = { name: "", active: "1" };
       this.isFeching = true;
+
       UserService().getUserById(id, async (res) => {
         if (!res.error) {
-          const { skills, position, since } = res.response;
+          const { skills, position, since, minimumTime } = res.response;
+
           this.user = { ...res.response, lead };
-          this.jobAssignments =
-            translations.en.positionAssignments[position] || [];
+          this.jobAssignments = JSON.parse(res.response.roadmap) || [];
           this.user.skills = skills ? JSON.parse(skills) : {};
 
-          if (since !== null && since < minimunTimes[position]) {
-            this.changePositionTime = minimunTimes[position] - since;
+          if (since !== null && since < minimumTime) {
+            this.changePositionTime = minimumTime - since;
           }
 
           const resp = await TechnologiesService.getByUser(
@@ -614,13 +614,9 @@ export default {
     },
     validateChecks() {
       const canChange = this.changePositionTime === 0;
-      let allChecked = false;
-      const skillArray =
-        translations.en.positionAssignments[this.user.position];
 
-      if (skillArray) {
-        allChecked = skillArray.every((el) => this.user.skills[el] === true);
-      }
+      let allChecked = this.jobAssignments.every((el) => this.user.skills[el] === true);
+
       return !canChange && allChecked ? false : true;
     },
     addSkill() {

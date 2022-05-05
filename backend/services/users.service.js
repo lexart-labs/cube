@@ -79,6 +79,8 @@ let User = {
 		const sql = `
 			SELECT
 				c.position AS position,
+				c.roadmap,
+				c.minimumTime,
 				c.id AS positionId,
 				l.level AS level,
 				l.id AS levelId,
