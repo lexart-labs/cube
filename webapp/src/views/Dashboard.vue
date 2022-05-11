@@ -124,6 +124,7 @@
                   type="search"
                   :placeholder="$t('generic.searchPlaceholderEvaluations')"
                   v-model="searchQuery"
+                  v-if="success && resultQuery.length > 0"
                   class="form-control rounded-input"
                   style="margin-bottom: 1rem"
                 />
