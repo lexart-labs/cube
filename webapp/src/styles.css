@@ -458,8 +458,7 @@ input[type=range] {
   border-radius: 50%; */
 }
 span.badge.badge-primary {
-  /*min-width: 15%;*/
-  width: 150px;
+  min-width: 15%;
   min-height: 35px;
 }
 
@@ -559,19 +558,9 @@ span.badge.badge-primary {
 }
 
 /* Media Query Tablets and Some Monitors */
-@media (min-width: 768px) and (max-width: 1280px) {
+@media (min-width: 768px) and (max-width: 1024px) {
 .abas-control {
   width: 30%;
-}
-#filterInput{
-  min-width: 100%
-}
-.containerBreak{
-  display: flex;
-  width: 100%;
-  overflow-y: scroll;
-  box-shadow: rgb(0 0 0 / 11%) 0px 2px 4px 0px inset;
-  flex-direction: column;
 }
 }
 
@@ -711,12 +700,6 @@ span.badge.badge-primary {
 
 /* Media Query Portrait Smartphones/Tablets */
 @media (min-width: 320px) and (max-width: 1000px) {
-  .header-table {
-    flex-wrap: wrap;
-  }
-  .header-table h4 {
-    margin: 1em 0;
-  }
   /* Login */
   .formContainer__background > img {
     left: 0; 
