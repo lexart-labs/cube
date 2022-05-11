@@ -5,7 +5,7 @@ const CollaboratorsService = require('./collaborators.service');
 const Course = require('./courses.service');
 const { setUpData } = require('./EvaluationsHandler.service');
 const axios = require('axios');
-
+const jwt = require('jsonwebtoken');
 
 const tablaNombre = 'users';
 const trackingApi = process.env.API_LEXTRACKING;
@@ -729,5 +729,30 @@ let User = {
 
 		return response.length ? { response } : { error: 'No users found'}
 	},
+	getCompaniesWhichUserParticipate: async function (userToken) {
+		let userEmail;
+
+		try {
+			const { email } = jwt.decode(userToken).data;
+			userEmail = email;
+		} catch (error) {
+			return { status: 401, response: error, message: "You are not authorized to make this request." };
+		}
+
+		const sql = `
+			SELECT 
+				c.id,
+				c.company as name,
+				c.slug
+			FROM users AS u
+				INNER JOIN companies c ON c.id = u.idCompany
+			WHERE u.email = ?
+		`
+
+		const arr = [userEmail];
+		const response = await utils.generalQuery(sql, arr, 'read');
+		return response
+	}
 }
+
 module.exports = User;

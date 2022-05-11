@@ -175,4 +175,11 @@ router.delete('/skills/:id/:idTech', async function (req, res) {
   res.send(response);
 });
 
+router.get('/companies/participate', async function (req, res) {
+	const { token } = req.headers;
+	const response = await User.getCompaniesWhichUserParticipate(token);
+
+	res.status(response.status).send(response);
+})
+
 module.exports = router;
