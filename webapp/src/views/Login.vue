@@ -21,7 +21,7 @@
         <h2>Cube Platform</h2>
         <small>By Lexart Factory</small>
       </header>
-      <form style="margin-top: 1rem" id="login-form" v-if="hasSlug">
+      <form style="margin-top: 1rem" id="login-form" v-if="!hasSlug">
         <input
           type="email"
           v-model="usr.email"
@@ -35,6 +35,12 @@
           class="form-control"
           autocomplete="off"
         />
+        <div class="captcha-ctl">
+          <vue-recaptcha
+            :sitekey="siteKey"
+            @verify="setCaptchaResponse"
+          ></vue-recaptcha>
+        </div>
         <button
           type="button"
           class="btn btn-black btn-block"
@@ -51,28 +57,30 @@
           </div>
         </footer>
       </form>
-      <form v-if="!hasSlug">
-        <div id="verify-company">
-          <input
-            type="text"
-            v-model="company"
-            placeholder="Company name"
-            class="form-control"
-          />
+      <form v-if="hasSlug">
+          <h2>Selecciona la organización:</h2>
+          <div class="container p-0">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card p-3 mb-2" @click="activate(1)" :class="{ active : click_company == 1 }">
+                  <h6>Lexart Labs</h6>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card p-3 mb-2" @click="activate(2)" :class="{ active : click_company == 2 }">
+                  <h6>Multilaser</h6>
+                </div>
+              </div>
+            </div>
+          </div>
           <button
-            class="btn btn-success"
-            :disabled="!company.length || isLoading"
+            type="button"
+            class="btn btn-black btn-block"
+            :disabled="!click_company || isLoading"
             @click="verifyCompany"
           >
             Verify
           </button>
-        </div>
-        <div class="captcha-ctl">
-          <vue-recaptcha
-            :sitekey="siteKey"
-            @verify="setCaptchaResponse"
-          ></vue-recaptcha>
-        </div>
         <small v-if="error" class="alert alert-danger">
           {{ error }}
         </small>
@@ -126,24 +134,30 @@ export default {
         background: "",
         logo: "",
       },
+      click_company: 0,
     };
   },
   methods: {
     loginUser() {
       this.isLoading = true;
       const user = copy(this.usr);
-      const { slug } = this.$route.params;
+      //const { slug } = this.$route.params;
+      const captcha = this.captchaResponse;
 
-      axios.post(`${API}users/login`, { ...user, slug }).then(
+      axios.post(`${API}users/login`, { ...user }).then(
         (res) => {
           const rs = res.data;
           this.isLoading = false;
 
-          if (!rs.error) {
+          if(!captcha) {
+            this.error = "please, make sure to check the reCaptcha challenge.";
+            this.isLoading = false;
+            return;
+          } else if (!rs.error) {
             const { lexToken, token, ...cubeUsr } = rs.response;
             localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
             localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
-            localStorage.setItem("_company-slug", slug);
+            //localStorage.setItem("_company-slug", slug);
             localStorage.setItem("lexToken", rs.response.lexToken);
             localStorage.setItem("cubeUser", JSON.stringify(cubeUsr));
 
@@ -161,20 +175,20 @@ export default {
     verifyCompany: async function () {
       this.isLoading = true;
       this.error = "";
-      const captcha = this.captchaResponse;
+      //const captcha = this.captchaResponse;
 
-      if(!captcha) {
+      /*if(!captcha) {
         this.error = "please, make sure to check the reCaptcha challenge.";
         this.isLoading = false;
         return;
-      }
+      }*/
 
-      const result = await Companies.verify(this.company, captcha);
+      const result = await Companies.verify(this.company);
       this.isLoading = false;
       if (result.error) {
-        grecaptcha.reset();
+        //grecaptcha.reset();
         this.error = result.error;
-        this.captchaResponse = '';
+        //this.captchaResponse = '';
       } else {
         this.$router.push(`${result.slug}/login`);
         this.hasSlug = true;
@@ -183,13 +197,16 @@ export default {
     setCaptchaResponse(tk) {
       this.captchaResponse = tk;
     },
+    activate:function(el){
+      this.click_company = el;
+    }
   },
   mounted() {
     localStorage.clear();
     if (!this.$route.params.slug) {
       this.$router.push("lexart_labs/login");
     }
-    if (this.$route.params.slug === "login") {
+    if (this.$route.params.slug === "") {
       this.hasSlug = false;
     }
   },
@@ -224,5 +241,13 @@ footer > div {
   justify-content: center;
   align-items: center;
   width: 100%;
+}
+.card:hover {
+  cursor: pointer;
+}
+.active {
+  color: #007bff;
+  border: 1px solid #007bff;
+  font-weight: bold;
 }
 </style>

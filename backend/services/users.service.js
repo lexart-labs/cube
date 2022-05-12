@@ -315,8 +315,8 @@ let User = {
 		}
 		return response;
 	},
-	loginCube: async function (email, password, company) {
-		const sqlCompany = `SELECT id FROM companies WHERE slug = ?`;
+	loginCube: async function (email, password) {
+		//const sqlCompany = `SELECT id FROM companies`;
 		const error = { error: 'Usuario y/o clave incorrecta.' };
 		const sql = `
 			SELECT
@@ -331,14 +331,14 @@ let User = {
 				uc.idLevel
 			FROM ${tablaNombre} u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
-			WHERE u.email = ? AND u.password = MD5(?) AND u.idCompany = ? AND u.active = 1
+			WHERE u.email = ? AND u.password = MD5(?) AND u.active = 1
 		`
 		let response = [];
 		let token = '';
 
 		try {
-			const [{ id: idCompany }] = await conn.query(sqlCompany, [company]);
-			response = await conn.query(sql, [email, password, idCompany]);
+			//const [{ id: idCompany }] = await conn.query(sqlCompany, [company]);
+			response = await conn.query(sql, [email, password]);
 
 			if(!response.length) return error;
 

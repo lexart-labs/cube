@@ -54,7 +54,7 @@
                 </li>
                 <li>
                   <router-link
-                    v-bind:to="`/${slug}/login`"
+                    v-bind:to="`/login`"
                   ><i class="bi bi-box-arrow-left"></i>
                     <small> {{ $t("generic.exit")}}</small>
                   </router-link>
