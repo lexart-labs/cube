@@ -10,11 +10,18 @@ router.get('/', async (_req, res) => {
   return res.send(response);
 });
 
-router.get('/by_user', async (req,res)=> {
+router.get('/by_user', async (req,res) => {
   const user_id = req.headers.user_id
   const user = await User.one(user_id)
   const response = await Level.getByUser(user.response.idCompany, user.response.idCareerType)
   return res.send(response);
+})
+
+router.get('/by_user_admin', async (req, res) => {
+  const { company_slug } = req.headers;
+  const response = await Level.getByUserAdmin(company_slug, res)
+
+  return res.send(response)
 })
 
 router.get('/by_career_type/:idCareerType', async (req,res)=> {
@@ -36,10 +43,10 @@ router.put('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { level, active, idCareerType } = req.body;
+  const { level, active, idCareerType, id } = req.body;
   const { company_slug } = req.headers;
 
-  const response = await Level.upsert(null, level, active, idCareerType, company_slug, res);
+  const response = await Level.upsert(id, level, active, idCareerType, company_slug, res);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);

@@ -4,32 +4,53 @@ const Career 	 = require('../services/careers.service');
 const CareersType = require('../services/careersType.service');
 const Utils = require('../services/utils.service');
 
-router.get('/', async (req, res) => {
+router.get('/byUser', async (req, res) => {
   const idUser = req.headers['user-id'];
-  const response = await Career.getAll(idUser);
+  const response = await Career.getByUser(idUser);
 
   res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
+router.get('/byIdCareerType/:idCareer', async (req, res) => {
+  const { company_slug } = req.headers;
+  
+  const idCompany = await Utils.getIdCompanyBySlug(company_slug, res)
+  const { idCareer } = req.params;
+
+  const response = await Career.getIdCareerType(idCareer, idCompany);
+
+  res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
+router.get('/byCompany', async (req, res) => {
+  const { company_slug } = req.headers;
+  const idCompany = await Utils.getIdCompanyBySlug(company_slug, res)
+  res.set(['Content-Type', 'application/json']);
+  const response = await Career.getByCompany(idCompany);
+
   return res.send(response);
 });
 
 router.put('/:id', async (req, res) => {
-  const { position, active, roadmap, idCareerType } = req.body;
+  const { position, active, roadmap, idCareerType, minimumTime } = req.body;
   const { id } = req.params;
   const { company_slug } = req.headers;
   const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
 
-  const response = await Career.upsert(id, position, active, roadmap, idCompany, idCareerType, res);
-
   res.set(['Content-Type', 'application/json']);
+  const response = await Career.upsert(id, position, active, roadmap, idCompany, idCareerType, minimumTime);
+
   return res.send(response);
 });
 
 router.post('/', async (req, res) => {
-  const { position, active, roadmap, idCareerType } = req.body;
+  const { position, active, roadmap, idCareerType, minimumTime } = req.body;
   const { company_slug } = req.headers;
   
   const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
-  const response = await Career.upsert(null, position, active, roadmap, idCompany, idCareerType, res);
+  const response = await Career.upsert(null, position, active, roadmap, idCompany, idCareerType, minimumTime);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);

@@ -36,6 +36,7 @@ const translations = {
       title: 'Mis Developers',
       columnName: 'Nombre',
       columnType: 'Tipo',
+      columnCareerType: 'Tipo de carrera',
       columnCharge: 'Cargo',
       columnLevel: 'Nível',
       columnActive: 'Activo',
@@ -110,6 +111,14 @@ const translations = {
       deleteError: 'Error: Please make sure this plataform is not related to any user.',
       positionIsUsed: 'This type of position is being used',
       error: 'No fue possible completar la operación.',
+    },
+    AdminLevels: {
+      placeholder:'Adicionar nuevo level',
+      tableHeaders: ['id','nombre', 'career', ''],
+      title: 'Levels en Lexart',
+      success: '¡Operación completada con suceso!',
+      error: 'No fue possible completar la operación.',
+      errorDelete: 'No se puede eliminar un nivel relacionado con un usuario'
     },
     AdminOrigins: {
       placeholder: 'Adicionar una plataforma',
@@ -357,6 +366,7 @@ const translations = {
       title: 'My Developers',
       columnName: 'Name',
       columnType: 'Type',
+      columnCareerType: 'Career Type',
       columnCharge: 'Position',
       columnLevel: 'Level',
       columnActive: 'Active',
@@ -412,7 +422,7 @@ const translations = {
       ],
     },
     AdminTechnologies: {
-      placeholder:'Add a new technology',
+      placeholder:'Add a new level',
       tableHeaders: ['id', 'name', 'plataform', ''],
       title: 'Lexart stack',
       success: 'Operation ran sucessfully',
@@ -431,6 +441,14 @@ const translations = {
       duplicateError: 'This position already exists',
       deleteError: 'Error: Por favor, asegúrese de que esta plataforma no esté relacionada con ningún usuario.',
       positionIsUsed: 'Este tipo de posición se está utilizando',
+    },
+    AdminLevels: {
+      placeholder:'Add a new level',
+      tableHeaders: ['id','name', 'career', ''],
+      title: 'Lexart stack',
+      success: 'Operation ran sucessfully',
+      error: 'Error when saving this operation',
+      errorDelete: "Can't delete a level related to a user",
     },
     AdminOrigins: {
       placeholder: 'Add new plataform',
