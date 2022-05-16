@@ -14,7 +14,7 @@
       <input type="text" v-model="newPosition.name" :placeholder="$t('AdminPositions.placeholder')"
         class="form-control col-6 is-rounded" />
       <input type="text" v-model="newPosition.minimumTime" :placeholder="$t('AdminPositions.placeholder2')"
-        class="form-control col-6 is-rounded" />
+        class="form-control col-2 is-rounded" />
       <select v-model="newPosition.careerType" class="form-control col-2 is-rounded">
         <option value="" disabled>Selecione</option>
         <option v-for="(careerType, i) in careerTypes" :value="careerType" :key="`plat-${i}`">
@@ -46,7 +46,12 @@
             <td>{{ position.position }}</td>
             <td>{{ position.company }}</td>
             <td>{{ position.careerType }}</td>
-            <td>Ver</td>
+            <td>
+              <button class="btn btn-secondary" data-toggle="modal" v-on:click="() => { positionSelected = position }"
+                data-target="#staticBackdrops" >
+                Ver
+              </button>
+            </td>
             <td style="display: flex; gap: 1rem;justify-content: center;">
               <button class="btn btn-success" data-toggle="modal" v-on:click="setEditing(position)">
                 {{ $t("generic.edit") }}
@@ -93,6 +98,34 @@
       </div>
     </div>
 
+    <div class="modal fade" id="staticBackdrops" data-backdrop="static" data-keyboard="false" tabindex="-1"
+      aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-l modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="courseTitle is-bold" id="staticBackdropLabel">
+              {{ positionSelected.position }}
+            </h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <template v-for="(item, i) in positionSelected.roadmap"><input class="form-control col-12 is-rounded mt-2"  v-model="positionSelected.roadmap[i]" :key="`head${i}`" /></template>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary col-2" data-dismiss="modal">
+              {{ $t("generic.close") }}
+            </button>
+            <button type="button" class="btn btn-primary col-2" v-on:click="editRoadmap(positionSelected.id)"
+              >
+              {{ $t("generic.save") }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -127,6 +160,7 @@ export default {
       careerTypes: [],
       token: localStorage.getItem(`token-app-${APP_NAME}`),
       positionSelected: [],
+      test: ''
     };
   },
 
@@ -165,6 +199,9 @@ export default {
       Vue.toasted.show(this.$t('AdminPositions.created'), { type: 'success', duration: 4000 })
 
       this.getCareers();
+    },
+    editRoadmap : async function(id){
+      console.log(this.positionSelected);
     },
 
     putPosition: async function (id) {
@@ -238,8 +275,9 @@ export default {
     },
 
     getCareers: async function () {
-      const response = await Career().getByIdCompany();;
-
+      let response = await Career().getByIdCompany();
+      response.response[0].roadmap = ['r1', 'r2', 'r3']
+      console.log(response.response[0]);
       this.positions = response.response;
     }
   },
