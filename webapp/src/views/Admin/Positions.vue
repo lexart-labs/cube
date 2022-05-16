@@ -13,6 +13,8 @@
     <div class="row" id="inputTech">
       <input type="text" v-model="newPosition.name" :placeholder="$t('AdminPositions.placeholder')"
         class="form-control col-6 is-rounded" />
+      <input type="text" v-model="newPosition.minimumTime" :placeholder="$t('AdminPositions.placeholder2')"
+        class="form-control col-6 is-rounded" />
       <select v-model="newPosition.careerType" class="form-control col-2 is-rounded">
         <option value="" disabled>Selecione</option>
         <option v-for="(careerType, i) in careerTypes" :value="careerType" :key="`plat-${i}`">
@@ -44,7 +46,7 @@
             <td>{{ position.position }}</td>
             <td>{{ position.company }}</td>
             <td>{{ position.careerType }}</td>
-            <td>{{ position.roadmap }}</td>
+            <td>Ver</td>
             <td style="display: flex; gap: 1rem;justify-content: center;">
               <button class="btn btn-success" data-toggle="modal" v-on:click="setEditing(position)">
                 {{ $t("generic.edit") }}
@@ -141,7 +143,8 @@ export default {
         position: this.newPosition.name,
         active: 1,
         roadmap: null,
-        idCareerType: this.newPosition.careerType.id
+        idCareerType: this.newPosition.careerType.id,
+        minimumTime: this.newPosition.minimumTime
       }
 
       const response = await Career().new(body);
@@ -219,6 +222,7 @@ export default {
       this.isEditing = true;
       this.newPosition.id = position.id;
       this.newPosition.name = position.position;
+      this.newPosition.minimumTime = position.minimumTime;
       this.newPosition.careerType = { ...this.careerTypes.filter((item) => item.id == position.idCareerType)[0] };
     },
 
@@ -234,7 +238,7 @@ export default {
     },
 
     getCareers: async function () {
-      const response = await Career().getAll();;
+      const response = await Career().getByIdCompany();;
 
       this.positions = response.response;
     }

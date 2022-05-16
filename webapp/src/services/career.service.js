@@ -41,6 +41,12 @@ const CareerService = function () {
       const { data } = await axios.get(`${API + MODEL}byIdCareerType/${idCareerType}`, { headers });
       return data;
     },
+
+    getByIdCompany: async function () {
+      const headers = generateHeader();
+      const { data } = await axios.get(`${API + MODEL}/byCompany`, { headers });
+      return data;
+    },
   };
 };
 
