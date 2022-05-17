@@ -212,7 +212,8 @@ export default {
         this.positionSelected.roadmap.push(this.newRoadmapItem)
         this.newRoadmapItem = ''
       }
-      // return this.getCareers();
+      let response = await Career().put(id, this.positionSelected)
+      return this.getCareers()
     },
 
     removeFromRoadmap : async function(id){
@@ -291,6 +292,7 @@ export default {
 
     getCareers: async function () {
       let response = await Career().getByIdCompany();
+
       this.positions = response.response;
     }
   },
