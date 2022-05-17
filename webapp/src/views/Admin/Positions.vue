@@ -111,13 +111,19 @@
             </button>
           </div>
           <div class="modal-body">
-            <template v-for="(item, i) in positionSelected.roadmap"><input class="form-control col-12 is-rounded mt-2"  v-model="positionSelected.roadmap[i]" :key="`head${i}`" /></template>
+              <template v-for="(item, i) in positionSelected.roadmap">
+                <div class="item" :key="`head${i}`">
+                  <input class="form-control col-10 is-rounded mt-2"  v-model="positionSelected.roadmap[i]" :key="`head${i}`" />
+                  <button v-on:click="removeFromRoadmap(i)" class="modal-button"><img src="../../assets/trash-can.png" alt="" srcset=""></button>
+                </div>
+              </template>
+              <input class="form-control col-10 is-rounded mt-2"  v-model="newRoadmapItem" />
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary col-2" data-dismiss="modal">
               {{ $t("generic.close") }}
             </button>
-            <button type="button" class="btn btn-primary col-2" v-on:click="editRoadmap(positionSelected.id)"
+            <button type="button" class="btn btn-primary col-2" data-dismiss="modal" v-on:click="editRoadmap(positionSelected.id)"
               >
               {{ $t("generic.save") }}
             </button>
@@ -135,6 +141,7 @@ import Vue from "vue";
 import Spinner from "../../components/Spinner.vue";
 import { API, APP_NAME } from "../../../env";
 import translations from '../../data/translate';
+
 
 //Services
 import Career from "../../services/career.service";
@@ -160,7 +167,7 @@ export default {
       careerTypes: [],
       token: localStorage.getItem(`token-app-${APP_NAME}`),
       positionSelected: [],
-      test: ''
+      newRoadmapItem: ''
     };
   },
 
@@ -201,7 +208,15 @@ export default {
       this.getCareers();
     },
     editRoadmap : async function(id){
-      console.log(this.positionSelected);
+      if(this.newRoadmapItem){
+        this.positionSelected.roadmap.push(this.newRoadmapItem)
+        this.newRoadmapItem = ''
+      }
+      // return this.getCareers();
+    },
+
+    removeFromRoadmap : async function(id){
+      this.positionSelected.roadmap.splice(id, 1);
     },
 
     putPosition: async function (id) {
@@ -276,8 +291,6 @@ export default {
 
     getCareers: async function () {
       let response = await Career().getByIdCompany();
-      response.response[0].roadmap = ['r1', 'r2', 'r3']
-      console.log(response.response[0]);
       this.positions = response.response;
     }
   },
@@ -302,6 +315,14 @@ export default {
 h4 {
   margin-top: 1rem;
   margin-bottom: 2rem;
+}
+
+.item{
+  display: flex;
+}
+.modal-button{
+  background: none;
+  border: none;
 }
 
 #inputTech {
