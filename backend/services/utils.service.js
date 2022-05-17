@@ -28,6 +28,9 @@ const Utils = {
     generalQuery: async function (sql, arr, action, pageSize = 10) {
         let toReturn = {};
         let response = [];
+
+		if(arr.roadmap && action === 'write') arr.roadmap = JSON.stringify(arr.roadmap);
+
         try {
             response = await conn.query(sql, arr);
 
@@ -39,7 +42,10 @@ const Utils = {
 
                 read: function (response) {
                     if (response.sqlMessage) toReturn = { status: 400, message: response.sqlMessage }
-                    else toReturn = { status: 200, response: response, message: 'ok' }
+                    else {
+						if(response.roadmap) response.roadmap = JSON.parse(response.roadmap)
+						toReturn = { status: 200, response: response, message: 'ok' }
+					}
                 },
 
                 count: function (response) {

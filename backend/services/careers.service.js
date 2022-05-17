@@ -14,10 +14,13 @@ const Career = {
       INNER JOIN careers_type ct ON ct.id = c.idCareerType
       WHERE c.idCompany = ? AND c.idCareerType = ?
     `;
-    let response = [];
+    
     const arr = [idCompany, idCareerType];
     
-    return await Utils.generalQuery(sql, arr, 'read');
+    let res = await Utils.generalQuery(sql, arr, 'read');
+    res.response = res.response.map(item => { return {...item, roadmap: JSON.parse(item.roadmap)}})
+    
+    return res
   },
   getByUser: async (idUser) => {
     const [careerInfo] = await conn.query('SELECT idCompany, idCareerType FROM users WHERE id = ?', [idUser]);
@@ -35,10 +38,12 @@ const Career = {
       INNER JOIN careers_type ct ON ct.id = c.idCareerType
       WHERE c.idCompany = ? AND c.idCareerType = ?
     `;
-    let response = [];
     const arr = [idCompany, idCareerType];
     
-    return await Utils.generalQuery(sql, arr, 'read');
+    let res = await Utils.generalQuery(sql, arr, 'read');
+    res.response = res.response.map(item => { return {...item, roadmap: JSON.parse(item.roadmap)}})
+    
+    return res
   },
   getByCompany: async (idCompany) => {
     const sql = `
@@ -53,9 +58,10 @@ const Career = {
     `;
     const arr = [idCompany]
 
-    const response = Utils.generalQuery(sql, arr, 'read')
-
-    return response;
+    let res = await Utils.generalQuery(sql, arr, 'read');
+    res.response = res.response.map(item => { return {...item, roadmap: JSON.parse(item.roadmap)}})
+    
+    return res
   },
   upsert: async (id, position, active, roadmap, idCompany, idCareerType, minimumTime) => {
     let sql = '';
@@ -73,7 +79,7 @@ const Career = {
         WHERE id =${id};
       `;
       operacion = 'write';
-      arrayUpsert = [position, active, roadmap, idCareerType, minimumTime];
+      arrayUpsert = [position, active, JSON.stringify(roadmap), idCareerType, minimumTime];
     } else {
       sql = `
         INSERT INTO careers 
@@ -81,7 +87,7 @@ const Career = {
         VALUES (?, ?, ?, ?, ?, ?);
       `;
       operacion = 'write';
-      arrayUpsert = [position, active, roadmap, idCompany, idCareerType, minimumTime];
+      arrayUpsert = [position, active, JSON.stringify(roadmap), idCompany, idCareerType, minimumTime];
     }
 
     return await Utils.generalQuery(sql, arrayUpsert, operacion);
