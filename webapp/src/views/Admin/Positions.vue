@@ -212,7 +212,7 @@ export default {
         this.positionSelected.roadmap.push(this.newRoadmapItem)
         this.newRoadmapItem = ''
       }
-      let response = await Career().put(id, this.positionSelected)
+      await Career().put(id, this.positionSelected)
       return this.getCareers()
     },
 
