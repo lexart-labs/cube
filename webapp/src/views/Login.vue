@@ -62,12 +62,12 @@
           <div class="container p-0">
             <div class="row">
               <div class="col-md-6">
-                <div class="card p-3 mb-2" @click="activate(1)" :class="{ active : click_company == 1 }">
+                <div class="card p-3 mb-2" @click="activate(1)" :class="{ active : clickCompany == 1 }">
                   <h6>Lexart Labs</h6>
                 </div>
               </div>
               <div class="col-md-6">
-                <div class="card p-3 mb-2" @click="activate(2)" :class="{ active : click_company == 2 }">
+                <div class="card p-3 mb-2" @click="activate(2)" :class="{ active : clickCompany == 2 }">
                   <h6>Multilaser</h6>
                 </div>
               </div>
@@ -134,7 +134,7 @@ export default {
         background: "",
         logo: "",
       },
-      click_company: 0,
+      clickCompany: 0,
     };
   },
   methods: {
@@ -197,9 +197,9 @@ export default {
     setCaptchaResponse(tk) {
       this.captchaResponse = tk;
     },
-    activate:function(el){
-      this.click_company = el;
-    }
+    activate: async function (el) {
+      this.clickCompany = el;
+    },
   },
   mounted() {
     localStorage.clear();
