@@ -22,8 +22,9 @@ router.get('/:id', async (req, res) => {
   return res.send(response);
 });
 
-router.post('/', async (req, res) => {
-  const { idCompany1, idCompany2 } = req.body;
+router.post('/:idCompany1', async (req, res) => {
+  const { idCompany1 } = req.params;
+  const { idCompany2 } = req.body;
 
   const response = await relationsExternal.newRelation(idCompany1, idCompany2);
 
@@ -31,13 +32,13 @@ router.post('/', async (req, res) => {
   return res.send(response);
 })
 
-router.delete('/:id', async (req, res) => {
-  const { id } = req.params;
-  
-  const response = await relationsExternal.deActiveRelation(id);
+router.post('/status/:idCompany1', async (req, res) => {
+  const { idCompany1 } = req.params;
+  const { idCompany2, status } = req.body;
+
+  const response = await relationsExternal.changeStatusRelation(idCompany1, idCompany2, status);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 })
-
 module.exports = router;

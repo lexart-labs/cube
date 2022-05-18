@@ -161,6 +161,18 @@ const Companies = {
     return response.length ? { response: 'ok', slug } : { error: 'Company not found' };
   },
 
+  getAllOpenToExternalRelations: async function() {
+    const sql = `SELECT * FROM ${TABLE_NAME} WHERE openToExternalRelations = ?`;
+    const error = { error: 'Error to get the results from db' }
+    let response = [];
+    try {
+      response = await conn.query(sql, [1]);
+    } catch (e) {
+      console.log(e.message);
+    }
+    return response.length > 0 ? { response } : { error: error };
+  }
+
 };
 
 module.exports = Companies;

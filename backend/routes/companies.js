@@ -9,6 +9,13 @@ router.get('/', async (_req, res) => {
   return res.send(response);
 });
 
+router.get('/openToExternalRelations', async (_req, res) => {
+  const response = await Companies.getAllOpenToExternalRelations();
+
+  res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
 router.post('/verify', async (req, res) => {
   const { company, captcha } = req.body;
 

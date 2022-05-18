@@ -8,7 +8,7 @@ const API_LEXTRACKING = process.env.API_LEXTRACKING
 
 const relationsExternals = {
     getAll: async (companyId) => {
-        const query = `SELECT ${TABLE_NAME}.* FROM ${TABLE_NAME} WHERE idCompany1 = ? OR idCompany2 = ? AND active = 1`
+        const query = `SELECT ${TABLE_NAME}.*, SUM(company1_accepted + company2_accepted) AS status FROM ${TABLE_NAME} WHERE idCompany1 = ? OR idCompany2 = ?`
 
         let relations = await Utils.generalQuery(query, [companyId, companyId, companyId], 'read')
         const companiesHandler = await relationsExternals.companiesHandler(relations.response)
@@ -51,7 +51,7 @@ const relationsExternals = {
     },
 
     getById: async (relationId) => {
-        const query = `SELECT * FROM ${TABLE_NAME} WHERE id = ? AND active = 1`
+        const query = `SELECT * FROM ${TABLE_NAME} WHERE id = ?`
 
         let relations = await Utils.generalQuery(query, [relationId], 'read')
         const companiesHandler = await relationsExternals.companiesHandler(relations.response)
@@ -62,7 +62,6 @@ const relationsExternals = {
     },
 
     newRelation: async (idCompany1, idCompany2) => {
-
         if (idCompany1 == idCompany2) return ["Companies must be different"]
 
         const openToExternalRelations = async (idCompany1, idCompany2) => {
@@ -83,42 +82,61 @@ const relationsExternals = {
 
         const checkRelations = await relationsExternals.checkRelation(idCompany1, idCompany2)
 
-        if (checkRelations.response.length > 0 && checkRelations.response[0].active == 1) {
-            return ["There is already an external relationship between these two companies"]
+        if (checkRelations.response.length > 0) {
+            return (checkRelations.response[0].company1_accepted === 2 && checkRelations.response[0].company2_accepted === 2) ?
+                ["There is already an external relationship between these two companies"] : ["Pending relationship"]
         }
 
-        const query = checkRelations.response[0].active == 0 ? `UPDATE ${TABLE_NAME} SET active = ? WHERE id = ?` : `INSERT INTO ${TABLE_NAME} (idCompany1, idCompany2) VALUES (?, ?)`
+        const query = `INSERT INTO ${TABLE_NAME} (idCompany1, idCompany2, company1_accepted, company2_accepted) VALUES (?, ?, ?)`
 
-        const newRelation = Utils.generalQuery(query, checkRelations.response[0].active == 0 ? [1, checkRelations.response[0].id] : [idCompany1, idCompany2], 'write')
+        const newRelation = Utils.generalQuery(query, [idCompany1, idCompany2, 2, 1], 'write')
 
-        return newRelation;
+        return newRelation
     },
 
     checkRelation: async (idCompany1, idCompany2) => {
-        const query = `SELECT * FROM ${TABLE_NAME} WHERE idCompany1 = ? AND idCompany2 = ?`
-
-        const checkRelation = await Utils.generalQuery(query, [idCompany1, idCompany2], 'read')
+        const query = `SELECT * FROM ${TABLE_NAME} WHERE idCompany1 = ? AND idCompany2 = ? OR idCompany2 = ? AND idCompany1 = ? `
+        const checkRelation = await Utils.generalQuery(query, [idCompany1, idCompany2, idCompany1, idCompany2], 'read')
 
         return checkRelation
     },
 
-    deActiveRelation: async (relationId) => {
+    checkCompanyIdAcceptedColumn: async (relation, id) => {
 
-        const checkRelationActive = async (relationId) => {
-            const relation = await relationsExternals.getById(relationId)
+        const currentCompany = { query: relation.idCompany1 == id ? "company1_accepted = ? " : "company2_accepted = ? ", value: 2 }
+        const company = !(relation.idCompany1 == id) ? "company1_accepted" : "company2_accepted"
 
-            return relation.reponse > 0
+        const companyAccept = relation[company]
+        const companyAcceptQuery = companyAccept == 0 ? { query: company + " = ? ", value: 1 } : companyAccept == 1 ? { query: company + " = ? ", value: companyAccept } : { query: company + " = ? ", value: 2 }
+
+        return { currentCompany, companyAcceptQuery }
+    },
+
+    changeStatusRelation: async (idCompany1, idCompany2, status) => {
+
+        const checkRelations = await relationsExternals.checkRelation(idCompany1, idCompany2)
+
+        const operation = {
+            accept: async (checkRelations) => {
+                const column = await relationsExternals.checkCompanyIdAcceptedColumn(checkRelations.response[0], idCompany1)
+
+                const query = `UPDATE ${TABLE_NAME} SET ${column.currentCompany.query}, ${column.companyAcceptQuery.query} WHERE id = ?`
+                const accept = Utils.generalQuery(query, [column.currentCompany.value, column.companyAcceptQuery.value, checkRelations.response[0].id], 'write')
+
+                return accept
+            },
+            decline: async (checkRelations) => {
+                const idRelation = checkRelations.response[0].id
+
+                const query = `UPDATE ${TABLE_NAME} SET company1_accepted = ?, company2_accepted = ? WHERE id = ?`
+                const decline = Utils.generalQuery(query, [0, 0, idRelation], 'write')
+
+                return decline
+            }
         }
 
-        if (!checkRelationActive(relationId)) return ["This relationship has either been deleted or does not exist"]
-
-        const query = `UPDATE ${TABLE_NAME} SET active = ? WHERE id = ?`
-        
-        const newRelation = await Utils.generalQuery(query, [0, relationId], 'write')
-
-        return newRelation;
-    }
-
+        return operation[status](checkRelations)
+    },
 }
 
 module.exports = relationsExternals;
