@@ -8,8 +8,9 @@ const API_LEXTRACKING = process.env.API_LEXTRACKING
 
 const relationsExternals = {
     getAll: async (companyId) => {
+       
         const query = `SELECT * FROM ${TABLE_NAME} WHERE idCompany1 = ? OR idCompany2 = ?`
-
+        
         let relations = await Utils.generalQuery(query, [companyId, companyId, companyId], 'read')
         const companiesHandler = await relationsExternals.companiesHandler(relations.response)
 
@@ -83,8 +84,16 @@ const relationsExternals = {
         const checkRelations = await relationsExternals.checkRelation(idCompany1, idCompany2)
 
         if (checkRelations.response.length > 0) {
-            return (checkRelations.response[0].company1_accepted === 2 && checkRelations.response[0].company2_accepted === 2) ?
-                ["There is already an external relationship between these two companies"] : ["Pending relationship"]
+
+            if(checkRelations.response[0].company1_accepted === 2 && checkRelations.response[0].company2_accepted === 2) {
+                return ["There is already an external relationship between these two companies"]
+            }
+
+            if(checkRelations.response[0].company1_accepted === 0 && checkRelations.response[0].company2_accepted === 0) {
+                relationsExternals.changeStatusRelation(idCompany1, idCompany2, 'accept')
+            }
+
+            return ["Pending relationship"]
         }
 
         const query = `INSERT INTO ${TABLE_NAME} (idCompany1, idCompany2, company1_accepted, company2_accepted) VALUES (?, ?, ?, ?)`
@@ -119,7 +128,7 @@ const relationsExternals = {
         const operation = {
             accept: async (checkRelations) => {
                 const column = await relationsExternals.checkCompanyIdAcceptedColumn(checkRelations.response[0], idCompany1)
-
+                
                 const query = `UPDATE ${TABLE_NAME} SET ${column.currentCompany.query}, ${column.companyAcceptQuery.query} WHERE id = ?`
                 const accept = Utils.generalQuery(query, [column.currentCompany.value, column.companyAcceptQuery.value, checkRelations.response[0].id], 'write')
 
