@@ -49,7 +49,7 @@ const CareerService = function () {
     },
     getById : async function(id){
       const headers = generateHeader();
-      const { data } = await axios.get(`${API + MODEL}/${id}`, { headers });
+      const { data } = await axios.get(`${API + MODEL}${id}`, { headers });
       return data;
     }
   };

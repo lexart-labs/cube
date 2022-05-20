@@ -110,8 +110,10 @@ const Career = {
       WHERE c.id = ?
     `;
     const arr = [id];
-
-    return await Utils.generalQuery(sql, arr, 'read');
+    let res = await Utils.generalQuery(sql, arr, 'read');
+    res.response = res.response.map(item => { return {...item, roadmap: JSON.parse(item.roadmap)}})
+    
+    return res
   },
 };
 
