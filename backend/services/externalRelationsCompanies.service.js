@@ -8,7 +8,7 @@ const API_LEXTRACKING = process.env.API_LEXTRACKING
 
 const relationsExternals = {
     getAll: async (companyId) => {
-        const query = `SELECT ${TABLE_NAME}.*, SUM(company1_accepted + company2_accepted) AS status FROM ${TABLE_NAME} WHERE idCompany1 = ? OR idCompany2 = ?`
+        const query = `SELECT * FROM ${TABLE_NAME} WHERE idCompany1 = ? OR idCompany2 = ?`
 
         let relations = await Utils.generalQuery(query, [companyId, companyId, companyId], 'read')
         const companiesHandler = await relationsExternals.companiesHandler(relations.response)
