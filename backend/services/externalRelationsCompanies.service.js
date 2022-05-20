@@ -87,7 +87,7 @@ const relationsExternals = {
                 ["There is already an external relationship between these two companies"] : ["Pending relationship"]
         }
 
-        const query = `INSERT INTO ${TABLE_NAME} (idCompany1, idCompany2, company1_accepted, company2_accepted) VALUES (?, ?, ?)`
+        const query = `INSERT INTO ${TABLE_NAME} (idCompany1, idCompany2, company1_accepted, company2_accepted) VALUES (?, ?, ?, ?)`
 
         const newRelation = Utils.generalQuery(query, [idCompany1, idCompany2, 2, 1], 'write')
 
