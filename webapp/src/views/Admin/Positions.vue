@@ -47,7 +47,7 @@
             <td>{{ position.company }}</td>
             <td>{{ position.careerType }}</td>
             <td>
-              <button class="btn btn-secondary" data-toggle="modal" v-on:click="() => { positionSelected = position }"
+              <button class="btn btn-secondary" data-toggle="modal" v-on:click="setPositionSelected(position)"
                 data-target="#staticBackdrops" >
                 Ver
               </button>
@@ -111,13 +111,20 @@
             </button>
           </div>
           <div class="modal-body">
+              <div class="item">
+                <input class="form-control col-10 is-rounded mt-2"  v-model="newRoadmapItem" />
+                <i
+                    class="fas fa-plus-circle"
+                    style="font-size: 1.5rem; cursor: pointer;"
+                    v-on:click="editRoadmap(positionSelected.id)"
+                />
+              </div>
               <template v-for="(item, i) in positionSelected.roadmap">
                 <div class="item" :key="`head${i}`">
                   <input class="form-control col-10 is-rounded mt-2"  v-model="positionSelected.roadmap[i]" :key="`head${i}`" />
                   <button v-on:click="removeFromRoadmap(i)" class="modal-button"><img src="../../assets/trash-can.png" alt="" srcset=""></button>
                 </div>
               </template>
-              <input class="form-control col-10 is-rounded mt-2"  v-model="newRoadmapItem" />
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary col-2" data-dismiss="modal">
@@ -214,6 +221,12 @@ export default {
       }
       await Career().put(id, this.positionSelected)
       return this.getCareers()
+    },
+
+    setPositionSelected: async function(position){
+      const response = await Career().getById(position.id);
+      this.positionSelected = position
+      this.positionSelected.roadmap = response.response[0].roadmap
     },
 
     removeFromRoadmap : async function(id){
@@ -321,6 +334,7 @@ h4 {
 
 .item{
   display: flex;
+  align-items: center;
 }
 .modal-button{
   background: none;
