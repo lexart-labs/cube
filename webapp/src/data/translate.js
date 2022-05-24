@@ -112,6 +112,7 @@ const translations = {
       deleteError: 'Error: Please make sure this plataform is not related to any user.',
       positionIsUsed: 'This type of position is being used',
       error: 'No fue possible completar la operación.',
+      roadmapSuccess: 'Roadmap actualizado con éxito!'
     },
     AdminLevels: {
       placeholder:'Adicionar nuevo level',
@@ -443,6 +444,7 @@ const translations = {
       duplicateError: 'This position already exists',
       deleteError: 'Error: Por favor, asegúrese de que esta plataforma no esté relacionada con ningún usuario.',
       positionIsUsed: 'Este tipo de posición se está utilizando',
+      roadmapSuccess: 'Roadmap edited successfully'
     },
     AdminLevels: {
       placeholder:'Add a new level',

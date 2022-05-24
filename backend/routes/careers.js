@@ -3,6 +3,7 @@ const router = express.Router();
 const Career 	 = require('../services/careers.service');
 const CareersType = require('../services/careersType.service');
 const Utils = require('../services/utils.service');
+const Middleware = require('../services/middleware.service')
 
 router.get('/byUser', async (req, res) => {
   const idUser = req.headers['user-id'];
@@ -45,7 +46,7 @@ router.put('/:id', async (req, res) => {
   return res.send(response);
 });
 
-router.patch('/:idPosition/roadmap', async (req, res) => {
+router.patch('/:idPosition/roadmap', Middleware.middleware, async (req, res) => {
   const { roadmap } = req.body
   const { idPosition } = req.params
 

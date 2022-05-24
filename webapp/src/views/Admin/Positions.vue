@@ -227,7 +227,12 @@ export default {
     },
 
     editRoadmap: async function(id) {
-      await Career().editRoadmap(id, { roadmap: this.positionSelected.roadmap })
+      const response = await Career().editRoadmap(id, { roadmap: this.positionSelected.roadmap })
+
+      if(response.error === 'Token inválido') Vue.toasted.show( 'Unauthorized', { type: "error", duration: 4000 });
+      else if(response.status === 200) Vue.toasted.show( this.$t('AdminPositions.roadmapSuccess'), { type: "success", duration: 4000 });
+      else if(response.status === 400) Vue.toasted.show( response.message, { type: "error", duration: 4000 });
+
       return this.getCareers()
     },
 
