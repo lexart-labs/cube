@@ -41,8 +41,8 @@ const Companies = {
     const { data } = await axios.delete(`${API + MODEL}/${id}`, { headers });
     return data;
   },
-  verify: async function (company, captcha) {
-    const { data } = await axios.post(`${API + MODEL}/verify`, { captcha, company }, { headers });
+  verify: async function (company) {
+    const { data } = await axios.post(`${API + MODEL}/verify`, { company }, { headers });
     return data;
   },
 };

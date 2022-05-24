@@ -43,6 +43,12 @@
         >
           <span>Login</span>
         </button>
+          <div class="captcha-ctl">
+            <vue-recaptcha
+              :sitekey="siteKey"
+              @verify="setCaptchaResponse"
+            ></vue-recaptcha>
+          </div>
         <footer>
           <div>
             <small v-if="error" class="alert alert-danger">
@@ -142,10 +148,19 @@ export default {
     loginUser() {
       this.isLoading = true;
       const user = copy(this.usr);
+      const captcha = this.captchaResponse;
+      console.log(captcha)
 
-      axios.post(`${API}users/login/verify`, { ...user }).then(
+      if(!captcha) {
+        this.error = "please, make sure to check the reCaptcha challenge.";
+        this.isLoading = false;
+        return;
+      }
+
+      axios.post(`${API}users/login/verify`, { ...user, ...captcha }).then(
         (res) => {
           const rs = res.data;
+          console.log(rs)
           this.isLoading = false;
 
           if (!rs.error) {
@@ -187,7 +202,9 @@ export default {
             }
             );
           } else {
+            grecaptcha.reset();
             this.error = rs.error;
+            this.captchaResponse = '';
           }
         },
         () => {

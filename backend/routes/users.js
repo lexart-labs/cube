@@ -13,8 +13,8 @@ router.post('/login', async function (req, res) {
 })
 
 router.post('/login/verify', async function (req, res) {
-	const  { email, password } = req.body;
-	let response = await User.loginVerify(email, password);
+	const  { email, password, captcha } = req.body;
+	let response = await User.loginVerify(email, password, captcha);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);

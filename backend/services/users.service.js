@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 
 const tablaNombre = 'users';
 const trackingApi = process.env.API_LEXTRACKING;
+const SECRET_KEY = process.env.SECRET_KEY;
 const PAGE_SIZE = 10;
 
 let User = {
@@ -356,7 +357,16 @@ let User = {
 		}
 	},
 
-	loginVerify: async function (email, password) {
+	validateCaptcha: async function (tk) {
+		if (!tk) return false;
+		const urlParams = `secret=${SECRET_KEY}&response=${tk}`;
+	
+		const { data } = await axios.post(`https://www.google.com/recaptcha/api/siteverify?${urlParams}`);
+	
+		return data.success;
+	},
+
+	loginVerify: async function (email, password, captcha) {
 		const error = { error: 'Usuario y/o clave incorrecta.' };
 		let sql = `
 			SELECT
@@ -377,6 +387,9 @@ let User = {
 		let token = '';
 
 		try {
+			const isValid = await this.validateCaptcha(captcha);
+			console.log(isValid)
+      		if(!isValid) return {error: 'Invalid human verification. please try again.'};
 			response = await conn.query(sql, [email, password]);
 
 			if(!response.length) return error;
@@ -391,7 +404,6 @@ let User = {
 			return error;
 		}
 	},
-
 
 	courses: async function (id) {
 
