@@ -1,6 +1,7 @@
 const TABLE_NAME = 'careers';
 const ERROR = { error: 'No fue possible recuperar los datos' };
 const Utils = require('./utils.service');
+const Queries = require('../queries/positions');
 
 const Career = {
   getIdCareerType: async (idCareerType, idCompany) => {
@@ -63,9 +64,8 @@ const Career = {
     
     return res
   },
-  upsert: async (id, position, active, roadmap, idCompany, idCareerType, minimumTime) => {
+  upsert: async (id, position, active, idCompany, idCareerType, minimumTime) => {
     let sql = '';
-    let operacion = '';
     let arrayUpsert = [];
     
     if (id) {
@@ -73,24 +73,21 @@ const Career = {
         UPDATE careers SET 
           position=?,
           active=?,
-          roadmap=?,
           idCareerType=?,
           minimumTime=?
-        WHERE id =${id};
+        WHERE id=${id};
       `;
-      operacion = 'write';
-      arrayUpsert = [position, active, JSON.stringify(roadmap), idCareerType, minimumTime];
+      arrayUpsert = [position, active, idCareerType, minimumTime];
     } else {
       sql = `
         INSERT INTO careers 
 	      (position, active, roadmap, idCompany, idCareerType, minimumTime)
         VALUES (?, ?, ?, ?, ?, ?);
       `;
-      operacion = 'write';
-      arrayUpsert = [position, active, JSON.stringify(roadmap), idCompany, idCareerType, minimumTime];
+      arrayUpsert = [position, active, "[]", idCompany, idCareerType, minimumTime];
     }
 
-    return await Utils.generalQuery(sql, arrayUpsert, operacion);
+    return await Utils.generalQuery(sql, arrayUpsert, 'write');
   },
   remove: async (id) => {
     const sql = `DELETE FROM careers WHERE id = ?`;
@@ -110,9 +107,18 @@ const Career = {
       WHERE c.id = ?
     `;
     const arr = [id];
-
-    return await Utils.generalQuery(sql, arr, 'read');
+    let res = await Utils.generalQuery(sql, arr, 'read');
+    res.response = res.response.map(item => { return {...item, roadmap: JSON.parse(item.roadmap)}})
+    
+    return res
   },
+  editRoadmap: async (idPosition, roadmap) => {
+    const sql = Queries.editRoadmap
+    const arr = [JSON.stringify(roadmap), idPosition]
+
+    const response = await Utils.generalQuery(sql, arr, 'write')
+    return response
+  }
 };
 
 module.exports = Career;

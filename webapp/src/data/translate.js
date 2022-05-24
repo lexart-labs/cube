@@ -98,6 +98,22 @@ const translations = {
       success: '¡Operación completada con suceso!',
       error: 'No fue possible completar la operación.',
     },
+    AdminPositions: {
+      placeholder:'Agregar una nueva posición',
+      placeholder2:'Tiempo mínimo',
+      tableHeaders: ['id', 'Posición', 'Empresa', 'Tipo de carrera', 'Roadmap', 'Tiempo mínimo (dias)'],
+      title: 'Posicións',
+      confirmRemove: '¿Estás seguro que desas borrar esta posición?',
+      deleted: 'Posición eliminada con éxito.',
+      created: 'Posición creada con éxito.',
+      edited: 'Posición editado con éxito.',
+      success: '¡Operación completada con suceso!',
+      duplicateError: 'Esta posición ya existe',
+      deleteError: 'Error: Please make sure this plataform is not related to any user.',
+      positionIsUsed: 'This type of position is being used',
+      error: 'No fue possible completar la operación.',
+      roadmapSuccess: 'Roadmap actualizado con éxito!'
+    },
     AdminLevels: {
       placeholder:'Adicionar nuevo level',
       tableHeaders: ['id','nombre', 'career', ''],
@@ -131,6 +147,7 @@ const translations = {
       exit: 'Cerrar sección',
       technologies: 'Tecnologías',
       hunting: 'Times',
+      Positions: 'Posición',
       months: [
         "Enero",
         "Febrero",
@@ -280,7 +297,10 @@ const translations = {
       tableHeaders: ['id', 'nombre'],
       deleteError: 'Error: Please make sure this plataform is not related to any user.',
       duplicateError: 'Este tipo de carrera ya existe',
-      careerIsUsed: 'Este tipo de carrera se está utilizando'
+      careerIsUsed: 'Este tipo de carrera se está utilizando',
+      created: 'Tipo de carrera creado con éxito.',
+      deleted: 'Tipo de carrera eliminado con éxito.',
+      edited: 'Tipo de carrera editado con éxito',
     },
     AdminCollaborators: {
       title: 'Colaboradores',
@@ -410,6 +430,22 @@ const translations = {
       success: 'Operation ran sucessfully',
       error: 'Error when saving this operation',
     },
+    AdminPositions: {
+      placeholder:'Add a new position',
+      placeholder2:'Minimum time',
+      tableHeaders: ['id', 'Position', 'Company', 'Career type', 'Roadmap', 'Minimum time (days)'],
+      title: 'Positions',
+      confirmRemove: 'Are you sure you want to delete this position?',
+      success: 'Operation ran sucessfully',
+      deleted: 'Position deleted successfully.',
+      created: 'Position created successfully.',
+      edited: 'Position edited successfully.',
+      error: 'Error when saving this operation',
+      duplicateError: 'This position already exists',
+      deleteError: 'Error: Por favor, asegúrese de que esta plataforma no esté relacionada con ningún usuario.',
+      positionIsUsed: 'Este tipo de posición se está utilizando',
+      roadmapSuccess: 'Roadmap edited successfully'
+    },
     AdminLevels: {
       placeholder:'Add a new level',
       tableHeaders: ['id','name', 'career', ''],
@@ -431,7 +467,10 @@ const translations = {
       tableHeaders: ['id', 'name'],
       deleteError: 'Error: Please make sure this plataform is not related to any user.',
       duplicateError: 'This career type already exists',
-      careerIsUsed: 'This type of career is being used'
+      careerIsUsed: 'This type of career is being used',
+      created: 'Career type created successfully.',
+      deleted: 'Career type deleted successfully.',
+      edited: 'Career type edited successfully',
     },
     generic: {
       cancel: 'Cancel',
@@ -452,6 +491,7 @@ const translations = {
       exit: 'Log out',
       technologies: 'Technologies',
       hunting: 'Teams',
+      Positions: 'Position',
       months: [
         "January",
         "February",

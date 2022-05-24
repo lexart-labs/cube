@@ -17,11 +17,51 @@ const CareerService = function () {
       const { data } = await axios.get(`${API + MODEL}`, { headers });
       return data;
     },
+
+    new: async function (body) {
+      const headers = generateHeader();
+      const { data } = await axios.post(`${API + MODEL}`, body,{ headers });
+      return data;
+    },
+
+    editPosition: async function (id, body) {
+      const headers = generateHeader();
+      const { data } = await axios.put(`${API + MODEL + id}`, body,{ headers });
+      return data;
+    },
+
+    editRoadmap: async function (id, body) {
+      const headers = generateHeader();
+      const { data } = await axios.patch(
+        `${API + MODEL + id}/roadmap`,
+        body,
+        { headers }
+      )
+      return data
+    },
+
+    del: async function (id) {
+      console.log(id);
+      const headers = generateHeader();
+      const { data } = await axios.delete(`${API + MODEL + id}`,{ headers });
+      return data;
+    },
     getByCareerType: async function (idCareerType) {
       const headers = generateHeader();
       const { data } = await axios.get(`${API + MODEL}byIdCareerType/${idCareerType}`, { headers });
       return data;
     },
+
+    getByIdCompany: async function () {
+      const headers = generateHeader();
+      const { data } = await axios.get(`${API + MODEL}/byCompany`, { headers });
+      return data;
+    },
+    getById : async function(id){
+      const headers = generateHeader();
+      const { data } = await axios.get(`${API + MODEL}${id}`, { headers });
+      return data;
+    }
   };
 };
 

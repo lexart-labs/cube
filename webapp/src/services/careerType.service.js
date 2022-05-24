@@ -12,6 +12,11 @@ const generateHeader = () => {
 const CareerTypeService = function () {
   const MODEL = 'careers/type/';
   return {
+    getByIdCompany: async function () {
+      const headers = generateHeader();
+      const { data } = await axios.get(`${API + MODEL}`, { headers });
+      return data;
+    },
     getAll: async function () {
       const headers = generateHeader();
       const { data } = await axios.get(`${API + MODEL}`, { headers });

@@ -86,7 +86,6 @@ export default {
   methods: {
     showJobDetails(charge) {
       let foundCareer = this.careers.find((career)=> career.position == charge).roadmap;
-      foundCareer = JSON.parse(foundCareer)
       this.jobAssignments = foundCareer
       this.jobAssignmentsTranslated = foundCareer
 

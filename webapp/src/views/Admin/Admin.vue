@@ -38,6 +38,12 @@
               >{{ $t('generic.origin') }}</router-link
             >
           </li>
+          <li class="nav-item">
+            <router-link to="/app/administration/career" class="nav-link"
+              >{{ $t('generic.Positions') }}</router-link
+            >
+          </li>
+          <li class="nav-item">
             <li class="nav-item">
             <router-link to="/app/administration/levels" class="nav-link"
               >Levels</router-link>

@@ -3,7 +3,7 @@ START TRANSACTION;
 ALTER TABLE `careers` CHANGE `position` `position` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL;
 
 ALTER TABLE careers 
-	ADD `roadmap` varchar(255) DEFAULT "[]",
+	ADD `roadmap` text DEFAULT "[]",
     ADD `idCompany` INT(11) NOT NULL DEFAULT 1,
     ADD `idCareerType` INT(11) NOT NULL DEFAULT 1;
     
