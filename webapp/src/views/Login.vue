@@ -143,39 +143,49 @@ export default {
       this.isLoading = true;
       const user = copy(this.usr);
 
-      axios.post(`${API}users/login`, { ...user }).then(
+      axios.post(`${API}users/login/verify`, { ...user }).then(
         (res) => {
           const rs = res.data;
           this.isLoading = false;
+          console.log(rs)
 
           if (!rs.error) {
-            const { lexToken, token, ...cubeUsr } = rs.response;
-            localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
-            localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
-            localStorage.setItem("lexToken", rs.response.lexToken);
-            localStorage.setItem("cubeUser", JSON.stringify(cubeUsr));
-            
+            const { token } = rs.response;
             const headers = {
               token
             };
-
+            
             axios.get(`${API}users/companies/participate`, { headers }).then((res) => {
               const companies = res.data.response; // array result
               this.companies = res.data.response; // show companies on second form
               this.isLoading = false;
-
-              if (companies.length >= 2) {
-                this.moreThanOneCompany = false;
+              
+              if(companies.length <= 1){
+                axios.post(`${API}users/login`, { ...user }).then(
+                  (res) => {
+                    const rs = res.data;
+                    console.log(rs)
+                    //return
+                    this.isLoading = false;
+                    if (!rs.error) {
+                      const { lexToken, token, ...cubeUsr } = rs.response;
+                      localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
+                      localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
+                      localStorage.setItem("lexToken", rs.response.lexToken);
+                      localStorage.setItem("cubeUser", JSON.stringify(cubeUsr));
+                      this.$router.push("/app/dashboard");
+                      const data = Companies.getById(user.idCompany); // apply company-slug after login
+                      localStorage.setItem("_company-slug", data.slug);
+                    }
+                  },
+                  () => {
+                    this.error = "Error al obtener organización";
+                    this.isLoading = false;
+                  }
+                );
               } else {
-                this.$router.push("/app/dashboard");
-                const data = Companies.getById(this.user.idCompany); // apply company-slug after login
-                localStorage.setItem("_company-slug", data.slug);
+                this.moreThanOneCompany = false;
               }
-
-            },
-            () => {
-              this.error = "Error al obtener organización";
-              this.isLoading = false;
             }
             );
           } else {
@@ -215,6 +225,11 @@ export default {
             //return
             this.isLoading = false;
             if (!rs.error) {
+              const { lexToken, token, ...cubeUsr } = rs.response;
+              localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
+              localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
+              localStorage.setItem("lexToken", rs.response.lexToken);
+              localStorage.setItem("cubeUser", JSON.stringify(cubeUsr));
               localStorage.setItem("_company-slug", result.slug);
               this.$router.push("/app/dashboard");
             }

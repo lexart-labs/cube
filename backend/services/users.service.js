@@ -355,6 +355,44 @@ let User = {
 			return error;
 		}
 	},
+
+	loginVerify: async function (email, password) {
+		const error = { error: 'Usuario y/o clave incorrecta.' };
+		let sql = `
+			SELECT
+				u.id,
+				u.name,
+				u.email,
+				u.type,
+				u.active,
+				u.idUser,
+				u.idLextracking,
+				uc.idPosition,
+				uc.idLevel
+			FROM ${tablaNombre} u
+			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			WHERE u.email = ? AND u.password = MD5(?) AND u.active = 1
+		`
+		let response = [];
+		let token = '';
+
+		try {
+			response = await conn.query(sql, [email, password]);
+
+			if(!response.length) return error;
+
+			const { password: p, ...usr } = response[0];
+			if(!usr.idUser) return error;
+			token = utils.makeToken(usr);
+			response = { token };
+			return { response };
+		} catch (e) {
+			console.log(e.message);
+			return error;
+		}
+	},
+
+
 	courses: async function (id) {
 
 		const sql = `

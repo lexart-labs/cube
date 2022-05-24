@@ -12,6 +12,14 @@ router.post('/login', async function (req, res) {
     res.send(response);
 })
 
+router.post('/login/verify', async function (req, res) {
+	const  { email, password } = req.body;
+	let response = await User.loginVerify(email, password);
+
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
 router.get('/school/:token', async function (req, res) {
 	let token = req.params.token;
 	let response = await User.byToken(token);
