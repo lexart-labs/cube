@@ -147,7 +147,6 @@ export default {
         (res) => {
           const rs = res.data;
           this.isLoading = false;
-          console.log(rs)
 
           if (!rs.error) {
             const { token } = rs.response;
@@ -164,9 +163,8 @@ export default {
                 axios.post(`${API}users/login`, { ...user }).then(
                   (res) => {
                     const rs = res.data;
-                    console.log(rs)
-                    //return
                     this.isLoading = false;
+
                     if (!rs.error) {
                       const { lexToken, token, ...cubeUsr } = rs.response;
                       localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
@@ -221,9 +219,8 @@ export default {
         axios.post(`${API}users/login`, { ...newLoginUser }).then(
           (res) => {
             const rs = res.data;
-            console.log(rs)
-            //return
             this.isLoading = false;
+            
             if (!rs.error) {
               const { lexToken, token, ...cubeUsr } = rs.response;
               localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
