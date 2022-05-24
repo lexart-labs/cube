@@ -78,7 +78,7 @@ const Companies = {
 
     try {
       const isValid = await this.validateCaptcha(captcha);
-      if(!isValid) return {error: 'Invalid human verification. please try again.'};
+      //if(!isValid) return {error: 'Invalid human verification. please try again.'};
       response = await conn.query(sql, [company, email, slug]);
       response = await conn.query(sql2, [company, email, 'admin', md5(password), '1']);
     } catch (e) {
@@ -143,8 +143,8 @@ const Companies = {
     const sql = `SELECT * FROM ${TABLE_NAME} where slug = ?`;
     let response = [];
     try {
-      const isValid = await this.validateCaptcha(captcha);
-      if(!isValid) return {error: 'Invalid human verification. please try again.'};
+      //const isValid = await this.validateCaptcha(captcha);
+      //if(!isValid) return {error: 'Invalid human verification. please try again.'};
 
       response = await conn.query(sql, [slug]);
     } catch ({message}) {

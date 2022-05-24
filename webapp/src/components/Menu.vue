@@ -241,12 +241,11 @@ export default {
         }
       })
     },
-
     getCompanyById: async function () {
       const data = await Companies.getById(this.user.idCompany);
+      localStorage.setItem("_company-slug", data.slug);
       this.company = data.company;
     },
-
     onSave(){
       if(this.passwordManager.password != this.passwordManager.confirmPassword){
         this.error = Translations[this.$store.state.language].dashboard.profileEditErrorPassword;
