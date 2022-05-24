@@ -101,7 +101,7 @@ const translations = {
     AdminPositions: {
       placeholder:'Agregar una nueva posición',
       placeholder2:'Tiempo mínimo',
-      tableHeaders: ['id', 'Posición', 'Empresa', 'Tipo de carrera', 'Roadmap'],
+      tableHeaders: ['id', 'Posición', 'Empresa', 'Tipo de carrera', 'Roadmap', 'Tiempo mínimo (dias)'],
       title: 'Posicións',
       confirmRemove: '¿Estás seguro que desas borrar esta posición?',
       deleted: 'Posición eliminada con éxito.',
@@ -432,7 +432,7 @@ const translations = {
     AdminPositions: {
       placeholder:'Add a new position',
       placeholder2:'Minimum time',
-      tableHeaders: ['id', 'Position', 'Company', 'Career type', 'Roadmap'],
+      tableHeaders: ['id', 'Position', 'Company', 'Career type', 'Roadmap', 'Minimum time (days)'],
       title: 'Positions',
       confirmRemove: 'Are you sure you want to delete this position?',
       success: 'Operation ran sucessfully',

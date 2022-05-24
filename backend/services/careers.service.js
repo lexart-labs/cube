@@ -1,6 +1,7 @@
 const TABLE_NAME = 'careers';
 const ERROR = { error: 'No fue possible recuperar los datos' };
 const Utils = require('./utils.service');
+const Queries = require('../queries/positions');
 
 const Career = {
   getIdCareerType: async (idCareerType, idCompany) => {
@@ -73,10 +74,9 @@ const Career = {
         UPDATE careers SET 
           position=?,
           active=?,
-          roadmap=?,
           idCareerType=?,
           minimumTime=?
-        WHERE id =${id};
+        WHERE id=${id};
       `;
       operacion = 'write';
       arrayUpsert = [position, active, JSON.stringify(roadmap), idCareerType, minimumTime];
@@ -115,6 +115,13 @@ const Career = {
     
     return res
   },
+  editRoadmap: async (idPosition, roadmap) => {
+    const sql = Queries.editRoadmap
+    const arr = [JSON.stringify(roadmap), idPosition]
+
+    const response = await Utils.generalQuery(sql, arr, 'write')
+    return response
+  }
 };
 
 module.exports = Career;

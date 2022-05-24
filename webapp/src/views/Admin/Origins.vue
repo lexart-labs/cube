@@ -19,7 +19,7 @@
       />
       <button
         type="button"
-        class="btn btn-primary col-1"
+        class="btn btn-success col-1"
         v-on:click="isEditing ? updatePlataform() : addPlataform()"
         :disabled="!newPlataform.plataform"
       >
@@ -53,7 +53,7 @@
             <td>{{ item.id }}</td>
             <td>{{ item.plataform }}</td>
             <td style="display: flex; gap: 1rem;">
-              <button class="btn btn-success col-4" data-toggle="modal" v-on:click="setEditing(item)">
+              <button class="btn btn-primary col-4" data-toggle="modal" v-on:click="setEditing(item)">
                 {{ $t("generic.edit") }}
               </button>
               <button class="btn btn-secondary col-4" data-toggle="modal" v-on:click="deletePlataform(item.id)">

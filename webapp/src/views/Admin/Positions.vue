@@ -12,7 +12,7 @@
 
     <div class="row" id="inputTech">
       <input type="text" v-model="newPosition.name" :placeholder="$t('AdminPositions.placeholder')"
-        class="form-control col-6 is-rounded" />
+        class="form-control col-5 is-rounded" />
       <input type="text" v-model="newPosition.minimumTime" :placeholder="$t('AdminPositions.placeholder2')"
         class="form-control col-2 is-rounded" />
       <select v-model="newPosition.careerType" class="form-control col-2 is-rounded">
@@ -21,7 +21,7 @@
           {{ careerType.careerName }}
         </option>
       </select>
-      <button type="button" class="btn btn-primary col-1" v-on:click="isEditing ? putPosition() : addPosition()"
+      <button type="button" class="btn btn-success col-2" v-on:click="isEditing ? putPosition() : addPosition()"
         :disabled="!newPosition.name || !newPosition.careerType">
         {{ isEditing ? $t("generic.edit") : $t("generic.save") }}
       </button>
@@ -52,8 +52,9 @@
                 Ver
               </button>
             </td>
+            <td>{{ position.minimumTime }}</td>
             <td style="display: flex; gap: 1rem;justify-content: center;">
-              <button class="btn btn-success" data-toggle="modal" v-on:click="setEditing(position)">
+              <button class="btn btn-primary" data-toggle="modal" v-on:click="setEditing(position)">
                 {{ $t("generic.edit") }}
               </button>
               <button class="btn btn-secondary" data-toggle="modal" v-on:click="() => { positionSelected = position }"
@@ -111,26 +112,31 @@
             </button>
           </div>
           <div class="modal-body">
-              <div class="item">
-                <input class="form-control col-10 is-rounded mt-2"  v-model="newRoadmapItem" />
+              <div class="item mb-3">
+                <input class="form-control is-rounded"  v-model="newRoadmapItem" />
                 <i
-                    class="fas fa-plus-circle"
+                    class="fas fa-plus-circle ml-3"
                     style="font-size: 1.5rem; cursor: pointer;"
-                    v-on:click="editRoadmap(positionSelected.id)"
+                    v-on:click="addRoadmapItem(positionSelected.id)"
                 />
               </div>
+              <hr>
               <template v-for="(item, i) in positionSelected.roadmap">
-                <div class="item" :key="`head${i}`">
-                  <input class="form-control col-10 is-rounded mt-2"  v-model="positionSelected.roadmap[i]" :key="`head${i}`" />
-                  <button v-on:click="removeFromRoadmap(i)" class="modal-button"><img src="../../assets/trash-can.png" alt="" srcset=""></button>
-                </div>
+                <ul :key="`head${i}`">
+                  <!-- <input class="form-control col-10 is-rounded"  v-model="positionSelected.roadmap[i]" :key="`head${i}`" /> -->
+                  <li class="item justify-content-between mt-2">
+                    <p> - {{ positionSelected.roadmap[i] }}</p>
+                    <button v-on:click="removeFromRoadmap(i)" class="modal-button"><img src="../../assets/trash-can.png" alt="" srcset=""></button>
+                  </li>
+                </ul>
+                <hr class="my-2">
               </template>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary col-2" data-dismiss="modal">
               {{ $t("generic.close") }}
             </button>
-            <button type="button" class="btn btn-primary col-2" data-dismiss="modal" v-on:click="editRoadmap(positionSelected.id)"
+            <button type="button" class="btn btn-success col-2" data-dismiss="modal" v-on:click="editRoadmap(positionSelected.id)"
               >
               {{ $t("generic.save") }}
             </button>
@@ -214,22 +220,24 @@ export default {
 
       this.getCareers();
     },
-    editRoadmap : async function(id){
-      if(this.newRoadmapItem){
-        this.positionSelected.roadmap.push(this.newRoadmapItem)
-        this.newRoadmapItem = ''
-      }
-      await Career().put(id, this.positionSelected)
+
+    addRoadmapItem: async function () {
+      this.positionSelected.roadmap.push(this.newRoadmapItem)
+      this.newRoadmapItem = ''
+    },
+
+    editRoadmap: async function(id) {
+      await Career().editRoadmap(id, { roadmap: this.positionSelected.roadmap })
       return this.getCareers()
     },
 
-    setPositionSelected: async function(position){
+    setPositionSelected: async function(position) {
       const response = await Career().getById(position.id);
       this.positionSelected = position
       this.positionSelected.roadmap = response.response[0].roadmap
     },
 
-    removeFromRoadmap : async function(id){
+    removeFromRoadmap : async function(id) {
       this.positionSelected.roadmap.splice(id, 1);
     },
 
@@ -240,11 +248,11 @@ export default {
         id: this.newPosition.id,
         position: this.newPosition.name,
         active: 1,
-        roadmap: null,
-        idCareerType: this.newPosition.careerType.id
+        idCareerType: this.newPosition.careerType.id,
+        minimumTime: this.newPosition.minimumTime
       }
 
-      const response = await Career().put(body.id, body);
+      const response = await Career().editPosition(body.id, body);
 
       if (response.status !== 200) {
 
@@ -261,6 +269,7 @@ export default {
       Vue.toasted.show(this.$t('AdminPositions.edited'), { type: 'success', duration: 4000 })
       
       this.getCareers();
+      this.newPosition = { ...DEFAULT_VALUE };
     },
 
     delPosition: async function (id) {

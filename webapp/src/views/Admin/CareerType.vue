@@ -13,7 +13,7 @@
     <div class="row" style="gap: 1rem; margin: 1rem auto 3rem;">
       <input type="text" v-model="newCareerType.name" :placeholder="$t('AdminCareerType.placeholder')"
         class="form-control col-8 is-rounded" />
-      <button type="button" class="btn btn-primary col-1" v-on:click="isEditing ? updateCareerType() : saveCareerType()"
+      <button type="button" class="btn btn-success col-1" v-on:click="isEditing ? updateCareerType() : saveCareerType()"
         :disabled="!newCareerType.name">
         {{ isEditing ? $t("generic.edit") : $t("generic.save") }}
       </button>
@@ -37,7 +37,7 @@
             <td>{{ item.id }}</td>
             <td>{{ item.name }}</td>
             <td style="display: flex; gap: 1rem;">
-              <button class="btn btn-success col-4" data-toggle="modal" v-on:click="setEditMode(item)">
+              <button class="btn btn-primary col-4" data-toggle="modal" v-on:click="setEditMode(item)">
                 {{ $t("generic.edit") }}
               </button>
               <button class="btn btn-secondary col-4" data-toggle="modal" data-target="#staticBackdrop" v-on:click="selectCareer = item">

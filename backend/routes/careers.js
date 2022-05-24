@@ -34,16 +34,25 @@ router.get('/byCompany', async (req, res) => {
 });
 
 router.put('/:id', async (req, res) => {
-  const { position, active, roadmap, idCareerType, minimumTime } = req.body;
+  const { position, active, idCareerType, minimumTime } = req.body;
   const { id } = req.params;
   const { company_slug } = req.headers;
   const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
 
   res.set(['Content-Type', 'application/json']);
-  const response = await Career.upsert(id, position, active, roadmap, idCompany, idCareerType, minimumTime);
+  const response = await Career.upsert(id, position, active, idCompany, idCareerType, minimumTime);
 
   return res.send(response);
 });
+
+router.patch('/:idPosition/roadmap', async (req, res) => {
+  const { roadmap } = req.body
+  const { idPosition } = req.params
+
+  const response = await Career.editRoadmap(idPosition, roadmap)
+
+  return res.send(response)
+})
 
 router.post('/', async (req, res) => {
   const { position, active, roadmap, idCareerType, minimumTime } = req.body;

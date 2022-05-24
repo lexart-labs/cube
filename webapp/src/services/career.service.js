@@ -24,10 +24,20 @@ const CareerService = function () {
       return data;
     },
 
-    put: async function (id, body) {
+    editPosition: async function (id, body) {
       const headers = generateHeader();
       const { data } = await axios.put(`${API + MODEL + id}`, body,{ headers });
       return data;
+    },
+
+    editRoadmap: async function (id, body) {
+      const headers = generateHeader();
+      const { data } = await axios.patch(
+        `${API + MODEL + id}/roadmap`,
+        body,
+        { headers }
+      )
+      return data
     },
 
     del: async function (id) {

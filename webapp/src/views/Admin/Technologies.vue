@@ -29,7 +29,7 @@
       </select>
       <button
         type="button"
-        class="btn btn-primary col-1"
+        class="btn btn-success col-1"
         v-on:click="isEditing ? updateTech() : addTech()"
         :disabled="!newTechnology.name"
       >
@@ -63,7 +63,7 @@
             <td>{{ tech.name }}</td>
             <td>{{ tech.plataform }}</td>
             <td style="display: flex; gap: 1rem;justify-content: center;">
-              <button class="btn btn-success" data-toggle="modal" v-on:click="setEditing(tech)">
+              <button class="btn btn-primary" data-toggle="modal" v-on:click="setEditing(tech)">
                 {{ $t("generic.edit") }}
               </button>
               <button class="btn btn-secondary" data-toggle="modal" v-on:click="deleteTech(tech)">
