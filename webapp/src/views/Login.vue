@@ -87,7 +87,7 @@
         </small>
       </form>
       <div>
-        <router-link to="/rcompany" class="rcompany"
+        <router-link to="/rcompany" class="linkFooter"
           >Registre su organización</router-link
         >
       </div>
