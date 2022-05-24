@@ -122,7 +122,7 @@ export default {
       const endpoint = `${API}levels/by_user_admin`;
       const {data} = await axios.get(endpoint, { headers: { token: this.token, user_id: this.user_id, company_slug: this.company_slug }});
       this.levels= data.response
-      console.log(this.levels);
+      //console.log(this.levels);
       this.isLoading = false;
     },
     updateTech: async function() {
@@ -152,7 +152,7 @@ export default {
       this.isLoading = true;
       const { id } = tech;
       const endpoint = `${API}levels/${id}`;
-      console.log(id);
+      //console.log(id);
 
       const { data } = await axios.delete(endpoint, { headers: { token: this.token, company_slug: this.company_slug }});
       

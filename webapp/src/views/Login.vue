@@ -149,7 +149,6 @@ export default {
       this.isLoading = true;
       const user = copy(this.usr);
       const captcha = this.captchaResponse;
-      console.log(captcha)
 
       if(!captcha) {
         this.error = "please, make sure to check the reCaptcha challenge.";
@@ -160,7 +159,6 @@ export default {
       axios.post(`${API}users/login/verify`, { ...user, ...captcha }).then(
         (res) => {
           const rs = res.data;
-          console.log(rs)
           this.isLoading = false;
 
           if (!rs.error) {
