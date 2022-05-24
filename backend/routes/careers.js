@@ -56,11 +56,11 @@ router.patch('/:idPosition/roadmap', Middleware.middleware, async (req, res) => 
 })
 
 router.post('/', async (req, res) => {
-  const { position, active, roadmap, idCareerType, minimumTime } = req.body;
+  const { position, active, idCareerType, minimumTime } = req.body;
   const { company_slug } = req.headers;
   
   const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
-  const response = await Career.upsert(null, position, active, roadmap, idCompany, idCareerType, minimumTime);
+  const response = await Career.upsert(null, position, active, idCompany, idCareerType, minimumTime);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);

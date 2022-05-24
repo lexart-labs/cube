@@ -64,9 +64,8 @@ const Career = {
     
     return res
   },
-  upsert: async (id, position, active, roadmap, idCompany, idCareerType, minimumTime) => {
+  upsert: async (id, position, active, idCompany, idCareerType, minimumTime) => {
     let sql = '';
-    let operacion = '';
     let arrayUpsert = [];
     
     if (id) {
@@ -78,19 +77,17 @@ const Career = {
           minimumTime=?
         WHERE id=${id};
       `;
-      operacion = 'write';
-      arrayUpsert = [position, active, JSON.stringify(roadmap), idCareerType, minimumTime];
+      arrayUpsert = [position, active, idCareerType, minimumTime];
     } else {
       sql = `
         INSERT INTO careers 
 	      (position, active, roadmap, idCompany, idCareerType, minimumTime)
         VALUES (?, ?, ?, ?, ?, ?);
       `;
-      operacion = 'write';
-      arrayUpsert = [position, active, JSON.stringify(roadmap), idCompany, idCareerType, minimumTime];
+      arrayUpsert = [position, active, "[]", idCompany, idCareerType, minimumTime];
     }
 
-    return await Utils.generalQuery(sql, arrayUpsert, operacion);
+    return await Utils.generalQuery(sql, arrayUpsert, 'write');
   },
   remove: async (id) => {
     const sql = `DELETE FROM careers WHERE id = ?`;
