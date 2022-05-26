@@ -164,6 +164,13 @@
                 <div class="col-md-12">
                   <input type="text" v-model="company" class="form-control is-rounded"/>
                 </div>
+                <div class="col-md-12 mt-3">
+                  <label for="">{{ $t("dashboard.companyRelation") }}</label>
+                </div>
+                <div class="col-md-12">
+                  <input type="checkbox" v-model="companyRelation" class="is-rounded"/>
+                </div>
+
               </form>
             </div>
           </div>
@@ -226,6 +233,7 @@ export default {
       },
       company: '',
       error: '',
+      companyRelation: ''
     };
   },
   methods: {
@@ -272,7 +280,7 @@ export default {
       return result;
     },
     onSaveCompany: async function(){
-      const result = await Companies.update(this.user.idCompany, this.company);
+      const result = await Companies.update(this.user.idCompany, this.company, this.companyRelation);
       $("#editCompanyData").modal("hide");
       this.getCompanyById(this.user.idCompany);
       return result;
@@ -414,6 +422,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  }
+
+  .checkbox_active{
+
   }
 
   #editUserData .modal-content,
