@@ -168,7 +168,7 @@
                   <label for="">{{ $t("dashboard.companyRelation") }}</label>
                 </div>
                 <div class="col-md-12">
-                  <input type="checkbox" v-model="companyRelation" class="is-rounded"/>
+                  <input type="checkbox" v-model="openToExternalRelations" class="is-rounded"/>
                 </div>
 
               </form>
@@ -233,7 +233,7 @@ export default {
       },
       company: '',
       error: '',
-      companyRelation: ''
+      openToExternalRelations: ''
     };
   },
   methods: {
@@ -280,7 +280,7 @@ export default {
       return result;
     },
     onSaveCompany: async function(){
-      const result = await Companies.update(this.user.idCompany, this.company, this.companyRelation);
+      const result = await Companies.update(this.user.idCompany, this.company, this.openToExternalRelations);
       $("#editCompanyData").modal("hide");
       this.getCompanyById(this.user.idCompany);
       return result;
@@ -296,15 +296,6 @@ export default {
   mounted: async function () {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
 
-    /* Get name from localStorage
-    try {
-      const userLextracking = JSON.parse(localStorage.getItem(`_lextracking_user-${APP_NAME}`));
-      if (userLextracking) {
-        this.user.name = userLextracking.name;
-      }
-    } catch (e) {
-      console.log(e.message);
-    }*/
 
     try {
       const setting = JSON.parse(localStorage.getItem(`_setting-${APP_NAME}`));
