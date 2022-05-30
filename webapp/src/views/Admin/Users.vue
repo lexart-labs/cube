@@ -35,7 +35,7 @@
         <i class="fas fa-search"></i>
       </button>
     </div>
-    <div v-if="!isLoading" style="width: 100%">
+    <div v-if="!isLoading" class="containerBreak">
       <table class="table table-admin col-12">
         <thead class="is-bold">
           <tr>
@@ -331,7 +331,7 @@
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary col-1"
+              class="btn btn-secondary"
               data-dismiss="modal"
               v-on:click="cleanStates"
             >
