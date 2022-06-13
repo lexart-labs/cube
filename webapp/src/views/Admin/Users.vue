@@ -35,7 +35,7 @@
         <i class="fas fa-search"></i>
       </button>
     </div>
-    <div v-if="!isLoading" style="width: 100%">
+    <div v-if="!isLoading" class="containerBreak">
       <table class="table table-admin col-12">
         <thead class="is-bold">
           <tr>
@@ -173,13 +173,36 @@
                 <br />
                 <div class="row">
                   <div class="col">
-                    <label for="career">{{
+                    <label for="careerType">{{
+                      $t("AdminUsers.columnCareerType")
+                    }}</label>
+
+                    <select
+                      @change="getLevels(), getPositions()"
+                      class="form-control is-rounded"
+                      v-model="user.idCareerType"
+                      id="careerType"
+                    >
+                      <option
+                        v-for="(careerType, i) in careersType"
+                        :value="careerType.id"
+                        :key="`carType${i}`"
+                        :selected="careerType.id == user.idCareerType"
+                      >
+                        {{ careerType.careerName }}
+                      </option>
+                    </select>
+
+                  </div>
+                  <div class="col">
+                    <label for="positions">{{
                       $t("AdminUsers.columnCharge")
                     }}</label>
                     <select
                       class="form-control is-rounded"
                       v-model="user.positionId"
                       id="career"
+                      :disabled="!user.idCareerType"
                     >
                       <option
                         v-for="(career, i) in careers"
@@ -189,7 +212,9 @@
                       >
                         {{ career.position }}
                       </option>
+
                     </select>
+
                   </div>
                   <div class="col">
                     <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
@@ -197,6 +222,7 @@
                       class="form-control is-rounded"
                       v-model="user.levelId"
                       id="lvl"
+                      :disabled="!user.idCareerType"
                     >
                       <option
                         v-for="(level, i) in levels"
@@ -290,7 +316,7 @@
                     type="checkbox"
                     v-model="user.skills[item]"
                   />
-                  {{ $t(`positionAssignments['${user.position}'][${i}]`) }}
+                  {{ item }}
                 </label>
               </div>
             </div>
@@ -305,7 +331,7 @@
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary col-1"
+              class="btn btn-secondary"
               data-dismiss="modal"
               v-on:click="cleanStates"
             >
@@ -334,12 +360,12 @@ import Spinner from "../../components/Spinner.vue";
 import vueSelect from "vue-select";
 import UserService from "../../services/user.service";
 import CareerService from "../../services/career.service";
+import CareerTypeService from "../../services/careerType.service";
 import LevelService from "../../services/level.service";
 import TechnologiesService from "../../services/technologies.service";
 import { verifyToken } from "../../services/helpers";
 import translations from "../../data/translate";
 import { API, APP_NAME } from "../../../env";
-import minimunTimes from "../../data/positionMinimunTimes";
 import DevOriginsService from "../../services/plataforms.service";
 
 const PAGE_LENGTH = 10;
@@ -367,6 +393,7 @@ export default {
       usersLextracking: [],
       levels: [],
       careers: [],
+      careersType: [],
       pagesLength: 1,
       page: 1,
       tabs: {
@@ -413,16 +440,17 @@ export default {
 
       this.user = { name: "", active: "1" };
       this.isFeching = true;
+
       UserService().getUserById(id, async (res) => {
         if (!res.error) {
-          const { skills, position, since } = res.response;
+          const { skills, position, since, minimumTime } = res.response;
+
           this.user = { ...res.response, lead };
-          this.jobAssignments =
-            translations.en.positionAssignments[position] || [];
+          this.jobAssignments = JSON.parse(res.response.roadmap) || [];
           this.user.skills = skills ? JSON.parse(skills) : {};
 
-          if (since !== null && since < minimunTimes[position]) {
-            this.changePositionTime = minimunTimes[position] - since;
+          if (since !== null && since < minimumTime) {
+            this.changePositionTime = minimumTime - since;
           }
 
           const resp = await TechnologiesService.getByUser(
@@ -586,13 +614,9 @@ export default {
     },
     validateChecks() {
       const canChange = this.changePositionTime === 0;
-      let allChecked = false;
-      const skillArray =
-        translations.en.positionAssignments[this.user.position];
 
-      if (skillArray) {
-        allChecked = skillArray.every((el) => this.user.skills[el] === true);
-      }
+      let allChecked = this.jobAssignments.every((el) => this.user.skills[el] === true);
+
       return !canChange && allChecked ? false : true;
     },
     addSkill() {
@@ -659,6 +683,16 @@ export default {
       this.page = 1;
       this.isLoading = false;
     },
+    getPositions: async function(){
+      CareerService()
+        .getByCareerType(this.user.idCareerType)
+        .then((res) => (this.careers = res.response));
+    },
+    getLevels: async function(){
+      LevelService()
+        .getByCareerType(this.user.idCareerType)
+        .then((res) => (this.levels = res.response));
+    }
   },
   mounted() {
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
@@ -671,12 +705,10 @@ export default {
     // Verifico el token
     verifyToken(token);
 
-    CareerService()
-      .getAll()
-      .then((res) => (this.careers = res.response));
-    LevelService()
-      .getAll()
-      .then((res) => (this.levels = res.response));
+    CareerTypeService().getAll().then((res) => {
+      this.careersType = res.response;
+    });
+
     DevOriginsService.getAll().then((res) => (this.plataforms = res));
 
     User.getAllUsersLextracking((res) => {

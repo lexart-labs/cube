@@ -13,25 +13,25 @@
     <div class="row" id="inputTech">
       <input
         type="text"
-        v-model="newTechnology.name"
+        v-model="newLevel.level"
         :placeholder="$t('AdminTechnologies.placeholder')"
         class="form-control col-6 is-rounded"
       />
-      <select v-model="newTechnology.plataform" class="form-control col-2 is-rounded">
+      <select v-model="newLevel.idCareerType" class="form-control col-2 is-rounded">
         <option value="" disabled>Selecione</option>
         <option
-          v-for="(plataform, i) in plataforms"
-          :value="plataform"
+          v-for="(career, i) in careers"
+          :value="career.id"
           :key="`plat-${i}`"
         >
-          {{ plataform }}
+          {{ career.careerName }}
         </option>
       </select>
       <button
         type="button"
         class="btn btn-success col-1"
         v-on:click="isEditing ? updateTech() : addTech()"
-        :disabled="!newTechnology.name"
+        :disabled="!newLevel.level"
       >
         {{ isEditing ? $t("generic.edit") : $t("generic.save") }}
       </button>
@@ -50,7 +50,7 @@
         <thead class="is-bold">
           <tr>
             <th
-              v-for="(header, i) in $t('AdminTechnologies.tableHeaders')"
+              v-for="(header, i) in $t('AdminLevels.tableHeaders')"
               :key="`head${i}`"
             >
               {{ header }}
@@ -58,15 +58,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(tech, i) in technologies" :key="`tech${i}`">
-            <td>{{ tech.id }}</td>
-            <td>{{ tech.name }}</td>
-            <td>{{ tech.plataform }}</td>
+          <tr v-for="(level, i) in levels" :key="`tech${i}`">
+            <td>{{level.id}}</td>
+            <td>{{ level.level }}</td>
+            <td>{{ level.careerName }}</td>
             <td style="display: flex; gap: 1rem;justify-content: center;">
-              <button class="btn btn-primary" data-toggle="modal" v-on:click="setEditing(tech)">
+              <button class="btn btn-primary" data-toggle="modal" v-on:click="setEditing(level)">
                 {{ $t("generic.edit") }}
               </button>
-              <button class="btn btn-secondary" data-toggle="modal" v-on:click="deleteTech(tech)">
+              <button class="btn btn-secondary" data-toggle="modal" v-on:click="deleteTech(level)">
                 {{ $t("generic.remove") }}
               </button>
             </td>
@@ -90,45 +90,51 @@ import translations from '../../data/translate';
 
 const DEFAULT_VALUE = {
   id: 0,
-  name: "",
-  plataform: 'Web',
+  level: "",
+
 };
 
 export default {
-  name: "Technologies",
+  name: "Levels",
   components: { Spinner },
   data() {
     return {
       isEditing: false,
       isLoading: false,
       error: '',
-      technologies: [],
-      newTechnology: { ...DEFAULT_VALUE},
-      plataforms: ["Web", "Mobile", "Desktop"],
+      levels: [],
+      newLevel: { ...DEFAULT_VALUE},
+      careers: [],
+      user_id: localStorage.getItem(`id-${APP_NAME}`),
       token: localStorage.getItem(`token-app-${APP_NAME}`),
+      company_slug: localStorage.getItem("_company-slug")
     };
   },
   methods: {
-    getTechs: async function (id) {
+    getCareers: async function(){
+      const endpoint = `${API}careers/type?page=1`;
+      const {data} = await axios.get(endpoint, { headers: { token: this.token, company_slug: this.company_slug }});
+      this.careers= data.response
+
+    },
+    getLevels: async function () {
       this.isLoading = true;
-      const endpoint = id ? `${API}technologies/${id}` : `${API}technologies`;
-
-      const { data: { response } } = await axios.get(endpoint, { headers: { token: this.token }});
-
-      this.technologies = response;
+      const endpoint = `${API}levels/by_user_admin`;
+      const {data} = await axios.get(endpoint, { headers: { token: this.token, user_id: this.user_id, company_slug: this.company_slug }});
+      this.levels= data.response
+      console.log(this.levels);
       this.isLoading = false;
     },
     updateTech: async function() {
       this.isLoading = true;
       this.isEditing = false;
-      const { id } = this.newTechnology;
-      const endpoint = `${API}technologies/${id}`;
-
-      const { data } = await axios.put(endpoint, {...this.newTechnology}, { headers: { token: this.token }});
+      const { id } = this.newLevel;
+      const endpoint = `${API}levels`;
+      const { data } = await axios.post(endpoint, {...this.newLevel}, { headers: { token: this.token, company_slug: this.company_slug }});
       
       if(data.response) {
-        await this.getTechs();
-        this.newTechnology = {...DEFAULT_VALUE};
+        await this.getLevels();
+        this.newLevel = {...DEFAULT_VALUE};
         Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
             type: "success",
             duration: 2000,
@@ -145,21 +151,23 @@ export default {
     deleteTech: async function(tech) {
       this.isLoading = true;
       const { id } = tech;
-      const endpoint = `${API}technologies/${id}`;
+      const endpoint = `${API}levels/${id}`;
+      console.log(id);
 
-      const { data } = await axios.delete(endpoint, { headers: { token: this.token }});
+      const { data } = await axios.delete(endpoint, { headers: { token: this.token, company_slug: this.company_slug }});
       
       if(data.response) {
-        await this.getTechs();
+        await this.getLevels();
         Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
             type: "success",
             duration: 2000,
         });
       } else {
         this.isLoading = false;
-
         this.error = data.error;
-        Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.error, {
+        Vue.toasted.show(data.cod 
+        ? translations[this.$store.state.language].AdminLevels.errorDelete
+         : translations[this.$store.state.language].AdminLevels.error, {
             type: "error",
             duration: 2000,
         });
@@ -167,13 +175,11 @@ export default {
     },
     addTech: async function() {
       this.isLoading = true;
-      const endpoint = `${API}technologies/`;
-
-      const { data } = await axios.post(endpoint, {...this.newTechnology}, { headers: { token: this.token }});
-      
+      const endpoint = `${API}levels`;
+      const { data } = await axios.post(endpoint, {...this.newLevel,active: 1}, { headers: { token: this.token, user_id: this.user_id , company_slug: this.company_slug}});
       if(data.response) {
-        this.newTechnology = {...DEFAULT_VALUE};
-        await this.getTechs();
+        this.newLevel = {...DEFAULT_VALUE};
+        await this.getLevels();
         Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
             type: "success",
             duration: 2000,
@@ -188,16 +194,18 @@ export default {
     },
     setEditing(tech) {
       this.isEditing = true;
-      this.newTechnology = {...tech};
+      this.newLevel = {...tech};
+
     },
     onCancel() {
       this.isEditing = false;
       this.isLoading = false;
-      this.newTechnology = { ...DEFAULT_VALUE};
+      this.newLevel = { ...DEFAULT_VALUE};
     },
   },
   mounted: async function () {
-    this.getTechs();
+    this.getCareers();
+    this.getLevels();
   },
 };
 </script>

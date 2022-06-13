@@ -1,6 +1,25 @@
+import axios from "axios";
+import { APP_NAME, API } from '../../env';
+
+const MODEL = 'companies/';
+
+const buildHeaders = () => {
+  
+	const headers = {
+	  'company_slug': localStorage.getItem("_company-slug"),
+	};
+  
+	return headers;
+  };
+  
+  const headers = buildHeaders();
+
 const UtilsServices = {
 	copy: function (obj) {
 		return JSON.parse(JSON.stringify(obj));
+	},
+	getIdCompanyBySlug: async function (){
+		return axios.get(`${API + MODEL}` + 'slug', {headers});
 	},
 	indicatorsCopy() {
 		return {

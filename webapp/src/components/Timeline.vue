@@ -85,14 +85,14 @@ export default {
   },
   methods: {
     showJobDetails(charge) {
-      this.jobAssignments = translations.en.positionAssignments[charge];
-      this.jobAssignmentsTranslated =
-        translations[this.$store.state.language].positionAssignments[charge];
+      let foundCareer = this.careers.find((career)=> career.position == charge).roadmap;
+      this.jobAssignments = foundCareer
+      this.jobAssignmentsTranslated = foundCareer
 
       $("#myModal").modal();
     },
-    getCareers: async function() {
-      const { data: { response: careers }} = await axios.get(`${API}careers`);
+    getCareers: async function(headers) {
+      const { data: { response: careers }} = await axios.get(`${API}careers/byUser`, { headers });
       return careers || [];
     },
     getUserInfo: async function(id, headers) {
@@ -243,9 +243,13 @@ export default {
       labelBullet.setStateOnChildren = true;
       labelBullet.states.create("hover").properties.scale = 1.2;
 
-      if (usr.since < minimunTimes[usr.position]) {
-        this.changePositionTime =
-          minimunTimes[usr.position] - usr.since;
+      const currentCareer = this.careers.find(position => position.id === usr.positionId);
+
+      if(currentCareer) {
+
+        if (usr.since < currentCareer.minimumTime) {
+          this.changePositionTime = currentCareer.minimumTime - usr.since;
+        }
       }
     },
   },
@@ -261,7 +265,7 @@ export default {
     this.isLoading = true;
     
     const [careers] = await Promise.all([
-      this.getCareers(),
+      this.getCareers({ "user-id": userId }),
     ]);
 
     this.isLoading = false;

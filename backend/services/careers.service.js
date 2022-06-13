@@ -1,58 +1,124 @@
 const TABLE_NAME = 'careers';
 const ERROR = { error: 'No fue possible recuperar los datos' };
+const Utils = require('./utils.service');
+const Queries = require('../queries/positions');
 
 const Career = {
-  getAll: async () => {
-    const sql = `SELECT * FROM ${TABLE_NAME} WHERE id NOT IN (8, 9, 10, 11)`;
-    let response = [];
-    try {
-      response = await conn.query(sql);
-    } catch (e) {
-      console.log(e.message);
-    }
-    return response.length > 0 ? { response } : ERROR;
+  getIdCareerType: async (idCareerType, idCompany) => {
+    const sql = `
+      SELECT
+        c.*,
+        ct.careerName AS 'careerType',
+        cp.company
+      FROM ${TABLE_NAME} c
+      INNER JOIN companies cp ON cp.id = c.idCompany
+      INNER JOIN careers_type ct ON ct.id = c.idCareerType
+      WHERE c.idCompany = ? AND c.idCareerType = ?
+    `;
+    
+    const arr = [idCompany, idCareerType];
+    
+    let res = await Utils.generalQuery(sql, arr, 'read');
+    res.response = res.response.map(item => { return {...item, roadmap: JSON.parse(item.roadmap)}})
+    
+    return res
   },
-  upsert: async (id, position, active) => {
-    let sql = '';
-    let error = { "error": "Error al ingresar/editar cargo" };
-    let operacion = '';
+  getByUser: async (idUser) => {
+    const [careerInfo] = await conn.query('SELECT idCompany, idCareerType FROM users WHERE id = ?', [idUser]);
+    if(!careerInfo) return ERROR;
 
+    const { idCompany, idCareerType } = careerInfo;
+
+    const sql = `
+      SELECT
+        c.*,
+        ct.careerName AS 'careerType',
+        cp.company
+      FROM ${TABLE_NAME} c
+      INNER JOIN companies cp ON cp.id = c.idCompany
+      INNER JOIN careers_type ct ON ct.id = c.idCareerType
+      WHERE c.idCompany = ? AND c.idCareerType = ?
+    `;
+    const arr = [idCompany, idCareerType];
+    
+    let res = await Utils.generalQuery(sql, arr, 'read');
+    res.response = res.response.map(item => { return {...item, roadmap: JSON.parse(item.roadmap)}})
+    
+    return res
+  },
+  getByCompany: async (idCompany) => {
+    const sql = `
+      SELECT
+        c.*,
+        ct.careerName AS 'careerType',
+        cp.company
+      FROM ${TABLE_NAME} c
+      INNER JOIN companies cp ON cp.id = c.idCompany
+      INNER JOIN careers_type ct ON ct.id = c.idCareerType
+      WHERE c.idCompany = ?
+    `;
+    const arr = [idCompany]
+
+    let res = await Utils.generalQuery(sql, arr, 'read');
+    res.response = res.response.map(item => { return {...item, roadmap: JSON.parse(item.roadmap)}})
+    
+    return res
+  },
+  upsert: async (id, position, active, idCompany, idCareerType, minimumTime) => {
+    let sql = '';
+    let arrayUpsert = [];
+    
     if (id) {
       sql = `
         UPDATE careers SET 
-	      position=?, active=?
-        WHERE ${id};
+          position=?,
+          active=?,
+          idCareerType=?,
+          minimumTime=?
+        WHERE id=${id};
       `;
-      operacion = 'update';
+      arrayUpsert = [position, active, idCareerType, minimumTime];
     } else {
       sql = `
         INSERT INTO careers 
-	      (position, active)
-        VALUES (?, ?);
+	      (position, active, roadmap, idCompany, idCareerType, minimumTime)
+        VALUES (?, ?, ?, ?, ?, ?);
       `;
-      operacion = 'insert';
+      arrayUpsert = [position, active, "[]", idCompany, idCareerType, minimumTime];
     }
-    try {
-      const response = await conn.query(sql, [position, active]);
-      return (response.changedRows || response.insertId)
-        ? { response: `Operación de ${operacion} realizada con éxito`}
-        : error;
-    } catch (e) {
-      console.log(e.message);
-      return error;
-    }
+
+    return await Utils.generalQuery(sql, arrayUpsert, 'write');
   },
   remove: async (id) => {
     const sql = `DELETE FROM careers WHERE id = ?`;
-    let error = { "error": "Error al ingresar/editar cargo" };
-    try {
-      const response = await conn.query(sql, [id]);
-      return (response.changedRows === 1) ? { response: 'Removido con éxito'} : error;
-    } catch (e) {
-     console.log(e.message);
-     return error;
-    }
+    const arr = [id];
+    
+    return await Utils.generalQuery(sql, arr, 'write');
   },
+  getById: async (id) => {
+    const sql = `
+      SELECT
+        c.*,
+        ct.careerName AS 'careerType',
+        cp.company
+      FROM ${TABLE_NAME} c
+      INNER JOIN companies cp ON cp.id = c.idCompany
+      INNER JOIN careers_type ct ON ct.id = c.idCareerType
+      WHERE c.id = ?
+    `;
+    const arr = [id];
+    let res = await Utils.generalQuery(sql, arr, 'read');
+    res.response = res.response.map(item => { return {...item, roadmap: JSON.parse(item.roadmap)}})
+    
+    return res
+  },
+  editRoadmap: async (idPosition, roadmap) => {
+    const sql = Queries.editRoadmap
+    const arr = [JSON.stringify(roadmap), idPosition]
+
+    const response = await Utils.generalQuery(sql, arr, 'write')
+    return response
+  }
 };
 
 module.exports = Career;

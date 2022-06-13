@@ -13,6 +13,9 @@ import RegisterCompany from '../views/RegisterCompany.vue';
 import Continuity from '../views/Admin/Continuity.vue';
 import Collaborators from '../views/Admin/Collaborators.vue';
 import Payments from '../views/Admin/Payments.vue';
+import Levels from '../views/Admin/Levels.vue'
+import CareerType from '../views/Admin/CareerType';
+import Positions from '../views/Admin/Positions.vue';
 
 const routes = [
   { path: '/:slug/login', name: 'Login', component: Login },
@@ -55,6 +58,18 @@ const routes = [
           {
             path: 'origins',
             component: Origin,
+          },
+          {
+            path: 'levels',
+            component: Levels
+          },
+          {
+            path: 'career-type',
+            component: CareerType,
+          },
+          {
+            path: 'career',
+            component: Positions,
           },
         ],
       },

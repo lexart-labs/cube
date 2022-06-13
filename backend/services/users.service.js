@@ -5,7 +5,7 @@ const CollaboratorsService = require('./collaborators.service');
 const Course = require('./courses.service');
 const { setUpData } = require('./EvaluationsHandler.service');
 const axios = require('axios');
-
+const jwt = require('jsonwebtoken');
 
 const tablaNombre = 'users';
 const trackingApi = process.env.API_LEXTRACKING;
@@ -79,6 +79,8 @@ let User = {
 		const sql = `
 			SELECT
 				c.position AS position,
+				c.roadmap,
+				c.minimumTime,
 				c.id AS positionId,
 				l.level AS level,
 				l.id AS levelId,
@@ -175,6 +177,7 @@ let User = {
 				idPosition = ?,
 				idPlataform = ?,
 				idCompany = ?,
+				idCareerType = ?,
 				dateEdited = NOW()
 			WHERE email = ? AND idCompany = ?
 		`;
@@ -188,8 +191,9 @@ let User = {
 			idPosition,
 			usuario.idPlataform || null,
 			id_company,
+			usuario.idCareerType,
 			usuario.email,
-			id_company,
+			id_company
 		];
 
 		try {
@@ -221,9 +225,9 @@ let User = {
 
 		const sql = `
 			INSERT INTO ${tablaNombre}
-				(idUser, idLextracking, name, email, type, password, token, active, idPosition, idPlataform, idCompany)
+				(idUser, idLextracking, name, email, type, password, token, active, idPosition, idPlataform, idCompany, idCareerType)
 			VALUES
-				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`;
 
 		const arr = [
@@ -237,7 +241,8 @@ let User = {
 			usuario.active,
 			idPosition,
 			usuario.idPlataform || null,
-			id_company
+			id_company,
+			usuario.idCareerType
 		];
 
 		try {
@@ -724,5 +729,30 @@ let User = {
 
 		return response.length ? { response } : { error: 'No users found'}
 	},
+	getCompaniesWhichUserParticipate: async function (userToken) {
+		let userEmail;
+
+		try {
+			const { email } = jwt.decode(userToken).data;
+			userEmail = email;
+		} catch (error) {
+			return { status: 401, response: error, message: "You are not authorized to make this request." };
+		}
+
+		const sql = `
+			SELECT 
+				c.id,
+				c.company as name,
+				c.slug
+			FROM users AS u
+				INNER JOIN companies c ON c.id = u.idCompany
+			WHERE u.email = ?
+		`
+
+		const arr = [userEmail];
+		const response = await utils.generalQuery(sql, arr, 'read');
+		return response
+	}
 }
+
 module.exports = User;

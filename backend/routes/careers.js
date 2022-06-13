@@ -2,28 +2,65 @@ const express = require('express');
 const router = express.Router();
 const Career 	 = require('../services/careers.service');
 const CareersType = require('../services/careersType.service');
+const Utils = require('../services/utils.service');
+const Middleware = require('../services/middleware.service')
 
-router.get('/', async (_req, res) => {
-  const response = await Career.getAll();
+router.get('/byUser', async (req, res) => {
+  const idUser = req.headers['user-id'];
+  const response = await Career.getByUser(idUser);
 
   res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
+router.get('/byIdCareerType/:idCareer', async (req, res) => {
+  const { company_slug } = req.headers;
+  
+  const idCompany = await Utils.getIdCompanyBySlug(company_slug, res)
+  const { idCareer } = req.params;
+
+  const response = await Career.getIdCareerType(idCareer, idCompany);
+
+  res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
+router.get('/byCompany', async (req, res) => {
+  const { company_slug } = req.headers;
+  const idCompany = await Utils.getIdCompanyBySlug(company_slug, res)
+  res.set(['Content-Type', 'application/json']);
+  const response = await Career.getByCompany(idCompany);
+
   return res.send(response);
 });
 
 router.put('/:id', async (req, res) => {
-  const { position, active } = req.body;
+  const { position, active, idCareerType, minimumTime } = req.body;
   const { id } = req.params;
-
-  const response = await Career.upsert(id, position, active);
+  const { company_slug } = req.headers;
+  const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
 
   res.set(['Content-Type', 'application/json']);
+  const response = await Career.upsert(id, position, active, idCompany, idCareerType, minimumTime);
+
   return res.send(response);
 });
 
-router.post('/', async (req, res) => {
-  const { position, active } = req.body;
+router.patch('/:idPosition/roadmap', Middleware.middleware, async (req, res) => {
+  const { roadmap } = req.body
+  const { idPosition } = req.params
 
-  const response = await Career.upsert(null, position, active);
+  const response = await Career.editRoadmap(idPosition, roadmap)
+
+  return res.send(response)
+})
+
+router.post('/', async (req, res) => {
+  const { position, active, idCareerType, minimumTime } = req.body;
+  const { company_slug } = req.headers;
+  
+  const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
+  const response = await Career.upsert(null, position, active, idCompany, idCareerType, minimumTime);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
@@ -56,7 +93,7 @@ router.post('/type/new', async (req, res) => {
   
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
-})
+});
 
 router.put('/type/edit', async function (req, res) {
   const { company_slug } = req.headers;
@@ -66,7 +103,7 @@ router.put('/type/edit', async function (req, res) {
   
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
-})
+});
 
 router.delete('/type/delete/:careerId', async (req, res) => {
   const { company_slug } = req.headers;
@@ -76,5 +113,14 @@ router.delete('/type/delete/:careerId', async (req, res) => {
   
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
-})
+});
+
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  const response = await Career.getById(id);
+
+  res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
 module.exports = router;
