@@ -317,7 +317,7 @@ let User = {
 		return response;
 	},
 	
-	loginCube: async function (email, password, idCompany = null) {
+	loginCube: async function (email, idCompany = null) {
 		//const sqlCompany = `SELECT id FROM companies`;
 		const error = { error: 'Usuario y/o clave incorrecta.' };
 		let sql = `
@@ -333,7 +333,7 @@ let User = {
 				uc.idLevel
 			FROM ${tablaNombre} u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
-			WHERE u.email = ? AND u.password = MD5(?) AND u.active = 1
+			WHERE u.email = ? AND u.active = 1
 		`
 		if (idCompany) sql += "AND u.idCompany = ?"
 		let response = [];
@@ -341,7 +341,7 @@ let User = {
 
 		try {
 			//const [{ id: idCompany }] = await conn.query(sqlCompany, [company]);
-			let arr = [email, password];
+			let arr = [email];
 			if (idCompany) arr.push(idCompany);
 			response = await conn.query(sql, arr);
 
@@ -350,7 +350,7 @@ let User = {
 			const { password: p, ...usr } = response[0];
 			if(!usr.idUser) return error;
 			token = utils.makeToken(usr);
-			response = { ...usr, token, lexToken: utils.makeLexToken(password, email) };
+			response = { ...usr, token, lexToken: utils.makeLexToken(email) };
 			return { response };
 		} catch (e) {
 			console.log(e.message);

@@ -5,8 +5,8 @@ const Technologies = require('../services/technologies.service');
 
 
 router.post('/login', async function (req, res) {
-	const  { email, password, idCompany } = req.body;
-	let response = await User.loginCube(email, password, idCompany);
+	const  { email, idCompany } = req.body;
+	let response = await User.loginCube(email, idCompany);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
