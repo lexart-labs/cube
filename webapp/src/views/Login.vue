@@ -145,6 +145,9 @@ export default {
     };
   },
   methods: {
+    setCaptchaResponse(tk) {
+      this.captchaResponse = tk;
+    },
     loginUser() {
       this.isLoading = true;
       const user = copy(this.usr);
@@ -155,8 +158,9 @@ export default {
         this.isLoading = false;
         return;
       }
-
-      axios.post(`${API}users/login/verify`, { ...user, ...captcha }).then(
+      console.log("captcha", captcha);
+      
+      axios.post(`${API}users/login/verify`, { ...user, captcha }).then(
         (res) => {
           const rs = res.data;
           this.isLoading = false;
@@ -253,9 +257,6 @@ export default {
         );
         this.moreThanOneCompany = true;
       }
-    },
-    setCaptchaResponse(tk) {
-      this.captchaResponse = tk;
     },
     activate: async function(el) {
       this.selectCompanie = el;

@@ -316,6 +316,7 @@ let User = {
 		}
 		return response;
 	},
+	
 	loginCube: async function (email, password, idCompany = null) {
 		//const sqlCompany = `SELECT id FROM companies`;
 		const error = { error: 'Usuario y/o clave incorrecta.' };
@@ -388,8 +389,7 @@ let User = {
 
 		try {
 			const isValid = await this.validateCaptcha(captcha);
-			console.log(isValid)
-      		if(!isValid) return {error: 'Invalid human verification. please try again.'};
+			if(!isValid) return {error: 'Invalid human verification. please try again.'};
 			response = await conn.query(sql, [email, password]);
 
 			if(!response.length) return error;
@@ -397,7 +397,7 @@ let User = {
 			const { password: p, ...usr } = response[0];
 			if(!usr.idUser) return error;
 			token = utils.makeToken(usr);
-			response = { token };
+			response = { token, lexToken: utils.makeLexToken(password, email) };
 			return { response };
 		} catch (e) {
 			console.log(e.message);
