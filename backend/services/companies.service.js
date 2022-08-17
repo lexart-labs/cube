@@ -41,7 +41,9 @@ const Companies = {
   },
 
   insert: async function (payload) {
-    const { company, email, password, captcha } = payload;
+    payload.openToExternalRelations = !payload.openToExternalRelations ? 0 : payload.openToExternalRelations;
+
+    const { company, email, password, captcha, openToExternalRelations } = payload;
     const slug = company.toLowerCase().replace(/\s+/g, '_');
     const message = `
       <h2>Welcome to Cube!</h2>
@@ -65,8 +67,8 @@ const Companies = {
     const error = { error: 'Failed to register' };
     const LAST_USER_ID = `(SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA ='${process.env.DATABASE}' AND TABLE_NAME = 'users')`;
     const sql = `
-      INSERT INTO ${TABLE_NAME} (company, email, slug)
-      VALUES (?, ?, ?)
+      INSERT INTO ${TABLE_NAME} (company, email, slug, openToExternalRelations)
+      VALUES (?, ?, ?, ?)
     `;
 
     const sql2 = `
@@ -79,7 +81,7 @@ const Companies = {
     try {
       const isValid = await this.validateCaptcha(captcha);
       if(!isValid) return {error: 'Invalid human verification. please try again.'};
-      response = await conn.query(sql, [company, email, slug]);
+      response = await conn.query(sql, [company, email, slug, openToExternalRelations]);
       response = await conn.query(sql2, [company, email, 'admin', md5(password), '1']);
     } catch (e) {
       console.log(e.message);
@@ -95,17 +97,22 @@ const Companies = {
   },
 
   update: async (id, payload) => {
-    const { company } = payload;
+    const { company, openToExternalRelations } = payload;
     let error = { error: 'Cannot update this company' };
     let response = '';
-    const sql = `
+
+    const relationExternal = openToExternalRelations != undefined ? ', openToExternalRelations = ?' : '' ;
+    const where = 'WHERE id = ?';
+
+    let sql = `
       UPDATE ${TABLE_NAME}
       SET company = ?
-      WHERE id = ?
     `;
 
+    sql = sql + ' ' + relationExternal + ' ' + where;
+
     try {
-      response = await conn.query(sql, [company, id]);
+      response = await conn.query(sql, openToExternalRelations != undefined ? [company, openToExternalRelations, id] : [company, id]);
     } catch (e) {
       console.log(e.message);
     }
@@ -153,6 +160,18 @@ const Companies = {
 
     return response.length ? { response: 'ok', slug } : { error: 'Company not found' };
   },
+
+  getAllOpenToExternalRelations: async function() {
+    const sql = `SELECT * FROM ${TABLE_NAME} WHERE openToExternalRelations = ?`;
+    const error = { error: 'Error to get the results from db' }
+    let response = [];
+    try {
+      response = await conn.query(sql, [1]);
+    } catch (e) {
+      console.log(e.message);
+    }
+    return response.length > 0 ? { response } : { error: error };
+  }
 
 };
 
