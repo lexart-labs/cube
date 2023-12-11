@@ -33,8 +33,8 @@ const Companies = {
     const { data } = await axios.post(`${API + MODEL}`, payload);
     return data;
   },
-  update: async function (id, company) {
-    const { data } = await axios.put(`${API + MODEL}/${id}`, { company }, { headers });
+  update: async function (id, company, openToExternalRelations) {
+    const { data } = await axios.put(`${API + MODEL}/${id}`, { company, openToExternalRelations }, { headers });
     return data;
   },
   remove: async function (id) {

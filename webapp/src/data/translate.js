@@ -30,6 +30,7 @@ const translations = {
       profileEditErrorPassword: 'Las contraseñas no coinciden',
       companyEditLabel: 'Configuración de la organización',
       companyEditName: 'Nombre de la organización',
+      companyRelation: 'Habilitar relaciones'
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -362,6 +363,7 @@ const translations = {
       profileEditErrorPassword: 'Passwords dont match',
       companyEditLabel: 'Company settings',
       companyEditName: 'Company',
+      companyRelation: 'Company Relationship'
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
