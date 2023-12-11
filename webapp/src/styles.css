@@ -186,7 +186,7 @@ label {
   font-size: var(--small);
   width: 5rem;
 }
-.formContainer__login .rcompany {
+.formContainer__login .linkFooter {
   font-size: var(--mid);
   color: var(--white);
 }

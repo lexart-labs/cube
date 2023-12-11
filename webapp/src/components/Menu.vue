@@ -54,7 +54,7 @@
                 </li>
                 <li>
                   <router-link
-                    v-bind:to="`/${slug}/login`"
+                    v-bind:to="`/login`"
                   ><i class="bi bi-box-arrow-left"></i>
                     <small> {{ $t("generic.exit")}}</small>
                   </router-link>
@@ -241,12 +241,11 @@ export default {
         }
       })
     },
-
     getCompanyById: async function () {
       const data = await Companies.getById(this.user.idCompany);
+      localStorage.setItem("_company-slug", data.slug);
       this.company = data.company;
     },
-
     onSave(){
       if(this.passwordManager.password != this.passwordManager.confirmPassword){
         this.error = Translations[this.$store.state.language].dashboard.profileEditErrorPassword;

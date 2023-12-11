@@ -9,6 +9,7 @@ const jwt = require('jsonwebtoken');
 
 const tablaNombre = 'users';
 const trackingApi = process.env.API_LEXTRACKING;
+const SECRET_KEY = process.env.SECRET_KEY;
 const PAGE_SIZE = 10;
 
 let User = {
@@ -315,10 +316,11 @@ let User = {
 		}
 		return response;
 	},
-	loginCube: async function (email, password, company) {
-		const sqlCompany = `SELECT id FROM companies WHERE slug = ?`;
+	
+	loginCube: async function (email, idCompany = null) {
+		//const sqlCompany = `SELECT id FROM companies`;
 		const error = { error: 'Usuario y/o clave incorrecta.' };
-		const sql = `
+		let sql = `
 			SELECT
 				u.id,
 				u.name,
@@ -331,27 +333,78 @@ let User = {
 				uc.idLevel
 			FROM ${tablaNombre} u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
-			WHERE u.email = ? AND u.password = MD5(?) AND u.idCompany = ? AND u.active = 1
+			WHERE u.email = ? AND u.active = 1
 		`
+		if (idCompany) sql += "AND u.idCompany = ?"
 		let response = [];
 		let token = '';
 
 		try {
-			const [{ id: idCompany }] = await conn.query(sqlCompany, [company]);
-			response = await conn.query(sql, [email, password, idCompany]);
+			//const [{ id: idCompany }] = await conn.query(sqlCompany, [company]);
+			let arr = [email];
+			if (idCompany) arr.push(idCompany);
+			response = await conn.query(sql, arr);
 
 			if(!response.length) return error;
 
 			const { password: p, ...usr } = response[0];
 			if(!usr.idUser) return error;
 			token = utils.makeToken(usr);
-			response = { ...usr, token, lexToken: utils.makeLexToken(password, email) };
+			response = { ...usr, token, lexToken: utils.makeLexToken(email) };
 			return { response };
 		} catch (e) {
 			console.log(e.message);
 			return error;
 		}
 	},
+
+	validateCaptcha: async function (tk) {
+		if (!tk) return false;
+		const urlParams = `secret=${SECRET_KEY}&response=${tk}`;
+	
+		const { data } = await axios.post(`https://www.google.com/recaptcha/api/siteverify?${urlParams}`);
+	
+		return data.success;
+	},
+
+	loginVerify: async function (email, password, captcha) {
+		const error = { error: 'Usuario y/o clave incorrecta.' };
+		let sql = `
+			SELECT
+				u.id,
+				u.name,
+				u.email,
+				u.type,
+				u.active,
+				u.idUser,
+				u.idLextracking,
+				uc.idPosition,
+				uc.idLevel
+			FROM ${tablaNombre} u
+			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
+			WHERE u.email = ? AND u.password = MD5(?) AND u.active = 1
+		`
+		let response = [];
+		let token = '';
+
+		try {
+			const isValid = await this.validateCaptcha(captcha);
+			if(!isValid) return {error: 'Invalid human verification. please try again.'};
+			response = await conn.query(sql, [email, password]);
+
+			if(!response.length) return error;
+
+			const { password: p, ...usr } = response[0];
+			if(!usr.idUser) return error;
+			token = utils.makeToken(usr);
+			response = { token, lexToken: utils.makeLexToken(password, email) };
+			return { response };
+		} catch (e) {
+			console.log(e.message);
+			return error;
+		}
+	},
+
 	courses: async function (id) {
 
 		const sql = `

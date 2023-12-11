@@ -111,6 +111,11 @@
           </div>
         </footer>
       </form>
+      <div>
+        <router-link to="/login" class="linkFooter"
+          >Iniciar sesión</router-link
+        >
+      </div>
     </div>
   </div>
 </template>
