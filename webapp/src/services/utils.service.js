@@ -23,7 +23,7 @@ const UtilsServices = {
 	},
 	indicatorsCopy() {
 		return {
-			desempeño: [
+			'desempeño': [
 				{
 					'name': 'Responsabilidad',
 					'total': 3

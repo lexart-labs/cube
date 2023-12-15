@@ -125,9 +125,13 @@ label {
   position: fixed;
   align-items: center;
   justify-content: center;
-  background-image: url(assets/cube-background.jpeg);
   background-position: bottom;
   background-size: cover;
+  background-color: #ffb900;
+}
+.brand--link {
+  color: #333;
+  text-decoration: underline;
 }
 .formContainer__background > img {
   position: absolute;
