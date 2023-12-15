@@ -2,7 +2,8 @@ version: '3.8'
 
 services:
   mysqldb_cube:
-    image: mysql:5.7
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
     restart: unless-stopped
     env_file: ./.env
     environment:
@@ -19,32 +20,34 @@ services:
     restart: unless-stopped
     env_file: ./.env
     ports:
-      - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+      - $NODE_LOCAL_PORT:$API_PORT
     environment:
-      - DB_HOST=mysqldb_cube
-      - DB_USER=$MYSQLDB_USER
-      - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
-      - DB_NAME=$MYSQLDB_DATABASE
-      - DB_PORT=$MYSQLDB_DOCKER_PORT
+      - DB_HOST=$HOST
+      - DB_USER=$DB_USER
+      - PASSWORD=$PASSWORD
+      - DB_PORT=$DB_PORT
+      - DATABASE=$DATABASE
+      - KEY=$KEY
+      - API_PORT=$API_PORT
+      - MIDDLEWARE_LEXTRACKING=$MIDDLEWARE_LEXTRACKING
+      - API_LEXTRACKING=$API_LEXTRACKING
+      - LOGIN_EMAIL=$LOGIN_EMAIL
+      - LOGIN_PASSWORD=$LOGIN_PASSWORD
+      - SECRET=$SECRET
+      - SECRET_KEY=$SECRET_KEY
     stdin_open: true
     tty: true
   
   webapp_cube:
-    depends_on:
-      - backend_cube
     build: ./webapp
     restart: unless-stopped
     env_file: ./.env
     ports:
-      - $NODE_LOCAL_PORT:8080
-    environment:
-      - DB_HOST=mysqldb_cube
-      - DB_USER=$MYSQLDB_USER
-      - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
-      - DB_NAME=$MYSQLDB_DATABASE
-      - DB_PORT=$MYSQLDB_DOCKER_PORT
+      - $WEBAPP_PORT:$WEBAPP_DOCKER_PORT
     stdin_open: true
     tty: true
+    volumes:
+      - ./env.js:/webapp/env.js
 
 volumes: 
   db:
