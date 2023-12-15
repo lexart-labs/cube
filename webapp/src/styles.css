@@ -61,7 +61,7 @@ body {
   --text-color-bright: #edeeee;
   --green-1: #d5ebd7;
   --green-2: #3cc688;
-
+  --brand-color: #ffb900;
   /* Fonts */
   --main-font: 'Montserrat';
 
@@ -127,7 +127,7 @@ label {
   justify-content: center;
   background-position: bottom;
   background-size: cover;
-  background-color: #ffb900;
+  background-color: var(--brand-color);
 }
 .brand--link {
   color: #333;
