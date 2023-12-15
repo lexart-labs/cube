@@ -24,7 +24,7 @@ let Course = {
 		if(response.length > 0){
 			response.map( (item,i) => {
 				try {
-					let json_data = JSON.parse(item.json_data)
+					let json_data = item.json_data
 					json_data.id  = item.id
 					json_data.total = this.calcTotal(json_data.indicadores)
 					response[i] = json_data;
@@ -80,15 +80,15 @@ let Course = {
 		try {
 			response = await conn.query(sql, [id]);
 		} catch(e){}
-
-		let json_data = JSON.parse(response[0].json_data)
+		
+		let json_data = response[0].json_data
 		json_data.id  = response[0].id // agrego la ID del curso en el body del json_data 
 
 		// Add clases to course
 		if(response[0].json_clases == null){
 			json_data.clases = []
 		} else {
-			let json_clases = JSON.parse(response[0].json_clases)
+			let json_clases = response[0].json_clases
 			json_data.clases = json_clases
 		}
 
@@ -96,7 +96,7 @@ let Course = {
 		if(response[0].json_pagos == null){
 			json_data.json_pagos = []
 		} else {
-			let json_pagos = JSON.parse(response[0].json_pagos)
+			let json_pagos = response[0].json_pagos
 			json_data.pagos = json_pagos
 		}
 
@@ -104,7 +104,7 @@ let Course = {
 		if(response[0].json_evaluaciones == null){
 			json_data.json_evaluaciones = []
 		} else {
-			let json_evaluaciones = JSON.parse(response[0].json_evaluaciones)
+			let json_evaluaciones = response[0].json_evaluaciones
 			json_data.evaluaciones = json_evaluaciones
 		}
 
@@ -280,9 +280,9 @@ let Course = {
 
 		try {
 			const res = await conn.query(sql, [parseInt(idAdmin)]);
-			response = res.map(ele => Number(JSON.parse(ele.json_data).fecha.slice(0,4)))
+			response = res.map(ele => Number(ele.json_data.fecha.slice(0,4)))
 		} catch (error) {
-			console.log(e.message);
+			console.log(error.message);
 		}
 
 		const years = response.length > 0

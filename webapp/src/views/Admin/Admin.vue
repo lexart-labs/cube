@@ -19,16 +19,6 @@
             >
           </li>
           <li class="nav-item">
-            <router-link to="/app/administration/continuity" class="nav-link"
-              >{{ $t('generic.continuity') }}</router-link
-            >
-          </li>
-          <li class="nav-item">
-            <router-link to="/app/administration/payments" class="nav-link"
-              >{{ $t('generic.payments') }}</router-link
-            >
-          </li>
-          <li class="nav-item">
             <router-link to="/app/administration/technologies" class="nav-link"
               >{{ $t('generic.technologies') }}</router-link
             >

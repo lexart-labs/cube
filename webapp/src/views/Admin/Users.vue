@@ -15,9 +15,6 @@
         >
           + Developers
         </button>
-        <button class="btn btn-primary" disabled="disabled">
-          {{ $t('generic.import')}} CSV
-        </button>
       </div>
     </header>
     <div class="grp-icon-input">

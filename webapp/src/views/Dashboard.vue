@@ -39,10 +39,6 @@
                   </button>
                 </div>
               </div>
-              <div role="alert" v-if="success">
-                <span>{{ success }}</span>
-                <i class="fas fa-check alert-check" />
-              </div>
               <div
                 v-if="isPersonifying"
                 class="alert alert-info psy-notf"
@@ -796,18 +792,24 @@ export default {
         });
     },
     formatDate(date) {
-      // Format SQL to UY date
-      const newDate = date.split("T");
-      // 0 index correspond to raw date after split
-      let uyDate = newDate[0].split("-");
-      // 2 index - year
-      // 1 index - month
-      // 0 index - day
-      uyDate = `${uyDate[2]}/${uyDate[1]}/${uyDate[0]}`;
-      // sum full year UY format with hour after split - index 0
-      uyDate = `${uyDate} ${newDate[1]}`;
 
-      return uyDate;
+      try {
+        // Format SQL to UY date
+        const newDate = date.split("T");
+        // 0 index correspond to raw date after split
+        let uyDate = newDate[0].split("-");
+        // 2 index - year
+        // 1 index - month
+        // 0 index - day
+        uyDate = `${uyDate[2]}/${uyDate[1]}/${uyDate[0]}`;
+        // sum full year UY format with hour after split - index 0
+        uyDate = `${uyDate} ${newDate[1]}`;
+
+        return uyDate;
+      } catch (e){
+        console.log("e: ", e)
+        return date
+      }
     },
     setShow(abaName) {
       this.show = abaName;

@@ -5,9 +5,6 @@
         <span>{{ $t("AdminTechnologies.title") }}</span>
         <spinner v-if="isLoading"></spinner>
       </div>
-      <button class="btn btn-primary" disabled="disabled">
-        {{ $t('generic.import')}} CSV
-      </button>
     </h4>
 
     <div class="row" id="inputTech">

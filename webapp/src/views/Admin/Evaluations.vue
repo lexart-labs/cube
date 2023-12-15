@@ -15,9 +15,6 @@
         >
           + {{$t('AdminEvaluations.evaluation')}}
         </button>
-        <button class="btn btn-primary" disabled="disabled">
-          {{ $t('generic.import')}} CSV
-        </button>
       </div>
     </header>
     <div class="grp-icon-input">
@@ -598,6 +595,7 @@ export default {
       });
 
       CourseService().getCourseById(id, (res) => {
+        console.log("getCourseById res :: ", res)
         if (!res.error) {
           this.course = {
             indicadores: UtilsServices.indicatorsCopy(),
@@ -857,6 +855,7 @@ export default {
       this.page = page + 1;
       const { data: res } = await CourseService().getAllCourses(page, this.searchQuery);
 
+      console.log("paginate res :: ", res)
       if (!res.error) {
         const courses = res.response;
         this.courses = courses;
@@ -922,11 +921,13 @@ export default {
     this.isLoading = true;
     this.paginate();
     const { data: totalOfPages } = await CourseService().getPagesLength();
+    console.log("totalOfPages: ", totalOfPages)
     this.pagesLength = !totalOfPages.error ? totalOfPages.response : '';
 
     UserService().getAllUsers(null, '', (res) => {
       this.isLoading = false;
       if (!res.error) {
+        console.log("res :: ", res)
         const users = res.response;
         this.users = users;
       } else {
