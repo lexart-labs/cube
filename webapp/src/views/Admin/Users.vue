@@ -446,6 +446,8 @@ export default {
           this.jobAssignments = JSON.parse(res.response.roadmap) || [];
           this.user.skills = skills ? JSON.parse(skills) : {};
 
+          console.log("res.response.roadmap: ", res.response.roadmap)
+
           if (since !== null && since < minimumTime) {
             this.changePositionTime = minimumTime - since;
           }
@@ -454,6 +456,12 @@ export default {
             res.response.id
           );
           this.managerUserTechs.userTechs = Object.values(resp)[0] || [];
+
+          // Load position and levels
+          await this.getPositions()
+          await this.getLevels()
+
+          this.error = ""
         }
         this.isFeching = false;
       });

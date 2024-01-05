@@ -281,7 +281,7 @@
                 >
                 </vue-select>
                 <button
-                  class="btn btn-primary btn-sm col-1"
+                  class="btn btn-primary btn-sm"
                   :disabled="!myDev || myDev.idLextrack == 0"
                   v-on:click="personifyDashboard(myDev.id, true)"
                 >
