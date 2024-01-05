@@ -305,7 +305,7 @@ let Course = {
 		try {
 			response = await conn.query(sql, [id, year]);
 			if(response.length) {
-				response = response.map((el) => JSON.parse(el.indicadores));
+				response = response.map((el) => el.indicadores);
 			}
 		} catch (e) {
 			console.log(e.message);

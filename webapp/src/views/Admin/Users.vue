@@ -153,12 +153,47 @@
             </div>
             <div class="perfil">
               <form enctype="multipart/form-data" v-show="tabs.perfil">
-                <label for="">User</label>
-                <vue-select
-                  v-model="user"
-                  label="name"
-                  :options="usersLextracking"
-                ></vue-select>
+                <label for="">{{user.name ? user.name : 'User'}}</label>
+                <div class="grp-icon-input">
+                  <input
+                    type="text"
+                    :placeholder="$t('AdminUsers.columnName')"
+                    class="form-control is-rounded"
+                    v-model="user.name"
+                  />
+                </div>
+                <div class="grp-icon-input">
+                  <input
+                    type="password"
+                    :placeholder="'Password'"
+                    class="form-control is-rounded"
+                    v-model="user.password"
+                  />
+                </div>
+                <div class="grp-icon-input">
+                  <input
+                    type="email"
+                    :placeholder="'Email'"
+                    class="form-control is-rounded"
+                    v-model="user.email"
+                  />
+                </div>
+                <div class="grp-icon-input">
+                  <select
+                    class="form-control is-rounded"
+                    v-model="user.type"
+                    id="userType"
+                  >
+                    <option
+                      v-for="(type, i) in ['admin','pm','developer']"
+                      :value="type"
+                      :key="`type_${i}`"
+                      :selected="type == user.type"
+                    >
+                      {{ type }}
+                    </option>
+                  </select>
+                </div>
                 <br />
                 <label for="">{{ $t("AdminUsers.hired") }}</label>
                 <vue-select

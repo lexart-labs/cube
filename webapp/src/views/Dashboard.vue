@@ -649,12 +649,6 @@ export default {
           onlyAdmin: true,
         },
         {
-          name: "hunting",
-          class: "far fa-id-card",
-          hasIcon: true,
-          onlyAdmin: true,
-        },
-        {
           name: "personify",
           class: "fas fa-user-friends",
           hasIcon: true,
@@ -777,7 +771,9 @@ export default {
           this.isFetching = false;
           if (!res.data.error) {
             const data = res.data.response;
+            console.log("data: ", data)
             this.resources = data;
+           
           } else {
             this.isFetching = false;
             Vue.toasted.show(
@@ -927,6 +923,7 @@ export default {
         }
       );
       if (response) {
+        console.log("evaluations response :: ", response)
         return response;
       } else {
         Vue.toasted.show(
