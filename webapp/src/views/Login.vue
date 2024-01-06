@@ -80,11 +80,6 @@
           {{ error }}
         </small>
       </form>
-      <div>
-        <router-link to="/rcompany" class="linkFooter"
-          >Registre su organización</router-link
-        >
-      </div>
     </div>
     <div v-if="warning" class="alert-error">
       <div class="alert alert-warning" role="alert">
