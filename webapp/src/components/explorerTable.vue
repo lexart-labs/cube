@@ -15,9 +15,6 @@
         >
           + {{$t(`${translations}.newBtn`)}}
         </button>
-        <button class="btn btn-primary" disabled="disabled">
-          {{ $t('generic.import')}} CSV
-        </button>
       </div>
     </header>
     <slot name="filters"></slot>

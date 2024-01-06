@@ -2,24 +2,12 @@
   <div class="container-fluid" id="login--form">
     <div
       class="formContainer__background"
-      v-bind:style="
-        setting.background
-          ? 'background-image: url(' + (api + setting.background) + ')'
-          : ''
-      "
     >
-      <img
-        v-bind:src="
-          setting.logo
-            ? api + setting.logo
-            : require('@/assets/lexart-cube.png')
-        "
-      />
     </div>
     <div class="formContainer__login">
       <header>
-        <h2>Cube Platform</h2>
-        <small>By Lexart Factory</small>
+        <h2>Cube</h2>
+        <small>By <a href="https://lexartlabs.com" class="brand--link" target="_blank">Lexart</a></small>
       </header>
       <form
         @submit.prevent="registerCompany"

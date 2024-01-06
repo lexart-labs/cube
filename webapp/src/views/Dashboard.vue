@@ -39,10 +39,6 @@
                   </button>
                 </div>
               </div>
-              <div role="alert" v-if="success">
-                <span>{{ success }}</span>
-                <i class="fas fa-check alert-check" />
-              </div>
               <div
                 v-if="isPersonifying"
                 class="alert alert-info psy-notf"
@@ -285,7 +281,7 @@
                 >
                 </vue-select>
                 <button
-                  class="btn btn-primary btn-sm col-1"
+                  class="btn btn-primary btn-sm"
                   :disabled="!myDev || myDev.idLextrack == 0"
                   v-on:click="personifyDashboard(myDev.id, true)"
                 >
@@ -653,12 +649,6 @@ export default {
           onlyAdmin: true,
         },
         {
-          name: "hunting",
-          class: "far fa-id-card",
-          hasIcon: true,
-          onlyAdmin: true,
-        },
-        {
           name: "personify",
           class: "fas fa-user-friends",
           hasIcon: true,
@@ -781,7 +771,9 @@ export default {
           this.isFetching = false;
           if (!res.data.error) {
             const data = res.data.response;
+            console.log("data: ", data)
             this.resources = data;
+           
           } else {
             this.isFetching = false;
             Vue.toasted.show(
@@ -796,18 +788,24 @@ export default {
         });
     },
     formatDate(date) {
-      // Format SQL to UY date
-      const newDate = date.split("T");
-      // 0 index correspond to raw date after split
-      let uyDate = newDate[0].split("-");
-      // 2 index - year
-      // 1 index - month
-      // 0 index - day
-      uyDate = `${uyDate[2]}/${uyDate[1]}/${uyDate[0]}`;
-      // sum full year UY format with hour after split - index 0
-      uyDate = `${uyDate} ${newDate[1]}`;
 
-      return uyDate;
+      try {
+        // Format SQL to UY date
+        const newDate = date.split("T");
+        // 0 index correspond to raw date after split
+        let uyDate = newDate[0].split("-");
+        // 2 index - year
+        // 1 index - month
+        // 0 index - day
+        uyDate = `${uyDate[2]}/${uyDate[1]}/${uyDate[0]}`;
+        // sum full year UY format with hour after split - index 0
+        uyDate = `${uyDate} ${newDate[1]}`;
+
+        return uyDate;
+      } catch (e){
+        console.log("e: ", e)
+        return date
+      }
     },
     setShow(abaName) {
       this.show = abaName;
@@ -925,6 +923,7 @@ export default {
         }
       );
       if (response) {
+        console.log("evaluations response :: ", response)
         return response;
       } else {
         Vue.toasted.show(

@@ -2,24 +2,12 @@
   <div class="container-fluid" id="login--form">
     <div
       class="formContainer__background"
-      v-bind:style="
-        setting.background
-          ? 'background-image: url(' + (api + setting.background) + ')'
-          : ''
-      "
     >
-      <img
-        v-bind:src="
-          setting.logo
-            ? api + setting.logo
-            : require('@/assets/lexart-cube.png')
-        "
-      />
     </div>
     <div class="formContainer__login" v-if="!warning">
       <header>
-        <h2>Cube Platform</h2>
-        <small>By Lexart Factory</small>
+        <h2>Cube</h2>
+        <small>By <a href="https://lexartlabs.com" class="brand--link" target="_blank">Lexart</a></small>
       </header>
       <form style="margin-top: 1rem" id="login-form" v-if="moreThanOneCompany">
         <input
@@ -35,6 +23,12 @@
           class="form-control"
           autocomplete="off"
         />
+        <div class="captcha-ctl">
+            <vue-recaptcha
+              :sitekey="siteKey"
+              @verify="setCaptchaResponse"
+            ></vue-recaptcha>
+        </div>
         <button
           type="button"
           class="btn btn-black btn-block"
@@ -43,12 +37,6 @@
         >
           <span>Login</span>
         </button>
-          <div class="captcha-ctl">
-            <vue-recaptcha
-              :sitekey="siteKey"
-              @verify="setCaptchaResponse"
-            ></vue-recaptcha>
-          </div>
         <footer>
           <div>
             <small v-if="error" class="alert alert-danger">
@@ -92,11 +80,6 @@
           {{ error }}
         </small>
       </form>
-      <div>
-        <router-link to="/rcompany" class="linkFooter"
-          >Registre su organización</router-link
-        >
-      </div>
     </div>
     <div v-if="warning" class="alert-error">
       <div class="alert alert-warning" role="alert">

@@ -6,6 +6,7 @@ const Course = require('./courses.service');
 const { setUpData } = require('./EvaluationsHandler.service');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
+const md5 = require('md5')
 
 const tablaNombre = 'users';
 const trackingApi = process.env.API_LEXTRACKING;
@@ -154,6 +155,17 @@ let User = {
 				'SELECT * FROM user_position_level WHERE id = ?', [usuario.idPosition]
 			) : [{ idPosition: null, idLevel: null }];
 
+		const oldPsw = await conn.query(
+			'SELECT password FROM users WHERE id = ?', [usuario.id]
+		)
+		
+		console.log("old:: ", oldPsw);
+
+		let isNewPsw = true
+		if(usuario.password && oldPsw[0].password === usuario.password){
+			isNewPsw = false
+		}
+
 
 		if (currentPosition[0]) {
 			shouldCreatePosition = (
@@ -170,7 +182,7 @@ let User = {
 			UPDATE ${tablaNombre}
 			SET name = ?,
 				email  = ?,
-				${usuario.password ? `password = '${usuario.password}',` : ''}
+				password = ?,
 				type   = ?,
 				active = ?,
 				idUser = ?,
@@ -185,6 +197,7 @@ let User = {
 		const arr = [
 			usuario.name,
 			usuario.email,
+			isNewPsw ? md5(usuario.password) : usuario.password,
 			usuario.type,
 			parseInt(usuario.active),
 			idAdmin,
@@ -214,7 +227,7 @@ let User = {
 	insertOne: async function (usuario, idAdmin, company_slug, id_company) {
 		const tablaNombre = 'users';
 		let response, stack, idPosition;
-		let password = company_slug !== 'lexart_labs' ? md5(usuario.password) : usuario.password;
+		let password = md5(usuario.password);
 
 		if (company_slug === "lexart_labs") {
 			const result = await this.updatePosition(usuario.id, usuario.positionId, usuario.levelId);

@@ -49,5 +49,18 @@ services:
     volumes:
       - ./env.js:/webapp/env.js
 
+  phpmyadmin_cube:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - mysqldb_cube
+    environment:
+      PMA_HOST: mysqldb_cube
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:$DB_PORT
+
 volumes: 
   db:
