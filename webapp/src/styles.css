@@ -61,7 +61,7 @@ body {
   --text-color-bright: #edeeee;
   --green-1: #d5ebd7;
   --green-2: #3cc688;
-
+  --brand-color: #ffb900;
   /* Fonts */
   --main-font: 'Montserrat';
 
@@ -125,9 +125,13 @@ label {
   position: fixed;
   align-items: center;
   justify-content: center;
-  background-image: url(assets/cube-background.jpeg);
   background-position: bottom;
   background-size: cover;
+  background-color: var(--brand-color);
+}
+.brand--link {
+  color: #333;
+  text-decoration: underline;
 }
 .formContainer__background > img {
   position: absolute;
@@ -186,7 +190,7 @@ label {
   font-size: var(--small);
   width: 5rem;
 }
-.formContainer__login .rcompany {
+.formContainer__login .linkFooter {
   font-size: var(--mid);
   color: var(--white);
 }

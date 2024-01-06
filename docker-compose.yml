@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  mysqldb_cube:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MYSQLDB_DATABASE
+    ports:
+      - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
+    volumes:
+      - db:/var/lib/mysql
+  backend_cube:
+    depends_on:
+      - mysqldb_cube
+    build: ./backend
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $NODE_LOCAL_PORT:$API_PORT
+    environment:
+      - DB_HOST=$HOST
+      - DB_USER=$DB_USER
+      - PASSWORD=$PASSWORD
+      - DB_PORT=$DB_PORT
+      - DATABASE=$DATABASE
+      - KEY=$KEY
+      - API_PORT=$API_PORT
+      - MIDDLEWARE_LEXTRACKING=$MIDDLEWARE_LEXTRACKING
+      - API_LEXTRACKING=$API_LEXTRACKING
+      - LOGIN_EMAIL=$LOGIN_EMAIL
+      - LOGIN_PASSWORD=$LOGIN_PASSWORD
+      - SECRET=$SECRET
+      - SECRET_KEY=$SECRET_KEY
+    stdin_open: true
+    tty: true
+  
+  webapp_cube:
+    build: ./webapp
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $WEBAPP_PORT:$WEBAPP_DOCKER_PORT
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./env.js:/webapp/env.js
+
+  phpmyadmin_cube:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - mysqldb_cube
+    environment:
+      PMA_HOST: mysqldb_cube
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:$DB_PORT
+
+volumes: 
+  db:

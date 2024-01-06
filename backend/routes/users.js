@@ -5,8 +5,16 @@ const Technologies = require('../services/technologies.service');
 
 
 router.post('/login', async function (req, res) {
-	const  { email, password, slug } = req.body;
-	let response = await User.loginCube(email, password, slug);
+	const  { email, idCompany } = req.body;
+	let response = await User.loginCube(email, idCompany);
+
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
+})
+
+router.post('/login/verify', async function (req, res) {
+	const { email, password, captcha } = req.body;
+	let response = await User.loginVerify(email, password, captcha);
 
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
@@ -143,7 +151,7 @@ router.get('/:id', Mdl.middleware, async function (req, res) {
 })
 
 router.get('/skills/:id', async function (req, res) {
-	const {id} = req.params;
+	const { id } = req.params;
 	const { isManager } = req.query;
 	let response;
 
@@ -158,7 +166,7 @@ router.get('/skills/:id', async function (req, res) {
 });
 
 router.post('/skills/:id/:idTech', async function (req, res) {
-	const { id, idTech} = req.params;
+	const { id, idTech } = req.params;
 
 	const response = await Technologies.createRelation(id, idTech);
 
@@ -167,7 +175,7 @@ router.post('/skills/:id/:idTech', async function (req, res) {
 });
 
 router.delete('/skills/:id/:idTech', async function (req, res) {
-	const { id, idTech} = req.params;
+	const { id, idTech } = req.params;
 
 	const response = await Technologies.deleteRelation(id, idTech);
 
@@ -180,6 +188,14 @@ router.get('/companies/participate', async function (req, res) {
 	const response = await User.getCompaniesWhichUserParticipate(token);
 
 	res.status(response.status).send(response);
+})
+
+router.post('/checkexist', async function (req, res) {
+	const { email, idCompany } = req.body;
+	const response = await User.checkUserAlreadyExists(email, idCompany);
+
+	res.set(['Content-Type', 'application/json']);
+    res.send(response);
 })
 
 module.exports = router;

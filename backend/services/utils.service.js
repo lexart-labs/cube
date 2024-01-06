@@ -25,6 +25,18 @@ const Utils = {
 			res ? res.send({ status: 404, message: "This company doesn't exists" }) : '';
 		}
 	},
+	getIdCompanyByIdUser: async function(idUser, res = false) {
+		const table = "users"
+		const query = `SELECT idCompany FROM ${table} WHERE idUser = ?`
+
+		try{
+			const [{ idCompany }] = await conn.query(query, [idUser]);
+			
+			return idCompany;
+		}catch(error) {
+			res ? res.send({ status: 404, message: "This user doesn't exists" }) : '';
+		}
+	},
     generalQuery: async function (sql, arr, action, pageSize = 10) {
         let toReturn = {};
         let response = [];

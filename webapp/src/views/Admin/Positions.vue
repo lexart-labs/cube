@@ -5,9 +5,6 @@
         <span>{{ $t("AdminPositions.title") }}</span>
         <spinner v-if="isLoading"></spinner>
       </div>
-      <button class="btn btn-primary" disabled="disabled">
-        {{ $t('generic.import') }} CSV
-      </button>
     </h4>
 
     <div class="row" id="inputTech">
@@ -179,7 +176,7 @@ export default {
       newPosition: { ...DEFAULT_VALUE },
       careerTypes: [],
       token: localStorage.getItem(`token-app-${APP_NAME}`),
-      positionSelected: [],
+      positionSelected: {},
       newRoadmapItem: ''
     };
   },
@@ -222,6 +219,9 @@ export default {
     },
 
     addRoadmapItem: async function () {
+      if(!this.positionSelected?.roadmap){
+        this.positionSelected.roadmap = []
+      }
       this.positionSelected.roadmap.push(this.newRoadmapItem)
       this.newRoadmapItem = ''
     },

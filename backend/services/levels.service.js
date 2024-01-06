@@ -80,6 +80,7 @@ const Levels = {
       return (response.changedRows || response.insertId)
         ? { response: `Operación de ${operacion} realizada con éxito` }
         : error;
+        
     } catch (e) {
       return error;
     }

@@ -2,26 +2,14 @@
   <div class="container-fluid" id="login--form">
     <div
       class="formContainer__background"
-      v-bind:style="
-        setting.background
-          ? 'background-image: url(' + (api + setting.background) + ')'
-          : ''
-      "
     >
-      <img
-        v-bind:src="
-          setting.logo
-            ? api + setting.logo
-            : require('@/assets/lexart-cube.png')
-        "
-      />
     </div>
     <div class="formContainer__login" v-if="!warning">
       <header>
-        <h2>Cube Platform</h2>
-        <small>By Lexart Factory</small>
+        <h2>Cube</h2>
+        <small>By <a href="https://lexartlabs.com" class="brand--link" target="_blank">Lexart</a></small>
       </header>
-      <form style="margin-top: 1rem" id="login-form" v-if="hasSlug">
+      <form style="margin-top: 1rem" id="login-form" v-if="moreThanOneCompany">
         <input
           type="email"
           v-model="usr.email"
@@ -35,6 +23,12 @@
           class="form-control"
           autocomplete="off"
         />
+        <div class="captcha-ctl">
+            <vue-recaptcha
+              :sitekey="siteKey"
+              @verify="setCaptchaResponse"
+            ></vue-recaptcha>
+        </div>
         <button
           type="button"
           class="btn btn-black btn-block"
@@ -51,37 +45,41 @@
           </div>
         </footer>
       </form>
-      <form v-if="!hasSlug">
-        <div id="verify-company">
-          <input
-            type="text"
-            v-model="company"
-            placeholder="Company name"
-            class="form-control"
-          />
-          <button
-            class="btn btn-success"
-            :disabled="!company.length || isLoading"
-            @click="verifyCompany"
-          >
-            Verify
-          </button>
+      <form v-if="!moreThanOneCompany">
+        <h2>Selecciona la organización:</h2>
+        <div class="container p-0">
+          <div class="row">
+            <div
+              class="col-md-6"
+              v-for="(companies, i) in companies"
+              :key="`comp${i}`"
+            >
+              <div
+                class="card p-3 mb-2"
+                @click="activate(companies.id)" 
+                :class="{ active : selectCompanie == companies.id }"
+              >
+                <input
+                  type="hidden"
+                  :value="companies.id"
+                >
+                <h6>{{companies.name}}</h6>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="captcha-ctl">
-          <vue-recaptcha
-            :sitekey="siteKey"
-            @verify="setCaptchaResponse"
-          ></vue-recaptcha>
-        </div>
+        <button
+          type="button"
+          class="btn btn-black btn-block"
+          :disabled="!selectCompanie || isLoading"
+          @click="verifyCompany"
+        >
+          Verify
+        </button>
         <small v-if="error" class="alert alert-danger">
           {{ error }}
         </small>
       </form>
-      <div>
-        <router-link to="/rcompany" class="rcompany"
-          >Registre su organización</router-link
-        >
-      </div>
     </div>
     <div v-if="warning" class="alert-error">
       <div class="alert alert-warning" role="alert">
@@ -118,38 +116,80 @@ export default {
       warning: "",
       captchaResponse: "",
       isLoading: false,
-      company: "",
-      hasSlug: true,
+      moreThanOneCompany: true,
       api: API,
       siteKey: SITE_KEY,
       setting: {
         background: "",
         logo: "",
       },
+      companies: {},
+      selectCompanie: "",
     };
   },
   methods: {
+    setCaptchaResponse(tk) {
+      this.captchaResponse = tk;
+    },
     loginUser() {
       this.isLoading = true;
       const user = copy(this.usr);
-      const { slug } = this.$route.params;
+      const captcha = this.captchaResponse;
 
-      axios.post(`${API}users/login`, { ...user, slug }).then(
+      if(!captcha) {
+        this.error = "please, make sure to check the reCaptcha challenge.";
+        this.isLoading = false;
+        return;
+      }
+      console.log("captcha", captcha);
+      
+      axios.post(`${API}users/login/verify`, { ...user, captcha }).then(
         (res) => {
           const rs = res.data;
           this.isLoading = false;
 
           if (!rs.error) {
-            const { lexToken, token, ...cubeUsr } = rs.response;
-            localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
-            localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
-            localStorage.setItem("_company-slug", slug);
-            localStorage.setItem("lexToken", rs.response.lexToken);
-            localStorage.setItem("cubeUser", JSON.stringify(cubeUsr));
+            const { token } = rs.response;
+            const headers = {
+              token
+            };
+            
+            axios.get(`${API}users/companies/participate`, { headers }).then((res) => {
+              const companies = res.data.response; // array result
+              this.companies = res.data.response; // show companies on second form
+              this.isLoading = false;
+              
+              if(companies.length <= 1){
+                axios.post(`${API}users/login`, { ...user }).then(
+                  (res) => {
+                    const rs = res.data;
+                    this.isLoading = false;
 
-            this.$router.push("/app/dashboard");
+                    if (!rs.error) {
+                      const { lexToken, token, ...cubeUsr } = rs.response;
+                      localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
+                      localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
+                      localStorage.setItem("lexToken", rs.response.lexToken);
+                      localStorage.setItem("cubeUser", JSON.stringify(cubeUsr));
+                      this.$router.push("/app/dashboard");
+                      const data = Companies.getById(user.idCompany); // apply company-slug after login
+                      localStorage.setItem("_company-slug", data.slug);
+                    }
+                  },
+                  () => {
+                    this.error = "Error al obtener organización";
+                    this.isLoading = false;
+                  }
+                );
+              } else {
+                this.moreThanOneCompany = false;
+              }
+            }
+            );
           } else {
+            grecaptcha.reset();
             this.error = rs.error;
+            this.captchaResponse = '';
           }
         },
         () => {
@@ -161,36 +201,58 @@ export default {
     verifyCompany: async function () {
       this.isLoading = true;
       this.error = "";
-      const captcha = this.captchaResponse;
+      
+      const user = copy(this.usr);
+      const selectedCompanie = this.selectCompanie;
+      const result = await Companies.getById(selectedCompanie)
 
-      if(!captcha) {
-        this.error = "please, make sure to check the reCaptcha challenge.";
-        this.isLoading = false;
-        return;
+      const data = {
+        "email": user.email, 
+        "password": user.password,
+        "idCompany": result.id
       }
+      const newLoginUser = data;
 
-      const result = await Companies.verify(this.company, captcha);
       this.isLoading = false;
       if (result.error) {
-        grecaptcha.reset();
         this.error = result.error;
-        this.captchaResponse = '';
       } else {
-        this.$router.push(`${result.slug}/login`);
-        this.hasSlug = true;
+
+        axios.post(`${API}users/login`, { ...newLoginUser }).then(
+          (res) => {
+            const rs = res.data;
+            this.isLoading = false;
+            
+            if (!rs.error) {
+              const { lexToken, token, ...cubeUsr } = rs.response;
+              localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
+              localStorage.setItem(`id-${APP_NAME}`, rs.response.id);
+              localStorage.setItem("lexToken", rs.response.lexToken);
+              localStorage.setItem("cubeUser", JSON.stringify(cubeUsr));
+              localStorage.setItem("_company-slug", result.slug);
+              this.$router.push("/app/dashboard");
+            }
+          },
+          () => {
+            this.error = "Error de servidor. Contacte al administrador";
+            this.isLoading = false;
+          }
+        );
+        this.moreThanOneCompany = true;
       }
     },
-    setCaptchaResponse(tk) {
-      this.captchaResponse = tk;
+    activate: async function(el) {
+      this.selectCompanie = el;
     },
   },
   mounted() {
     localStorage.clear();
-    if (!this.$route.params.slug) {
-      this.$router.push("lexart_labs/login");
+    if (this.$route.params.slug) {
+      this.$router.push("/login").catch(()=>{});
+      this.moreThanOneCompany = true;
     }
     if (this.$route.params.slug === "login") {
-      this.hasSlug = false;
+      this.moreThanOneCompany = true;
     }
   },
 };
@@ -224,5 +286,13 @@ footer > div {
   justify-content: center;
   align-items: center;
   width: 100%;
+}
+.card:hover {
+  cursor: pointer;
+}
+.active {
+  color: #007bff;
+  border: 1px solid #007bff;
+  font-weight: bold;
 }
 </style>

@@ -5,9 +5,6 @@
         <span>{{ $t("AdminCareerType.title") }}</span>
         <spinner v-if="isLoading"></spinner>
       </div>
-      <button class="btn btn-primary" disabled="disabled">
-        {{ $t('generic.import') }} CSV
-      </button>
     </h4>
 
     <div class="row" style="gap: 1rem; margin: 1rem auto 3rem;">

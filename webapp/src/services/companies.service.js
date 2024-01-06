@@ -33,16 +33,16 @@ const Companies = {
     const { data } = await axios.post(`${API + MODEL}`, payload);
     return data;
   },
-  update: async function (id, company) {
-    const { data } = await axios.put(`${API + MODEL}/${id}`, { company }, { headers });
+  update: async function (id, company, openToExternalRelations) {
+    const { data } = await axios.put(`${API + MODEL}/${id}`, { company, openToExternalRelations }, { headers });
     return data;
   },
   remove: async function (id) {
     const { data } = await axios.delete(`${API + MODEL}/${id}`, { headers });
     return data;
   },
-  verify: async function (company, captcha) {
-    const { data } = await axios.post(`${API + MODEL}/verify`, { captcha, company }, { headers });
+  verify: async function (company) {
+    const { data } = await axios.post(`${API + MODEL}/verify`, { company }, { headers });
     return data;
   },
 };

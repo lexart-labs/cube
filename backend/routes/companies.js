@@ -9,10 +9,17 @@ router.get('/', async (_req, res) => {
   return res.send(response);
 });
 
-router.post('/verify', async (req, res) => {
-  const { company, captcha } = req.body;
+router.get('/openToExternalRelations', async (_req, res) => {
+  const response = await Companies.getAllOpenToExternalRelations();
 
-  const response = await Companies.exists(company, captcha);
+  res.set(['Content-Type', 'application/json']);
+  return res.send(response);
+});
+
+router.post('/verify', async (req, res) => {
+  const { company } = req.body;
+
+  const response = await Companies.exists(company);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
