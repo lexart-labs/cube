@@ -207,12 +207,14 @@ let Course = {
 		if(response.length > 0){
 			response.map( (item,i) => {
 				try {
-					let json_data = JSON.parse(item.json_data)
+					let json_data = item.json_data
 					json_data.id  = item.id
 					json_data.lead = item.lead
 					json_data.total = this.calcTotal(json_data.indicadores)
 					response[i] = json_data
-				} catch (e){}
+				} catch (e){
+					console.log("e: ", e)
+				}
 			})
 		}
 
