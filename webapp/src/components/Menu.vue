@@ -269,9 +269,9 @@ export default {
         return
       }
       if(this.passwordManager.password !== ''){
-        this.user.password = this.hashPassword(this.passwordManager.password);
+        this.user.password = this.passwordManager.password;
       }
-      UserService().upsertUser(this.user, (data) => {
+      UserService().upsertMyUser(this.user, (data) => {
         if(data.error) {
           this.error = data.error;
           return;

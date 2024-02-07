@@ -56,6 +56,18 @@ const UserService = function () {
         cb(res.data);
       });
     },
+    upsertMyUser(user, cb) {
+      const headers   = buildHeaders();
+      const cubeUser  = JSON.parse(localStorage.getItem('cubeUser'))
+      // headers['user-id'] = cubeUser.idUser
+
+      user.lead = { id: cubeUser.idUser }
+
+      console.log("headers", headers)
+      axios.post(`${API + model}upsert`, user, { headers }).then((res) => {
+        cb(res.data);
+      });
+    },
     getPagesLength(query = '', cb) {
       const headers = buildHeaders();
 
