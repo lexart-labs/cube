@@ -14,9 +14,16 @@ const SECRET_KEY = process.env.SECRET_KEY;
 const PAGE_SIZE = 10;
 
 let User = {
-	all: async function (idAdmin, page, query) {
+	all: async function (idAdmin, page, query, user) {
 		let error = { "error": "Error al obtener usuarios" };
 		const filter = query ? `AND u.name LIKE '%${query}%'` : '';
+		let filterComp = 'WHERE (u.idUser = ? OR u.id = ?)';
+
+		if(user?.type === 'admin'){
+			filterComp = ''
+		}
+
+		console.log("user all :: ", user)
 
 		// Obtener los usuarios
 		const sql = `
@@ -30,7 +37,7 @@ let User = {
 			LEFT JOIN hiring_plataforms hp ON u.idPlataform = hp.id
 			LEFT JOIN careers c ON uc.idPosition = c.id
 			LEFT JOIN levels l ON uc.idLevel = l.id
-			WHERE (u.idUser = ? OR u.id = ?) ${filter}
+			${filterComp} ${filter}
 			${parseInt(page) ? `LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}` : ''}
 		`
 		let response = [];

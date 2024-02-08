@@ -15,14 +15,15 @@ const Mdl = {
 			res.set(['Content-Type', 'application/json']);
 			res.send(error);
 		};
-
+		const FIXED_COMPANY = 1
 		if (!token) {
 			res.set(['Content-Type', 'application/json']);
 			return res.send(error);
 		}
 		try {
 			const { data: { email, idCompany } } = jwt.verify(token, secret);
-			const user = await User.getByEmail(email, idCompany);
+			const user = await User.getByEmail(email, idCompany ? idCompany : FIXED_COMPANY); // TO-DO: now company is 1 but need to fix the login encrypt token
+			console.log("email, idCompany: ", email, idCompany)
 			if (!user) return errorOutput();
 			req.user = user;
 			next();
