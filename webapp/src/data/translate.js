@@ -508,6 +508,7 @@ const translations = {
         "November",
         "December",
       ],
+      burnOut: 'Burnout Test',
       asignments: 'Asignments',
       searchPlaceholderEvaluations: 'Search evaluations',
       Evaluations: 'Evaluations',

@@ -409,6 +409,7 @@ let User = {
 
 		try {
 			const isValid = await this.validateCaptcha(captcha);
+			console.log("isValid: ", isValid)
 			if(!isValid) return {error: 'Invalid human verification. please try again.'};
 			response = await conn.query(sql, [email, password]);
 

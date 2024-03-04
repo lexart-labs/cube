@@ -557,6 +557,9 @@
                 </div>
               </div>
             </section>
+            <section v-show="show === 'burnOut'">
+              <BurnOutComp />
+            </section>
           </main>
         </div>
       </div>
@@ -584,6 +587,7 @@ import EvaluationViewer from "../components/evaluationsViewer.vue";
 import UserCard from "../components/userCard.vue";
 import Rombo from "../components/rombo.vue";
 import DashComp from "../components/DashboardComp.vue";
+import BurnOutComp from "../components/BurnOutComp.vue";
 
 export default {
   name: "Dashboard",
@@ -596,7 +600,8 @@ export default {
     vueSelect,
     DashComp,
     UserCard,
-  },
+    BurnOutComp
+},
   data() {
     return {
       // General
@@ -653,6 +658,12 @@ export default {
           class: "fas fa-user-friends",
           hasIcon: true,
           onlyAdmin: true,
+        },
+        {
+          name: "burnOut",
+          class: "fas fa-user-md",
+          hasIcon: true,
+          onlyAdmin: false,
         },
       ],
 
