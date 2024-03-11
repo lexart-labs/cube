@@ -1,5 +1,8 @@
 <template>
   <div id="dashboard--component">
+    <div v-show="!isTestDoneInLastThreeMonths" class="alert alert-warning" role="alert">
+        {{ $t('UserBurnoutTest.warning') }}
+    </div>
     <div class="container-dash">
       <nav class="abas-control">
         <ul>
@@ -558,7 +561,7 @@
               </div>
             </section>
             <section v-show="show === 'burnOut'">
-              <BurnOutComp />
+              <BurnOutComp @isTestDoneInLastThreeMonths="(v) => isTestDoneInLastThreeMonths = v" />
             </section>
           </main>
         </div>
@@ -604,6 +607,7 @@ export default {
 },
   data() {
     return {
+      isTestDoneInLastThreeMonths: true,
       // General
       title: "Dashboard",
       isLoading: true,

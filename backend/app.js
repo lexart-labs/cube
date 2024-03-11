@@ -41,6 +41,7 @@ const Collaborators = require('./routes/collaborators');
 const Hours = require("./routes/hours");
 const Payment = require("./routes/payments");
 const externalRelations = require("./routes/externalRelationsCompanies")
+const burnoutTestRouter = require("./routes/burnoutTests")
 
 const port 	  	 = process.env.API_PORT;
 const seed       = 100000000000000
@@ -84,6 +85,7 @@ app.use('/hours', Hours)
 app.use('/payments', Payment)
 app.use('/public', express.static('public'));
 app.use('/external/relations', externalRelations);
+app.use('/burnout_tests', burnoutTestRouter)
 
 app.post('/upload-file', upload.single('file-image'), function (req, res, next) {
   // req.file is the `profile-file` file

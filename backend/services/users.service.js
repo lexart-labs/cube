@@ -373,6 +373,7 @@ let User = {
 			response = { ...usr, token, lexToken: utils.makeLexToken(email) };
 			return { response };
 		} catch (e) {
+			console.error(e);
 			console.log(e.message);
 			return error;
 		}
@@ -421,6 +422,7 @@ let User = {
 			response = { token, lexToken: utils.makeLexToken(password, email) };
 			return { response };
 		} catch (e) {
+			console.error(e);
 			console.log(e.message);
 			return error;
 		}
