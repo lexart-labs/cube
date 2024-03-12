@@ -13,7 +13,7 @@ let BurnoutTest = {
 
 		try {
 			const result = await conn.query(sql, [idAdmin]);
-			response.hasCurrentMonthTest = result[0].hasCurrentMonthTest > 0;
+			response.hasCurrentMonthTest = result[0] && result[0].hasCurrentMonthTest > 0;
 		} catch (e) {
 			console.error(e);
 		}
@@ -50,7 +50,8 @@ let BurnoutTest = {
 		let response = 0;
 		let hasError = false;
 		try {
-			const result = await conn.query(sql, [idAdmin]);
+			let result = await conn.query(sql, [idAdmin]);
+			if(!result.length) result = [{total: 0}];
 			const totalOfPages = result[0].total / PAGE_SIZE
 			response = Number.isInteger(totalOfPages) ? totalOfPages : Math.ceil(totalOfPages);
 		} catch (e) {
