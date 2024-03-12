@@ -18,7 +18,7 @@
             </p>
         </h2>
         <br>
-        <table class="table">
+        <table data-testid="burnoutTable" class="table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -33,7 +33,7 @@
                     <td>{{ item.score }}</td>
                     <td>{{ formatDate(item.dateCreated) }}</td>
                     <td>
-                        <button @click="getById(item.id)" class="btn btn-secondary">
+                        <button @click="getById(item.id)" class="btn btn-secondary burnout_edit_btn">
                             {{ $t('generic.seeDetails')}}
                         </button>
                     </td>
@@ -42,75 +42,74 @@
         </table>
         <!-- Modal save -->
         <div class="modal" role="dialog" id="testModal" ref="testModal">
-            <div class="modal-dialog modal-lg" role="document">
+            <form id="testForm" @submit.prevent="upsertTest" class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title is-bold">
-                        {{ $t('generic.burnOut') + ' ' +  selectedId }}
-                    </h5>
-                    <button
-                        type="button"
-                        class="close"
-                        data-dismiss="modal"
-                        aria-label="Close"
-                    >
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3 dropdown">
-                        <button class="btn btn-secondary mb-1 dropdown-toggle" id="dropdownBurnoutTest" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{ $t('UserBurnoutTest.rangesTitle' )}}
+                    <div class="modal-header">
+                        <h5 class="modal-title is-bold">
+                            {{ $t('generic.burnOut') + ' ' +  selectedId }}
+                        </h5>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            <span aria-hidden="true">&times;</span>
                         </button>
-                        <ul v-show="showList" class="dropdown-menu py-0 shadow-lg" aria-labelledby="dropdownBurnoutTest">
-                            <li class="list-group-item">0 = {{ $t('UserBurnoutTest.ranges0' ) }}</li>
-                            <li class="list-group-item">1 = {{ $t('UserBurnoutTest.ranges1' ) }}</li>
-                            <li class="list-group-item">2 = {{ $t('UserBurnoutTest.ranges2' ) }}.</li>
-                            <li class="list-group-item">3 = {{ $t('UserBurnoutTest.ranges3' ) }}</li>
-                            <li class="list-group-item">4 = {{ $t('UserBurnoutTest.ranges4' ) }}</li>
-                            <li class="list-group-item">5 = {{ $t('UserBurnoutTest.ranges5') }}</li>
-                            <li class="list-group-item">6 = {{ $t('UserBurnoutTest.ranges6' ) }}</li>
-                        </ul>
                     </div>
-                    <table class="table">
-                        <tbody>
-                            <tr v-for="(qn, i) in questions" :key="i">
-                                <td>{{ $t('UserBurnoutTest.' + qn.q) }}</td>
-                                <td>
-                                    <select class="form-control burnout-select" name="" id="" v-model="qn.value">
-                                        <option value="0">0</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="modal-body">
+                        <div class="mb-3 dropdown">
+                            <button class="btn btn-secondary mb-1 dropdown-toggle" id="dropdownBurnoutTest" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ $t('UserBurnoutTest.rangesTitle' )}}
+                            </button>
+                            <ul v-show="showList" class="dropdown-menu py-0 shadow-lg" aria-labelledby="dropdownBurnoutTest">
+                                <li class="list-group-item">0 = {{ $t('UserBurnoutTest.ranges0' ) }}</li>
+                                <li class="list-group-item">1 = {{ $t('UserBurnoutTest.ranges1' ) }}</li>
+                                <li class="list-group-item">2 = {{ $t('UserBurnoutTest.ranges2' ) }}.</li>
+                                <li class="list-group-item">3 = {{ $t('UserBurnoutTest.ranges3' ) }}</li>
+                                <li class="list-group-item">4 = {{ $t('UserBurnoutTest.ranges4' ) }}</li>
+                                <li class="list-group-item">5 = {{ $t('UserBurnoutTest.ranges5') }}</li>
+                                <li class="list-group-item">6 = {{ $t('UserBurnoutTest.ranges6' ) }}</li>
+                            </ul>
+                        </div>
+                        <table class="table">
+                            <tbody>
+                                <tr v-for="(qn, i) in questions" :key="i">
+                                    <td>{{ $t('UserBurnoutTest.' + qn.q) }}</td>
+                                    <td>
+                                        <select class="form-control burnout-select burnout_score" v-model="qn.value">
+                                            <option value="0">0</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                            <option value="6">6</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            v-on:click="teamName = ''"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                        >
+                            {{ $t("generic.close") }}
+                        </button>
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            :disabled="isLoading || isSaveDisabled"
+                        >
+                            {{ isLoading ? $t('generic.loading') + '...' : (selectedId ? $t('generic.edit') : $t('generic.save')) }}
+                        </button>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        v-on:click="teamName = ''"
-                        class="btn btn-secondary"
-                        data-dismiss="modal"
-                    >
-                        {{ $t("generic.close") }}
-                    </button>
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        :disabled="isLoading || isSaveDisabled"
-                        v-on:click="upsertTest"
-                    >
-                        {{ isLoading ? $t('generic.loading') + '...' : (selectedId ? $t('generic.edit') : $t('generic.save')) }}
-                    </button>
-                </div>
-                </div>
-            </div>
+            </form>
         </div>
         <nav v-if="pagesLength" class="pages-nav">
             <span
@@ -140,7 +139,7 @@
     </div>
 </template>
 <script>
-    import BurnoutTestService from '../services/burnoutTest.service';
+    import BurnoutTestService from '@/services/burnoutTest.service.js';
     import Spinner from '../components/Spinner.vue';
     export default {
         components: {
@@ -206,7 +205,7 @@
             },
             checkTestCurrentMonth(test) {
                 const currentYear = new Date().getUTCFullYear()
-                ;
+                const currentMonth = new Date().getUTCMonth() + 1;
                 return test && test.month == currentMonth && test.year == currentYear;
             },
             checkNewTestAvailable() {
