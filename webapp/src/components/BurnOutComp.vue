@@ -22,7 +22,6 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th> {{ $t('generic.score') }} </th>
                     <th> 
                         <span data-toggle="tooltip" data-placement="top" :title="$t('UserBurnoutTest.tooltipScore') + ' 26'">
                             {{ $t('UserBurnoutTest.scoreTired') }}
@@ -39,12 +38,12 @@
                         </span>
                     </th>
                     <th> {{ $t('generic.date') }}  </th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(item, i) in items" :key="`test${i}`">
                     <td>{{ item.id }}</td>
-                    <td>{{ item.score }}</td>
                     <td>{{ item.scoreTired }}</td>
                     <td>{{ item.scoreDepersonalization }}</td>
                     <td>{{ item.scoreRealization }} </td>
