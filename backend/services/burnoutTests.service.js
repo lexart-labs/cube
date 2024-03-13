@@ -25,15 +25,26 @@ let BurnoutTest = {
 		let error = {"error":"Error al obtener burnout tests"};
 
 		const sql = `
-			SELECT id, score, dateCreated, MONTH(dateCreated) as month, YEAR(dateCreated) as year FROM ${tablaNombre}
+			SELECT id, score, value, dateCreated, MONTH(dateCreated) as month, YEAR(dateCreated) as year FROM ${tablaNombre}
 			WHERE idUser = ? ORDER BY dateCreated DESC
 			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []
 		let hasError = false;
+		const valueTired = [1,2,3,6,8,13,14,16,20];
+		const valueDepersonalization = [5,10,11,15,22];
+		const valueRealization = [4,7,9,12,17,18,19,21];
 		
 		try {
 			response = await conn.query(sql, [idAdmin]);
+			if(response && response.length) {
+				response = response.map((item) => {
+					item.scoreTired = valueTired.reduce((acc, el) => acc + item.value[el - 1] || 0, 0);
+					item.scoreDepersonalization = valueDepersonalization.reduce((acc, el) => acc + item.value[el - 1] || 0, 0);
+					item.scoreRealization = valueRealization.reduce((acc, el) => acc + item.value[el - 1] || 0, 0);
+					return item;
+				});
+			}
 		} catch(e){
 			console.error(e);
 			hasError = true;

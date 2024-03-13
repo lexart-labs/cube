@@ -368,7 +368,11 @@ const translations = {
       q18: "Creo que consigo muchas cosas valiosas en este trabajo.",
       q19: "Me siento acabado en mi trabajo, al límite de mis posibilidades.",
       q20: "En mi trabajo trato los problemas emocionalmente con mucha calma.",
-      q21: "Creo que algunos miembros del equipo me culpan por algunos de sus problemas."
+      q21: "Creo que algunos miembros del equipo me culpan por algunos de sus problemas.",
+      scoreTired: 'Cansancio emocional',
+      scoreDepersonalization: 'Despersonalización',
+      scoreRealization: 'Realización personal',
+      tooltipScore: 'Indicios de burnout, más de'
     }
   },
   en: {
@@ -741,7 +745,11 @@ const translations = {
       q18: "I think I achieve many valuable things in this job.",
       q19: "I feel finished at my job, at the limit of my capabilities.",
       q20: "In my job, I handle technical problems very calmly.",
-      q21: "I think that team members blame me for some of their problems."
+      q21: "I think that team members blame me for some of their problems.",
+      scoreTired: 'Emotional fatigue',
+      scoreDepersonalization: 'Depersonalization',
+      scoreRealization: 'Personal accomplishment',
+      tooltipScore: 'Signs of burnout, more than',
     }
   },
   pt: {},

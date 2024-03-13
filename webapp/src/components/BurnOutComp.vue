@@ -23,14 +23,31 @@
                 <tr>
                     <th>ID</th>
                     <th> {{ $t('generic.score') }} </th>
+                    <th> 
+                        <span data-toggle="tooltip" data-placement="top" :title="$t('UserBurnoutTest.tooltipScore') + ' 26'">
+                            {{ $t('UserBurnoutTest.scoreTired') }}
+                        </span>
+                    </th>
+                    <th> 
+                        <span data-toggle="tooltip" data-placement="top" :title="$t('UserBurnoutTest.tooltipScore') + ' 9'">
+                            {{ $t('UserBurnoutTest.scoreDepersonalization') }} 
+                        </span>
+                    </th>
+                    <th> 
+                        <span data-toggle="tooltip" data-placement="top" :title="$t('UserBurnoutTest.tooltipScore') + ' 34'">
+                            {{ $t('UserBurnoutTest.scoreRealization') }}
+                        </span>
+                    </th>
                     <th> {{ $t('generic.date') }}  </th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(item, i) in items" :key="`test${i}`">
                     <td>{{ item.id }}</td>
                     <td>{{ item.score }}</td>
+                    <td>{{ item.scoreTired }}</td>
+                    <td>{{ item.scoreDepersonalization }}</td>
+                    <td>{{ item.scoreRealization }} </td>
                     <td>{{ formatDate(item.dateCreated) }}</td>
                     <td>
                         <button @click="getById(item.id)" class="btn btn-secondary burnout_edit_btn">
@@ -184,6 +201,7 @@
             };
         },
         async mounted() {
+            $('[data-toggle="tooltip"]').tooltip()
             await this.paginate();
             this.checkNewTestAvailable();
             this.checkTestDoneLastThreeMonths();
