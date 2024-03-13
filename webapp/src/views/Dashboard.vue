@@ -1,5 +1,8 @@
 <template>
   <div id="dashboard--component">
+    <div v-show="!isTestDoneInLastThreeMonths" class="alert alert-warning" role="alert">
+        {{ $t('UserBurnoutTest.warning') }}
+    </div>
     <div class="container-dash">
       <nav class="abas-control">
         <ul>
@@ -557,6 +560,9 @@
                 </div>
               </div>
             </section>
+            <section v-show="show === 'burnOut'">
+              <BurnOutComp @isTestDoneInLastThreeMonths="(v) => isTestDoneInLastThreeMonths = v" />
+            </section>
           </main>
         </div>
       </div>
@@ -584,6 +590,7 @@ import EvaluationViewer from "../components/evaluationsViewer.vue";
 import UserCard from "../components/userCard.vue";
 import Rombo from "../components/rombo.vue";
 import DashComp from "../components/DashboardComp.vue";
+import BurnOutComp from "../components/BurnOutComp.vue";
 
 export default {
   name: "Dashboard",
@@ -596,9 +603,11 @@ export default {
     vueSelect,
     DashComp,
     UserCard,
-  },
+    BurnOutComp
+},
   data() {
     return {
+      isTestDoneInLastThreeMonths: true,
       // General
       title: "Dashboard",
       isLoading: true,
@@ -653,6 +662,12 @@ export default {
           class: "fas fa-user-friends",
           hasIcon: true,
           onlyAdmin: true,
+        },
+        {
+          name: "burnOut",
+          class: "fas fa-user-md",
+          hasIcon: true,
+          onlyAdmin: false,
         },
       ],
 

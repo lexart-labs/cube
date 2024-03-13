@@ -562,6 +562,15 @@ span.badge.badge-primary {
   right: 0.2rem;
 }
 
+.burnout-select {
+  width: fit-content;
+  text-align: center;
+}
+/* Fix bug dropdown menu*/
+.dropdown-menu.show {
+  display:block!important;
+}
+
 /* Media Query Tablets and Some Monitors */
 @media (min-width: 768px) and (max-width: 1280px) {
 .abas-control {
