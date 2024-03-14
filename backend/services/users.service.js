@@ -373,6 +373,7 @@ let User = {
 			response = { ...usr, token, lexToken: utils.makeLexToken(email) };
 			return { response };
 		} catch (e) {
+			console.error(e);
 			console.log(e.message);
 			return error;
 		}
@@ -409,6 +410,7 @@ let User = {
 
 		try {
 			const isValid = await this.validateCaptcha(captcha);
+			console.log("isValid: ", isValid)
 			if(!isValid) return {error: 'Invalid human verification. please try again.'};
 			response = await conn.query(sql, [email, password]);
 
@@ -420,6 +422,7 @@ let User = {
 			response = { token, lexToken: utils.makeLexToken(password, email) };
 			return { response };
 		} catch (e) {
+			console.error(e);
 			console.log(e.message);
 			return error;
 		}
