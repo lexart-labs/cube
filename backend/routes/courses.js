@@ -33,8 +33,8 @@ router.post('/upsert', Mdl.middleware, async function (req, res) {
 })
 
 router.post('/copy/:id', Mdl.middleware, async function (req, res) {
-	let id = req.params.id;
-	let response = await Course.copy(id, req.headers['user-id']);
+	const id = req.params.id;
+	const response = await Course.copy(id, req.headers['user-id']);
 
 	res.set(['Content-Type', 'application/json']);
 		res.send(response);
