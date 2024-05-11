@@ -55,14 +55,22 @@
               <b>{{ course.total }}%</b>
             </td>
             <td>{{ course.active === 1 ? $t('generic.yes') : $t('generic.no') }}</td>
-            <td>
+            <td  style="display: flex; gap: 1rem;justify-content: center;">
               <button
-                class="btn btn-primary col-12"
+                class="btn btn-primary col-6"
                 v-on:click="getCourseById(course.id)"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
               >
                 {{$t('generic.edit')}}
+              </button>
+							<button
+                class="btn btn-primary col-6"
+                v-on:click="getCourseById(course.id)"
+                data-toggle="modal"
+                data-target="#staticBackdropConfirmation"
+              >
+                {{$t('generic.copy')}}
               </button>
             </td>
           </tr>
@@ -309,6 +317,58 @@
                 :disabled="isLoading"
               >
                 {{ isLoading? 'Loading...' : $t('generic.save') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+			<!-- Confirmation modal -->
+			<div
+        class="modal fade"
+        id="staticBackdropConfirmation"
+        data-backdrop="static"
+        data-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="courseTitle is-bold" id="staticBackdropLabel">
+                {{$t('generic.confirm')}}
+              </h4>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <!-- General -->
+            <div class="modal-body">
+							<p>{{$t('AdminEvaluations.copyEvaluation')}}</p>
+
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary col-3"
+                data-dismiss="modal"
+              >
+                {{$t('generic.no')}}
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary col-3"
+                v-on:click="copyCourse"
+                :disabled="isLoading"
+              >
+                {{ isLoading? 'Loading...' : $t('generic.yes') }}
               </button>
             </div>
           </div>
@@ -736,7 +796,7 @@ export default {
             this.pagesLength = totalOfPages.response;
             pageToGet = this.pagesLength - 1;
           }
-          
+
           this.paginate(pageToGet);
 
         } else {
@@ -747,6 +807,40 @@ export default {
         }
       });
     },
+		copyCourse() {
+			this.isLoading = true;
+
+
+      CourseService().copyCourse(this.course.id,  async (res) => {
+        this.isLoading = false;
+				$('#staticBackdropConfirmation').modal('hide');
+        if (res.response) {
+          // Disparo el toast
+          this.$toasted.show(res.response, {
+            type: 'success',
+            duration: 2000,
+          });
+
+          // Get all courses again
+          let pageToGet = null;
+
+          if (this.course.indicadores) pageToGet = this.page - 1;
+          else {
+            const { data: totalOfPages } = await CourseService().getPagesLength();
+            this.pagesLength = totalOfPages.response;
+            pageToGet = this.pagesLength - 1;
+          }
+
+          this.paginate(pageToGet);
+
+        } else {
+          this.$toasted.show('Error when trying to copy evaluation', {
+            type: 'error',
+            duration: 2000,
+          });
+        }
+      });
+		},
     removeHTTP(url, model, prop) {
       this.$set(
         this[model],
