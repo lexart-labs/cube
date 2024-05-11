@@ -119,14 +119,14 @@ let Course = {
 	},
 	copy: async function (id, idAdmin){
 		try {
-			const eval = await this.one(id)
+			const evaluation = await this.one(id)
 
-			if (!eval?.response) {
-					const errorMessage = eval?.error || 'No se pudo obtener el curso'
+			if (!evaluation?.response) {
+					const errorMessage = evaluation?.error || 'No se pudo obtener el curso'
 					throw new Error(errorMessage)
 			}
 
-			const course = eval.response
+			const course = evaluation.response
 			course.name = `Copy  ${course.name}`
 			const copyEval =  await this.insert(course, idAdmin)
 
