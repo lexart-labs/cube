@@ -32,6 +32,14 @@ router.post('/upsert', Mdl.middleware, async function (req, res) {
     res.send(response);
 })
 
+router.post('/copy/:id', Mdl.middleware, async function (req, res) {
+	let id = req.params.id;
+	let response = await Course.copy(id, req.headers['user-id']);
+
+	res.set(['Content-Type', 'application/json']);
+		res.send(response);
+})
+
 router.get('/by-user/:id', Mdl.middleware, async function (req, res) {
 	let id   = req.params.id;
 	const { year } = req.query;
