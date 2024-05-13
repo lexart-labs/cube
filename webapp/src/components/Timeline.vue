@@ -80,6 +80,13 @@ export default {
   },
   watch: {
     user: async function () {
+      this.isLoading = true;
+      const user = this.chartData
+      const [careers] = await Promise.all([
+      this.getCareers({ "user-id": user.id }),
+      ]);
+      this.isLoading = false;
+      this.careers = careers;
       this.buildGraphic();
     },
   },
@@ -257,22 +264,6 @@ export default {
     // id = id of the user that will be required;
     // userId = id of the user doing the query;
     // they can be equal or not;
-    const id = this.user.idLextracking;
-    const userId = localStorage.getItem(`id-${APP_NAME}`);
-    const token = localStorage.getItem(`token-app-${APP_NAME}`);
-    const headers = { token, "user-id": userId };
-
-    this.isLoading = true;
-    
-    const [careers] = await Promise.all([
-      this.getCareers({ "user-id": userId }),
-    ]);
-
-    this.isLoading = false;
-
-    //set data
-    this.careers = careers;
-
     // Build the graphic
     this.buildGraphic(this.user);
   },
