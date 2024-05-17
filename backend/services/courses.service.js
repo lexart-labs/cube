@@ -127,8 +127,8 @@ let Course = {
 			}
 
 			const course = evaluation.response
-			course.name = `Copy  ${course.name}`
-			const copyEval =  await this.insert(course, idAdmin)
+			const newName = `Copy  ${course.name}`
+			const copyEval =  await this.insert({...course,  name: newName}, idAdmin)
 
 			return copyEval
 		} catch (e){
