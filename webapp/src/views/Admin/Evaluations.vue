@@ -821,15 +821,9 @@ export default {
             duration: 2000,
           });
 
-          // Get all courses again
-          let pageToGet = null;
-
-          if (this.course.indicadores) pageToGet = this.page - 1;
-          else {
-            const { data: totalOfPages } = await CourseService().getPagesLength();
-            this.pagesLength = totalOfPages.response;
-            pageToGet = this.pagesLength - 1;
-          }
+					const { data: totalOfPages } = await CourseService().getPagesLength();
+					this.pagesLength = totalOfPages.response;
+					const pageToGet = this.pagesLength - 1;
 
           this.paginate(pageToGet);
 
