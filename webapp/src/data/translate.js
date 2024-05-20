@@ -91,6 +91,7 @@ const translations = {
         'Coordinación y Liderazgo',
         'Potencialidad',
       ],
+			copyEvaluation: '¿Desea crear una copia de esta evaluación?'
     },
     AdminTechnologies: {
       placeholder:'Adicionar nueva tecnología',
@@ -195,6 +196,9 @@ const translations = {
       seeDetails: 'Ver detalles',
       back: 'Atrás',
       next: 'Siguiente',
+			copy: 'Copiar',
+			confirm: 'Confirmación',
+			confirmCopy: '¿Estás seguro que deseas copiar este recurso?'
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -260,7 +264,7 @@ const translations = {
         'Comunicación proactiva',
         'Evacuar dudas de los arquitectos de software',
         'Definición de workflow técnico del proyecto',
-        'Mentoría para programadores y arq. de software', 
+        'Mentoría para programadores y arq. de software',
         'Construcción de ambientes BackEnd/FrontEnd/Base de datos desde 0.',
         'Planificación de contingencia y control de riesgos',
         'Reportar a infraestructura necesidades tecnológicas y cambios de gran impacto',
@@ -467,6 +471,7 @@ const translations = {
         'Coordination and Leadership',
         'Potentiality',
       ],
+			copyEvaluation: 'Do you want to create a copy of this evaluation?'
     },
     AdminTechnologies: {
       placeholder:'Add a new level',
@@ -584,6 +589,9 @@ const translations = {
       seeDetails: 'See Details',
       back: 'Back',
       next: 'Next',
+			copy: 'Copy',
+			confirm: 'Confirmation',
+			confirmCopy: 'Are you sure you want to copy this resource?'
     },
     positionAssignments: {
       'EntryLevel Developer': [

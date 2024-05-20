@@ -5,7 +5,7 @@ const PAGE_SIZE = 10;
 
 let Course = {
 	all: async function (idAdmin, page, query){
-		
+
 		let error = {"error":"Error al obtener cursos"};
 		const filterQuery = `AND name LIKE '%${query}%'`
 
@@ -16,7 +16,7 @@ let Course = {
 			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [idAdmin]);
 		} catch(e){}
@@ -63,52 +63,79 @@ let Course = {
 		} catch (e) {
 			console.log(e.message);
 		}
-		
+
 		return response > 0 ? { response } : error;
 	},
 	one: async function (id){
-		
-		let error = {"error":"Error al obtener cursos"}
-
-		// Obtener los usuarios
+		try {
 		const sql = `
 			SELECT * FROM ${tablaNombre}
 			WHERE id = ?
 		`
-		let response = []
-		
+		const result = await conn.query(sql, [id]);
+
+		// Optional chaining for ensure the result is not null or undefined
+		const rawEvaluation = result?.[0]
+
+		// Ensure the rawEvaluation has the json_data property
+		if (!rawEvaluation || !rawEvaluation?.json_data) {
+			throw new Error('No se pudo obtener el curso con la ID proporcionada')
+		}
+
+		const evaluation = {
+			...rawEvaluation.json_data,
+			id: rawEvaluation?.id,
+			clases: rawEvaluation?.json_clases || [],
+			pagos: rawEvaluation?.json_pagos || [],
+			evaluaciones: rawEvaluation?.json_evaluaciones || [],
+		}
+
+			return {response: evaluation}
+		} catch(e) {
+			const errorMessage = e.message || 'Error al obtener el curso'
+			const error = {error: errorMessage, trace: e}
+			return error
+		}
+		},
+		insert: async function (course, idAdmin){
+			let sql = `
+			INSERT INTO evaluations
+			(name,idUser,idLextracking,active,json_data)
+			VALUES
+			(?,?,?,?,?)
+		`
 		try {
-			response = await conn.query(sql, [id]);
-		} catch(e){}
-		
-		let json_data = response[0].json_data
-		json_data.id  = response[0].id // agrego la ID del curso en el body del json_data 
+			const response = await conn.query(sql, [course.name, idAdmin, course.user.id, course.active, JSON.stringify(course)])
 
-		// Add clases to course
-		if(response[0].json_clases == null){
-			json_data.clases = []
-		} else {
-			let json_clases = response[0].json_clases
-			json_data.clases = json_clases
+			return response.insertId ? {response: `Curso creado correctamente`} : error;
+
+		} catch(e){
+			const  error = {
+				"error":"Error al ingresar curso",
+				"stack": e
+			}
+			return error;
 		}
+	},
+	copy: async function (id, idAdmin){
+		try {
+			const evaluation = await this.one(id)
 
-		// Add pagos to course
-		if(response[0].json_pagos == null){
-			json_data.json_pagos = []
-		} else {
-			let json_pagos = response[0].json_pagos
-			json_data.pagos = json_pagos
+			if (!evaluation?.response) {
+					const errorMessage = evaluation?.error || 'No se pudo obtener el curso'
+					throw new Error(errorMessage)
+			}
+
+			const course = evaluation.response
+			const newName = `Copy  ${course.name}`
+			const copyEval =  await this.insert({...course,  name: newName}, idAdmin)
+
+			return copyEval
+		} catch (e){
+			const errorMessage = e.message || 'Error al copiar el curso'
+			const error = {error: errorMessage, stack: e}
+			return error
 		}
-
-		// Add evaluaciones to course
-		if(response[0].json_evaluaciones == null){
-			json_data.json_evaluaciones = []
-		} else {
-			let json_evaluaciones = response[0].json_evaluaciones
-			json_data.evaluaciones = json_evaluaciones
-		}
-
-		return response.length > 0 ? {response: json_data} : {response: error};
 	},
 	upsert: async function (course, idAdmin){
 
@@ -121,7 +148,7 @@ let Course = {
 		// Los cursos se crean manualmente en la base de datos
 		// TO-DO crear el insert
 		if(course.id){
-			
+
 			// Update course
 			sql = `
 				UPDATE evaluations
@@ -160,13 +187,13 @@ let Course = {
 	login: async function (usuario, clave) {
 		const sql = `
 			SELECT id, name, email, type FROM ${tablaNombre}
-			WHERE 
+			WHERE
 				(email = ?) AND password = MD5(?)
 				AND active = 1
 			;
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [usuario, clave]);
 
@@ -197,7 +224,7 @@ let Course = {
 		`
 
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [parseInt(id), parseInt(year)]);
 		} catch(e){
@@ -225,7 +252,7 @@ let Course = {
 	resources: async function (idCourse) {
 
 		const sql = `
-			SELECT resources.id, 
+			SELECT resources.id,
 				   resources.name,
 				   resources.description,
 				   resources.link,
@@ -236,7 +263,7 @@ let Course = {
 			AND resources.active = 1
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [idCourse]);
 		} catch(e){}
@@ -244,7 +271,7 @@ let Course = {
 		return response.length > 0 ? {response: response} : {error: '¡Aún no tienes materiales!'};
 	},
 	checkType: async function (token, id){
-		
+
 		let userCorrect = 'default';
 		const tablaNombre = 'users'
 
@@ -253,7 +280,7 @@ let Course = {
 			SELECT * FROM ${tablaNombre}
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql);
 		} catch(e){}
@@ -261,7 +288,7 @@ let Course = {
 		if(response.length > 0){
 			response.map( (usr) => {
 				let fastToken = utils.makeToken(usr.email, usr.id, key);
-				
+
 				// Check token and userId
 				if(token == fastToken && id == usr.id){
 					userCorrect = usr.type;
