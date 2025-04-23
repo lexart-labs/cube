@@ -668,7 +668,7 @@ export default {
           class: "fas fa-user-md",
           hasIcon: true,
           onlyAdmin: false,
-        },
+        }
       ],
 
       // Technologies
@@ -788,7 +788,7 @@ export default {
             const data = res.data.response;
             console.log("data: ", data)
             this.resources = data;
-           
+
           } else {
             this.isFetching = false;
             Vue.toasted.show(

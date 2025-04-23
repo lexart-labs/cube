@@ -16,6 +16,7 @@ import Payments from '../views/Admin/Payments.vue';
 import Levels from '../views/Admin/Levels.vue'
 import CareerType from '../views/Admin/CareerType';
 import Positions from '../views/Admin/Positions.vue';
+import Candidates from '../views/Admin/Candidates.vue';
 
 const routes = [
   { path: '/:slug/login', name: 'Login', component: Login },
@@ -70,6 +71,10 @@ const routes = [
           {
             path: 'career',
             component: Positions,
+          },
+          {
+            path: 'candidates',
+            component: Candidates,
           },
         ],
       },

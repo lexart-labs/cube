@@ -33,13 +33,18 @@
               >{{ $t('generic.Positions') }}</router-link
             >
           </li>
-          <li class="nav-item">
-            <li class="nav-item">
+					<li class="nav-item">
             <router-link to="/app/administration/levels" class="nav-link"
-              >Levels</router-link>
-            <li class="nav-item">
+              >{{ $t('generic.levels') }}</router-link>
+          </li>
+          <li class="nav-item">
             <router-link to="/app/administration/career-type" class="nav-link"
               >{{ $t('generic.careerType') }}</router-link
+            >
+          </li>
+					<li class="nav-item">
+            <router-link to="/app/administration/candidates" class="nav-link"
+              >{{ $t('generic.candidates') }}</router-link
             >
           </li>
         </ul>
