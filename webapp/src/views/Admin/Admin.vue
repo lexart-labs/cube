@@ -47,6 +47,11 @@
               >{{ $t('generic.candidates') }}</router-link
             >
           </li>
+					<li class="nav-item">
+            <router-link to="/app/administration/partners" class="nav-link"
+              >{{ $t('generic.partners') }}</router-link
+            >
+          </li>
         </ul>
       </nav>
       <main>

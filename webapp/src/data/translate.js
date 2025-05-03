@@ -67,6 +67,23 @@ const translations = {
 			developer: "Developer",
 			selectDeveloper: "Seleccione un developer",
 		},
+		Partners: {
+      partner: 'Socio',
+      partners: 'Socios',
+      newPartner: 'Nuevo Socio',
+      name: 'Nombre',
+      email: 'Correo electrónico',
+      priceRules: 'Reglas de precio',
+      position: 'Posición',
+      price: 'Precio por hora',
+      addPriceRule: 'Agregar regla de precio',
+      partnerCreated: 'Socio creado exitosamente',
+      partnerUpdated: 'Socio actualizado exitosamente',
+      partnerDeleted: 'Socio eliminado exitosamente',
+      confirmDelete: '¿Está seguro que desea eliminar este socio?',
+			sendPartner: 'Enviar Promoción',
+			membershipLevel: 'Nivel de membresía',
+    },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
       title: 'Mis Developers',
@@ -236,6 +253,7 @@ const translations = {
 			confirmCopy: '¿Estás seguro que deseas copiar este recurso?',
 			candidates: 'Candidatos',
 			levels: 'Niveles',
+			partners: 'Socios',
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -484,6 +502,23 @@ const translations = {
 			developer: "Developer",
 			selectDeveloper: 'Select a Developer',
     },
+		Partners: {
+      partner: 'Partner',
+      partners: 'Partners',
+      newPartner: 'New Partner',
+      name: 'Name',
+      email: 'Email',
+      priceRules: 'Price Rules',
+      position: 'Position',
+      price: 'Price per hour',
+      addPriceRule: 'Add Price Rule',
+      partnerCreated: 'Partner created successfully',
+      partnerUpdated: 'Partner updated successfully',
+      partnerDeleted: 'Partner deleted successfully',
+      confirmDelete: 'Are you sure you want to delete this partner?',
+			sendPartner: 'Send Promotion',
+			membershipLevel: 'Membership Level',
+    },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
       title: 'My Developers',
@@ -666,6 +701,7 @@ const translations = {
 			confirm: 'Confirmation',
 			confirmCopy: 'Are you sure you want to copy this resource?',
 			levels: 'Levels',
+			partners: 'Partners'
     },
     positionAssignments: {
       'EntryLevel Developer': [
