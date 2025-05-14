@@ -83,6 +83,9 @@ const translations = {
       confirmDelete: '¿Está seguro que desea eliminar este socio?',
 			sendPartner: 'Enviar Promoción',
 			membershipLevel: 'Nivel de membresía',
+			confirmDeleteMessage: "Are you sure you want to delete the partner",
+			deleteSuccess: "Partner deleted successfully",
+			deleteError: "Error deleting partner"
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -254,6 +257,10 @@ const translations = {
 			candidates: 'Candidatos',
 			levels: 'Niveles',
 			partners: 'Socios',
+			delete: "Eliminar",
+			confirmDelete: "Confirmar eliminación",
+			thisActionCantBeUndone: "Esta acción no se puede deshacer.",
+			cancel: "Cancelar"
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -518,6 +525,9 @@ const translations = {
       confirmDelete: 'Are you sure you want to delete this partner?',
 			sendPartner: 'Send Promotion',
 			membershipLevel: 'Membership Level',
+			confirmDeleteMessage: "Are you sure you want to delete the partner",
+			deleteSuccess: "Partner deleted successfully",
+			deleteError: "Error deleting partner"
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
@@ -701,7 +711,11 @@ const translations = {
 			confirm: 'Confirmation',
 			confirmCopy: 'Are you sure you want to copy this resource?',
 			levels: 'Levels',
-			partners: 'Partners'
+			partners: 'Partners',
+			delete: "Delete",
+			confirmDelete: "Confirm Delete",
+			thisActionCantBeUndone: "This action cannot be undone.",
+			cancel: "Cancel"
     },
     positionAssignments: {
       'EntryLevel Developer': [

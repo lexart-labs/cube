@@ -30,6 +30,10 @@ export default () => {
         getPagesLength: () => {
             const headers = generateHeader();
             return axios.get(`${API}partners/pages`, { headers });
-        }
+        },
+				delete(id) {
+					const headers = generateHeader();
+					return axios.delete(`${API}partners/${id}`, { headers });
+				}
     };
 };

@@ -23,12 +23,6 @@
           class="form-control"
           autocomplete="off"
         />
-        <div class="captcha-ctl">
-            <vue-recaptcha
-              :sitekey="siteKey"
-              @verify="setCaptchaResponse"
-            ></vue-recaptcha>
-        </div>
         <button
           type="button"
           class="btn btn-black btn-block"
@@ -56,7 +50,7 @@
             >
               <div
                 class="card p-3 mb-2"
-                @click="activate(companies.id)" 
+                @click="activate(companies.id)"
                 :class="{ active : selectCompanie == companies.id }"
               >
                 <input
@@ -101,14 +95,13 @@
 <script>
 /* eslint-disable no-underscore-dangle */
 import axios from "axios";
-import { VueRecaptcha } from "vue-recaptcha";
+import { VueRecaptchaV3 } from 'vue-recaptcha-v3';
 import { copy } from "../services/helpers";
 import Companies from "../services/companies.service";
 import { API, APP_NAME, SITE_KEY } from "../../env";
 
 export default {
   name: "Login",
-  components: { VueRecaptcha },
   data() {
     return {
       usr: {},
@@ -134,15 +127,28 @@ export default {
     loginUser() {
       this.isLoading = true;
       const user = copy(this.usr);
-      const captcha = this.captchaResponse;
 
-      if(!captcha) {
-        this.error = "please, make sure to check the reCaptcha challenge.";
-        this.isLoading = false;
-        return;
-      }
-      console.log("captcha", captcha);
-      
+      // Execute reCAPTCHA v3
+      this.$recaptchaLoaded()
+        .then(() => {
+          this.$recaptcha('login')
+            .then(token => {
+              this.captchaResponse = token;
+              this.processLogin(user, token);
+            })
+            .catch(error => {
+              console.error('reCAPTCHA error:', error);
+              this.error = "Error with reCAPTCHA verification. Please try again.";
+              this.isLoading = false;
+            });
+        })
+        .catch(error => {
+          console.error('reCAPTCHA load error:', error);
+          this.error = "Error loading reCAPTCHA. Please refresh the page.";
+          this.isLoading = false;
+        });
+    },
+    processLogin(user, captcha) {
       axios.post(`${API}users/login/verify`, { ...user, captcha }).then(
         (res) => {
           const rs = res.data;
@@ -153,14 +159,14 @@ export default {
             const headers = {
               token
             };
-            
+
             axios.get(`${API}users/companies/participate`, { headers }).then((res) => {
               const companies = res.data.response; // array result
               this.companies = res.data.response; // show companies on second form
               this.isLoading = false;
-              
+
               if(companies.length <= 1){
-                axios.post(`${API}users/login`, { ...user }).then(
+                axios.post(`${API}users/login`, { ...user }, { headers }).then(
                   (res) => {
                     const rs = res.data;
                     this.isLoading = false;
@@ -201,13 +207,13 @@ export default {
     verifyCompany: async function () {
       this.isLoading = true;
       this.error = "";
-      
+
       const user = copy(this.usr);
       const selectedCompanie = this.selectCompanie;
       const result = await Companies.getById(selectedCompanie)
 
       const data = {
-        "email": user.email, 
+        "email": user.email,
         "password": user.password,
         "idCompany": result.id
       }
@@ -222,7 +228,7 @@ export default {
           (res) => {
             const rs = res.data;
             this.isLoading = false;
-            
+
             if (!rs.error) {
               const { lexToken, token, ...cubeUsr } = rs.response;
               localStorage.setItem(`token-app-${APP_NAME}`, rs.response.token);
@@ -244,6 +250,18 @@ export default {
     activate: async function(el) {
       this.selectCompanie = el;
     },
+  },
+  created() {
+    // Load reCAPTCHA v3
+    if (this.$recaptchaApi) {
+      this.$recaptchaApi.showBadge();
+    }
+  },
+  beforeDestroy() {
+    // Hide the badge when component is destroyed
+    if (this.$recaptchaApi) {
+      this.$recaptchaApi.hideBadge();
+    }
   },
   mounted() {
     localStorage.clear();

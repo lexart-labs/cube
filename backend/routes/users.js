@@ -4,7 +4,7 @@ const User 	 = require('../services/users.service');
 const Technologies = require('../services/technologies.service');
 
 
-router.post('/login', async function (req, res) {
+router.post('/login', Mdl.middleware, async function (req, res) {
 	const  { email, idCompany } = req.body;
 	let response = await User.loginCube(email, idCompany);
 
@@ -40,7 +40,7 @@ router.get('/all', Mdl.middleware, async function (req, res) {
 	const { page, query } = req.query;
 	const company_slug = req.headers.company_slug;
 	console.log("req.user: ", req.user)
-	
+
 	let response = await User.all(req.headers['user-id'], page || null, query, req.user);
 
 	res.set(['Content-Type', 'application/json']);
@@ -99,7 +99,7 @@ router.get('/leads', Mdl.middleware, async function (req, res) {
 router.get('/lead-tree/:id', async (req, res) => {
 	const { id } = req.params;
 	const response = await User.getLeaderDevs(id);
-	
+
 	res.set(['Content-Type', 'application/json']);
   res.send(response);
 })
@@ -107,7 +107,7 @@ router.get('/lead-tree/:id', async (req, res) => {
 router.get('/lead-tree', async (req, res) => {
 	const { company_slug } = req.headers;
 	const response = await User.getLeaderDevTree(company_slug);
-	
+
 	res.set(['Content-Type', 'application/json']);
   res.send(response);
 })
@@ -126,7 +126,7 @@ router.get('/dev-indexes/:id', async (req, res) => {
 	const { id } = req.params;
 
 	const response = await User.devIndexes(id, token, Number(year));
-	
+
 	res.set(['Content-Type', 'application/json']);
   res.send(response);
 })
@@ -139,7 +139,7 @@ router.post('/dev-indexes', async (req, res) => {
 	const response = await User.allDevelopersIndicators(
 		token, Number(year), techs, page, company_slug
 	);
-	
+
 	res.set(['Content-Type', 'application/json']);
   res.send(response);
 })

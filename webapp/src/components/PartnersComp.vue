@@ -91,9 +91,14 @@
                         </table>
                     </td>
                     <td>
-                        <button @click="getById(item.id)" class="btn btn-secondary partner_edit_btn">
-                            {{ $t('generic.edit')}}
-                        </button>
+                        <td>
+                            <button @click="getById(item.id)" class="btn btn-secondary partner_edit_btn">
+                                {{ $t('generic.edit')}}
+                            </button>
+                            <button @click="confirmDelete(item.id, item.name)" class="btn btn-danger ml-2">
+                                {{ $t('generic.delete')}}
+                            </button>
+                        </td>
                     </td>
                 </tr>
             </tbody>
@@ -181,6 +186,46 @@
             </form>
         </div>
 
+				<!-- Delete Confirmation Modal -->
+				<div class="modal" role="dialog" id="deleteConfirmModal" tabindex="-1">
+						<div class="modal-dialog" role="document">
+								<div class="modal-content">
+										<div class="modal-header">
+												<h5 class="modal-title is-bold">{{ $t('generic.confirmDelete') }}</h5>
+												<button
+														type="button"
+														class="close"
+														data-dismiss="modal"
+														aria-label="Close"
+												>
+														<span aria-hidden="true">&times;</span>
+												</button>
+										</div>
+										<div class="modal-body">
+												<p>{{ $t('Partners.confirmDeleteMessage') }} <strong>{{ partnerToDelete.name }}</strong>?</p>
+												<p class="text-danger">{{ $t('generic.thisActionCantBeUndone') }}</p>
+										</div>
+										<div class="modal-footer">
+												<button
+														type="button"
+														class="btn btn-secondary"
+														data-dismiss="modal"
+												>
+														{{ $t("generic.cancel") }}
+												</button>
+												<button
+														type="button"
+														class="btn btn-danger"
+														@click="deletePartner"
+														:disabled="isLoading"
+												>
+														{{ isLoading ? $t('generic.loading') + '...' : $t('generic.delete') }}
+												</button>
+										</div>
+								</div>
+						</div>
+				</div>
+
         <nav v-if="pagesLength" class="pages-nav">
             <span
                 v-on:click="navigate('-')"
@@ -238,6 +283,10 @@ export default {
                 membershipLevel: 'Basic', // Default value
                 priceRules: []
             },
+						partnerToDelete: {
+								id: null,
+								name: ''
+						},
             positions: [
                 'Frontend Developer',
                 'Backend Developer',
@@ -440,7 +489,28 @@ export default {
             } finally {
                 this.isLoading = false;
             }
-        }
+        },
+        confirmDelete(id, name) {
+            this.partnerToDelete = {
+                id: id,
+                name: name
+            };
+            $('#deleteConfirmModal').modal('show');
+        },
+        async deletePartner() {
+            this.isLoading = true;
+            try {
+                await PartnerService().delete(this.partnerToDelete.id);
+                this.$toasted.success(this.$t('Partners.deleteSuccess'));
+                await this.paginate(this.page - 1);
+                $('#deleteConfirmModal').modal('hide');
+            } catch (error) {
+                console.error('Error deleting partner:', error);
+                this.$toasted.error(this.$t('Partners.deleteError'));
+            } finally {
+                this.isLoading = false;
+            }
+        },
     }
 };
 </script>
