@@ -66,6 +66,7 @@ const translations = {
 			isBenching: "Benching",
 			developer: "Developer",
 			selectDeveloper: "Seleccione un developer",
+			deleteConfirmation: "Estas seguro de que desea eliminar este candidato?",
 		},
 		Partners: {
       partner: 'Socio',
@@ -508,6 +509,7 @@ const translations = {
 			isBenching: "Benching",
 			developer: "Developer",
 			selectDeveloper: 'Select a Developer',
+			deleteConfirmation: "Are you sure you want to delete this candidate",
     },
 		Partners: {
       partner: 'Partner',

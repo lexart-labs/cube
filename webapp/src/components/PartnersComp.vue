@@ -90,16 +90,14 @@
                             </tbody>
                         </table>
                     </td>
-                    <td>
-                        <td>
-                            <button @click="getById(item.id)" class="btn btn-secondary partner_edit_btn">
-                                {{ $t('generic.edit')}}
-                            </button>
-                            <button @click="confirmDelete(item.id, item.name)" class="btn btn-danger ml-2">
-                                {{ $t('generic.delete')}}
-                            </button>
-                        </td>
-                    </td>
+										<td>
+												<button @click="getById(item.id)" class="btn btn-secondary partner_edit_btn btn-sm">
+														{{ $t('generic.edit')}}
+												</button>
+												<button @click="confirmDelete(item.id, item.name)" class="btn btn-danger ml-2 btn-sm">
+														{{ $t('generic.delete')}}
+												</button>
+										</td>
                 </tr>
             </tbody>
         </table>

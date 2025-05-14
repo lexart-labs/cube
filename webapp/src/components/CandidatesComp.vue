@@ -75,6 +75,45 @@
             </div>
         </div>
 
+        <!-- Delete Confirmation Modal -->
+        <div class="modal" role="dialog" id="deleteConfirmModal" tabindex="-1">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title is-bold">{{ $t('generic.confirmDelete') }}</h5>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ $t('Candidates.deleteConfirmation') || 'Are you sure you want to delete this candidate?' }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                        >
+                            {{ $t("generic.cancel") }}
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            @click="deleteCandidate()"
+                            :disabled="isLoading"
+                        >
+                            {{ isLoading ? $t('generic.loading') + '...' : $t('generic.delete') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <br>
         <table data-testid="candidatesTable" class="table">
             <thead>
@@ -112,8 +151,11 @@
                         <span v-else class="badge badge-secondary">No</span>
                     </td>
                     <td>
-                        <button @click="getById(item.id)" class="btn btn-secondary candidate_edit_btn">
+                        <button @click="getById(item.id)" class="btn btn-secondary candidate_edit_btn btn-sm">
                             {{ $t('generic.edit')}}
+                        </button>
+                        <button @click="confirmDelete(item.id)" class="btn btn-danger ml-2 btn-sm">
+                            {{ $t('generic.delete')}}
                         </button>
                     </td>
                 </tr>
@@ -490,11 +532,6 @@
                     cv: ''
                 };
             },
-            openModal: function (){
-                this.selectedId = '';
-                this.resetCandidate();
-            },
-
             closeModal: function() {
                 $('#candidateModal').modal('hide');
             },
@@ -553,6 +590,42 @@
                     isBenching: false,
                     developer: ''
                 };
+								this.resetCandidate();
+            },
+            confirmDelete(id) {
+                this.selectedId = id;
+                $('#deleteConfirmModal').modal('show');
+            },
+            async deleteCandidate() {
+                this.isLoading = true;
+                try {
+                    const headers = this.generateHeader();
+                    const response = await axios.delete(`${API}candidates/${this.selectedId}`, { headers });
+
+                    if (response.data && !response.data.error) {
+                        this.$toasted.show('Candidate deleted successfully', {
+                            type: 'success',
+                            duration: 3000,
+                        });
+
+                        // Close modal and refresh data
+                        $('#deleteConfirmModal').modal('hide');
+                        await this.paginate(this.page - 1);
+                        this.loadTotalPages();
+                    } else {
+                        this.$toasted.show('Error deleting candidate', {
+                            type: 'error',
+                            duration: 5000,
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error deleting candidate:', error);
+                    this.$toasted.show('Error deleting candidate', {
+                        type: 'error',
+                        duration: 5000,
+                    });
+                }
+                this.isLoading = false;
             },
         }
     };
