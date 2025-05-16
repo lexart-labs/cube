@@ -122,10 +122,8 @@
                     <th>{{ $t('Candidates.fullName') }}</th>
                     <th>{{ $t('Candidates.email') }}</th>
                     <th>{{ $t('Candidates.country') }}</th>
-                    <th>{{ $t('Candidates.phone') }}</th>
                     <th>{{ $t('Candidates.position') }}</th>
-                    <th>{{ $t('Candidates.source') }}</th>
-                    <th>{{ $t('generic.date') }}</th>
+                    <th>{{ $t('Candidates.princialStack') }}</th>
                     <th>{{ $t('Candidates.cv') }}</th>
                     <th>{{ $t('Candidates.isBenching') }}</th>
                     <th></th>
@@ -137,10 +135,8 @@
                     <td>{{ item.fullName }}</td>
                     <td style="max-width: 100px; word-break: break-all;">{{ item.email }}</td>
                     <td>{{ item.country }}</td>
-                    <td>{{ item.phone }}</td>
                     <td style="max-width: 100px;">{{ item.position }}</td>
-                    <td style="max-width: 100px;">{{ item.source }}</td>
-                    <td>{{ formatDate(item.dateCreated) }}</td>
+                    <td style="max-width: 100px;">{{ item.principalStack }}</td>
                     <td>
                         <a v-if="item.cv" :href="item.cv" target="_blank" class="btn btn-info btn-sm">
                             <i class="fa fa-file-pdf-o"></i> {{ $t('Candidates.viewCV') }}
@@ -258,16 +254,37 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- New Developer Dropdown -->
-                        <div class="form-group">
-                            <label for="developer">{{ $t('Candidates.developer') || 'Developer' }}</label>
-                            <select class="form-control" id="developer" v-model="candidate.developer" @change="onDeveloperChange">
-                                <option value="">{{ $t('Candidates.selectDeveloper') || 'Select Developer' }}</option>
-                                <option v-for="developer in developers" :key="developer.id" :value="developer.id">
-                                    {{ developer.name }}
-                                </option>
-                            </select>
-                        </div>
+												<div class="form-row">
+													<div class="form-row">
+														<!-- New Developer Dropdown -->
+														<div class="form-group col-md-6">
+																<label for="developer">{{ $t('Candidates.developer') || 'Developer' }}</label>
+																<select class="form-control" id="developer" v-model="candidate.developer" @change="onDeveloperChange">
+																		<option value="">{{ $t('Candidates.selectDeveloper') || 'Select Developer' }}</option>
+																		<option v-for="developer in developers" :key="developer.id" :value="developer.id">
+																				{{ developer.name }}
+																		</option>
+																</select>
+														</div>
+														<div class="form-group col-md-6">
+																<label for="principalStack">Principal Stack</label>
+																<select
+																		id="principalStack"
+																		v-model="candidate.principalStack"
+																		class="form-control"
+																>
+																		<option value="">Select a stack</option>
+																		<option
+																				v-for="(stack, index) in principalStacks"
+																				:key="index"
+																				:value="stack"
+																		>
+																				{{ stack }}
+																		</option>
+																</select>
+														</div>
+													</div>
+												</div>
                         <div class="form-group">
                             <label for="github">{{ $t('Candidates.github') }}</label>
                             <input type="url" class="form-control" id="github" v-model="candidate.github">
@@ -375,8 +392,18 @@
                     linkedin: '',
                     cv: '',
                     isBenching: false,
-                    developer: '' // Add developer field to candidate object
-                }
+                    developer: '',
+                    principalStack: '' // Add the principal stack field
+                },
+                // Add the stacks array
+                principalStacks: [
+                    'React/Node',
+                    'React Native',
+                    'Vue/Node',
+                    'Laravel/PHP',
+                    'DevOps/AWS/Azure',
+                    'DevSecOps'
+                ]
             };
         },
         async mounted() {

@@ -39,6 +39,16 @@ let Partner = {
 					
 					const priceRules = await conn.query(priceRulesSql, [partner.id]);
 					partner.priceRules = priceRules || [];
+					
+					// Get skills for each partner
+					const skillsSql = `
+						SELECT id, skill
+						FROM partner_skills
+						WHERE partner_id = ?
+					`;
+					
+					const skills = await conn.query(skillsSql, [partner.id]);
+					partner.skills = skills.map(item => item.skill);
 				}
 				
 				response = partners;
@@ -105,6 +115,16 @@ let Partner = {
 				const priceRules = await conn.query(priceRulesSql, [partner.id]);
 				partner.priceRules = priceRules;
 				
+				// Get skills for the partner
+				const skillsSql = `
+					SELECT id, skill
+					FROM partner_skills
+					WHERE partner_id = ?
+				`;
+				
+				const skills = await conn.query(skillsSql, [partner.id]);
+				partner.skills = skills.map(item => item.skill);
+				
 				response = partner;
 			}
 		} catch(e){
@@ -136,6 +156,9 @@ let Partner = {
 				
 				// Delete existing price rules to replace them
 				await conn.query(`DELETE FROM ${priceRulesTable} WHERE partner_id = ?`, [item.id]);
+				
+				// Delete existing skills to replace them
+				await conn.query(`DELETE FROM partner_skills WHERE partner_id = ?`, [item.id]);
 			} else {
 				const insertSql = `
 					INSERT INTO ${tablaNombre}
@@ -167,6 +190,24 @@ let Partner = {
 						rule.position,
 						rule.price
 					]);
+				}
+			}
+			
+			// Insert skills
+			if (item.skills && item.skills.length > 0) {
+				const skillsSql = `
+					INSERT INTO partner_skills
+					(partner_id, skill)
+					VALUES (?, ?)
+				`;
+				
+				for (const skill of item.skills) {
+					if (skill && skill.trim()) {
+						await conn.query(skillsSql, [
+							item.id,
+							skill.trim()
+						]);
+					}
 				}
 			}
 			

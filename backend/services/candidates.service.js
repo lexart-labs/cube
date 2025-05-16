@@ -14,7 +14,7 @@ let Candidate = {
 
 		const sql = `
 			SELECT id, fullName, email, country, phone, englishLevel, spanishLevel, portugueseLevel,
-			source, position, github, linkedin, cv, is_benching AS isBenching, dateCreated
+			source, position, github, linkedin, cv, is_benching AS isBenching, principal_stack AS principalStack, dateCreated
 			FROM ${tablaNombre} AS c
 			WHERE 1=1 ${searchClause}
 			ORDER BY dateCreated DESC
@@ -61,7 +61,7 @@ let Candidate = {
 		let error = {"error":"Error al obtener candidate"}
 
 		const sql = `
-			SELECT *, is_benching AS isBenching FROM ${tablaNombre}
+			SELECT *, is_benching AS isBenching, principal_stack AS principalStack FROM ${tablaNombre}
 			WHERE id = ?
 		`
 		let response = []
@@ -85,16 +85,16 @@ let Candidate = {
 				SET fullName = ?, email = ?, country = ?, phone = ?,
 				    englishLevel = ?, spanishLevel = ?, portugueseLevel = ?,
 				    source = ?, position = ?, github = ?, linkedin = ?, cv = ?,
-				    is_benching = ?, dateUpdated = NOW()
+				    is_benching = ?, principal_stack = ?, dateUpdated = NOW()
 				WHERE id = ?
 			`
 		} else {
 			sql = `
 				INSERT INTO ${tablaNombre}
 				(fullName, email, country, phone, englishLevel, spanishLevel, portugueseLevel,
-				 source, position, github, linkedin, cv, is_benching)
+				 source, position, github, linkedin, cv, is_benching, principal_stack)
 				VALUES
-				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			`
 			word = "creado"
 		}
@@ -115,7 +115,8 @@ let Candidate = {
 				item.github || null,
 				item.linkedin || null,
 				item.cv || null,
-				item.isBenching === true ? 1 : 0
+				item.isBenching === true ? 1 : 0,
+				item.principalStack || null
 			];
 
 			if(item.id) {

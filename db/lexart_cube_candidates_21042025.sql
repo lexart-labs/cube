@@ -18,3 +18,6 @@ CREATE TABLE IF NOT EXISTS `candidates` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE candidates
+ADD COLUMN principal_stack VARCHAR(100) DEFAULT NULL AFTER is_benching;

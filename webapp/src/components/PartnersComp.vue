@@ -64,6 +64,7 @@
                     <th>{{ $t('Partners.name') }}</th>
                     <th>{{ $t('Partners.email') }}</th>
                     <th>{{ $t('Partners.membershipLevel') }}</th>
+                    <th>{{ $t('Partners.skills') || 'Skills' }}</th>
                     <th>{{ $t('Partners.priceRules') }}</th>
                     <th></th>
                 </tr>
@@ -74,6 +75,14 @@
                     <td>{{ item.name }}</td>
                     <td style="max-width: 100px; word-break: break-all;">{{ item.email }}</td>
                     <td>{{ item.membershipLevel || 'Basic' }}</td>
+                    <td>
+                        <ul class="list-unstyled">
+                            <li v-for="(skill, index) in item.skills" :key="`skill-list-${index}`">
+                                {{ skill }}
+                            </li>
+                            <li v-if="!item.skills || item.skills.length === 0">No skills specified</li>
+                        </ul>
+                    </td>
                     <td>
                         <table class="table table-sm">
                             <thead>
@@ -161,6 +170,39 @@
                             </div>
                             <button type="button" class="btn btn-secondary" @click="addPriceRule">
                                 {{ $t('Partners.addPriceRule') }}
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <label>{{ $t('Partners.skills') || 'Required Skills' }}</label>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Skill</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(skill, index) in partner.skills" :key="`skill-${index}`">
+                                            <td>
+                                                <select class="form-control" v-model="partner.skills[index]">
+                                                    <option value="">Select Skill</option>
+                                                    <option v-for="skillOption in skillOptions" :key="skillOption" :value="skillOption">
+                                                        {{ skillOption }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger btn-sm" @click="removeSkill(index)">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="btn btn-secondary" @click="addSkill">
+                                {{ $t('Partners.addSkill') || 'Add Skill' }}
                             </button>
                         </div>
                     </div>
@@ -279,12 +321,13 @@ export default {
                 name: '',
                 email: '',
                 membershipLevel: 'Basic', // Default value
-                priceRules: []
+                priceRules: [],
+                skills: [] // Add skills array
             },
-						partnerToDelete: {
-								id: null,
-								name: ''
-						},
+            partnerToDelete: {
+                id: null,
+                name: ''
+            },
             positions: [
                 'Frontend Developer',
                 'Backend Developer',
@@ -296,6 +339,15 @@ export default {
                 'Product Manager',
                 'Data Scientist',
                 'Mobile Developer'
+            ],
+            // Add the skillOptions array here
+            skillOptions: [
+                'React/Node',
+                'React Native',
+                'Vue/Node',
+                'Laravel/PHP',
+                'DevOps/AWS/Azure',
+                'DevSecOps'
             ]
         };
     },
@@ -397,18 +449,24 @@ export default {
                   const partners = data.response || [];
                   const matches = {};
 
-                  // For each partner, find matching candidates based on price rules
+                  // For each partner, find matching candidates based on price rules and skills
                   partners.forEach(partner => {
                     const matchingCandidates = [];
 
-                    // Check each candidate against partner's price rules
+                    // Check each candidate against partner's price rules and skills
                     benchingCandidates.forEach(candidate => {
+                      // Check if candidate has a principal stack that matches any of the partner's skills
+                      const skillMatch = !partner.skills || partner.skills.length === 0 ||
+                                    (candidate.principalStack && partner.skills.includes(candidate.principalStack));
+
+                      // Check position match as before
                       partner.priceRules.forEach(rule => {
-                        if (candidate.position === rule.position && candidate.isBenching == 1) {
+                        if (candidate.position === rule.position && candidate.isBenching == 1 && skillMatch) {
                           matchingCandidates.push({
                             id: candidate.id,
                             name: candidate.fullName,
                             position: candidate.position,
+                            principalStack: candidate.principalStack || 'Not specified',
                             price: rule.price,
                             cv: candidate.cv,
                           });
@@ -422,7 +480,8 @@ export default {
                         partnerId: partner.id,
                         partnerEmail: partner.email,
                         partnerName: partner.name,
-												membershipLevel: partner.membershipLevel
+                        membershipLevel: partner.membershipLevel,
+                        skills: partner.skills || []
                       };
                     }
                   });
@@ -450,16 +509,25 @@ export default {
                   }
                 })
                 .catch(error => {
-                  console.error('Error fetching partners:', error);
-                  this.$toasted.error('Error fetching partners');
+                  console.error('Error getting partners:', error);
+                  this.$toasted.error('Failed to get partners');
                   this.isLoading = false;
                 });
             })
             .catch(error => {
-              console.error('Error fetching benching candidates:', error);
-              this.$toasted.error('Error fetching candidates');
+              console.error('Error getting candidates:', error);
+              this.$toasted.error('Failed to get candidates');
               this.isLoading = false;
             });
+        },
+        addSkill() {
+            if (!this.partner.skills) {
+                this.partner.skills = [];
+            }
+            this.partner.skills.push('');
+        },
+        removeSkill(index) {
+            this.partner.skills.splice(index, 1);
         },
         openModal() {
             this.selectedId = '';
@@ -469,7 +537,8 @@ export default {
                 priceRules: [{
                     position: '',
                     price: 0
-                }]
+                }],
+                skills: [] // Initialize empty skills array
             };
         },
         async upsertPartner() {

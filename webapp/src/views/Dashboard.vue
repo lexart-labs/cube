@@ -1241,14 +1241,14 @@ export default {
           this.searchQuery
             .toLowerCase()
             .split(" ")
-            .every((v) => item.name.toLowerCase().includes(v))
+            .every((v) => item?.name?.toLowerCase().includes(v))
         );
       }
       return this.resources;
     },
     filteredUnasigned() {
       const regex = new RegExp(`${this.search}`, "i");
-      return this.unasignedDevs.filter((dev) => dev.name.match(regex));
+      return this.unasignedDevs.filter((dev) => dev?.name.match(regex));
     },
     filteredCards() {
       const arrayOfDevs = this.developers;

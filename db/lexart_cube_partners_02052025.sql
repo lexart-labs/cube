@@ -23,3 +23,10 @@ CREATE TABLE IF NOT EXISTS `partner_price_rules` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE partners ADD COLUMN membership_level VARCHAR(20) DEFAULT 'Basic';
+
+CREATE TABLE partner_skills (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    partner_id INT NOT NULL,
+    skill VARCHAR(100) NOT NULL,
+    FOREIGN KEY (partner_id) REFERENCES partners(id) ON DELETE CASCADE
+);

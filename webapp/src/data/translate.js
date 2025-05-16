@@ -67,6 +67,7 @@ const translations = {
 			developer: "Developer",
 			selectDeveloper: "Seleccione un developer",
 			deleteConfirmation: "Estas seguro de que desea eliminar este candidato?",
+			princialStack: "Tecnologías Principal",
 		},
 		Partners: {
       partner: 'Socio',
@@ -86,7 +87,9 @@ const translations = {
 			membershipLevel: 'Nivel de membresía',
 			confirmDeleteMessage: "Are you sure you want to delete the partner",
 			deleteSuccess: "Partner deleted successfully",
-			deleteError: "Error deleting partner"
+			deleteError: "Error deleting partner",
+			skills: "Tecnologías",
+			addSkill: 'Agregar tecnología',
     },
     AdminUsers: {
       searchPlaceholder: 'Buscar developers',
@@ -510,6 +513,7 @@ const translations = {
 			developer: "Developer",
 			selectDeveloper: 'Select a Developer',
 			deleteConfirmation: "Are you sure you want to delete this candidate",
+			princialStack: "Principal Stack",
     },
 		Partners: {
       partner: 'Partner',
@@ -529,7 +533,9 @@ const translations = {
 			membershipLevel: 'Membership Level',
 			confirmDeleteMessage: "Are you sure you want to delete the partner",
 			deleteSuccess: "Partner deleted successfully",
-			deleteError: "Error deleting partner"
+			deleteError: "Error deleting partner",
+			skills: "Technologies",
+			addSkill: 'Add technology',
     },
     AdminUsers: {
       searchPlaceholder: 'Search developers',
