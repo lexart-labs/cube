@@ -668,7 +668,7 @@ export default {
           class: "fas fa-user-md",
           hasIcon: true,
           onlyAdmin: false,
-        },
+        }
       ],
 
       // Technologies
@@ -788,7 +788,7 @@ export default {
             const data = res.data.response;
             console.log("data: ", data)
             this.resources = data;
-           
+
           } else {
             this.isFetching = false;
             Vue.toasted.show(
@@ -1241,14 +1241,14 @@ export default {
           this.searchQuery
             .toLowerCase()
             .split(" ")
-            .every((v) => item.name.toLowerCase().includes(v))
+            .every((v) => item?.name?.toLowerCase().includes(v))
         );
       }
       return this.resources;
     },
     filteredUnasigned() {
       const regex = new RegExp(`${this.search}`, "i");
-      return this.unasignedDevs.filter((dev) => dev.name.match(regex));
+      return this.unasignedDevs.filter((dev) => dev?.name.match(regex));
     },
     filteredCards() {
       const arrayOfDevs = this.developers;

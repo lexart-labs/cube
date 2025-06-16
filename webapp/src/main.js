@@ -9,8 +9,12 @@ import App from './App.vue';
 import router from './router';
 import 'vue-select/dist/vue-select.css';
 import translations from './data/translate';
+import {VueReCaptcha} from 'vue-recaptcha-v3';
+import {SITE_KEY} from '../env';
 
 Vue.config.productionTip = false;
+
+Vue.use(VueReCaptcha, { siteKey: SITE_KEY })
 
 Vue.use(Toasted, { router });
 Vue.use(VueI18n);
