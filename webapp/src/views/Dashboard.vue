@@ -93,15 +93,7 @@
                       .userHaventEvaluations
                   }}
                 </h4>
-                <div class="graphics-ctl">
-                  <graphic v-if="resources.length" :evaluations="resources" />
-                  <Rombo
-                    :id="isPersonifying ? myDev.id : myUser.id"
-                    v-if="resources.length"
-                    :evaluations="resources"
-                    :year="year"
-                  />
-                </div>
+                <div class="graphics-ctl"></div>
               </div>
             </section>
             <section
@@ -132,8 +124,6 @@
               <div
                 class="alert alert-primary evaluation-card"
                 :key="`resource${index}`"
-                data-toggle="modal"
-                data-target="#staticBackdrop"
                 role="alert"
                 v-show="success && resultQuery.length > 0"
                 v-for="(resource, index) in resultQuery"
@@ -152,9 +142,6 @@
                       />
                       {{ resource.name }}
                     </h2>
-                    <span class="text-right">
-                      <b>{{ resource.total }}%</b>
-                    </span>
                   </div>
                   <p class="smallText">
                     <b>Tech Lead:</b> {{ resource.lead }} -
@@ -585,7 +572,6 @@ import TeamService from "../services/teams.service";
 // Components
 import Spinner from "../components/Spinner.vue";
 import Timeline from "../components/Timeline.vue";
-import Graphic from "../components/graphicEvaluation.vue";
 import EvaluationViewer from "../components/evaluationsViewer.vue";
 import UserCard from "../components/userCard.vue";
 import Rombo from "../components/rombo.vue";
@@ -597,7 +583,6 @@ export default {
   components: {
     Spinner,
     Timeline,
-    Graphic,
     EvaluationViewer,
     Rombo,
     vueSelect,
@@ -1226,9 +1211,6 @@ export default {
             .then(({ data }) => {
               this.developersByLead = data.response;
             });
-
-          this.findUnasignedDevs();
-
           this.getTeams();
         }
       });

@@ -18,8 +18,6 @@
     <div
       class="alert alert-primary"
       :key="`resource${index}`"
-      data-toggle="modal"
-      data-target="#staticBackdrop"
       role="alert"
       v-show="success && resultQuery.length > 0"
       v-for="(evaluation, index) in resultQuery"
@@ -40,9 +38,6 @@
         </p>
         <hr />
         <p class="smallText" v-html="evaluation.observaciones"></p>
-      </div>
-      <div class="text-right">
-        <b>{{ evaluation.total }}%</b>
       </div>
     </div>
   </div>
