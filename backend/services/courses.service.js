@@ -11,7 +11,7 @@ let Course = {
 
 		// Obtener los usuarios
 		const sql = `
-			SELECT id, name, active, json_data FROM ${tablaNombre}
+			SELECT id, name, active, json_data, priority FROM ${tablaNombre}
 			WHERE idUser = ? ${ query ? filterQuery : '' }
 			LIMIT ${PAGE_SIZE} OFFSET ${PAGE_SIZE * page}
 		`
@@ -88,6 +88,7 @@ let Course = {
 			clases: rawEvaluation?.json_clases || [],
 			pagos: rawEvaluation?.json_pagos || [],
 			evaluaciones: rawEvaluation?.json_evaluaciones || [],
+			priority: rawEvaluation?.priority || 'na'
 		}
 
 			return {response: evaluation}
@@ -152,15 +153,15 @@ let Course = {
 			// Update course
 			sql = `
 				UPDATE evaluations
-				SET name = ?, idUser = ?, idLextracking = ?, active = ?, json_data = ?, json_clases = ?, json_pagos = ?, json_evaluaciones = ?
+				SET name = ?, idUser = ?, idLextracking = ?, active = ?, json_data = ?, json_clases = ?, json_pagos = ?, json_evaluaciones = ?, priority = ?
 				WHERE id = ${course.id}
 			`
 		} else {
 			sql = `
 				INSERT INTO evaluations
-				(name,idUser,idLextracking,active,json_data,json_clases,json_pagos,json_evaluaciones)
+				(name,idUser,idLextracking,active,json_data,json_clases,json_pagos,json_evaluaciones,priority)
 				VALUES
-				(?,?,?,?,?,?,?,?)
+				(?,?,?,?,?,?,?,?,?)
 			`
 			word = "creado"
 		}
@@ -173,10 +174,11 @@ let Course = {
 			const json_clases = JSON.stringify(course.clases)
 			const json_pagos  = JSON.stringify(course.pagos)
 			const json_evaluaciones  = JSON.stringify(course.evaluaciones)
+			const priority = course.priority || 'na'
 			delete course.clases
 			delete course.pagos
 			delete course.evaluaciones
-			response = await conn.query(sql, [course.name, idAdmin, course.user.id, course.active, JSON.stringify(course), json_clases, json_pagos, json_evaluaciones])
+			response = await conn.query(sql, [course.name, idAdmin, course.user.id, course.active, JSON.stringify(course), json_clases, json_pagos, json_evaluaciones, priority])
 		} catch(e){
 			stackTrace = e;
 		}

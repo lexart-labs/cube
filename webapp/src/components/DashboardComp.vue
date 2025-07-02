@@ -4,14 +4,6 @@
     <h4 class="text-center" v-if="years.length === 0">
       {{ translations[$store.state.language].dashboard.userHaventEvaluations }}
     </h4>
-    <div class="graphics-ctl">
-      <graphic v-if="evaluations.length" :evaluations="evaluations" />
-      <Rombo
-        v-if="evaluations.length"
-        :evaluations="evaluations"
-        :year="year"
-      />
-    </div>
   </div>
 </template>
 
@@ -95,7 +87,7 @@ export default {
         const user = { ...response, skills: JSON.parse(response.skills) };
         return user;
       }
-      
+
       return {};
     },
   },

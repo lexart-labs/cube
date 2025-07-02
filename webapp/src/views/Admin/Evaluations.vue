@@ -40,7 +40,6 @@
             <th>{{$t('AdminEvaluations.columnName')}}</th>
             <th>Developer</th>
             <th>{{$t('AdminEvaluations.columnDate')}}</th>
-            <th>{{$t('AdminEvaluations.columnEvaluation')}}</th>
             <th>{{$t('AdminEvaluations.columnActive')}}</th>
             <th></th>
           </tr>
@@ -51,9 +50,6 @@
             <td>{{ course.name }}</td>
             <td>{{ course.user.name }}</td>
             <td>{{ course.fecha }}</td>
-            <td>
-              <b>{{ course.total }}%</b>
-            </td>
             <td>{{ course.active === 1 ? $t('generic.yes') : $t('generic.no') }}</td>
             <td  style="display: flex; gap: 1rem;justify-content: center;">
               <button
@@ -116,19 +112,6 @@
                       >General</a
                     >
                   </li>
-                  <li
-                    class="nav-item"
-                    :key="`tab${i}`"
-                    v-for="(tab, i) in tabItems"
-                    v-if="course.id != 0"
-                  >
-                    <a
-                      class="nav-link"
-                      v-bind:class="{ active: tabs[tab.tab] }"
-                      v-on:click="activeTab(tab.tab)"
-                      >{{ $t(`generic.${tab.name}`) }}</a
-                    >
-                  </li>
                 </ul>
               </div>
               <div v-if="tabs.general">
@@ -160,6 +143,22 @@
                     <select class="form-control is-rounded" v-model="course.active">
                       <option value="1">Active</option>
                       <option value="0">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row" style="margin-bottom: 2rem;">
+                  <div class="col-md-3 col-sm-12">
+                    <label for="priority-select" class="form-label">Priority</label>
+                    <select 
+                      id="priority-select"
+                      class="form-control is-rounded" 
+                      v-model="course.priority"
+                      :style="getPriorityStyle(course.priority)"
+                    >
+                      <option value="low" style="background-color: #ffebee; color: #c62828;">Low</option>
+                      <option value="acceptable" style="background-color: #fff8e1; color: #f57f17;">Acceptable</option>
+                      <option value="strong" style="background-color: #e8f5e8; color: #2e7d32;">Strong</option>
+                      <option value="na" style="background-color: #f5f5f5; color: #616161;">N/A</option>
                     </select>
                   </div>
                 </div>
@@ -550,6 +549,7 @@ export default {
         id: 0,
         fecha: '',
         indicadores: UtilsServices.indicatorsCopy(),
+        priority: 'na',
       },
       evaluacion: {},
       pago: {},
@@ -593,6 +593,7 @@ export default {
         id: 0,
         active: 1,
         fecha: new Date().toISOString().slice(0, 19),
+        priority: 'na',
       };
       this.error = '';
       // console.log("evaluación :: ", this.course)
@@ -967,6 +968,15 @@ export default {
     },
     cancelEvaluation: function () {
       this.course = {}
+    },
+    getPriorityStyle(priority) {
+      const styles = {
+        low: { backgroundColor: '#ffebee', color: '#c62828' },
+        acceptable: { backgroundColor: '#fff8e1', color: '#f57f17' },
+        strong: { backgroundColor: '#e8f5e8', color: '#2e7d32' },
+        na: { backgroundColor: '#f5f5f5', color: '#616161' }
+      };
+      return styles[priority] || styles.na;
     },
     getEvaluations: async function () {
       this.isLoading = true;
