@@ -72,7 +72,7 @@ let User = {
 					return acc;
 				}, []);
 			}
-	
+
 			return response?.length > 0 ? { response } : error;
 		} else {
 			let cubeUsers = await CollaboratorsService.getByCompany(company_slug, null, null, res);
@@ -165,7 +165,7 @@ let User = {
 		const oldPsw = await conn.query(
 			'SELECT password FROM users WHERE id = ?', [usuario.id]
 		)
-		
+
 		console.log("old:: ", oldPsw);
 
 		let isNewPsw = true
@@ -289,7 +289,7 @@ let User = {
 		const idLead = usuario.lead ? usuario.lead.id : idLextracking;
 
 		const id_company = await utils.getIdCompanyBySlug(company_slug);
-		
+
 		const userSearchResult = await this.checkUserAlreadyExists(usuario.email, id_company);
 
 		if (userSearchResult.status === 404) {
@@ -336,7 +336,7 @@ let User = {
 		}
 		return response;
 	},
-	
+
 	loginCube: async function (email, idCompany = null) {
 		//const sqlCompany = `SELECT id FROM companies`;
 		const error = { error: 'Usuario y/o clave incorrecta.' };
@@ -382,9 +382,9 @@ let User = {
 	validateCaptcha: async function (tk) {
 		if (!tk) return false;
 		const urlParams = `secret=${SECRET_KEY}&response=${tk}`;
-	
+
 		const { data } = await axios.post(`https://www.google.com/recaptcha/api/siteverify?${urlParams}`);
-	
+
 		return data.success;
 	},
 
@@ -447,7 +447,7 @@ let User = {
 	resources: async function (idCourse) {
 
 		const sql = `
-			SELECT resources.id, 
+			SELECT resources.id,
 				   resources.name,
 				   resources.description,
 				   resources.link,
@@ -583,10 +583,10 @@ let User = {
 				(
 					SELECT GROUP_CONCAT(name)
 					FROM users AS dev
-					WHERE dev.idUser = users.id AND dev.id <> users.id
+					WHERE dev.idUser = users.id AND dev.id <> users.id AND dev.active = 1
 				) AS 'devs'
 			FROM users
-			WHERE users.type IN ('admin', 'pm') AND users.idCompany = ?;
+			WHERE users.type IN ('admin', 'pm') AND users.idCompany = ? AND users.active = 1;
 		`;
 		const sqlDevsInfo = `
 			SELECT
@@ -599,7 +599,7 @@ let User = {
 			FROM users u
 			LEFT JOIN user_position_level uc ON uc.id = u.idPosition
 			LEFT JOIN careers c ON uc.idPosition = c.id
-			WHERE u.idCompany = ?
+			WHERE u.idCompany = ? AND u.active = 1
 		`;
 
 		const [response, devInfos] = await Promise.all([
@@ -816,7 +816,7 @@ let User = {
 		}
 
 		const sql = `
-			SELECT 
+			SELECT
 				c.id,
 				c.company as name,
 				c.slug
