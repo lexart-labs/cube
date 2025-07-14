@@ -1,8 +1,5 @@
 <template>
   <div id="dashboard--component">
-    <div v-show="!isTestDoneInLastThreeMonths" class="alert alert-warning" role="alert">
-        {{ $t('UserBurnoutTest.warning') }}
-    </div>
     <div class="container-dash">
       <nav class="abas-control">
         <ul>
@@ -547,9 +544,6 @@
                 </div>
               </div>
             </section>
-            <section v-show="show === 'burnOut'">
-              <BurnOutComp @isTestDoneInLastThreeMonths="(v) => isTestDoneInLastThreeMonths = v" />
-            </section>
           </main>
         </div>
       </div>
@@ -647,12 +641,6 @@ export default {
           class: "fas fa-user-friends",
           hasIcon: true,
           onlyAdmin: true,
-        },
-        {
-          name: "burnOut",
-          class: "fas fa-user-md",
-          hasIcon: true,
-          onlyAdmin: false,
         }
       ],
 
