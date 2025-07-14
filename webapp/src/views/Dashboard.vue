@@ -145,7 +145,7 @@
                     {{ formatDate(resource.fecha) }}
                   </p>
                   <hr />
-                  <p class="smallText" v-html="resource.observaciones"></p>
+                  <p class="smallText" v-html="sanitizeObservaciones(resource.observaciones)"></p>
                 </div>
               </div>
             </section>
@@ -557,6 +557,7 @@ import axios from "axios";
 import Vue from "vue";
 import vueSelect from "vue-select";
 import translations from "../data/translate";
+import DOMPurify from 'dompurify';
 // Services
 import { API, APP_NAME } from "../../env";
 import UserService from "../services/user.service";
@@ -1099,6 +1100,21 @@ export default {
           this.developers = res.response;
         }
       );
+    },
+    sanitizeObservaciones(observaciones) {
+      if (!observaciones) return '';
+      
+      // Configure DOMPurify to allow only safe HTML tags
+      const config = {
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'b', 'i'],
+        ALLOWED_ATTR: [],
+        KEEP_CONTENT: true,
+        RETURN_DOM: false,
+        RETURN_DOM_FRAGMENT: false,
+        RETURN_DOM_IMPORT: false
+      };
+      
+      return DOMPurify.sanitize(observaciones, config);
     },
     personifyDashboard: async function (
       id = localStorage.getItem(`id-${APP_NAME}`),

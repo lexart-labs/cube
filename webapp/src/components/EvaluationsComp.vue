@@ -37,7 +37,7 @@
           {{ formatDate(evaluation.fecha) }}
         </p>
         <hr />
-        <p class="smallText" v-html="evaluation.observaciones"></p>
+        <p class="smallText" v-html="sanitizeObservaciones(evaluation.observaciones)"></p>
       </div>
     </div>
   </div>
@@ -46,6 +46,7 @@
 <script>
 import EvaluationViewer from "./evaluationsViewer.vue";
 import translations from "../data/translate";
+import DOMPurify from 'dompurify';
 
 export default {
   name: "EvalsComp",
@@ -62,7 +63,6 @@ export default {
       translations,
     };
   },
-  methods: {},
   methods: {
     formatDate(date) {
       const newDate = date.split("T");
@@ -72,6 +72,20 @@ export default {
 
       return uyDate;
     },
+    sanitizeObservaciones(observaciones) {
+      if (!observaciones) return '';
+
+      const config = {
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'b', 'i'],
+        ALLOWED_ATTR: [],
+        KEEP_CONTENT: true,
+        RETURN_DOM: false,
+        RETURN_DOM_FRAGMENT: false,
+        RETURN_DOM_IMPORT: false
+      };
+
+      return DOMPurify.sanitize(observaciones, config);
+    }
   },
   mounted() {},
   computed: {
