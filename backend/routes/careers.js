@@ -15,7 +15,7 @@ router.get('/byUser', async (req, res) => {
 
 router.get('/byIdCareerType/:idCareer', async (req, res) => {
   const { company_slug } = req.headers;
-  
+
   const idCompany = await Utils.getIdCompanyBySlug(company_slug, res)
   const { idCareer } = req.params;
 
@@ -58,7 +58,7 @@ router.patch('/:idPosition/roadmap', Middleware.middleware, async (req, res) => 
 router.post('/', async (req, res) => {
   const { position, active, idCareerType, minimumTime } = req.body;
   const { company_slug } = req.headers;
-  
+
   const idCompany = await Utils.getIdCompanyBySlug(company_slug, res);
   const response = await Career.upsert(null, position, active, idCompany, idCareerType, minimumTime);
 
@@ -80,8 +80,8 @@ router.get('/type', async (req, res) => {
   const { company_slug } = req.headers;
   const { page } = req.query;
 
-  const response = await CareersType.getByIdCompany(company_slug, page, res);
-  
+  const response = await CareersType.getByIdCompany(company_slug, res, page);
+
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 });
@@ -90,7 +90,7 @@ router.post('/type/new', async (req, res) => {
   const { company_slug } = req.headers;
   const { careerName } = req.body;
   const response = await CareersType.createNewCareerType(careerName, company_slug);
-  
+
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 });
@@ -100,7 +100,7 @@ router.put('/type/edit', async function (req, res) {
   const { careerName, careerId } = req.body;
 
   const response = await CareersType.updateOneCareerType(careerName, careerId, company_slug);
-  
+
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 });
@@ -110,7 +110,7 @@ router.delete('/type/delete/:careerId', async (req, res) => {
   const { careerId } = req.params;
 
   const response = await CareersType.deleteOneCareerType(careerId, company_slug);
-  
+
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 });

@@ -17,11 +17,11 @@ let BurnoutTest = {
 		} catch (e) {
 			console.error(e);
 		}
-		
+
 		return response;
 	},
 	all: async function (idAdmin, page){
-		
+
 		let error = {"error":"Error al obtener burnout tests"};
 
 		const sql = `
@@ -34,7 +34,7 @@ let BurnoutTest = {
 		const valueTired = [1,2,3,6,8,13,14,16,20];
 		const valueDepersonalization = [5,10,11,15,22];
 		const valueRealization = [4,7,9,12,17,18,19,21];
-		
+
 		try {
 			response = await conn.query(sql, [idAdmin]);
 			if(response && response.length) {
@@ -69,11 +69,11 @@ let BurnoutTest = {
 			console.error(e);
 			hasError = true;
 		}
-		
+
 		return !hasError ? { response } : error;
 	},
 	one: async function (id){
-		
+
 		let error = {"error":"Error al obtener burnout test"}
 
 		const sql = `
@@ -81,7 +81,7 @@ let BurnoutTest = {
 			WHERE id = ?
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [id]);
 		} catch(e){}
@@ -91,8 +91,7 @@ let BurnoutTest = {
 	upsert: async function (item, idAdmin){
         const score = item.value.reduce((acc, el) => acc + el, 0);
 		let error = {"error":"Error al ingresar/editar test burnout"}
-		let sql = ``;
-		let arr = []
+		let sql = ``
 		let word = "actualizado"
 
 		if(item.id){

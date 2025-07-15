@@ -38,8 +38,6 @@ router.post('/check-type', Mdl.middleware, async function (req, res) {
 
 router.get('/all', Mdl.middleware, async function (req, res) {
 	const { page, query } = req.query;
-	const company_slug = req.headers.company_slug;
-	console.log("req.user: ", req.user)
 
 	let response = await User.all(req.headers['user-id'], page || null, query, req.user);
 
