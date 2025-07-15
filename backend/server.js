@@ -105,9 +105,47 @@ const upload = multer({
   }
 });
 
+// CORS whitelist configuration
+const allowedOrigins = [
+  'http://localhost:8080',
+  'https://cube.lexart.tech'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // Allow cookies to be sent
+  optionsSuccessStatus: 200, // Some legacy browsers (IE11, various SmartTVs) choke on 204
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Cache-Control',
+    'Pragma',
+		'token',
+		'company_slug',
+		'user-id',
+		'lextoken'
+  ],
+  exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
+  maxAge: 86400 // 24 hours
+};
+
 app.use(express.static(__dirname + '/public'));
-app.use(cors())
-app.use(bodyParser.json())
+app.use(cors(corsOptions)); // Replace app.use(cors()) with this
+app.use(bodyParser.json());
+app.disable("x-powered-by");
 
 app.get('/', function (req, res) {
 	let response = {hola: "Mundo"}
@@ -152,12 +190,12 @@ app.post('/upload-file', (req, res, next) => {
       // Handle other errors (like file type validation)
       return res.status(400).json({ error: err.message });
     }
-    
+
     // Check if file was uploaded
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded.' });
     }
-    
+
     // Success response
     return res.json({
       response: {

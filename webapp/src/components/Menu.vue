@@ -280,13 +280,6 @@ export default {
         this.clearStates();
       })
     },
-    hashPassword(password){
-      const result = crypto.createHash('md5')
-      .update(password)
-      .digest('hex');
-
-      return result;
-    },
     onSaveCompany: async function(){
       const result = await Companies.update(this.user.idCompany, this.company, this.openToExternalRelations);
       $("#editCompanyData").modal("hide");
@@ -398,7 +391,7 @@ export default {
   }
   .profile .dropdown-menu li a:hover, .profile .dropdown-menu li a:active {
 		color: #333;
-	}	
+	}
 	.profile .dropdown-menu .material-icons {
 		font-size: 21px;
 		line-height: 16px;
