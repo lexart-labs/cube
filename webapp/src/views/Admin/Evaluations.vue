@@ -149,9 +149,9 @@
                 <div class="row" style="margin-bottom: 2rem;">
                   <div class="col-md-3 col-sm-12">
                     <label for="priority-select" class="form-label">Priority</label>
-                    <select 
+                    <select
                       id="priority-select"
-                      class="form-control is-rounded" 
+                      class="form-control is-rounded"
                       v-model="course.priority"
                       :style="getPriorityStyle(course.priority)"
                     >
@@ -955,16 +955,7 @@ export default {
         });
         this.error = res.error;
       }
-
-      // const { data: resp } = await CourseService().getPagesLength();
       this.isLoading = false;
-
-      // if (!resp.error) {
-      //   this.pagesLength = resp.response;
-      // } else {
-      //   this.error = resp.error;
-      // }
-      // this.course = {};
     },
     cancelEvaluation: function () {
       this.course = {}
@@ -1000,21 +991,13 @@ export default {
     },
   },
   async mounted() {
-    const id = this.$route.params.id ? this.$route.params.id : undefined;
     this.curso = this.$route.params.curso
       ? decodeURIComponent(this.$route.params.curso)
       : undefined;
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
-    const userId = localStorage.getItem(`id-${APP_NAME}`);
-
-    const headers = {
-      token,
-      'user-id': userId,
-    };
 
     // Verifico el token
     verifyToken(token);
-
 
     this.isLoading = true;
     this.paginate();

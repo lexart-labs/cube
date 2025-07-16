@@ -138,7 +138,11 @@
                     <td style="max-width: 100px;">{{ item.position }}</td>
                     <td style="max-width: 100px;">{{ item.principalStack }}</td>
                     <td>
-                        <a v-if="item.cv" :href="item.cv" target="_blank" class="btn btn-info btn-sm">
+                        <a v-if="item.cv && sanitizedCVUrls[item.id]"
+                           :href="sanitizedCVUrls[item.id]"
+                           target="_blank"
+                           class="btn btn-info btn-sm"
+                           rel="noopener noreferrer">
                             <i class="fa fa-file-pdf-o"></i> {{ $t('Candidates.viewCV') }}
                         </a>
                     </td>
@@ -654,6 +658,44 @@
                 }
                 this.isLoading = false;
             },
-        }
+						sanitizeCV(url) {
+							if (!url || typeof url !== 'string') {
+									return null;
+							}
+
+							url = url.trim();
+
+							if (!url) {
+									return null;
+							}
+
+							try {
+									const parsedUrl = new URL(url);
+
+									if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+											return null;
+									}
+
+									if (parsedUrl.protocol === 'javascript:' || parsedUrl.protocol === 'data:') {
+											return null;
+									}
+									return parsedUrl.toString();
+							} catch (error) {
+									console.warn('Formato de URL de CV inválido:', url, error);
+									return null;
+							}
+						}
+        },
+        computed: {
+            sanitizedCVUrls() {
+                const urls = {};
+                this.filteredItems.forEach(item => {
+                    if (item.cv && item.id) {
+                        urls[item.id] = this.sanitizeCV(item.cv);
+                    }
+                });
+                return urls;
+            }
+        },
     };
 </script>

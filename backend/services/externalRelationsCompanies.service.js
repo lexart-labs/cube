@@ -8,9 +8,9 @@ const API_LEXTRACKING = process.env.API_LEXTRACKING
 
 const relationsExternals = {
     getAll: async (companyId) => {
-       
+
         const query = `SELECT * FROM ${TABLE_NAME} WHERE idCompany1 = ? OR idCompany2 = ?`
-        
+
         let relations = await Utils.generalQuery(query, [companyId, companyId, companyId], 'read')
         const companiesHandler = await relationsExternals.companiesHandler(relations.response)
 
@@ -36,7 +36,7 @@ const relationsExternals = {
 
                     relation.companies = []
 
-                    companiesId.map(async (id) => {
+                    companiesId.forEach(async (id) => {
                         await companieService.getById(id).then((companie) => {
                             relation.companies.push(companie.response[0])
                             if (relation.companies.length === 2) resolve()
@@ -128,7 +128,7 @@ const relationsExternals = {
         const operation = {
             accept: async (checkRelations) => {
                 const column = await relationsExternals.checkCompanyIdAcceptedColumn(checkRelations.response[0], idCompany1)
-                
+
                 const query = `UPDATE ${TABLE_NAME} SET ${column.currentCompany.query}, ${column.companyAcceptQuery.query} WHERE id = ?`
                 const accept = Utils.generalQuery(query, [column.currentCompany.value, column.companyAcceptQuery.value, checkRelations.response[0].id], 'write')
 

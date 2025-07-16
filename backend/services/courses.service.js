@@ -142,7 +142,6 @@ let Course = {
 
 		let error = {"error":"Error al ingresar/editar curso"}
 		let sql = ``;
-		let arr = []
 		let word = "actualizado"
 
 		// Solo se va actualizar
@@ -294,7 +293,6 @@ let Course = {
 				// Check token and userId
 				if(token == fastToken && id == usr.id){
 					userCorrect = usr.type;
-					return;
 				}
 			})
 		}

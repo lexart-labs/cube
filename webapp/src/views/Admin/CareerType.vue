@@ -132,7 +132,8 @@ export default {
       Vue.toasted.show(this.$t('AdminCareerType.created'), { type: 'success', duration: 4000 })
 
       this.loadCareerType();
-      return this.newCareerType = {...this.DEFAULT_VALUE};
+			this.newCareerType = {...this.DEFAULT_VALUE};
+      return this.newCareerType
     },
 
     async updateCareerType() {
@@ -149,8 +150,8 @@ export default {
 
       this.newCareerType = { ...this.DEFAULT_VALUE }
       this.isEditing = false;
-
-      return this.careersType = this.careersType.map((item) => item.id == career.id ? career : item);
+			this.careersType = this.careersType.map((item) => item.id == career.id ? career : item);
+      return this.careersType
     },
 
     async loadCareerType() {
@@ -161,14 +162,16 @@ export default {
         return;
       }
 
-      return this.careersType = response.response.map((career) => {
+			this.careersType = response.response.map((career) => {
         career.name = career.careerName;
-        
+
         delete career.careerName;
         delete career.idCompany;
 
         return career;
       });
+
+      return this.careersType
     },
 
     setEditMode(item) {
@@ -179,12 +182,14 @@ export default {
       delete career.idCompany;
 
       this.isEditing = true;
-      return this.newCareerType = career;
+			this.newCareerType = career;
+      return this.newCareerType
     },
 
     cancelEditing() {
       this.newCareerType = { ...DEFAULT_VALUE };
-      return this.isEditing = false;
+			this.isEditing = false;
+      return this.isEditing
     },
 
     async removeCareer(id) {

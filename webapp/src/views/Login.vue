@@ -7,7 +7,7 @@
     <div class="formContainer__login" v-if="!warning">
       <header>
         <h2>Cube</h2>
-        <small>By <a href="https://lexartlabs.com" class="brand--link" target="_blank">Lexart</a></small>
+        <small>By <a href="https://lexart.tech" class="brand--link" target="_blank" rel="noopener">Lexart</a></small>
       </header>
       <form style="margin-top: 1rem" id="login-form" v-if="moreThanOneCompany">
         <input

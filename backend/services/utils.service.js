@@ -22,7 +22,7 @@ const Utils = {
 			const [{ companyId }] = await conn.query(`SELECT id AS companyId FROM companies WHERE slug = ?`, [company_slug]);
 			return companyId
 		} catch (error) {
-			res ? res.send({ status: 404, message: "This company doesn't exists" }) : '';
+			return res
 		}
 	},
 	getIdCompanyByIdUser: async function(idUser, res = false) {
@@ -31,10 +31,10 @@ const Utils = {
 
 		try{
 			const [{ idCompany }] = await conn.query(query, [idUser]);
-			
+
 			return idCompany;
 		}catch(error) {
-			res ? res.send({ status: 404, message: "This user doesn't exists" }) : '';
+			return res;
 		}
 	},
     generalQuery: async function (sql, arr, action, pageSize = 10) {

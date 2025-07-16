@@ -222,7 +222,7 @@ let User = {
 			if (shouldCreatePosition) {
 				await UserSkills.insert({ idUser: usuario.id, skills: usuario.skills, idPosition });
 			} else {
-				await UserSkills.update({ idUser: usuario.id || usuario.id, skills: usuario.skills, idPosition });
+				await UserSkills.update({ idUser: usuario.id, skills: usuario.skills, idPosition });
 			};
 		} catch (e) {
 			console.log("e: ", e)
@@ -242,7 +242,7 @@ let User = {
 		}
 
 
-		token = utils.makeToken(usuario.email, usuario.id, 'public');
+		let token = utils.makeToken(usuario.email, usuario.id, 'public');
 
 		const sql = `
 			INSERT INTO ${tablaNombre}
@@ -294,7 +294,6 @@ let User = {
 
 		if (userSearchResult.status === 404) {
 			result = await this.insertOne(usuario, idLead, company_slug, id_company);
-			// await this.changeLeader(idLead, idLextracking);
 		} else if (userSearchResult.status === 200) {
 			usuario.sync = false;
 			result = await this.updateOne(usuario, idLead, id_company);
@@ -338,7 +337,6 @@ let User = {
 	},
 
 	loginCube: async function (email, idCompany = null) {
-		//const sqlCompany = `SELECT id FROM companies`;
 		const error = { error: 'Usuario y/o clave incorrecta.' };
 		let sql = `
 			SELECT
@@ -360,7 +358,6 @@ let User = {
 		let token = '';
 
 		try {
-			//const [{ id: idCompany }] = await conn.query(sqlCompany, [company]);
 			let arr = [email];
 			if (idCompany) arr.push(idCompany);
 			response = await conn.query(sql, arr);
@@ -688,7 +685,6 @@ let User = {
 		}
 
 		const response = await conn.query(sql);
-		// console.log(response);
 		const ids = response.map(el => el.id);
 		return { response: ids };
 	},

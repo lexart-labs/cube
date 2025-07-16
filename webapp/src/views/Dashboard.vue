@@ -115,7 +115,6 @@
                   class="form-control rounded-input"
                   style="margin-bottom: 1rem"
                 />
-                <!-- <i class="fas fa-search"></i> -->
               </div>
               <div class="courseContainer" v-if="!isLoading"></div>
               <div
@@ -145,7 +144,7 @@
                     {{ formatDate(resource.fecha) }}
                   </p>
                   <hr />
-                  <p class="smallText" v-html="resource.observaciones"></p>
+                  <p class="smallText" v-html="sanitizeObservaciones(resource.observaciones)"></p>
                 </div>
               </div>
             </section>
@@ -557,6 +556,7 @@ import axios from "axios";
 import Vue from "vue";
 import vueSelect from "vue-select";
 import translations from "../data/translate";
+import DOMPurify from 'dompurify';
 // Services
 import { API, APP_NAME } from "../../env";
 import UserService from "../services/user.service";
@@ -592,8 +592,6 @@ export default {
       isLoading: true,
       isFetching: false,
       isSync: false,
-      searchQuery: null,
-      search: "",
       error: "",
       success: "",
       translations,
@@ -724,10 +722,8 @@ export default {
             translations[
               this.$store.state.language
             ].dashboard.messageSyncStatus;
-          // const id = localStorage.getItem(`id-${APP_NAME}`);
 
           // Obtenemos evaluaciones de un usuario
-          // this.obtenerEvaluaciones(id)
           window.location.reload();
         } else {
           this.error = res.error;
@@ -944,7 +940,6 @@ export default {
       this.filters.technologies = newFilters;
 
       if (!this.filters.technologies.length) {
-        // this.developers = [];
         return;
       }
     },
@@ -1100,6 +1095,21 @@ export default {
         }
       );
     },
+    sanitizeObservaciones(observaciones) {
+      if (!observaciones) return '';
+
+      // Configure DOMPurify to allow only safe HTML tags
+      const config = {
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'b', 'i'],
+        ALLOWED_ATTR: [],
+        KEEP_CONTENT: true,
+        RETURN_DOM: false,
+        RETURN_DOM_FRAGMENT: false,
+        RETURN_DOM_IMPORT: false
+      };
+
+      return DOMPurify.sanitize(observaciones, config);
+    },
     personifyDashboard: async function (
       id = localStorage.getItem(`id-${APP_NAME}`),
       toggle = false
@@ -1130,10 +1140,6 @@ export default {
 
       // Setar os estados;
       this.myUser = myUser;
-      /*if (!toggle) {
-        this.years = years;
-        this.year = years.length ? years[years.length - 1] : null;
-      }*/
       this.years = years;
       this.year = years.length ? years[years.length - 1] : null;
       this.userStack = Object.values(myTechs)[0] || [];

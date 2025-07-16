@@ -16,17 +16,6 @@
           class="nav-link is-bold"
           >{{ $t("dashboard.administration")}}</router-link
         >
-        <!-- LOGOUT
-        <router-link
-          v-bind:to="`/${slug}/login`"
-          class="nav-link logout"
-        >
-          <small>{{ $t("generic.exit")}}</small>
-        </router-link> -->
-        <!-- BRAND
-        <a v-bind:href="setting.web" class="nav-link" target="_new">
-          <small>{{ setting.escuela }}</small></a
-        > -->
       </div>
       <div class="right">
         <div class="profile">
@@ -168,7 +157,6 @@
                   <label for="">{{ $t("dashboard.companyRelation") }}</label>
                 </div>
                 <div class="col-md-12">
-                  <!--<input type="checkbox" v-model="openToExternalRelations" class="is-rounded"/>-->
                   <div class="checkboxStyle">
                     <input type="checkbox" v-model="openToExternalRelations"/>
                       <svg class="is_checked" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 426.67 426.67">
@@ -279,13 +267,6 @@ export default {
         $("#editUserData").modal("hide");
         this.clearStates();
       })
-    },
-    hashPassword(password){
-      const result = crypto.createHash('md5')
-      .update(password)
-      .digest('hex');
-
-      return result;
     },
     onSaveCompany: async function(){
       const result = await Companies.update(this.user.idCompany, this.company, this.openToExternalRelations);
@@ -398,7 +379,7 @@ export default {
   }
   .profile .dropdown-menu li a:hover, .profile .dropdown-menu li a:active {
 		color: #333;
-	}	
+	}
 	.profile .dropdown-menu .material-icons {
 		font-size: 21px;
 		line-height: 16px;

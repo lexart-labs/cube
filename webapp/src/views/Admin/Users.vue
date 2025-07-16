@@ -475,7 +475,7 @@ export default {
 
       UserService().getUserById(id, async (res) => {
         if (!res.error) {
-          const { skills, position, since, minimumTime } = res.response;
+          const { skills, since, minimumTime } = res.response;
 
           this.user = { ...res.response, lead };
           this.jobAssignments = JSON.parse(res.response.roadmap) || [];

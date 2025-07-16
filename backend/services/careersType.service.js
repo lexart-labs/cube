@@ -3,18 +3,18 @@ const TABLE_NAME = 'careers_type';
 const PAGE_SIZE = 10;
 
 const CareersType = {
-    getByIdCompany: async (company_slug, current_page = 1, res) => {
+    getByIdCompany: async (company_slug, res, current_page = 1) => {
         const companyId = await Utils.getIdCompanyBySlug(company_slug, res);
 
         const sql = `
-            SELECT * FROM ${TABLE_NAME} 
+            SELECT * FROM ${TABLE_NAME}
             WHERE idCompany = ?
             LIMIT ? OFFSET ?
         `;
 
         const totalPages = await CareersType.countPages(companyId);
         const pagesInfo = { currentPage: parseInt(current_page), ...totalPages.response[0] }
-        
+
         const offset = PAGE_SIZE * Number(current_page - 1);
         const arr = [companyId, PAGE_SIZE, offset];
         const careersType = await Utils.generalQuery(sql, arr, 'read')
@@ -50,9 +50,9 @@ const CareersType = {
     },
     deleteOneCareerType: async (careerId, company_slug, res) => {
         const companyId = await Utils.getIdCompanyBySlug(company_slug, res);
-        
+
         const sql = `
-            DELETE FROM ${TABLE_NAME} 
+            DELETE FROM ${TABLE_NAME}
             WHERE id = ? AND idCompany = ?
         `;
 

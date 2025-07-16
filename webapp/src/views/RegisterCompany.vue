@@ -7,7 +7,7 @@
     <div class="formContainer__login">
       <header>
         <h2>Cube</h2>
-        <small>By <a href="https://lexartlabs.com" class="brand--link" target="_blank">Lexart</a></small>
+        <small>By <a href="https://lexart.tech" class="brand--link" target="_blank" rel="noopener">Lexart</a></small>
       </header>
       <form
         @submit.prevent="registerCompany"
@@ -93,7 +93,7 @@
           <div v-if="success" class="alert alert-primary register-alert" role="alert">
             <h4 class="alert-heading"><b>Succesfully created!</b></h4>
             <hr class="hr-alert">
-            <p>Link to login page: 
+            <p>Link to login page:
             <router-link :to="`${cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`">Here</router-link> .
             </p>
           </div>
@@ -151,7 +151,6 @@ export default {
           this.isLoading = false;
 
           if (!rs.error) {
-            // this.$router.push(`${this.cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`);
             this.success = true;
           } else {
             grecaptcha.reset();
@@ -166,11 +165,6 @@ export default {
       );
     },
   },
-  // created() {
-  // this.$nextTick(() => {
-  //   grecaptcha.render('g-captcha');
-  // });
-  // },
   mounted() {
     localStorage.clear();
   },
