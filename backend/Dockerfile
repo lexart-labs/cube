@@ -10,7 +10,7 @@ RUN npm i && npm cache clean --force
 COPY config/ ./config/
 COPY routes/ ./routes/
 COPY services/ ./services/
-COPY public/ ./public/
+COPY queries/ ./queries/
 COPY server.js ./
 COPY app.js ./
 
