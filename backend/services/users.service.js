@@ -222,7 +222,7 @@ let User = {
 			if (shouldCreatePosition) {
 				await UserSkills.insert({ idUser: usuario.id, skills: usuario.skills, idPosition });
 			} else {
-				await UserSkills.update({ idUser: usuario.id || usuario.id, skills: usuario.skills, idPosition });
+				await UserSkills.update({ idUser: usuario.id, skills: usuario.skills, idPosition });
 			};
 		} catch (e) {
 			console.log("e: ", e)

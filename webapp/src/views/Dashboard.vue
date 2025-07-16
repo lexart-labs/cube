@@ -593,8 +593,6 @@ export default {
       isLoading: true,
       isFetching: false,
       isSync: false,
-      searchQuery: null,
-      search: "",
       error: "",
       success: "",
       translations,
@@ -1103,7 +1101,7 @@ export default {
     },
     sanitizeObservaciones(observaciones) {
       if (!observaciones) return '';
-      
+
       // Configure DOMPurify to allow only safe HTML tags
       const config = {
         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'b', 'i'],
@@ -1113,7 +1111,7 @@ export default {
         RETURN_DOM_FRAGMENT: false,
         RETURN_DOM_IMPORT: false
       };
-      
+
       return DOMPurify.sanitize(observaciones, config);
     },
     personifyDashboard: async function (

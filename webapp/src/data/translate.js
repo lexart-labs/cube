@@ -253,7 +253,6 @@ const translations = {
       careerType: 'Tipo de carrera',
       loading: 'Cargando',
       seeDetails: 'Ver detalles',
-      back: 'Atrás',
       next: 'Siguiente',
 			copy: 'Copiar',
 			confirm: 'Confirmación',
@@ -263,8 +262,7 @@ const translations = {
 			partners: 'Socios',
 			delete: "Eliminar",
 			confirmDelete: "Confirmar eliminación",
-			thisActionCantBeUndone: "Esta acción no se puede deshacer.",
-			cancel: "Cancelar"
+			thisActionCantBeUndone: "Esta acción no se puede deshacer."
     },
     positionAssignments: {
       'EntryLevel Developer': [
@@ -714,7 +712,6 @@ const translations = {
       loading: 'Loading',
       seeDetails: 'See Details',
       back: 'Back',
-      next: 'Next',
 			copy: 'Copy',
 			confirm: 'Confirmation',
 			confirmCopy: 'Are you sure you want to copy this resource?',

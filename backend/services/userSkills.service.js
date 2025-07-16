@@ -36,9 +36,7 @@ const UserSkills = {
       if (!response.changedRows) {
         response = await this.insert(payload);
       }
-    } catch (e) {
-      e.message
-    }
+    } catch (e) {}
 
     return response.changedRows ? { resposne: 'ok' } : { error: response.sqlMessage };
   },
