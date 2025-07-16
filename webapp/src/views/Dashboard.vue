@@ -115,7 +115,6 @@
                   class="form-control rounded-input"
                   style="margin-bottom: 1rem"
                 />
-                <!-- <i class="fas fa-search"></i> -->
               </div>
               <div class="courseContainer" v-if="!isLoading"></div>
               <div
@@ -723,10 +722,8 @@ export default {
             translations[
               this.$store.state.language
             ].dashboard.messageSyncStatus;
-          // const id = localStorage.getItem(`id-${APP_NAME}`);
 
           // Obtenemos evaluaciones de un usuario
-          // this.obtenerEvaluaciones(id)
           window.location.reload();
         } else {
           this.error = res.error;
@@ -943,7 +940,6 @@ export default {
       this.filters.technologies = newFilters;
 
       if (!this.filters.technologies.length) {
-        // this.developers = [];
         return;
       }
     },
@@ -1144,10 +1140,6 @@ export default {
 
       // Setar os estados;
       this.myUser = myUser;
-      /*if (!toggle) {
-        this.years = years;
-        this.year = years.length ? years[years.length - 1] : null;
-      }*/
       this.years = years;
       this.year = years.length ? years[years.length - 1] : null;
       this.userStack = Object.values(myTechs)[0] || [];

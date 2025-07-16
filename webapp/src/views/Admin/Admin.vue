@@ -81,12 +81,10 @@ export default {
   },
   methods: {},
   mounted() {
-    const id = this.$route.params.id ? this.$route.params.id : undefined;
     this.curso = this.$route.params.curso
       ? decodeURIComponent(this.$route.params.curso)
       : undefined;
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
-    const userId = localStorage.getItem(`id-${APP_NAME}`);
 
     // Verifico el token
     verifyToken(token);

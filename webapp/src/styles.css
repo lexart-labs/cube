@@ -26,9 +26,6 @@ article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
 }
-body {
-	line-height: 1;
-}
 ol, ul {
 	list-style: none;
 }
@@ -63,7 +60,7 @@ body {
   --brand-color: #ffb900;
   /* Fonts */
   --main-font: 'Montserrat';
-
+	line-height: 1;
   /* Sizes */
   --big: 2rem;
   --mid: 1rem;
@@ -305,6 +302,7 @@ label {
   width: 100%;
   justify-content: center;
   gap: 1rem;
+	margin: 5rem auto 2rem;
 }
 .psy-notf button {
   padding: 0;
@@ -418,11 +416,6 @@ input[type=range] {
 /* Leads tree tab */
 .table-striped tbody tr:nth-of-type(odd) {
   background-color: var(--blue-1);
-}
-
-/* Personify tab */
-.personify-searcher {
-  margin: 5rem auto 2rem;
 }
 
 /* technologies */

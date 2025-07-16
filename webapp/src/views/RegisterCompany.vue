@@ -151,7 +151,6 @@ export default {
           this.isLoading = false;
 
           if (!rs.error) {
-            // this.$router.push(`${this.cpy.company.toLowerCase().replace(/\s+/g,'_')}/login`);
             this.success = true;
           } else {
             grecaptcha.reset();
@@ -166,11 +165,6 @@ export default {
       );
     },
   },
-  // created() {
-  // this.$nextTick(() => {
-  //   grecaptcha.render('g-captcha');
-  // });
-  // },
   mounted() {
     localStorage.clear();
   },

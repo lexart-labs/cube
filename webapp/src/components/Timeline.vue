@@ -112,7 +112,7 @@ export default {
         { position: "IA/ML Architect" },
         { position: "Research Developer" },
         { position: "Research Architect" },
-      ];  
+      ];
 
       const usr = this.chartData;
 
@@ -169,8 +169,7 @@ export default {
             chart.cursor = false;
             chart.tapToActivate = true;
             chart.scrollbarX = new am4core.Scrollbar();
-            //chart.scrollbarX.series.push(series);
-            
+
             //colors outside
             chart.scrollbarX.background.fill = am4core.color("#dc67ab");
             chart.scrollbarX.background.fillOpacity = 0.2;
@@ -179,17 +178,13 @@ export default {
             chart.scrollbarX.startGrip.background.fill = am4core.color("#CBA5A4");
             chart.scrollbarX.endGrip.background.fill = am4core.color("#CBA5A4");
             chart.scrollbarX.thumb.background.fill = am4core.color("#CBA5A4");
-            
+
             //colors icons
             chart.scrollbarX.startGrip.icon.stroke = am4core.color("#8A5658");
             chart.scrollbarX.endGrip.icon.stroke = am4core.color("#8A5658");
 
             // height scrollbar
             chart.scrollbarX.minHeight = 3;
-
-            //remove grip
-            //chart.scrollbarX.startGrip.disabled = true;
-            //chart.scrollbarX.endGrip.disabled = true;
 
             return state;
           } else if (target instanceof am4charts.XYChart && target.scrollbarX) {

@@ -203,7 +203,6 @@ const translations = {
       observations: 'Evaluación',
       yes: 'SI',
       no: 'NO',
-      next: 'Próximo',
       back: 'Atrás',
       exit: 'Cerrar sección',
       technologies: 'Tecnologías',
@@ -660,7 +659,6 @@ const translations = {
       yes: 'YES',
       no: 'NO',
       next: 'Next',
-      back: 'Bcak',
       exit: 'Log out',
       technologies: 'Technologies',
       hunting: 'Teams',
@@ -719,8 +717,7 @@ const translations = {
 			partners: 'Partners',
 			delete: "Delete",
 			confirmDelete: "Confirm Delete",
-			thisActionCantBeUndone: "This action cannot be undone.",
-			cancel: "Cancel"
+			thisActionCantBeUndone: "This action cannot be undone."
     },
     positionAssignments: {
       'EntryLevel Developer': [

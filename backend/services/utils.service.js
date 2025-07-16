@@ -34,7 +34,7 @@ const Utils = {
 
 			return idCompany;
 		}catch(error) {
-			res ? res.send({ status: 404, message: "This user doesn't exists" }) : '';
+			return res;
 		}
 	},
     generalQuery: async function (sql, arr, action, pageSize = 10) {
