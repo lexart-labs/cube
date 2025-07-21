@@ -1,0 +1,24 @@
+{
+  "name": "onboarding-stepper",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "nuxt": "^3.8.0",
+    "@nuxtjs/tailwindcss": "^6.8.4"
+  },
+  "dependencies": {
+    "@vueuse/nuxt": "^10.5.0",
+    "bcryptjs": "^2.4.3",
+    "mysql2": "^3.6.5",
+    "jsonwebtoken": "^9.0.2",
+    "@pinia/nuxt": "^0.5.1",
+    "pinia": "^2.1.7"
+  }
+}
