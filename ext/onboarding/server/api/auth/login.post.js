@@ -61,6 +61,12 @@ export default defineEventHandler(async (event) => {
       [user.id]
     )
 
+    // Check if user has completed contracts
+    const contractsData = await executeQuery(
+      'SELECT * FROM pending_users_contracts WHERE user_id = ? AND contracts_completed = TRUE',
+      [user.id]
+    )
+
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       config.jwtSecret,
@@ -74,7 +80,8 @@ export default defineEventHandler(async (event) => {
         email: user.email,
         name: user.name,
         kyc_status: user.kyc_status,
-        has_kyc_data: kycData.length > 0
+        has_kyc_data: kycData.length > 0,
+        has_contracts_data: contractsData.length > 0
       }
     }
   } catch (error) {

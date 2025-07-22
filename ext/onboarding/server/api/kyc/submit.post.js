@@ -16,37 +16,63 @@ export default defineEventHandler(async (event) => {
     const decoded = jwt.verify(token, config.jwtSecret)
     const kycData = await readBody(event)
 
-    // Insert/Update KYC data
-    await executeQuery(
-      `INSERT INTO pending_users_kyc_data 
-       (user_id, full_name, identity_document, full_address, bank_information, 
-        country, iban, intermediary_bank, profile_photo, phone, emergency_phone) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE
-       full_name = VALUES(full_name),
-       identity_document = VALUES(identity_document),
-       full_address = VALUES(full_address),
-       bank_information = VALUES(bank_information),
-       country = VALUES(country),
-       iban = VALUES(iban),
-       intermediary_bank = VALUES(intermediary_bank),
-       profile_photo = VALUES(profile_photo),
-       phone = VALUES(phone),
-       emergency_phone = VALUES(emergency_phone)`,
-      [
-        decoded.userId,
-        kycData.fullName,
-        kycData.identityDocument,
-        kycData.fullAddress,
-        kycData.bankInformation,
-        kycData.country,
-        kycData.iban,
-        kycData.intermediaryBank,
-        kycData.profilePhoto,
-        kycData.phone,
-        kycData.emergencyPhone
-      ]
+    // Check if KYC data already exists for this user
+    const existingData = await executeQuery(
+      'SELECT id FROM pending_users_kyc_data WHERE user_id = ?',
+      [decoded.userId]
     )
+
+    if (existingData.length > 0) {
+      // Update existing KYC data
+      await executeQuery(
+        `UPDATE pending_users_kyc_data SET 
+         full_name = ?, identity_document = ?, full_address = ?, bank_information = ?, 
+         country = ?, iban = ?, intermediary_bank = ?, profile_photo = ?, phone = ?, emergency_phone = ?,
+         company_name = ?, company_rut = ?, company_address = ?
+         WHERE user_id = ?`,
+        [
+          kycData.fullName,
+          kycData.identityDocument,
+          kycData.fullAddress,
+          kycData.bankInformation,
+          kycData.country,
+          kycData.iban,
+          kycData.intermediaryBank,
+          kycData.profilePhoto,
+          kycData.phone,
+          kycData.emergencyPhone,
+          kycData.company_name,
+          kycData.company_rut,
+          kycData.company_address,
+          decoded.userId
+        ]
+      )
+    } else {
+      // Insert new KYC data
+      await executeQuery(
+        `INSERT INTO pending_users_kyc_data 
+         (user_id, full_name, identity_document, full_address, bank_information, 
+          country, iban, intermediary_bank, profile_photo, phone, emergency_phone,
+          company_name, company_rut, company_address) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          decoded.userId,
+          kycData.fullName,
+          kycData.identityDocument,
+          kycData.fullAddress,
+          kycData.bankInformation,
+          kycData.country,
+          kycData.iban,
+          kycData.intermediaryBank,
+          kycData.profilePhoto,
+          kycData.phone,
+          kycData.emergencyPhone,
+          kycData.company_name,
+          kycData.company_rut,
+          kycData.company_address
+        ]
+      )
+    }
 
     // Update user status to under_review
     await executeQuery(

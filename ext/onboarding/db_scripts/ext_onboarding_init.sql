@@ -39,3 +39,27 @@ CREATE TABLE IF NOT EXISTS pending_users_contracts (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES pending_users(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS contract_templates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  contract_type ENUM('nda', 'service_agreement') NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  version VARCHAR(50) DEFAULT '1.0',
+  is_active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_active_contract (contract_type, is_active)
+);
+
+INSERT INTO contract_templates (contract_type, title, content) VALUES (
+  'nda',
+  'Acuerdo de Confidencialidad',
+	'html_content'
+);
+
+
+ALTER TABLE pending_users_kyc_data
+ADD COLUMN company_name VARCHAR(255) DEFAULT NULL,
+ADD COLUMN company_rut VARCHAR(100) DEFAULT NULL,
+ADD COLUMN company_address TEXT DEFAULT NULL;

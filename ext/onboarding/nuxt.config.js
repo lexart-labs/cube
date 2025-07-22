@@ -12,6 +12,9 @@ export default defineNuxtConfig({
     dbPassword: process.env.DB_PASSWORD || 'password',
     dbName: process.env.DB_NAME || 'onboarding_db',
     recaptchaSecretKey: process.env.RECAPTCHA_SECRET_KEY || 'your-secret-key',
+    mailgunApiKey: process.env.MAILGUN_API_KEY || 'your-mailgun-api-key',
+    mailgunDomain: process.env.MAILGUN_DOMAIN || 'your-mailgun-domain',
+    appUrl: process.env.APP_URL || 'http://localhost:3000',
     public: {
       recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || 'your-site-key'
     }

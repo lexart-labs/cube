@@ -1,11 +1,9 @@
 import jwt from 'jsonwebtoken'
-import { join } from 'path'
-import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'fs'
 import { executeQuery } from '~/server/utils/database'
-import puppeteer from 'puppeteer'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  const query = getQuery(event)
   const token = getCookie(event, 'auth-token') || getHeader(event, 'authorization')?.replace('Bearer ', '')
 
   if (!token) {
@@ -15,14 +13,21 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  if (!query.type || !['nda', 'service_agreement'].includes(query.type)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Invalid contract type'
+    })
+  }
+
   try {
     const decoded = jwt.verify(token, config.jwtSecret)
-    const userId = decoded.userId
+    const userId = decoded.userId // Changed from decoded.id to decoded.userId
     
     // Get contract template
     const templateResult = await executeQuery(
       'SELECT title, content FROM contract_templates WHERE contract_type = ? AND is_active = TRUE',
-      ['service_agreement']
+      [query.type]
     )
 
     if (templateResult.length === 0) {
@@ -71,41 +76,15 @@ export default defineEventHandler(async (event) => {
     content = content.replace(/{{company_rut}}/g, userData[0].company_rut || '')
     content = content.replace(/{{company_address}}/g, userData[0].company_address || '')
 
-    // Ensure the contracts directory exists
-    const contractsDir = join(process.cwd(), 'public', 'contracts')
-    if (!existsSync(contractsDir)) {
-      mkdirSync(contractsDir, { recursive: true })
+    return {
+      success: true,
+      data: {
+        title: templateResult[0].title,
+        content: content
+      }
     }
-
-    // Generate PDF from HTML content
-    const browser = await puppeteer.launch({ headless: 'new' })
-    const page = await browser.newPage()
-    
-    // Set the HTML content
-    await page.setContent(content, { waitUntil: 'networkidle0' })
-    
-    // Use screen media type to ensure proper rendering
-    await page.emulateMediaType('screen')
-    
-    // Generate the PDF
-    const pdfPath = join(contractsDir, 'Service_Agreement_Contract.pdf')
-    await page.pdf({
-      path: pdfPath,
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '1cm', right: '1cm', bottom: '1cm', left: '1cm' }
-    })
-    
-    await browser.close()
-    
-    // Set response headers for PDF download
-    setHeader(event, 'Content-Type', 'application/pdf')
-    setHeader(event, 'Content-Disposition', 'attachment; filename="Service_Agreement_Contract.pdf"')
-    
-    // Return the generated PDF
-    return readFileSync(pdfPath)
   } catch (error) {
-    console.error('Service Agreement PDF generation error:', error)
+    console.error('Template error:', error)
     if (error.name === 'JsonWebTokenError') {
       throw createError({
         statusCode: 401,
@@ -114,7 +93,7 @@ export default defineEventHandler(async (event) => {
     }
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to generate Service Agreement contract PDF'
+      statusMessage: 'Failed to fetch contract template'
     })
   }
 })
