@@ -527,4 +527,7 @@ span:hover:not(.not-allowed) {
 .mr-2 {
     margin-right: 0.5rem;
 }
+h2 {
+	margin-top: 1rem;
+}
 </style>
