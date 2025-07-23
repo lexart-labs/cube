@@ -4,25 +4,44 @@ const PAGE_SIZE = 10;
 
 const CareersType = {
     getByIdCompany: async (company_slug, res, current_page = 1) => {
-        const companyId = await Utils.getIdCompanyBySlug(company_slug, res);
+        try {
+            const companyId = await Utils.getIdCompanyBySlug(company_slug);
+            
+            if (!companyId) {
+                return { status: 400, message: 'Company not found' };
+            }
 
-        const sql = `
-            SELECT * FROM ${TABLE_NAME}
-            WHERE idCompany = ?
-            LIMIT ? OFFSET ?
-        `;
+            const sql = `
+                SELECT * FROM ${TABLE_NAME}
+                WHERE idCompany = ?
+                LIMIT ? OFFSET ?
+            `;
 
-        const totalPages = await CareersType.countPages(companyId);
-        const pagesInfo = { currentPage: parseInt(current_page), ...totalPages.response[0] }
+            const totalPages = await CareersType.countPages(companyId);
+            
+            // Add safety check for totalPages.response
+            if (!totalPages || !totalPages.response || !totalPages.response[0]) {
+                return { status: 400, message: 'Error getting pagination info' };
+            }
+            
+            const pagesInfo = { currentPage: parseInt(current_page), ...totalPages.response[0] }
 
-        const offset = PAGE_SIZE * Number(current_page - 1);
-        const arr = [companyId, PAGE_SIZE, offset];
-        const careersType = await Utils.generalQuery(sql, arr, 'read')
+            const offset = PAGE_SIZE * Number(current_page - 1);
+            const arr = [companyId, PAGE_SIZE, offset];
+            const careersType = await Utils.generalQuery(sql, arr, 'read')
 
-        return { ...careersType, pagesInfo }
+            return { ...careersType, pagesInfo }
+        } catch (error) {
+            console.error('Error in getByIdCompany:', error);
+            return { status: 500, message: 'Internal server error' };
+        }
     },
-    createNewCareerType: async (careerName, company_slug, res) => {
-        const companyId = await Utils.getIdCompanyBySlug(company_slug, res);
+    createNewCareerType: async (careerName, company_slug) => {
+        const companyId = await Utils.getIdCompanyBySlug(company_slug);
+
+        if (!companyId) {
+            return { status: 400, message: 'Company not found' };
+        }
 
         const sql = `
             INSERT INTO ${TABLE_NAME}
@@ -33,10 +52,14 @@ const CareersType = {
 
         const arr = [careerName, companyId];
 
-        return await Utils.generalQuery(sql, arr, 'write', res);
+        return await Utils.generalQuery(sql, arr, 'write');
     },
-    updateOneCareerType: async (careerName, careerId, company_slug, res) => {
-        const companyId = await Utils.getIdCompanyBySlug(company_slug, res);
+    updateOneCareerType: async (careerName, careerId, company_slug) => {
+        const companyId = await Utils.getIdCompanyBySlug(company_slug);
+
+        if (!companyId) {
+            return { status: 400, message: 'Company not found' };
+        }
 
         const sql = `
             UPDATE ${TABLE_NAME}
@@ -46,10 +69,14 @@ const CareersType = {
 
         const arr = [careerName, careerId, companyId];
 
-        return await Utils.generalQuery(sql, arr, 'write', res);
+        return await Utils.generalQuery(sql, arr, 'write');
     },
-    deleteOneCareerType: async (careerId, company_slug, res) => {
-        const companyId = await Utils.getIdCompanyBySlug(company_slug, res);
+    deleteOneCareerType: async (careerId, company_slug) => {
+        const companyId = await Utils.getIdCompanyBySlug(company_slug);
+
+        if (!companyId) {
+            return { status: 400, message: 'Company not found' };
+        }
 
         const sql = `
             DELETE FROM ${TABLE_NAME}
@@ -58,17 +85,17 @@ const CareersType = {
 
         const arr = [careerId, companyId]
 
-        return Utils.generalQuery(sql, arr, 'write', res);
+        return Utils.generalQuery(sql, arr, 'write');
     },
-    countPages: async (companyId, res) => {
+    countPages: async (companyId) => {
         const sql = `
-			SELECT COUNT(*) AS total FROM ${TABLE_NAME}
-			WHERE idCompany = ?
-		`;
+            SELECT COUNT(*) AS total FROM ${TABLE_NAME}
+            WHERE idCompany = ?
+        `;
 
         const arr = [companyId];
 
-        return Utils.generalQuery(sql, arr, 'count', res);
+        return Utils.generalQuery(sql, arr, 'count', PAGE_SIZE);
     },
 }
 

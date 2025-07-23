@@ -52,6 +52,10 @@
               >{{ $t('generic.partners') }}</router-link
             >
           </li>
+					<li class="nav-item">
+            <router-link to="/app/administration/onboarding-users" class="nav-link"
+              >{{ $t('generic.onboardingUsers') }}</router-link>
+          </li>
         </ul>
       </nav>
       <main>

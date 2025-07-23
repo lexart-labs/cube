@@ -15,6 +15,8 @@ export default defineNuxtConfig({
     mailgunApiKey: process.env.MAILGUN_API_KEY || 'your-mailgun-api-key',
     mailgunDomain: process.env.MAILGUN_DOMAIN || 'your-mailgun-domain',
     appUrl: process.env.APP_URL || 'http://localhost:3000',
+    emailOnboarding: process.env.EMAIL_ONBOARDING || 'your-email@example.com',
+		apiKey: process.env.API_KEY || 'your-super-secret-api-key-for-backend-communication',
     public: {
       recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || 'your-site-key'
     }

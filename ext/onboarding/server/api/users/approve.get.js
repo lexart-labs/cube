@@ -1,6 +1,10 @@
 import { executeQuery } from '~/server/utils/database'
+import { validateApiKey } from '~/server/utils/apiAuth'
 
 export default defineEventHandler(async (event) => {
+  // Validate API key for backend-to-backend communication
+  validateApiKey(event)
+  
   try {
     const query = getQuery(event)
     const userId = query.userId
@@ -19,8 +23,10 @@ export default defineEventHandler(async (event) => {
       WHERE id = ?
     `, [userId])
 
-    // Redirect to a success page or return a success message
-    return sendRedirect(event, '/approval-success.html')
+    return {
+      success: true,
+      message: 'User approved successfully'
+    }
   } catch (error) {
     console.error('Error approving user:', error)
     throw createError({

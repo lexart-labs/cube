@@ -1,56 +1,44 @@
 import axios from 'axios';
-import { API } from '../../env';
+import { APP_NAME, API } from '../../env';
 
-export default function CandidateService() {
-    const baseUrl = `${API}candidates`;
-    
+const CandidateService = () => {
+    const generateHeader = () => {
+        const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      	const userId = localStorage.getItem(`id-${APP_NAME}`);
+        return {
+            token,
+            'user-id': userId,
+        };
+    };
+
     return {
-        all: async (page = 0, search = '') => {
-            try {
-                const url = `${baseUrl}?page=${page}${search ? `&search=${search}` : ''}`;
-                return await axios.get(url);
-            } catch (error) {
-                console.error('Error fetching candidates:', error);
-                return { data: { error: error.message } };
-            }
+        all: async (page = 0, searchQuery = '') => {
+            const headers = generateHeader();
+						console.log("headers candidates service :: ", headers)
+            return await axios.get(`${API}candidates?page=${page}&search=${searchQuery}`, { headers });
         },
-        
         getById: async (id, callback) => {
-            try {
-                const { data } = await axios.get(`${baseUrl}/${id}`);
-                callback(data);
-            } catch (error) {
-                console.error('Error fetching candidate by ID:', error);
-            }
+            const headers = generateHeader();
+            const { data } = await axios.get(`${API}candidates/${id}`, { headers });
+            callback(data);
         },
-        
         upsert: async (candidate, callback) => {
-            try {
-                const method = candidate.id ? 'put' : 'post';
-                const url = candidate.id ? `${baseUrl}/${candidate.id}` : baseUrl;
-                const { data } = await axios[method](url, candidate);
-                callback(data);
-            } catch (error) {
-                console.error('Error saving candidate:', error);
-            }
+            const headers = generateHeader();
+            const method = candidate.id ? 'put' : 'post';
+            const url = candidate.id ? `${API}candidates/${candidate.id}` : `${API}candidates`;
+            const { data } = await axios[method](url, candidate, { headers });
+            callback(data);
         },
-        
         delete: async (id, callback) => {
-            try {
-                const { data } = await axios.delete(`${baseUrl}/${id}`);
-                callback(data);
-            } catch (error) {
-                console.error('Error deleting candidate:', error);
-            }
+            const headers = generateHeader();
+            const { data } = await axios.delete(`${API}candidates/${id}`, { headers });
+            callback(data);
         },
-        
         getPagesLength: async () => {
-            try {
-                return await axios.get(`${baseUrl}/pages`);
-            } catch (error) {
-                console.error('Error fetching pages length:', error);
-                return { data: { error: error.message } };
-            }
+            const headers = generateHeader();
+            return await axios.get(`${API}candidates/pages`, { headers });
         }
     };
-}
+};
+
+export default CandidateService;
