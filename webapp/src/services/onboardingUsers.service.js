@@ -34,6 +34,16 @@ const OnboardingUsersService = {
   // Update user status
   updateStatus: async (id, status) => {
     return await axios.post(`${API}onboarding/users/${id}/status`, { status }, generateHeader());
+  },
+
+  // Create a new pending user
+  create: async (userData) => {
+    return await axios.post(`${API}onboarding/users/create`, userData, generateHeader());
+  },
+
+  // Add this method to your existing service
+  delete: async (userId) => {
+    return await axios.delete(`${API}onboarding/users/${userId}`, generateHeader());
   }
 };
 

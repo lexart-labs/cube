@@ -4,8 +4,20 @@
             <b>{{ $t('generic.onboardingUsers') || 'Onboarding Users' }}</b>
         </h2>
 
-        <!-- Search filters -->
+        <!-- Add Create User Button -->
         <div class="row mb-3 mt-3">
+            <div class="col-md-12 text-right">
+                <button
+                    class="btn btn-primary btn-sm mb-2"
+                    @click="showCreateModal = true"
+                >
+                    Create New User
+                </button>
+            </div>
+        </div>
+
+        <!-- Search filters -->
+        <div class="row mb-3">
             <div class="col-md-4">
                 <input
                     type="text"
@@ -77,6 +89,12 @@
                             @click="viewUser(user)"
                         >
                             View
+                        </button>
+                        <button
+                            class="btn btn-danger btn-sm"
+                            @click="confirmDeleteUser(user)"
+                        >
+                            Delete
                         </button>
                     </td>
                 </tr>
@@ -213,6 +231,114 @@
                 </div>
             </div>
         </div>
+
+        <!-- Create User Modal -->
+        <div v-if="showCreateModal" class="modal-overlay" @click="closeCreateModal">
+            <div class="modal-content" @click.stop>
+                <div class="modal-header">
+                    <h4>Create New Pending User</h4>
+                    <button class="close-btn" @click="closeCreateModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="createUser">
+                        <div class="form-group mb-3">
+                            <label for="userName">Name *</label>
+                            <input
+                                type="text"
+                                id="userName"
+                                class="form-control"
+                                v-model="newUser.name"
+                                required
+                                placeholder="Enter user's full name"
+                            >
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="userEmail">Email *</label>
+                            <input
+                                type="email"
+                                id="userEmail"
+                                class="form-control"
+                                v-model="newUser.email"
+                                required
+                                placeholder="Enter user's email address"
+                            >
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="userPassword">Password *</label>
+                            <input
+                                type="password"
+                                id="userPassword"
+                                class="form-control"
+                                v-model="newUser.password"
+                                required
+                                placeholder="Enter temporary password"
+                                minlength="6"
+                            >
+                        </div>
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                <input
+                                    type="checkbox"
+                                    id="sendEmail"
+                                    class="form-check-input"
+                                    v-model="newUser.sendEmail"
+                                    checked
+                                >
+                                <label for="sendEmail" class="form-check-label">
+                                    Send login credentials via email
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="closeCreateModal" :disabled="isCreating">
+                        Cancel
+                    </button>
+                    <button
+                        class="btn btn-primary"
+                        @click="createUser"
+                        :disabled="isCreating || !isFormValid"
+                    >
+                        <span v-if="isCreating">Creating...</span>
+                        <span v-else>Create User</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Delete Confirmation Modal -->
+        <div v-if="showDeleteModal" class="modal-overlay" @click="closeDeleteModal">
+            <div class="modal-content" @click.stop>
+                <div class="modal-header">
+                    <h4>Confirm Delete</h4>
+                    <button class="close-btn" @click="closeDeleteModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this user?</p>
+                    <div v-if="userToDelete" class="user-info">
+                        <p><strong>Name:</strong> {{ userToDelete.name }}</p>
+                        <p><strong>Email:</strong> {{ userToDelete.email }}</p>
+                        <p><strong>Status:</strong> {{ formatStatus(userToDelete.kyc_status) }}</p>
+                    </div>
+                    <div class="alert alert-warning mt-3">
+                        <strong>Warning:</strong> This action cannot be undone. All user data will be permanently deleted.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @click="closeDeleteModal" :disabled="isDeleting">
+                        Cancel
+                    </button>
+                    <button
+                        class="btn btn-danger"
+                        @click="deleteUser"
+                        :disabled="isDeleting"
+                    >
+                        <span v-if="isDeleting">Deleting...</span>
+                        <span v-else>Delete User</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -240,8 +366,29 @@ export default {
             totalItems: 0,
             showModal: false,
             selectedUser: null,
-						onboardingUrl: ONBOARDING_URL
+            onboardingUrl: ONBOARDING_URL,
+            // Add these missing properties:
+            showCreateModal: false,
+            isCreating: false,
+            newUser: {
+                name: '',
+                email: '',
+                password: '',
+                sendEmail: true
+            },
+            // Add delete modal properties:
+            showDeleteModal: false,
+            isDeleting: false,
+            userToDelete: null
         };
+    },
+    computed: {
+        // Add this computed property:
+        isFormValid() {
+            return this.newUser.name.trim() &&
+                   this.newUser.email.trim() &&
+                   this.newUser.password.length >= 6;
+        }
     },
     mounted() {
         this.fetchUsers();
@@ -356,6 +503,69 @@ export default {
         formatDate(dateString) {
             if (!dateString) return 'N/A';
             return new Date(dateString).toLocaleDateString();
+        },
+        closeCreateModal() {
+            this.showCreateModal = false;
+            this.resetCreateForm();
+        },
+
+        resetCreateForm() {
+            this.newUser = {
+                name: '',
+                email: '',
+                password: '',
+                sendEmail: true
+            };
+        },
+
+        async createUser() {
+            if (!this.isFormValid) return;
+
+            this.isCreating = true;
+            try {
+                await OnboardingUsersService.create({
+                    name: this.newUser.name.trim(),
+                    email: this.newUser.email.trim(),
+                    password: this.newUser.password,
+                    sendEmail: this.newUser.sendEmail
+                });
+
+                this.$toasted.success('User created successfully!');
+                this.closeCreateModal();
+                this.fetchUsers(); // Refresh the list
+            } catch (error) {
+                console.error('Error creating user:', error);
+                const errorMessage = error.response?.data?.message || 'Error creating user';
+                this.$toasted.error(errorMessage);
+            } finally {
+                this.isCreating = false;
+            }
+        },
+        confirmDeleteUser(user) {
+            this.userToDelete = user;
+            this.showDeleteModal = true;
+        },
+
+        closeDeleteModal() {
+            this.showDeleteModal = false;
+            this.userToDelete = null;
+        },
+
+        async deleteUser() {
+            if (!this.userToDelete) return;
+
+            this.isDeleting = true;
+            try {
+                await OnboardingUsersService.delete(this.userToDelete.id);
+                this.$toasted.success('User deleted successfully');
+                this.closeDeleteModal();
+                this.fetchUsers(); // Refresh the list
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                this.$toasted.error('Error deleting user');
+            } finally {
+                this.isDeleting = false;
+            }
         }
     }
 };
@@ -370,18 +580,6 @@ export default {
 .current-page {
     margin: 0 10px;
     font-weight: bold;
-}
-
-span {
-    cursor: pointer;
-    padding: 5px 10px;
-    margin: 0 2px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-}
-
-span:hover:not(.not-allowed) {
-    background-color: #f5f5f5;
 }
 
 /* Modal Styles */
@@ -529,5 +727,47 @@ span:hover:not(.not-allowed) {
 }
 h2 {
 	margin-top: 1rem;
+}
+.text-right {
+    text-align: right;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+}
+
+.form-check-input {
+    margin-right: 0.5rem;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 </style>
