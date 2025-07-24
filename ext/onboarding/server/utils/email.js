@@ -12,7 +12,7 @@ export async function sendEmail(config, { to, subject, html, attachments = [] })
 
   try {
     const messageData = {
-      from: `Ext. Onboarding Cube <noreply@${config.mailgunDomain}>`,
+      from: `Lexart Team <noreply@${config.mailgunDomain}>`,
       to: [to],
       subject,
       html

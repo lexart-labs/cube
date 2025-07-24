@@ -8,45 +8,6 @@
               >Developers</router-link
             >
           </li>
-          <li class="nav-item" v-if="slug !== 'lexart_labs'">
-            <router-link to="/app/administration/collaborators" class="nav-link"
-              >{{ $t('generic.collaborators') }}</router-link
-            >
-          </li>
-          <li class="nav-item">
-            <router-link to="/app/administration/evaluaciones" class="nav-link"
-              >{{ $t('AdminEvaluations.evaluations') }}</router-link
-            >
-          </li>
-          <li class="nav-item">
-            <router-link to="/app/administration/technologies" class="nav-link"
-              >{{ $t('generic.technologies') }}</router-link
-            >
-          </li>
-          <li class="nav-item">
-            <router-link to="/app/administration/origins" class="nav-link"
-              >{{ $t('generic.origin') }}</router-link
-            >
-          </li>
-          <li class="nav-item">
-            <router-link to="/app/administration/career" class="nav-link"
-              >{{ $t('generic.Positions') }}</router-link
-            >
-          </li>
-					<li class="nav-item">
-            <router-link to="/app/administration/levels" class="nav-link"
-              >{{ $t('generic.levels') }}</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link to="/app/administration/career-type" class="nav-link"
-              >{{ $t('generic.careerType') }}</router-link
-            >
-          </li>
-					<li class="nav-item">
-            <router-link to="/app/administration/candidates" class="nav-link"
-              >{{ $t('generic.candidates') }}</router-link
-            >
-          </li>
 					<li class="nav-item">
             <router-link to="/app/administration/partners" class="nav-link"
               >{{ $t('generic.partners') }}</router-link

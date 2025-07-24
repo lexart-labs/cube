@@ -24,8 +24,7 @@ const OnboardingService = {
   // Approve a user
   approveUser: async function(userId) {
     try {
-      const response = await axios.get(`${ONBOARDING_API_URL}/api/users/approve`, {
-        params: { userId },
+      const response = await axios.post(`${ONBOARDING_API_URL}/api/users/${userId}/approve`,  {}, {
         headers: {
           'X-API-Key': ONBOARDING_API_KEY
         }

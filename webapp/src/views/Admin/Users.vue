@@ -1,386 +1,424 @@
 <template>
   <div id="users--component" class="admin-conteiner" style="margin-top: 1rem">
-    <header class="header-table">
-      <h4 class="is-bold">
-        <span>{{ $t("AdminUsers.title") }}</span>
-      </h4>
-      <div>
-        <button
-          type="button"
-          class="btn btn-success"
-          data-toggle="modal"
-          data-target="#staticBackdrop"
-          style="margin-right: 0.6rem;"
-          v-on:click="newUser"
-        >
-          + Developers
-        </button>
-      </div>
-    </header>
-    <div class="grp-icon-input">
-      <input
-        type="search"
-        :placeholder="$t('AdminUsers.searchPlaceholder')"
-        v-model="searchQuery"
-        class="form-control is-rounded search"
-        @keydown.enter="getUsers"
-      />
-      <button
-        class="btn btn-primary btn-sm col-1 btn-search-eval"
-        @click="getUsers"
-      >
-        <i class="fas fa-search"></i>
-      </button>
-    </div>
-    <div v-if="!isLoading" class="containerBreak">
-      <table class="table table-admin col-12">
-        <thead class="is-bold">
-          <tr>
-            <th>{{ $t("AdminUsers.columnName") }}</th>
-            <th>Email</th>
-            <th>{{ $t("AdminUsers.columnType") }}</th>
-            <th>{{ $t("AdminUsers.columnCharge") }}</th>
-            <th>{{ $t("AdminUsers.columnLevel") }}</th>
-            <th>{{ $t("AdminUsers.columnActive") }}</th>
-            <th>{{ $t("AdminUsers.hired") }}</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(user, i) in users" :key="`usr${i}`">
-            <td>{{ user.name }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.type }}</td>
-            <td>{{ user.position }}</td>
-            <td>{{ user.level }}</td>
-            <td>
-              {{ user.active == 1 ? $t("generic.yes") : $t("generic.no") }}
-            </td>
-            <td>{{ user.plataform }}</td>
-            <td>
-              <!-- Trigger modal -->
-              <button
-                class="btn btn-primary col-12"
-                data-toggle="modal"
-                data-target="#staticBackdrop"
-                v-on:click="getUserById(user.id)"
-              >
-                {{ $t("generic.edit") }}
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+		<nav class="adminButtons">
+			<ul class="nav nav-tabs">
+				<li class="nav-item">
+					<router-link to="/app/administration/users/evaluaciones" class="nav-link"
+						>{{ $t('AdminEvaluations.evaluations') }}</router-link
+					>
+				</li>
+				<li class="nav-item">
+					<router-link to="/app/administration/users/technologies" class="nav-link"
+						>{{ $t('generic.technologies') }}</router-link
+					>
+				</li>
+				<li class="nav-item">
+					<router-link to="/app/administration/users/origins" class="nav-link"
+						>{{ $t('generic.origin') }}</router-link
+					>
+				</li>
+				<li class="nav-item">
+					<router-link to="/app/administration/users/career" class="nav-link"
+						>{{ $t('generic.Positions') }}</router-link
+					>
+				</li>
+				<li class="nav-item">
+					<router-link to="/app/administration/users/levels" class="nav-link"
+						>{{ $t('generic.levels') }}</router-link>
+				</li>
+				<li class="nav-item">
+					<router-link to="/app/administration/users/career-type" class="nav-link"
+						>{{ $t('generic.careerType') }}</router-link
+					>
+				</li>
+			</ul>
+		</nav>
+		<div>
+			<router-view></router-view>
+		</div>
+		<div v-if="routerIsUsers">
+			<header class="header-table">
+				<h4 class="is-bold">
+					<span>{{ $t("AdminUsers.title") }}</span>
+				</h4>
+				<div>
+					<button
+						type="button"
+						class="btn btn-success"
+						data-toggle="modal"
+						data-target="#staticBackdrop"
+						style="margin-right: 0.6rem;"
+						v-on:click="newUser"
+					>
+						+ Developers
+					</button>
+				</div>
+			</header>
+			<div class="grp-icon-input">
+				<input
+					type="search"
+					:placeholder="$t('AdminUsers.searchPlaceholder')"
+					v-model="searchQuery"
+					class="form-control is-rounded search"
+					@keydown.enter="getUsers"
+				/>
+				<button
+					class="btn btn-primary btn-sm col-1 btn-search-eval"
+					@click="getUsers"
+				>
+					<i class="fas fa-search"></i>
+				</button>
+			</div>
+			<div v-if="!isLoading" class="containerBreak">
+				<table class="table table-admin col-12">
+					<thead class="is-bold">
+						<tr>
+							<th>{{ $t("AdminUsers.columnName") }}</th>
+							<th>Email</th>
+							<th>{{ $t("AdminUsers.columnType") }}</th>
+							<th>{{ $t("AdminUsers.columnCharge") }}</th>
+							<th>{{ $t("AdminUsers.columnLevel") }}</th>
+							<th>{{ $t("AdminUsers.columnActive") }}</th>
+							<th>{{ $t("AdminUsers.hired") }}</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="(user, i) in users" :key="`usr${i}`">
+							<td>{{ user.name }}</td>
+							<td>{{ user.email }}</td>
+							<td>{{ user.type }}</td>
+							<td>{{ user.position }}</td>
+							<td>{{ user.level }}</td>
+							<td>
+								{{ user.active == 1 ? $t("generic.yes") : $t("generic.no") }}
+							</td>
+							<td>{{ user.plataform }}</td>
+							<td>
+								<!-- Trigger modal -->
+								<button
+									class="btn btn-primary col-12"
+									data-toggle="modal"
+									data-target="#staticBackdrop"
+									v-on:click="getUserById(user.id)"
+								>
+									{{ $t("generic.edit") }}
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 
-      <nav class="pages-nav">
-        <span
-          v-on:click="navigate('-')"
-          :class="page == 1 ? 'not-allowed' : ''"
-        >
-          Back
-        </span>
-        <span
-          :class="page == index ? 'current' : ''"
-          v-for="index in pagesLength"
-          :key="index"
-          v-on:click="navigate(index)"
-        >
-          {{ index }}
-        </span>
-        <span
-          v-on:click="navigate('+')"
-          :class="page == pagesLength ? 'not-allowed' : ''"
-        >
-          Next
-        </span>
-      </nav>
-    </div>
-    <div class="window-centered">
-      <Spinner v-if="isFeching || isLoading" />
-    </div>
+				<nav class="pages-nav">
+					<span
+						v-on:click="navigate('-')"
+						:class="page == 1 ? 'not-allowed' : ''"
+					>
+						Back
+					</span>
+					<span
+						:class="page == index ? 'current' : ''"
+						v-for="index in pagesLength"
+						:key="index"
+						v-on:click="navigate(index)"
+					>
+						{{ index }}
+					</span>
+					<span
+						v-on:click="navigate('+')"
+						:class="page == pagesLength ? 'not-allowed' : ''"
+					>
+						Next
+					</span>
+				</nav>
+			</div>
+			<div class="window-centered">
+				<Spinner v-if="isFeching || isLoading" />
+			</div>
 
-    <!-- User / Modal -->
-    <div
-      class="modal fade"
-      id="staticBackdrop"
-      data-backdrop="static"
-      data-keyboard="false"
-      tabindex="-1"
-      aria-labelledby="staticBackdropLabel"
-      aria-hidden="true"
-    >
-      <div :class="isFeching ? 'loading-cover' : ''">
-        <Spinner v-if="isFeching" />
-      </div>
-      <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="courseTitle" id="staticBackdropLabel">
-              User {{ user.id ? "#" + user.id : "" }}
-            </h4>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-              v-on:click="cleanStates"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="coursesTab" style="margin-bottom: 1rem">
-              <ul class="nav nav-tabs">
-                <li class="nav-item">
-                  <a
-                    class="nav-link"
-                    v-bind:class="{ active: tabs.perfil }"
-                    v-on:click="activeTab('perfil')"
-                  >
-                    Perfil
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a
-                    v-bind:class="{ active: tabs.roadmap }"
-                    v-on:click="activeTab('roadmap')"
-                    class="nav-link"
-                    v-show="user.idPosition"
-                    >Roadmap</a
-                  >
-                </li>
-              </ul>
-            </div>
-            <div class="perfil">
-              <form enctype="multipart/form-data" v-show="tabs.perfil">
-                <label for="">{{user.name ? user.name : 'User'}}</label>
-                <div class="grp-icon-input">
-                  <input
-                    type="text"
-                    :placeholder="$t('AdminUsers.columnName')"
-                    class="form-control is-rounded"
-                    v-model="user.name"
-                  />
-                </div>
-                <div class="grp-icon-input">
-                  <input
-                    type="password"
-                    :placeholder="'Password'"
-                    class="form-control is-rounded"
-                    v-model="user.password"
-                  />
-                </div>
-                <div class="grp-icon-input">
-                  <input
-                    type="email"
-                    :placeholder="'Email'"
-                    class="form-control is-rounded"
-                    v-model="user.email"
-                  />
-                </div>
-                <div class="grp-icon-input">
-                  <select
-                    class="form-control is-rounded"
-                    v-model="user.type"
-                    id="userType"
-                  >
-                    <option
-                      v-for="(type, i) in ['admin','pm','developer']"
-                      :value="type"
-                      :key="`type_${i}`"
-                      :selected="type == user.type"
-                    >
-                      {{ type }}
-                    </option>
-                  </select>
-                </div>
-                <br />
-                <label for="">{{ $t("AdminUsers.hired") }}</label>
-                <vue-select
-                  v-model="user.idPlataform"
-                  label="plataform"
-                  :options="plataforms"
-                  :reduce="(plat) => plat.id"
-                ></vue-select>
-                <br />
-                <div class="row">
-                  <div class="col">
-                    <label for="careerType">{{
-                      $t("AdminUsers.columnCareerType")
-                    }}</label>
+			<!-- User / Modal -->
+			<div
+				class="modal fade"
+				id="staticBackdrop"
+				data-backdrop="static"
+				data-keyboard="false"
+				tabindex="-1"
+				aria-labelledby="staticBackdropLabel"
+				aria-hidden="true"
+			>
+				<div :class="isFeching ? 'loading-cover' : ''">
+					<Spinner v-if="isFeching" />
+				</div>
+				<div class="modal-dialog modal-xl modal-dialog-centered">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="courseTitle" id="staticBackdropLabel">
+								User {{ user.id ? "#" + user.id : "" }}
+							</h4>
+							<button
+								type="button"
+								class="close"
+								data-dismiss="modal"
+								aria-label="Close"
+								v-on:click="cleanStates"
+							>
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="coursesTab" style="margin-bottom: 1rem">
+								<ul class="nav nav-tabs">
+									<li class="nav-item">
+										<a
+											class="nav-link"
+											v-bind:class="{ active: tabs.perfil }"
+											v-on:click="activeTab('perfil')"
+										>
+											Perfil
+										</a>
+									</li>
+									<li class="nav-item">
+										<a
+											v-bind:class="{ active: tabs.roadmap }"
+											v-on:click="activeTab('roadmap')"
+											class="nav-link"
+											v-show="user.idPosition"
+											>Roadmap</a
+										>
+									</li>
+								</ul>
+							</div>
+							<div class="perfil">
+								<form enctype="multipart/form-data" v-show="tabs.perfil">
+									<label for="">{{user.name ? user.name : 'User'}}</label>
+									<div class="grp-icon-input">
+										<input
+											type="text"
+											:placeholder="$t('AdminUsers.columnName')"
+											class="form-control is-rounded"
+											v-model="user.name"
+										/>
+									</div>
+									<div class="grp-icon-input">
+										<input
+											type="password"
+											:placeholder="'Password'"
+											class="form-control is-rounded"
+											v-model="user.password"
+										/>
+									</div>
+									<div class="grp-icon-input">
+										<input
+											type="email"
+											:placeholder="'Email'"
+											class="form-control is-rounded"
+											v-model="user.email"
+										/>
+									</div>
+									<div class="grp-icon-input">
+										<select
+											class="form-control is-rounded"
+											v-model="user.type"
+											id="userType"
+										>
+											<option
+												v-for="(type, i) in ['admin','pm','developer']"
+												:value="type"
+												:key="`type_${i}`"
+												:selected="type == user.type"
+											>
+												{{ type }}
+											</option>
+										</select>
+									</div>
+									<br />
+									<label for="">{{ $t("AdminUsers.hired") }}</label>
+									<vue-select
+										v-model="user.idPlataform"
+										label="plataform"
+										:options="plataforms"
+										:reduce="(plat) => plat.id"
+									></vue-select>
+									<br />
+									<div class="row">
+										<div class="col">
+											<label for="careerType">{{
+												$t("AdminUsers.columnCareerType")
+											}}</label>
 
-                    <select
-                      @change="getLevels(), getPositions()"
-                      class="form-control is-rounded"
-                      v-model="user.idCareerType"
-                      id="careerType"
-                    >
-                      <option
-                        v-for="(careerType, i) in careersType"
-                        :value="careerType.id"
-                        :key="`carType${i}`"
-                        :selected="careerType.id == user.idCareerType"
-                      >
-                        {{ careerType.careerName }}
-                      </option>
-                    </select>
+											<select
+												@change="getLevels(), getPositions()"
+												class="form-control is-rounded"
+												v-model="user.idCareerType"
+												id="careerType"
+											>
+												<option
+													v-for="(careerType, i) in careersType"
+													:value="careerType.id"
+													:key="`carType${i}`"
+													:selected="careerType.id == user.idCareerType"
+												>
+													{{ careerType.careerName }}
+												</option>
+											</select>
 
-                  </div>
-                  <div class="col">
-                    <label for="positions">{{
-                      $t("AdminUsers.columnCharge")
-                    }}</label>
-                    <select
-                      class="form-control is-rounded"
-                      v-model="user.positionId"
-                      id="career"
-                      :disabled="!user.idCareerType"
-                    >
-                      <option
-                        v-for="(career, i) in careers"
-                        :value="career.id"
-                        :key="`car${i}`"
-                        :selected="career.id == user.positionId"
-                      >
-                        {{ career.position }}
-                      </option>
+										</div>
+										<div class="col">
+											<label for="positions">{{
+												$t("AdminUsers.columnCharge")
+											}}</label>
+											<select
+												class="form-control is-rounded"
+												v-model="user.positionId"
+												id="career"
+												:disabled="!user.idCareerType"
+											>
+												<option
+													v-for="(career, i) in careers"
+													:value="career.id"
+													:key="`car${i}`"
+													:selected="career.id == user.positionId"
+												>
+													{{ career.position }}
+												</option>
 
-                    </select>
+											</select>
 
-                  </div>
-                  <div class="col">
-                    <label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
-                    <select
-                      class="form-control is-rounded"
-                      v-model="user.levelId"
-                      id="lvl"
-                      :disabled="!user.idCareerType"
-                    >
-                      <option
-                        v-for="(level, i) in levels"
-                        :value="level.id"
-                        :key="`lev${i}`"
-                        :selected="level.id == user.levelId"
-                      >
-                        {{ level.level }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-                <br />
-                <label for="lead-select">{{ $t("generic.lead") }}</label>
-                <select
-                  v-model="user.lead"
-                  class="form-control is-rounded"
-                  id="lead-select"
-                >
-                  <option
-                    :value="{ id: lead.id, name: lead.name }"
-                    :key="`lead${i}`"
-                    v-for="(lead, i) in leaders"
-                  >
-                    {{ lead.name }}
-                  </option>
-                </select>
-                <br />
-                <label for="techs">{{ $t("generic.technologies") }}</label>
-                <div class="tech-ctl">
-                  <vue-select
-                    :options="technologies"
-                    id="techs"
-                    style="width: 95%"
-                    v-model="currentTech"
-                    :getOptionLabel="(el) => el.name"
-                  >
-                  </vue-select>
-                  <i
-                    class="fas fa-plus-circle"
-                    :style="`font-size: 1.5rem; cursor: pointer;${
-                      currentTech && currentTech.name
-                        ? ''
-                        : 'pointer-events: none; color: #d3d3d3;'
-                    }`"
-                    v-on:click="addSkill()"
-                  />
-                </div>
-                <ul class="list-group list-group-flush">
-                  <li
-                    class="
-                      list-group-item
-                      d-flex
-                      justify-content-between
-                      align-items-center
-                    "
-                    v-for="(item, i) in managerUserTechs.userTechs"
-                    :key="`usrtchg${i}`"
-                  >
-                    {{ item.name }}
-                    <i
-                      class="far fa-times-circle"
-                      v-on:click="removeSkill(item)"
-                      style="cursor: pointer"
-                    />
-                  </li>
-                </ul>
-                <br />
-                <select class="form-control is-rounded" v-model="user.active">
-                  <option value="1">Active</option>
-                  <option value="0">Inactive</option>
-                </select>
-              </form>
-            </div>
-            <div class="roadmap" v-show="tabs.roadmap">
-              <header>
-                <h3>Habilidades</h3>
-                <span>
-                  {{ $t("AdminUsers.daysLeftMessage") }}
-                  <b> {{ changePositionTime }} d. </b>
-                </span>
-              </header>
-              <div class="list-group" v-if="user.skills">
-                <label
-                  class="list-group-item"
-                  v-for="(item, i) in jobAssignments"
-                  :key="`asgn${i}`"
-                >
-                  <input
-                    class="form-check-input me-1"
-                    type="checkbox"
-                    v-model="user.skills[item]"
-                  />
-                  {{ item }}
-                </label>
-              </div>
-            </div>
-            <div
-              v-if="error"
-              class="alert alert-danger"
-              style="margin-top: 1rem"
-            >
-              {{ error }}
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-dismiss="modal"
-              v-on:click="cleanStates"
-            >
-              {{ $t("generic.cancel") }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary col-1"
-              v-on:click="upsertUser"
-              :disabled="isLoading"
-            >
-              {{ isLoading ? "Loading..." : $t("generic.save") }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+										</div>
+										<div class="col">
+											<label for="lvl">{{ $t("AdminUsers.columnLevel") }}</label>
+											<select
+												class="form-control is-rounded"
+												v-model="user.levelId"
+												id="lvl"
+												:disabled="!user.idCareerType"
+											>
+												<option
+													v-for="(level, i) in levels"
+													:value="level.id"
+													:key="`lev${i}`"
+													:selected="level.id == user.levelId"
+												>
+													{{ level.level }}
+												</option>
+											</select>
+										</div>
+									</div>
+									<br />
+									<label for="lead-select">{{ $t("generic.lead") }}</label>
+									<select
+										v-model="user.lead"
+										class="form-control is-rounded"
+										id="lead-select"
+									>
+										<option
+											:value="{ id: lead.id, name: lead.name }"
+											:key="`lead${i}`"
+											v-for="(lead, i) in leaders"
+										>
+											{{ lead.name }}
+										</option>
+									</select>
+									<br />
+									<label for="techs">{{ $t("generic.technologies") }}</label>
+									<div class="tech-ctl">
+										<vue-select
+											:options="technologies"
+											id="techs"
+											style="width: 95%"
+											v-model="currentTech"
+											:getOptionLabel="(el) => el.name"
+										>
+										</vue-select>
+										<i
+											class="fas fa-plus-circle"
+											:style="`font-size: 1.5rem; cursor: pointer;${
+												currentTech && currentTech.name
+													? ''
+													: 'pointer-events: none; color: #d3d3d3;'
+											}`"
+											v-on:click="addSkill()"
+										/>
+									</div>
+									<ul class="list-group list-group-flush">
+										<li
+											class="
+												list-group-item
+												d-flex
+												justify-content-between
+												align-items-center
+											"
+											v-for="(item, i) in managerUserTechs.userTechs"
+											:key="`usrtchg${i}`"
+										>
+											{{ item.name }}
+											<i
+												class="far fa-times-circle"
+												v-on:click="removeSkill(item)"
+												style="cursor: pointer"
+											/>
+										</li>
+									</ul>
+									<br />
+									<select class="form-control is-rounded" v-model="user.active">
+										<option value="1">Active</option>
+										<option value="0">Inactive</option>
+									</select>
+								</form>
+							</div>
+							<div class="roadmap" v-show="tabs.roadmap">
+								<header>
+									<h3>Habilidades</h3>
+									<span>
+										{{ $t("AdminUsers.daysLeftMessage") }}
+										<b> {{ changePositionTime }} d. </b>
+									</span>
+								</header>
+								<div class="list-group" v-if="user.skills">
+									<label
+										class="list-group-item"
+										v-for="(item, i) in jobAssignments"
+										:key="`asgn${i}`"
+									>
+										<input
+											class="form-check-input me-1"
+											type="checkbox"
+											v-model="user.skills[item]"
+										/>
+										{{ item }}
+									</label>
+								</div>
+							</div>
+							<div
+								v-if="error"
+								class="alert alert-danger"
+								style="margin-top: 1rem"
+							>
+								{{ error }}
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button
+								type="button"
+								class="btn btn-secondary"
+								data-dismiss="modal"
+								v-on:click="cleanStates"
+							>
+								{{ $t("generic.cancel") }}
+							</button>
+							<button
+								type="button"
+								class="btn btn-primary col-1"
+								v-on:click="upsertUser"
+								:disabled="isLoading"
+							>
+								{{ isLoading ? "Loading..." : $t("generic.save") }}
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
   </div>
 </template>
 
@@ -399,6 +437,7 @@ import { verifyToken } from "../../services/helpers";
 import translations from "../../data/translate";
 import { API, APP_NAME } from "../../../env";
 import DevOriginsService from "../../services/plataforms.service";
+import { watch } from "vue";
 
 const PAGE_LENGTH = 10;
 
@@ -442,6 +481,7 @@ export default {
       currentTech: {},
       leaders: [],
       plataforms: [],
+			routerIsUsers: false
     };
   },
   methods: {
@@ -735,6 +775,9 @@ export default {
     }
   },
   mounted() {
+		this.routerIsUsers = this.$route.name === 'Users';
+		this.$emit('routerIsUsers', this.routerIsUsers);
+
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
     const User = UserService();
     const lead = {
@@ -781,6 +824,15 @@ export default {
     this.handlePagination();
   },
   computed: {},
+	watch: {
+		$route: {
+			handler() {
+				this.routerIsUsers = this.$route.name === 'Users';
+				this.$emit('routerIsUsers', this.routerIsUsers);
+			},
+			deep: true
+		}
+	}
 };
 </script>
 

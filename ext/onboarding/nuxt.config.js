@@ -19,6 +19,10 @@ export default defineNuxtConfig({
 		apiKey: process.env.API_KEY || 'your-super-secret-api-key-for-backend-communication',
     public: {
       recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || 'your-site-key'
-    }
+    },
+		cubeApiUrl: process.env.CUBE_API_URL || 'http://localhost:3001',
+		cubeApiToken: process.env.CUBE_API_TOKEN || 'your-super-secret-api-key-for-cube-communication',
+		trackingApiUrl: process.env.TRACKING_API_URL || 'http://localhost:3002',
+		trackingApiToken: process.env.TRACKING_API_TOKEN || 'your-super-secret-api-key-for-tracking-communication',
   }
 })

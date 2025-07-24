@@ -14,7 +14,6 @@ const CandidateService = () => {
     return {
         all: async (page = 0, searchQuery = '') => {
             const headers = generateHeader();
-						console.log("headers candidates service :: ", headers)
             return await axios.get(`${API}candidates?page=${page}&search=${searchQuery}`, { headers });
         },
         getById: async (id, callback) => {

@@ -50,6 +50,7 @@
             <div class="col-md-2">
                 <button
                     class="btn btn-secondary btn-sm"
+										style="float: right;"
                     @click="clearFilters"
                 >
                     Clear Filters
@@ -467,14 +468,50 @@ export default {
         },
         async approveUser(userId) {
             try {
-                await OnboardingUsersService.updateStatus(userId, 'approved');
-                this.$toasted.success('User approved successfully');
+                this.isApproving = true;
+
+                // Use the enhanced approve endpoint
+                const response = await OnboardingUsersService.approve(userId);
+
+                if (response.data.success) {
+                    const { data } = response.data;
+                    let message = 'User approved successfully!';
+
+										console.log("response approve flow: ", response);
+
+                    // Show detailed status
+                    if (!data?.googleWorkspace || !data?.cubeSystem || !data?.trackingSystem) {
+                        message += ' Some systems may require manual setup.';
+                    }
+
+                    this.$toasted.success(message);
+
+                    // Show detailed modal with results
+                    this.showApprovalResults(data);
+                } else {
+                    this.$toasted.error('Approval completed with some issues');
+                }
+
                 this.closeModal();
                 this.fetchUsers();
             } catch (error) {
                 console.error('Error approving user:', error);
                 this.$toasted.error('Error approving user');
+            } finally {
+                this.isApproving = false;
             }
+        },
+
+        showApprovalResults(data) {
+            // Show a modal or notification with detailed results
+            const results = [
+                `Work Email: ${data?.workEmail}`,
+                `Google Workspace: ${data?.googleWorkspace ? '✅' : '❌'}`,
+                `Cube System: ${data?.cubeSystem ? '✅' : '❌'}`,
+                `Tracking System: ${data?.trackingSystem ? '✅' : '❌'}`
+            ].join('\n');
+
+            this.$toasted.info(results, { duration: 10000 });
         },
         async rejectUser(userId) {
             try {

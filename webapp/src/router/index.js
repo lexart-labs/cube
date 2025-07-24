@@ -35,50 +35,44 @@ const routes = [
           {
             path: 'users',
             component: Users,
-          },
-          {
-            path: 'collaborators',
-            component: Collaborators,
-          },
-          {
-            path: 'evaluaciones',
-            component: EvaluationsAdmin,
-          },
-          {
-            path: 'continuity',
-            component: Continuity,
-          },
-          {
-            path: 'payments',
-            component: Payments,
-          },
-          {
-            path: 'technologies',
-            component: Technologies,
-          },
-          {
-            path: 'origins',
-            component: Origin,
-          },
-          {
-            path: 'levels',
-            component: Levels
-          },
-          {
-            path: 'career-type',
-            component: CareerType,
-          },
-          {
-            path: 'career',
-            component: Positions,
-          },
-          {
-            path: 'candidates',
-            component: Candidates,
+						name: 'Users',
+						children: [
+							{
+								path: 'evaluaciones',
+								component: EvaluationsAdmin,
+							},
+							{
+								path: 'technologies',
+								component: Technologies,
+							},
+							{
+								path: 'origins',
+								component: Origin,
+							},
+							{
+								path: 'levels',
+								component: Levels
+							},
+							{
+								path: 'career-type',
+								component: CareerType,
+							},
+							{
+								path: 'career',
+								component: Positions,
+							},
+						]
           },
 					{
             path: 'partners',
+						name: 'Partners',
             component: Partners,
+						children: [
+							{
+								path: 'candidates',
+								component: Candidates,
+							}
+						]
           },
 					{
             path: 'onboarding-users',
