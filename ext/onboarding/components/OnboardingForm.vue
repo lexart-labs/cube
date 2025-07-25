@@ -13,7 +13,7 @@
     <form v-else @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Personal Information Section -->
       <h3 class="text-xl font-semibold">Personal Information</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Full Name
@@ -36,6 +36,22 @@
             required
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+        </div>
+
+				<div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Country
+          </label>
+          <select
+            v-model="form.country"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="" disabled>Select a country</option>
+            <option v-for="country in countries" :key="country" :value="country">
+              {{ country }}
+            </option>
+          </select>
         </div>
       </div>
 
@@ -166,35 +182,10 @@
 
 			<!-- Bank Information Section -->
       <h3 class="text-xl font-semibold mt-6">Bank Information</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            Country
-          </label>
-          <input
-            v-model="form.country"
-            type="text"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            IBAN
-          </label>
-          <input
-            v-model="form.iban"
-            type="text"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-      </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">
-          Bank Account Information <small>(for international accounts add SWIFT CODE here)</small>
+          Bank Account Information <small>(for international accounts add SWIFT CODE, IBAN and Intermediary Bank)</small>
         </label>
         <textarea
           v-model="form.bankInformation"
@@ -202,17 +193,6 @@
           rows="2"
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         ></textarea>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          Intermediary Bank
-        </label>
-        <input
-          v-model="form.intermediaryBank"
-          type="text"
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
       </div>
 
       <div class="flex justify-between">
@@ -262,6 +242,13 @@ const form = reactive({
   companyAddress: ''
 })
 
+const countries = [
+		'Uruguay',
+		'Brazil',
+		'Argentina',
+		'Chile',
+		'Colombia'
+]
 const loading = ref(false)
 const loadingData = ref(false)
 const error = ref('')

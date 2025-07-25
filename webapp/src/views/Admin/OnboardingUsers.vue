@@ -9,7 +9,7 @@
             <div class="col-md-12 text-right">
                 <button
                     class="btn btn-primary btn-sm mb-2"
-                    @click="showCreateModal = true"
+                    @click="showCreateModal = true; openCreateModal()"
                 >
                     Create New User
                 </button>
@@ -206,12 +206,61 @@
 
                     <!-- Additional Information -->
                     <div class="section" v-if="selectedUser.adjunctSignedFiles">
-                        <h5>Additional Information</h5>
-                        <p><strong>Adjunct Signed Files:</strong></p>
+                        <h5>Signed Documents by User</h5>
                        	<a :href="onboardingUrl + 'uploads/contracts/' + selectedUser.adjunctSignedFiles.nda" target="_blank">Signed NDA</a>
 												<br>
 												<a :href="onboardingUrl + 'uploads/contracts/' + selectedUser.adjunctSignedFiles.service_agreement" target="_blank">Signed Service Agreement</a>
                     </div>
+
+										<!-- Additional Information -->
+                    <div class="section" v-if="selectedUser.lexartSignedDocuments">
+                        <h5>Signed Documents by Lexart</h5>
+                       	<a v-if="selectedUser.lexartSignedDocuments.nda" :href="onboardingUrl + 'uploads/signed-documents/' + selectedUser.lexartSignedDocuments.nda" target="_blank">Signed NDA</a>
+												<br>
+												<a v-if="selectedUser.lexartSignedDocuments.service_agreement" :href="onboardingUrl + 'uploads/signed-documents/' + selectedUser.lexartSignedDocuments.service_agreement" target="_blank">Signed Service Agreement</a>
+                    </div>
+
+										<!-- Signed Documents Section -->
+										<div class="section">
+											<div class="row">
+												<div class="col-md-12">
+													<div class="form-group mb-3">
+														<label for="ndaUpload">Upload Signed NDA (PDF only)</label>
+														<input
+															type="file"
+															id="ndaUpload"
+															class="form-control"
+															accept=".pdf"
+															@change="handleSignedDocumentUpload($event, 'nda')"
+														>
+														<div v-if="selectedUser.userKyc && selectedUser.userKyc.lexart_signed_nda" class="mt-2">
+															<small class="text-success">✓ NDA uploaded: {{ selectedUser.userKyc.lexart_signed_nda }}</small>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-12">
+													<div class="form-group mb-3">
+														<label for="serviceAgreementUpload">Upload Signed Service Agreement (PDF only)</label>
+														<input
+															type="file"
+															id="serviceAgreementUpload"
+															class="form-control"
+															accept=".pdf"
+															@change="handleSignedDocumentUpload($event, 'service_agreement')"
+														>
+														<div v-if="selectedUser.userKyc && selectedUser.userKyc.lexart_signed_service_agreement" class="mt-2">
+															<small class="text-success">✓ Service Agreement uploaded: {{ selectedUser.userKyc.lexart_signed_service_agreement }}</small>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div v-if="uploadingDocuments" class="text-center">
+												<div class="spinner-border spinner-border-sm" role="status">
+													<span class="sr-only">Uploading...</span>
+												</div>
+												<span class="ml-2">Uploading documents...</span>
+											</div>
+										</div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" @click="closeModal">Close</button>
@@ -265,29 +314,33 @@
                             >
                         </div>
                         <div class="form-group mb-3">
-                            <label for="userPassword">Password *</label>
-                            <input
-                                type="password"
-                                id="userPassword"
-                                class="form-control"
-                                v-model="newUser.password"
-                                required
-                                placeholder="Enter temporary password"
-                                minlength="6"
-                            >
+                            <label for="userPassword">Generated Password *</label>
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    id="userPassword"
+                                    class="form-control"
+                                    v-model="newUser.password"
+                                    readonly
+                                    placeholder="Password will be generated automatically"
+                                >
+                            </div>
+                            <small class="form-text text-muted">
+                                This password will be sent to the user via email if the option below is checked.
+                            </small>
                         </div>
                         <div class="form-group mb-3">
                             <div class="form-check">
-                                <input
+                                <label for="sendEmail" class="form-check-label">
+                                    Send login credentials via email
+                                </label>
+																<input
                                     type="checkbox"
                                     id="sendEmail"
                                     class="form-check-input"
                                     v-model="newUser.sendEmail"
                                     checked
                                 >
-                                <label for="sendEmail" class="form-check-label">
-                                    Send login credentials via email
-                                </label>
                             </div>
                         </div>
                     </form>
@@ -380,7 +433,8 @@ export default {
             // Add delete modal properties:
             showDeleteModal: false,
             isDeleting: false,
-            userToDelete: null
+            userToDelete: null,
+						uploadingDocuments: false
         };
     },
     computed: {
@@ -395,6 +449,58 @@ export default {
         this.fetchUsers();
     },
     methods: {
+				async handleSignedDocumentUpload(event, documentType) {
+					const file = event.target.files[0]
+					if (!file) return
+
+					// Validate file type
+					if (file.type !== 'application/pdf') {
+						this.$toasted.error('Only PDF files are allowed')
+						return
+					}
+
+					// Validate file size (max 10MB)
+					if (file.size > 10 * 1024 * 1024) {
+						this.$toasted.error('File size must be less than 10MB')
+						return
+					}
+
+					this.uploadingDocuments = true
+
+					try {
+						const formData = new FormData()
+						formData.append(documentType, file)
+
+						const response = await OnboardingUsersService.uploadSignedDocuments(
+							this.selectedUser.id,
+							formData
+						)
+
+						if (response.success) {
+							this.$toasted.success(`${documentType.replace('_', ' ')} uploaded successfully`)
+
+							// Update the selected user data
+							if (documentType === 'nda') {
+								this.selectedUser.userKyc.lexart_signed_nda = response.files.nda.filename
+							} else if (documentType === 'service_agreement') {
+								this.selectedUser.userKyc.lexart_signed_service_agreement = response.files.service_agreement.filename
+							}
+
+							// Refresh the user list
+							this.fetchUsers()
+						}
+					} catch (error) {
+						console.error('Upload error:', error)
+						this.$toasted.error('Upload failed. Please try again.')
+					} finally {
+						this.uploadingDocuments = false
+						// Clear the file input
+						event.target.value = ''
+					}
+				},
+				getSignedDocumentUrl(filename) {
+					return `${ONBOARDING_URL}uploads/signed-documents/${filename}`
+				},
         async fetchUsers() {
             this.isLoading = true;
             try {
@@ -541,9 +647,11 @@ export default {
             if (!dateString) return 'N/A';
             return new Date(dateString).toLocaleDateString();
         },
-        closeCreateModal() {
-            this.showCreateModal = false;
-            this.resetCreateForm();
+        openCreateModal() {
+            this.showCreateModal = true;
+						setTimeout( () => {
+							this.generatePassword(); // Generate password when modal opens
+						}, 100);
         },
 
         resetCreateForm() {
@@ -553,6 +661,49 @@ export default {
                 password: '',
                 sendEmail: true
             };
+            // Generate password when form is reset
+            this.generatePassword();
+        },
+
+        generatePassword() {
+            // Generate a secure password with mix of characters
+            const length = 12;
+            const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+            let password = '';
+
+            // Ensure at least one character from each type
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const numbers = '0123456789';
+            const symbols = '!@#$%^&*';
+
+            password += lowercase[Math.floor(Math.random() * lowercase.length)];
+            password += uppercase[Math.floor(Math.random() * uppercase.length)];
+            password += numbers[Math.floor(Math.random() * numbers.length)];
+            password += symbols[Math.floor(Math.random() * symbols.length)];
+
+            // Fill the rest randomly
+            for (let i = 4; i < length; i++) {
+                password += charset[Math.floor(Math.random() * charset.length)];
+            }
+
+            // Shuffle the password
+            this.newUser.password = password.split('').sort(() => Math.random() - 0.5).join('');
+        },
+
+        async copyPassword() {
+            try {
+                await navigator.clipboard.writeText(this.newUser.password);
+                this.$toasted.success('Password copied to clipboard!');
+            } catch (error) {
+                console.error('Failed to copy password:', error);
+                this.$toasted.error('Failed to copy password');
+            }
+        },
+
+        closeCreateModal() {
+            this.showCreateModal = false;
+            this.resetCreateForm();
         },
 
         async createUser() {
@@ -578,6 +729,7 @@ export default {
                 this.isCreating = false;
             }
         },
+
         confirmDeleteUser(user) {
             this.userToDelete = user;
             this.showDeleteModal = true;
@@ -775,7 +927,6 @@ h2 {
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
     font-weight: 600;
     color: #555;
 }

@@ -31,13 +31,15 @@ export default defineEventHandler(async (event) => {
 
     // Enhanced query using subqueries to avoid duplicates
     const usersQuery = `
-      SELECT 
+      SELECT
         pu.id,
         pu.email,
         pu.name,
         pu.kyc_status,
         pu.created_at,
         pu.updated_at,
+        kyc.lexart_signed_nda,
+        kyc.lexart_signed_service_agreement,
         kyc.full_name,
         kyc.identity_document,
         kyc.full_address,
@@ -56,6 +58,8 @@ export default defineEventHandler(async (event) => {
       FROM pending_users pu
       LEFT JOIN (
         SELECT DISTINCT user_id,
+               FIRST_VALUE(lexart_signed_nda) OVER (PARTITION BY user_id ORDER BY id) as lexart_signed_nda,
+               FIRST_VALUE(lexart_signed_service_agreement) OVER (PARTITION BY user_id ORDER BY id) as lexart_signed_service_agreement,
                FIRST_VALUE(full_name) OVER (PARTITION BY user_id ORDER BY id) as full_name,
                FIRST_VALUE(identity_document) OVER (PARTITION BY user_id ORDER BY id) as identity_document,
                FIRST_VALUE(full_address) OVER (PARTITION BY user_id ORDER BY id) as full_address,
@@ -125,6 +129,12 @@ export default defineEventHandler(async (event) => {
         service_agreement: user.service_agreement_contract
       }
 
+      // Add the signed documents from Lexart
+      const lexartSignedDocuments = {
+        nda: user.lexart_signed_nda,
+        service_agreement: user.lexart_signed_service_agreement
+      }
+
       return {
         id: user.id,
         email: user.email,
@@ -133,7 +143,8 @@ export default defineEventHandler(async (event) => {
         created_at: user.created_at,
         updated_at: user.updated_at,
         userKyc,
-        adjunctSignedFiles
+        adjunctSignedFiles,
+        lexartSignedDocuments
       }
     })
 

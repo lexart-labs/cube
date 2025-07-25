@@ -63,3 +63,7 @@ ALTER TABLE pending_users_kyc_data
 ADD COLUMN company_name VARCHAR(255) DEFAULT NULL,
 ADD COLUMN company_rut VARCHAR(100) DEFAULT NULL,
 ADD COLUMN company_address TEXT DEFAULT NULL;
+
+ALTER TABLE pending_users_kyc_data
+ADD COLUMN lexart_signed_nda VARCHAR(255) DEFAULT NULL,
+ADD COLUMN lexart_signed_service_agreement VARCHAR(255) DEFAULT NULL;

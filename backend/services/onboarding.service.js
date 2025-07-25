@@ -4,6 +4,8 @@ const axios = require('axios');
 const ONBOARDING_API_URL = process.env.ONBOARDING_API_URL;
 const ONBOARDING_API_KEY = process.env.ONBOARDING_API_KEY;
 
+// Add this method to the existing onboarding.service.js file
+
 const OnboardingService = {
   // Get all pending users with pagination and filtering
   getPendingUsers: async function(page = 0, limit = 10, status = 'pending') {
@@ -22,11 +24,12 @@ const OnboardingService = {
   },
 
   // Approve a user
-  approveUser: async function(userId) {
+  approveUser: async function(userId, cubeUserId) {
     try {
       const response = await axios.post(`${ONBOARDING_API_URL}/api/users/${userId}/approve`,  {}, {
         headers: {
-          'X-API-Key': ONBOARDING_API_KEY
+          'X-API-Key': ONBOARDING_API_KEY,
+					'user-id': cubeUserId
         }
       });
       return { response: response.data };
@@ -97,6 +100,46 @@ const OnboardingService = {
     } catch (error) {
       console.error('Error deleting user in onboarding system:', error.message);
       return { error: 'Error deleting user in onboarding system' };
+    }
+  },
+
+  updateSignedDocuments: async (userId, documents, files) => {
+    try {
+      const FormData = require('form-data');
+      const fs = require('fs');
+
+      const formData = new FormData();
+
+      // Add files to form data if they exist
+      if (files.nda && files.nda[0]) {
+        formData.append('nda', fs.createReadStream(files.nda[0].path), {
+          filename: files.nda[0].originalname,
+          contentType: 'application/pdf'
+        });
+      }
+
+      if (files.service_agreement && files.service_agreement[0]) {
+        formData.append('service_agreement', fs.createReadStream(files.service_agreement[0].path), {
+          filename: files.service_agreement[0].originalname,
+          contentType: 'application/pdf'
+        });
+      }
+
+      const config = {
+        method: 'POST',
+        url: `${ONBOARDING_API_URL}/api/users/${userId}/upload-signed-documents`,
+        headers: {
+          'X-API-Key': ONBOARDING_API_KEY,
+          ...formData.getHeaders()
+        },
+        data: formData
+      }
+
+      const response = await axios(config)
+      return { response: response.data }
+    } catch (error) {
+      console.error('Error updating signed documents:', error)
+      return { error: 'Failed to update signed documents' }
     }
   }
 };
