@@ -267,6 +267,7 @@
                     <button
                         v-if="selectedUser && (selectedUser.kyc_status === 'pending' || selectedUser.kyc_status === 'under_review')"
                         class="btn btn-success mr-2"
+                        :disabled="isApproving"
                         @click="approveUser(selectedUser.id)"
                     >
                         Approve
@@ -434,7 +435,8 @@ export default {
             showDeleteModal: false,
             isDeleting: false,
             userToDelete: null,
-						uploadingDocuments: false
+						uploadingDocuments: false,
+						isApproving: false
         };
     },
     computed: {

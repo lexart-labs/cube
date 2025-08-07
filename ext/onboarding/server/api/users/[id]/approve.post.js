@@ -5,6 +5,7 @@ import { promises as fs, readFileSync } from 'fs'
 import path from 'path'
 import { randomUUID } from 'crypto'
 import axios from 'axios'
+import { JWT } from 'google-auth-library'
 
 export default defineEventHandler(async (event) => {
   validateApiKey(event)
@@ -230,8 +231,30 @@ function generateSecurePassword() {
 async function createGoogleWorkspaceUser(userData) {
   try {
     const config = useRuntimeConfig()
+    
+    console.log('Google Service Account Email:', config.googleServiceAccountEmail)
+    console.log('Google Admin Email:', config.googleAdminEmail)
+    console.log('Service Account Key exists:', !!config.googleServiceAccountKey)
+    
+    // Create JWT client with service account
+    const jwtClient = new JWT({
+      email: config.googleServiceAccountEmail,
+      key: config.googleServiceAccountKey,
+      scopes: ['https://www.googleapis.com/auth/admin.directory.user'],
+      subject: config.googleAdminEmail // Admin email to impersonate
+    })
+    
+    // Get access token
+    console.log('Getting access token...')
+    const { token } = await jwtClient.getAccessToken()
+    console.log('Access token obtained successfully')
 
-    // Google Workspace Admin SDK API call
+    console.log('Creating user with data:', {
+      primaryEmail: userData.email,
+      givenName: userData.firstName,
+      familyName: userData.lastName
+    })
+
     const response = await axios.post(
       `https://admin.googleapis.com/admin/directory/v1/users`,
       {
@@ -246,11 +269,11 @@ async function createGoogleWorkspaceUser(userData) {
           value: userData.phone,
           type: 'work'
         }] : [],
-        orgUnitPath: '/Employees'
+        orgUnitPath: '/' // Changed from '/Employees' to root
       },
       {
         headers: {
-          'Authorization': `Bearer ${config.googleWorkspaceAccessToken}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       }
@@ -259,6 +282,8 @@ async function createGoogleWorkspaceUser(userData) {
     return { success: true, data: response.data }
   } catch (error) {
     console.error('Google Workspace user creation failed:', error)
+    console.error('Error response:', error.response?.data)
+    console.error('Error status:', error.response?.status)
     return { success: false, error: error.message }
   }
 }

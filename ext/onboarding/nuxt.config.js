@@ -24,5 +24,8 @@ export default defineNuxtConfig({
 		cubeApiToken: process.env.CUBE_API_TOKEN || 'your-super-secret-api-key-for-cube-communication',
 		trackingApiUrl: process.env.TRACKING_API_URL || 'http://localhost:3002',
 		trackingApiToken: process.env.TRACKING_API_TOKEN || 'your-super-secret-api-key-for-tracking-communication',
+		googleServiceAccountEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || 'your-service-account@project.iam.gserviceaccount.com',
+		googleServiceAccountKey: process.env.GOOGLE_SERVICE_ACCOUNT_KEY || 'your-service-account-key',
+		googleAdminEmail: process.env.GOOGLE_ADMIN_EMAIL || 'your-admin-email@example.com',
   }
 })
