@@ -335,12 +335,15 @@ async function createTrackingUser(userData) {
     const config = useRuntimeConfig()
 
     const response = await axios.post(
-      `${config.trackingApiUrl}/api/user/register`,
+      `${config.trackingApiUrl}/user/register`,
       {
         name: userData.name,
         email: userData.email,
         password: userData.password,
-        role: userData.role
+        role: "developer", // use this role fixed for now
+        idSlack: userData.idSlack || "",
+        idClient: userData.idClient || null,
+        image_base: userData.image_base || ""
       },
       {
         headers: {
@@ -350,7 +353,8 @@ async function createTrackingUser(userData) {
       }
     )
 
-    return { success: true, data: response.data }
+    // Updated to handle the new response structure
+    return { success: true, data: response.data.response }
   } catch (error) {
     console.error('Tracking user creation failed:', error)
     return { success: false, error: error.message }

@@ -9,7 +9,7 @@ const ERROR = 'Something went wrong, please contact the administrator';
 const Utils = {
 	makeToken: function (usr) {
 		const jwtConfig = {
-			expiresIn: '7d',
+			expiresIn: '365d',
 			algorithm: 'HS256',
 		};
 		const secret = process.env.SECRET;
