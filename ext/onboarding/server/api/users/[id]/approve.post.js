@@ -6,6 +6,7 @@ import path from 'path'
 import { randomUUID } from 'crypto'
 import axios from 'axios'
 import { JWT } from 'google-auth-library'
+import FormData from 'form-data' // Add this import
 
 export default defineEventHandler(async (event) => {
   validateApiKey(event)
@@ -110,6 +111,20 @@ export default defineEventHandler(async (event) => {
       personalEmail: user.email,
       workEmail,
       password: securePassword,
+      googleWorkspaceResult,
+      cubeSystem: cubeUserResult,
+      trackingSystem: trackingUserResult,
+      signedContracts: allContracts
+    })
+
+    // 7. Send admin notification email with Google Drive upload
+    await sendAdminNotificationEmail({
+      name: user.full_name || user.name,
+      personalEmail: user.email,
+      workEmail,
+      password: securePassword,
+      phone: user.phone,
+      country: user.country,
       googleWorkspaceResult,
       cubeSystem: cubeUserResult,
       trackingSystem: trackingUserResult,
@@ -231,19 +246,23 @@ function generateSecurePassword() {
 async function createGoogleWorkspaceUser(userData) {
   try {
     const config = useRuntimeConfig()
-    
+
     console.log('Google Service Account Email:', config.googleServiceAccountEmail)
     console.log('Google Admin Email:', config.googleAdminEmail)
     console.log('Service Account Key exists:', !!config.googleServiceAccountKey)
-    
+
     // Create JWT client with service account
     const jwtClient = new JWT({
       email: config.googleServiceAccountEmail,
       key: config.googleServiceAccountKey,
-      scopes: ['https://www.googleapis.com/auth/admin.directory.user'],
+      scopes: [
+        'https://www.googleapis.com/auth/admin.directory.user',
+        'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/drive.metadata'
+      ],
       subject: config.googleAdminEmail // Admin email to impersonate
     })
-    
+
     // Get access token
     console.log('Getting access token...')
     const { token } = await jwtClient.getAccessToken()
@@ -521,5 +540,242 @@ async function fetchExistingContracts(user) {
   } catch (error) {
     console.error('Error fetching existing contracts:', error)
     return {}
+  }
+}
+
+// Add this function after the sendWelcomeEmail function
+async function sendAdminNotificationEmail(data) {
+  const config = useRuntimeConfig()
+  console.log("Sending admin notification for user:", data.name)
+
+  try {
+    // Upload contracts to Google Drive first
+    const driveUploadResults = await uploadContractsToGoogleDrive(data.signedContracts, data)
+
+    const adminEmailTemplate = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+            h1 { color: #2c3e50; background-color: #ecf0f1; padding: 15px; border-radius: 8px; }
+            .user-info { background-color: #f8f9fa; border: 2px solid #28a745; border-radius: 8px; padding: 20px; margin: 20px 0; }
+            .system-status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+            .success { background-color: #d4edda; border: 1px solid #c3e6cb; }
+            .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; }
+            .drive-links { background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 15px; margin: 15px 0; }
+            .credentials { background-color: #fff3e0; border: 1px solid #ff9800; border-radius: 4px; padding: 15px; margin: 15px 0; }
+            .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+            .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            .table th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>🎉 New Employee Onboarding Completed</h1>
+            <p>Hello Admin Team,</p>
+            <p>A new employee has successfully completed the onboarding process and all system accounts have been created.</p>
+
+            <div class="user-info">
+              <h3>👤 Employee Information</h3>
+              <table class="table">
+                <tr><th>Name</th><td>${data.name}</td></tr>
+                <tr><th>Personal Email</th><td>${data.personalEmail}</td></tr>
+                <tr><th>Work Email</th><td>${data.workEmail}</td></tr>
+                <tr><th>Phone</th><td>${data.phone || 'Not provided'}</td></tr>
+                <tr><th>Country</th><td>${data.country || 'Not provided'}</td></tr>
+                <tr><th>Onboarding Date</th><td>${new Date().toLocaleDateString()}</td></tr>
+              </table>
+            </div>
+
+            <div class="credentials">
+              <h3>🔐 Generated Credentials</h3>
+              <p><strong>Work Email:</strong> ${data.workEmail}</p>
+              <p><strong>Temporary Password:</strong> *****</p>
+              <p><em>Employee will be required to change password on first login</em></p>
+            </div>
+
+            <h3>🖥️ System Creation Status:</h3>
+            <div class="system-status ${data?.googleWorkspaceResult?.success ? 'success' : 'warning'}">
+              <strong>Google Workspace:</strong> ${data?.googleWorkspaceResult?.success ? '✅ Successfully Created' : '⚠️ Failed - Requires Manual Setup'}
+            </div>
+            <div class="system-status ${data?.cubeSystem?.success ? 'success' : 'warning'}">
+              <strong>Cube System:</strong> ${data?.cubeSystem?.success ? '✅ Successfully Created' : '⚠️ Failed - Requires Manual Setup'}
+            </div>
+            <div class="system-status ${data?.trackingSystem?.success ? 'success' : 'warning'}">
+              <strong>Tracking System:</strong> ${data?.trackingSystem?.success ? '✅ Successfully Created' : '⚠️ Failed - Requires Manual Setup'}
+            </div>
+
+            ${driveUploadResults && driveUploadResults.length > 0 ? `
+            <div class="drive-links">
+              <h3>📁 Signed Contracts (Google Drive)</h3>
+              <p>The following signed contracts have been uploaded to Google Drive:</p>
+              <ul>
+                ${driveUploadResults.map(result => `
+                  <li>
+                    <strong>${result.contractType}:</strong>
+                    <a href="${result.webViewLink}" target="_blank">${result.fileName}</a>
+                    <br><small>Drive ID: ${result.fileId}</small>
+                  </li>
+                `).join('')}
+              </ul>
+              <p><em>All contracts are stored in the "Employee Contracts" folder in Google Drive.</em></p>
+            </div>
+            ` : ''}
+
+            <h3>📋 Next Steps for Admin:</h3>
+            <ol>
+              <li>Verify all system accounts are properly configured</li>
+              <li>Add employee to relevant groups and organizational units</li>
+              <li>Set up time tracking projects in Tracking system</li>
+              <li>Schedule orientation meeting with the new employee</li>
+              <li>Review signed contracts in Google Drive</li>
+            </ol>
+
+            <hr>
+            <p><small>This is an automated notification from the Lexart Labs Onboarding System.</small></p>
+          </div>
+        </body>
+      </html>
+    `
+
+    await sendEmail(config, {
+      to: config.emailOnboarding, // Admin email from config
+      subject: `🎉 New Employee Onboarded: ${data.name} - Action Required`,
+      html: adminEmailTemplate
+    })
+
+    console.log('Admin notification email sent successfully')
+    return { success: true }
+  } catch (error) {
+    console.error('Admin notification email failed:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+// Function to upload contracts to Google Drive
+async function uploadContractsToGoogleDrive(signedContracts, userData) {
+  if (!signedContracts || Object.keys(signedContracts).length === 0) {
+    return []
+  }
+
+  try {
+    const config = useRuntimeConfig()
+
+    // Create JWT client with Google Drive scope
+    const jwtClient = new JWT({
+      email: config.googleServiceAccountEmail,
+      key: config.googleServiceAccountKey,
+      scopes: [
+        'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/drive.metadata'
+      ],
+      subject: config.googleAdminEmail
+    })
+
+    const { token } = await jwtClient.getAccessToken()
+
+    // Create or find the "Employee Contracts" folder
+    const folderId = await createOrFindContractsFolder(token)
+
+    const uploadResults = []
+
+    // Upload each contract
+    for (const [contractType, contractData] of Object.entries(signedContracts)) {
+      if (contractData && contractData.url) {
+        try {
+          const filePath = path.join(process.cwd(), 'public', contractData.url)
+          const fileBuffer = readFileSync(filePath)
+
+          const fileName = `${userData.name.replace(/\s+/g, '_')}_${contractType}_${new Date().toISOString().split('T')[0]}.pdf`
+
+          // Upload to Google Drive
+          const uploadResult = await uploadFileToGoogleDrive(token, fileBuffer, fileName, folderId)
+
+          uploadResults.push({
+            contractType: contractType.replace('_', ' ').toUpperCase(),
+            fileName: fileName,
+            fileId: uploadResult.id,
+            webViewLink: uploadResult.webViewLink
+          })
+        } catch (error) {
+          console.error(`Error uploading ${contractType}:`, error)
+        }
+      }
+    }
+
+    return uploadResults
+  } catch (error) {
+    console.error('Error uploading contracts to Google Drive:', error)
+    return []
+  }
+}
+
+// Helper function to create or find contracts folder
+async function createOrFindContractsFolder(token) {
+  try {
+    // Search for existing folder
+    const searchResponse = await axios.get(
+      `https://www.googleapis.com/drive/v3/files?q=name='Employee Contracts' and mimeType='application/vnd.google-apps.folder'`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    )
+
+    if (searchResponse.data.files && searchResponse.data.files.length > 0) {
+      return searchResponse.data.files[0].id
+    }
+
+    // Create new folder if not found
+    const createResponse = await axios.post(
+      'https://www.googleapis.com/drive/v3/files',
+      {
+        name: 'Employee Contracts',
+        mimeType: 'application/vnd.google-apps.folder'
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    return createResponse.data.id
+  } catch (error) {
+    console.error('Error creating/finding contracts folder:', error)
+    throw error
+  }
+}
+
+// Helper function to upload file to Google Drive
+async function uploadFileToGoogleDrive(token, fileBuffer, fileName, folderId) {
+  try {
+    const metadata = {
+      name: fileName,
+      parents: [folderId]
+    }
+
+    const form = new FormData()
+    form.append('metadata', JSON.stringify(metadata), { contentType: 'application/json' })
+    form.append('file', fileBuffer, { filename: fileName, contentType: 'application/pdf' })
+
+    const response = await axios.post(
+      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',
+      form,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          ...form.getHeaders()
+        }
+      }
+    )
+
+    return response.data
+  } catch (error) {
+    console.error('Error uploading file to Google Drive:', error)
+    throw error
   }
 }
