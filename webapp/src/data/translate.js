@@ -190,6 +190,7 @@ const translations = {
       deleteError: 'Error: Por favor, asegúrese de que esta plataforma no esté asociada con ningún usuario.',
     },
     generic: {
+			onboardingUsers: 'Usuarios de onboarding',
       cancel: 'Cancelar',
       save: 'Guardar',
       date: 'Fecha',
@@ -645,6 +646,7 @@ const translations = {
       edited: 'Career type edited successfully',
     },
     generic: {
+			onboardingUsers: 'Onboarding Users',
       cancel: 'Cancel',
       save: 'Save',
       date: 'Date',

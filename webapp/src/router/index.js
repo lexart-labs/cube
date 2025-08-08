@@ -17,6 +17,7 @@ import CareerType from '../views/Admin/CareerType';
 import Positions from '../views/Admin/Positions.vue';
 import Candidates from '../views/Admin/Candidates.vue';
 import Partners from '../views/Admin/Partners.vue';
+import OnboardingUsers from '../views/Admin/OnboardingUsers.vue';
 
 const routes = [
   { path: '/:slug/login', name: 'Login', component: Login },
@@ -34,50 +35,48 @@ const routes = [
           {
             path: 'users',
             component: Users,
-          },
-          {
-            path: 'collaborators',
-            component: Collaborators,
-          },
-          {
-            path: 'evaluaciones',
-            component: EvaluationsAdmin,
-          },
-          {
-            path: 'continuity',
-            component: Continuity,
-          },
-          {
-            path: 'payments',
-            component: Payments,
-          },
-          {
-            path: 'technologies',
-            component: Technologies,
-          },
-          {
-            path: 'origins',
-            component: Origin,
-          },
-          {
-            path: 'levels',
-            component: Levels
-          },
-          {
-            path: 'career-type',
-            component: CareerType,
-          },
-          {
-            path: 'career',
-            component: Positions,
-          },
-          {
-            path: 'candidates',
-            component: Candidates,
+						name: 'Users',
+						children: [
+							{
+								path: 'evaluaciones',
+								component: EvaluationsAdmin,
+							},
+							{
+								path: 'technologies',
+								component: Technologies,
+							},
+							{
+								path: 'origins',
+								component: Origin,
+							},
+							{
+								path: 'levels',
+								component: Levels
+							},
+							{
+								path: 'career-type',
+								component: CareerType,
+							},
+							{
+								path: 'career',
+								component: Positions,
+							},
+						]
           },
 					{
             path: 'partners',
+						name: 'Partners',
             component: Partners,
+						children: [
+							{
+								path: 'candidates',
+								component: Candidates,
+							}
+						]
+          },
+					{
+            path: 'onboarding-users',
+            component: OnboardingUsers,
           },
         ],
       },
