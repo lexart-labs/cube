@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mysqldb_offboarding:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: your_root_password_here
+      MYSQL_DATABASE: offboarding
+      MYSQL_USER: offboardinguser
+      MYSQL_PASSWORD: secure_password
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysqldb_offboarding_data:/var/lib/mysql
+
+  offboarding_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: offboarding_nuxt
+    ports:
+      - '3001:3000'
+    environment:
+      - DB_HOST=mysqldb_offboarding
+      - DB_USER=root
+      - DB_PASSWORD=example
+      - DB_NAME=offboarding_db
+      - JWT_SECRET=your-super-secret-jwt-key
+      - RECAPTCHA_SITE_KEY=your-recaptcha-site-key
+      - RECAPTCHA_SECRET_KEY=your-recaptcha-secret-key
+    depends_on:
+      - mysqldb_offboarding
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  mysqldb_offboarding_data:
+    driver: local
