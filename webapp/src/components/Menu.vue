@@ -34,13 +34,6 @@
                     ><i class="bi bi-person"></i> {{ $t("dashboard.profileDetailsEdit")}}</a
                   >
                 </li>
-                <li v-if="isAdmin">
-                  <a
-                    data-toggle="modal"
-                    data-target="#editCompanyData"
-                    ><i class="bi bi-building"></i> {{ $t("dashboard.companyDetailsEdit")}}</a
-                  >
-                </li>
                 <li>
                   <router-link
                     v-bind:to="`/login`"

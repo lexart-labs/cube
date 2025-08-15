@@ -4,7 +4,7 @@ const router = express.Router();
 const relationsExternal = require('../services/externalRelationsCompanies.service');
 const Utils = require('../services/utils.service');
 
-router.get('/', async (req, res) => {
+router.get('/', Mdl.middleware, async (req, res) => {
   const idUser = req.headers['user-id'];
   const companyId = await Utils.getIdCompanyByIdUser(idUser);
   const response = await relationsExternal.getAll(companyId);
@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   return res.send(response);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', Mdl.middleware, async (req, res) => {
   const { id } = req.params;
 
   const response = await relationsExternal.getById(id);
@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
   return res.send(response);
 });
 
-router.post('/:idCompany1', async (req, res) => {
+router.post('/:idCompany1', Mdl.middleware, async (req, res) => {
   const { idCompany1 } = req.params;
   const { idCompany2 } = req.body;
 
@@ -32,7 +32,7 @@ router.post('/:idCompany1', async (req, res) => {
   return res.send(response);
 })
 
-router.post('/status/:idCompany1', async (req, res) => {
+router.post('/status/:idCompany1', Mdl.middleware, async (req, res) => {
   const { idCompany1 } = req.params;
   const { idCompany2, status } = req.body;
 

@@ -83,7 +83,7 @@ export default {
       this.isLoading = true;
       const user = this.chartData
       const [careers] = await Promise.all([
-      this.getCareers({ "user-id": user.id }),
+      	this.getCareers(),
       ]);
       this.isLoading = false;
       this.careers = careers;
@@ -98,13 +98,23 @@ export default {
 
       $("#myModal").modal();
     },
-    getCareers: async function(headers) {
-      const { data: { response: careers }} = await axios.get(`${API}careers/byUser`, { headers });
-      return careers || [];
+		generateHeader() {
+				const token = localStorage.getItem(`token-app-${APP_NAME}`);
+      	const userId = localStorage.getItem(`id-${APP_NAME}`);
+				return {
+						token,
+						'user-id': userId,
+				};
+		},
+    getCareers: async function() {
+        const headers = this.generateHeader();
+        const { data: { response: careers }} = await axios.get(`${API}careers/byUser`, { headers });
+        return careers || [];
     },
-    getUserInfo: async function(id, headers) {
-      const { data: { response } } = await axios.get(`${API}users/${id}`, { headers });
-      return response || {};
+    getUserInfo: async function(id) {
+        const headers = this.generateHeader();
+        const { data: { response } } = await axios.get(`${API}users/${id}`, { headers });
+        return response || {};
     },
     buildGraphic() {
       const AIMLpositions = [

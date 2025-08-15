@@ -44,6 +44,7 @@ const externalRelations = require("./routes/externalRelationsCompanies")
 const burnoutTestRouter = require("./routes/burnoutTests")
 const candidatesRouter = require("./routes/candidates")
 const partnersRoutes = require('./routes/partners')
+const onboardingRoutes = require('./routes/onboarding')
 
 const port = process.env.API_PORT;
 const seed = 100000000000000;
@@ -136,7 +137,8 @@ const corsOptions = {
 		'token',
 		'company_slug',
 		'user-id',
-		'lextoken'
+		'lextoken',
+		'user_id'
   ],
   exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
   maxAge: 86400 // 24 hours
@@ -171,6 +173,7 @@ app.use('/external/relations', externalRelations);
 app.use('/burnout_tests', burnoutTestRouter)
 app.use('/candidates', candidatesRouter)
 app.use('/partners', partnersRoutes)
+app.use('/onboarding', onboardingRoutes)
 
 app.post('/upload-file', (req, res, next) => {
   upload.single('file-image')(req, res, function (err) {
