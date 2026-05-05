@@ -1,46 +1,44 @@
-# Build stage
+# --- ETAPA 1: Construcción (Builder) ---
 FROM node:18-alpine AS builder
 
 WORKDIR /webapp
 
-# Copy package files
+# Copiamos los archivos de configuración de npm
 COPY package*.json ./
 
-# Install all dependencies (including dev dependencies)
-RUN npm ci
+# Instalamos todas las dependencias
+RUN npm install
 
-# Copy source code
-COPY src/ ./src/
-COPY public/ ./public/
-COPY *.js ./
-COPY *.json ./
-COPY *.html ./
+# --- EL CAMBIO ESTÁ AQUÍ ---
+# Copiamos absolutamente todo el contenido actual al contenedor
+COPY . .
 
-# Build the application
+# Verificamos si el archivo 'env' existe antes de compilar (esto ayudará a debuguear)
+# Si este comando falla, es porque el archivo no está en tu carpeta local
+RUN ls -la | grep env || echo "ADVERTENCIA: No se encontró ningún archivo que contenga 'env'"
+
+# Ejecutamos el build
 RUN npm run build
 
-# Production stage
+
+# --- ETAPA 2: Producción ---
 FROM node:18-alpine AS production
 
-# Create non-root user
+# Crear usuario seguro
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S webapp -u 1001
 
 WORKDIR /webapp
 
-# Install only http-server globally
+# Servidor estático
 RUN npm install -g http-server && \
     npm cache clean --force
 
-# Copy built application from builder stage
+# Copiamos solo el resultado de la compilación
 COPY --from=builder --chown=webapp:nodejs /webapp/dist ./dist
-COPY --from=builder --chown=webapp:nodejs /webapp/package*.json ./
 
-# Switch to non-root user
 USER webapp
 
-# Expose port
 EXPOSE 8080
 
-# Start the application
 CMD ["http-server", "dist", "-p", "8080"]
