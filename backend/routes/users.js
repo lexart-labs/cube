@@ -3,8 +3,7 @@ const router = express.Router();
 const User 	 = require('../services/users.service');
 const Technologies = require('../services/technologies.service');
 
-
-router.post('/login', async function (req, res) {
+router.post('/login', Mdl.middleware, async function (req, res) {
 	const  { email, idCompany } = req.body;
 	let response = await User.loginCube(email, idCompany);
 
@@ -20,7 +19,7 @@ router.post('/login/verify', async function (req, res) {
     res.send(response);
 })
 
-router.get('/school/:token', async function (req, res) {
+router.get('/school/:token', Mdl.middleware, async function (req, res) {
 	let token = req.params.token;
 	let response = await User.byToken(token);
 
@@ -38,9 +37,7 @@ router.post('/check-type', Mdl.middleware, async function (req, res) {
 
 router.get('/all', Mdl.middleware, async function (req, res) {
 	const { page, query } = req.query;
-	const company_slug = req.headers.company_slug;
-	console.log("req.user: ", req.user)
-	
+
 	let response = await User.all(req.headers['user-id'], page || null, query, req.user);
 
 	res.set(['Content-Type', 'application/json']);
@@ -74,14 +71,15 @@ router.get('/count', Mdl.middleware, async function (req, res) {
     res.send(response);
 })
 
-router.get('/lextracking-ids', async function (_req, res) {
+router.get('/lextracking-ids', Mdl.middleware, async function (_req, res) {
 	const response = await User.devIds();
 	res.set(['Content-Type', 'application/json']);
     res.send(response);
 })
 
-router.post('/upsert', async function (req, res) {
+router.post('/upsert', Mdl.middleware, async function (req, res) {
 	let post 	 = req.body;
+	console.log("user-id :: ", req.headers['user-id'])
 	let response = await User.upsert(post, req.headers['user-id'], req.headers["company_slug"]);
 
 	res.set(['Content-Type', 'application/json']);
@@ -96,23 +94,23 @@ router.get('/leads', Mdl.middleware, async function (req, res) {
     res.send(response);
 })
 
-router.get('/lead-tree/:id', async (req, res) => {
+router.get('/lead-tree/:id', Mdl.middleware, async (req, res) => {
 	const { id } = req.params;
 	const response = await User.getLeaderDevs(id);
-	
+
 	res.set(['Content-Type', 'application/json']);
   res.send(response);
 })
 
-router.get('/lead-tree', async (req, res) => {
+router.get('/lead-tree', Mdl.middleware, async (req, res) => {
 	const { company_slug } = req.headers;
 	const response = await User.getLeaderDevTree(company_slug);
-	
+
 	res.set(['Content-Type', 'application/json']);
   res.send(response);
 })
 
-router.post('/dev-indexes/count', async (req, res) => {
+router.post('/dev-indexes/count', Mdl.middleware, async (req, res) => {
 	const { techs } = req.body;
 
 	let response = await User.countDevs(techs);
@@ -120,18 +118,18 @@ router.post('/dev-indexes/count', async (req, res) => {
     res.send(response);
 })
 
-router.get('/dev-indexes/:id', async (req, res) => {
+router.get('/dev-indexes/:id', Mdl.middleware, async (req, res) => {
 	const { token } = req.headers;
 	const { year } = req.query;
 	const { id } = req.params;
 
 	const response = await User.devIndexes(id, token, Number(year));
-	
+
 	res.set(['Content-Type', 'application/json']);
   res.send(response);
 })
 
-router.post('/dev-indexes', async (req, res) => {
+router.post('/dev-indexes', Mdl.middleware, async (req, res) => {
 	const { token, company_slug } = req.headers;
 	const { year, page } = req.query;
 	const { techs } = req.body;
@@ -139,7 +137,7 @@ router.post('/dev-indexes', async (req, res) => {
 	const response = await User.allDevelopersIndicators(
 		token, Number(year), techs, page, company_slug
 	);
-	
+
 	res.set(['Content-Type', 'application/json']);
   res.send(response);
 })
@@ -191,7 +189,7 @@ router.get('/companies/participate', async function (req, res) {
 	res.status(response.status).send(response);
 })
 
-router.post('/checkexist', async function (req, res) {
+router.post('/checkexist', Mdl.middleware, async function (req, res) {
 	const { email, idCompany } = req.body;
 	const response = await User.checkUserAlreadyExists(email, idCompany);
 

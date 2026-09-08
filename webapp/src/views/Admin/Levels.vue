@@ -119,16 +119,14 @@ export default {
       const endpoint = `${API}levels/by_user_admin`;
       const {data} = await axios.get(endpoint, { headers: { token: this.token, user_id: this.user_id, company_slug: this.company_slug }});
       this.levels= data.response
-      //console.log(this.levels);
       this.isLoading = false;
     },
     updateTech: async function() {
       this.isLoading = true;
       this.isEditing = false;
-      const { id } = this.newLevel;
       const endpoint = `${API}levels`;
       const { data } = await axios.post(endpoint, {...this.newLevel}, { headers: { token: this.token, company_slug: this.company_slug }});
-      
+
       if(data.response) {
         await this.getLevels();
         this.newLevel = {...DEFAULT_VALUE};
@@ -149,10 +147,9 @@ export default {
       this.isLoading = true;
       const { id } = tech;
       const endpoint = `${API}levels/${id}`;
-      //console.log(id);
 
       const { data } = await axios.delete(endpoint, { headers: { token: this.token, company_slug: this.company_slug }});
-      
+
       if(data.response) {
         await this.getLevels();
         Vue.toasted.show(translations[this.$store.state.language].AdminTechnologies.success, {
@@ -162,7 +159,7 @@ export default {
       } else {
         this.isLoading = false;
         this.error = data.error;
-        Vue.toasted.show(data.cod 
+        Vue.toasted.show(data.cod
         ? translations[this.$store.state.language].AdminLevels.errorDelete
          : translations[this.$store.state.language].AdminLevels.error, {
             type: "error",

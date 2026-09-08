@@ -228,7 +228,7 @@ export default {
           { type: "info", duration: 2000 }
         );
       }
-      
+
       this.isEditing = true;
     },
 
@@ -244,15 +244,15 @@ export default {
       else res = await CollaboratorsService.createUser(this.collaborator);
 
       if(res.status == 200) {
-        type = 'success',
-        message = 'successToAdd';
+        type = 'success'
+        message = 'successToAdd'
         if(!this.isEditing) {
           await this.getQuantityOfPages()
           this.actualPage = this.totalOfPages - 1;
         }
       } else if(res.status == 400) {
-        type = 'error',
-        message = 'errorToAdd';
+        type = 'error'
+        message = 'errorToAdd'
       } else if(res.status == 500) {
         type = 'error';
         message = res.message;
@@ -274,7 +274,7 @@ export default {
         type: "",
         idPlataform: null,
         active: null,
-      },
+      }
       this.showPassword = false;
       this.isEditing = false;
     },

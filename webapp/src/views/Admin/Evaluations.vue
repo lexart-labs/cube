@@ -40,7 +40,6 @@
             <th>{{$t('AdminEvaluations.columnName')}}</th>
             <th>Developer</th>
             <th>{{$t('AdminEvaluations.columnDate')}}</th>
-            <th>{{$t('AdminEvaluations.columnEvaluation')}}</th>
             <th>{{$t('AdminEvaluations.columnActive')}}</th>
             <th></th>
           </tr>
@@ -51,18 +50,23 @@
             <td>{{ course.name }}</td>
             <td>{{ course.user.name }}</td>
             <td>{{ course.fecha }}</td>
-            <td>
-              <b>{{ course.total }}%</b>
-            </td>
             <td>{{ course.active === 1 ? $t('generic.yes') : $t('generic.no') }}</td>
-            <td>
+            <td  style="display: flex; gap: 1rem;justify-content: center;">
               <button
-                class="btn btn-primary col-12"
+                class="btn btn-primary col-6"
                 v-on:click="getCourseById(course.id)"
                 data-toggle="modal"
                 data-target="#staticBackdrop"
               >
                 {{$t('generic.edit')}}
+              </button>
+							<button
+                class="btn btn-primary col-6"
+                v-on:click="getCourseById(course.id)"
+                data-toggle="modal"
+                data-target="#staticBackdropConfirmation"
+              >
+                {{$t('generic.copy')}}
               </button>
             </td>
           </tr>
@@ -108,19 +112,6 @@
                       >General</a
                     >
                   </li>
-                  <li
-                    class="nav-item"
-                    :key="`tab${i}`"
-                    v-for="(tab, i) in tabItems"
-                    v-if="course.id != 0"
-                  >
-                    <a
-                      class="nav-link"
-                      v-bind:class="{ active: tabs[tab.tab] }"
-                      v-on:click="activeTab(tab.tab)"
-                      >{{ $t(`generic.${tab.name}`) }}</a
-                    >
-                  </li>
                 </ul>
               </div>
               <div v-if="tabs.general">
@@ -152,6 +143,22 @@
                     <select class="form-control is-rounded" v-model="course.active">
                       <option value="1">Active</option>
                       <option value="0">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row" style="margin-bottom: 2rem;">
+                  <div class="col-md-3 col-sm-12">
+                    <label for="priority-select" class="form-label">Priority</label>
+                    <select
+                      id="priority-select"
+                      class="form-control is-rounded"
+                      v-model="course.priority"
+                      :style="getPriorityStyle(course.priority)"
+                    >
+                      <option value="low" style="background-color: #ffebee; color: #c62828;">Low</option>
+                      <option value="acceptable" style="background-color: #fff8e1; color: #f57f17;">Acceptable</option>
+                      <option value="strong" style="background-color: #e8f5e8; color: #2e7d32;">Strong</option>
+                      <option value="na" style="background-color: #f5f5f5; color: #616161;">N/A</option>
                     </select>
                   </div>
                 </div>
@@ -309,6 +316,58 @@
                 :disabled="isLoading"
               >
                 {{ isLoading? 'Loading...' : $t('generic.save') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+			<!-- Confirmation modal -->
+			<div
+        class="modal fade"
+        id="staticBackdropConfirmation"
+        data-backdrop="static"
+        data-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="courseTitle is-bold" id="staticBackdropLabel">
+                {{$t('generic.confirm')}}
+              </h4>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <!-- General -->
+            <div class="modal-body">
+							<p>{{$t('AdminEvaluations.copyEvaluation')}}</p>
+
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary col-3"
+                data-dismiss="modal"
+              >
+                {{$t('generic.no')}}
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary col-3"
+                v-on:click="copyCourse"
+                :disabled="isLoading"
+              >
+                {{ isLoading? 'Loading...' : $t('generic.yes') }}
               </button>
             </div>
           </div>
@@ -490,6 +549,7 @@ export default {
         id: 0,
         fecha: '',
         indicadores: UtilsServices.indicatorsCopy(),
+        priority: 'na',
       },
       evaluacion: {},
       pago: {},
@@ -533,6 +593,7 @@ export default {
         id: 0,
         active: 1,
         fecha: new Date().toISOString().slice(0, 19),
+        priority: 'na',
       };
       this.error = '';
       // console.log("evaluación :: ", this.course)
@@ -736,7 +797,7 @@ export default {
             this.pagesLength = totalOfPages.response;
             pageToGet = this.pagesLength - 1;
           }
-          
+
           this.paginate(pageToGet);
 
         } else {
@@ -747,6 +808,34 @@ export default {
         }
       });
     },
+		copyCourse() {
+			this.isLoading = true;
+
+
+      CourseService().copyCourse(this.course.id,  async (res) => {
+        this.isLoading = false;
+				$('#staticBackdropConfirmation').modal('hide');
+        if (res.response) {
+          // Disparo el toast
+          this.$toasted.show(res.response, {
+            type: 'success',
+            duration: 2000,
+          });
+
+					const { data: totalOfPages } = await CourseService().getPagesLength();
+					this.pagesLength = totalOfPages.response;
+					const pageToGet = this.pagesLength - 1;
+
+          this.paginate(pageToGet);
+
+        } else {
+          this.$toasted.show('Error when trying to copy evaluation', {
+            type: 'error',
+            duration: 2000,
+          });
+        }
+      });
+		},
     removeHTTP(url, model, prop) {
       this.$set(
         this[model],
@@ -866,19 +955,19 @@ export default {
         });
         this.error = res.error;
       }
-
-      // const { data: resp } = await CourseService().getPagesLength();
       this.isLoading = false;
-
-      // if (!resp.error) {
-      //   this.pagesLength = resp.response;
-      // } else {
-      //   this.error = resp.error;
-      // }
-      // this.course = {};
     },
     cancelEvaluation: function () {
       this.course = {}
+    },
+    getPriorityStyle(priority) {
+      const styles = {
+        low: { backgroundColor: '#ffebee', color: '#c62828' },
+        acceptable: { backgroundColor: '#fff8e1', color: '#f57f17' },
+        strong: { backgroundColor: '#e8f5e8', color: '#2e7d32' },
+        na: { backgroundColor: '#f5f5f5', color: '#616161' }
+      };
+      return styles[priority] || styles.na;
     },
     getEvaluations: async function () {
       this.isLoading = true;
@@ -902,21 +991,13 @@ export default {
     },
   },
   async mounted() {
-    const id = this.$route.params.id ? this.$route.params.id : undefined;
     this.curso = this.$route.params.curso
       ? decodeURIComponent(this.$route.params.curso)
       : undefined;
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
-    const userId = localStorage.getItem(`id-${APP_NAME}`);
-
-    const headers = {
-      token,
-      'user-id': userId,
-    };
 
     // Verifico el token
     verifyToken(token);
-
 
     this.isLoading = true;
     this.paginate();

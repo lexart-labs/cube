@@ -1,8 +1,5 @@
 <template>
   <div id="dashboard--component">
-    <div v-show="!isTestDoneInLastThreeMonths" class="alert alert-warning" role="alert">
-        {{ $t('UserBurnoutTest.warning') }}
-    </div>
     <div class="container-dash">
       <nav class="abas-control">
         <ul>
@@ -93,15 +90,7 @@
                       .userHaventEvaluations
                   }}
                 </h4>
-                <div class="graphics-ctl">
-                  <graphic v-if="resources.length" :evaluations="resources" />
-                  <Rombo
-                    :id="isPersonifying ? myDev.id : myUser.id"
-                    v-if="resources.length"
-                    :evaluations="resources"
-                    :year="year"
-                  />
-                </div>
+                <div class="graphics-ctl"></div>
               </div>
             </section>
             <section
@@ -126,14 +115,11 @@
                   class="form-control rounded-input"
                   style="margin-bottom: 1rem"
                 />
-                <!-- <i class="fas fa-search"></i> -->
               </div>
               <div class="courseContainer" v-if="!isLoading"></div>
               <div
                 class="alert alert-primary evaluation-card"
                 :key="`resource${index}`"
-                data-toggle="modal"
-                data-target="#staticBackdrop"
                 role="alert"
                 v-show="success && resultQuery.length > 0"
                 v-for="(resource, index) in resultQuery"
@@ -152,16 +138,13 @@
                       />
                       {{ resource.name }}
                     </h2>
-                    <span class="text-right">
-                      <b>{{ resource.total }}%</b>
-                    </span>
                   </div>
                   <p class="smallText">
                     <b>Tech Lead:</b> {{ resource.lead }} -
                     {{ formatDate(resource.fecha) }}
                   </p>
                   <hr />
-                  <p class="smallText" v-html="resource.observaciones"></p>
+                  <p class="smallText" v-html="sanitizeObservaciones(resource.observaciones)"></p>
                 </div>
               </div>
             </section>
@@ -560,9 +543,6 @@
                 </div>
               </div>
             </section>
-            <section v-show="show === 'burnOut'">
-              <BurnOutComp @isTestDoneInLastThreeMonths="(v) => isTestDoneInLastThreeMonths = v" />
-            </section>
           </main>
         </div>
       </div>
@@ -576,6 +556,7 @@ import axios from "axios";
 import Vue from "vue";
 import vueSelect from "vue-select";
 import translations from "../data/translate";
+import DOMPurify from 'dompurify';
 // Services
 import { API, APP_NAME } from "../../env";
 import UserService from "../services/user.service";
@@ -585,7 +566,6 @@ import TeamService from "../services/teams.service";
 // Components
 import Spinner from "../components/Spinner.vue";
 import Timeline from "../components/Timeline.vue";
-import Graphic from "../components/graphicEvaluation.vue";
 import EvaluationViewer from "../components/evaluationsViewer.vue";
 import UserCard from "../components/userCard.vue";
 import Rombo from "../components/rombo.vue";
@@ -597,7 +577,6 @@ export default {
   components: {
     Spinner,
     Timeline,
-    Graphic,
     EvaluationViewer,
     Rombo,
     vueSelect,
@@ -613,8 +592,6 @@ export default {
       isLoading: true,
       isFetching: false,
       isSync: false,
-      searchQuery: null,
-      search: "",
       error: "",
       success: "",
       translations,
@@ -662,13 +639,7 @@ export default {
           class: "fas fa-user-friends",
           hasIcon: true,
           onlyAdmin: true,
-        },
-        {
-          name: "burnOut",
-          class: "fas fa-user-md",
-          hasIcon: true,
-          onlyAdmin: false,
-        },
+        }
       ],
 
       // Technologies
@@ -751,10 +722,8 @@ export default {
             translations[
               this.$store.state.language
             ].dashboard.messageSyncStatus;
-          // const id = localStorage.getItem(`id-${APP_NAME}`);
 
           // Obtenemos evaluaciones de un usuario
-          // this.obtenerEvaluaciones(id)
           window.location.reload();
         } else {
           this.error = res.error;
@@ -788,7 +757,7 @@ export default {
             const data = res.data.response;
             console.log("data: ", data)
             this.resources = data;
-           
+
           } else {
             this.isFetching = false;
             Vue.toasted.show(
@@ -971,7 +940,6 @@ export default {
       this.filters.technologies = newFilters;
 
       if (!this.filters.technologies.length) {
-        // this.developers = [];
         return;
       }
     },
@@ -1127,6 +1095,21 @@ export default {
         }
       );
     },
+    sanitizeObservaciones(observaciones) {
+      if (!observaciones) return '';
+
+      // Configure DOMPurify to allow only safe HTML tags
+      const config = {
+        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'b', 'i'],
+        ALLOWED_ATTR: [],
+        KEEP_CONTENT: true,
+        RETURN_DOM: false,
+        RETURN_DOM_FRAGMENT: false,
+        RETURN_DOM_IMPORT: false
+      };
+
+      return DOMPurify.sanitize(observaciones, config);
+    },
     personifyDashboard: async function (
       id = localStorage.getItem(`id-${APP_NAME}`),
       toggle = false
@@ -1157,10 +1140,6 @@ export default {
 
       // Setar os estados;
       this.myUser = myUser;
-      /*if (!toggle) {
-        this.years = years;
-        this.year = years.length ? years[years.length - 1] : null;
-      }*/
       this.years = years;
       this.year = years.length ? years[years.length - 1] : null;
       this.userStack = Object.values(myTechs)[0] || [];
@@ -1226,9 +1205,6 @@ export default {
             .then(({ data }) => {
               this.developersByLead = data.response;
             });
-
-          this.findUnasignedDevs();
-
           this.getTeams();
         }
       });
@@ -1241,14 +1217,14 @@ export default {
           this.searchQuery
             .toLowerCase()
             .split(" ")
-            .every((v) => item.name.toLowerCase().includes(v))
+            .every((v) => item?.name?.toLowerCase().includes(v))
         );
       }
       return this.resources;
     },
     filteredUnasigned() {
       const regex = new RegExp(`${this.search}`, "i");
-      return this.unasignedDevs.filter((dev) => dev.name.match(regex));
+      return this.unasignedDevs.filter((dev) => dev?.name.match(regex));
     },
     filteredCards() {
       const arrayOfDevs = this.developers;

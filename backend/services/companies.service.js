@@ -81,7 +81,7 @@ const Companies = {
     try {
       const isValid = await this.validateCaptcha(captcha);
       if(!isValid) return {error: 'Invalid human verification. please try again.'};
-      response = await conn.query(sql, [company, email, slug, openToExternalRelations]);
+      await conn.query(sql, [company, email, slug, openToExternalRelations]);
       response = await conn.query(sql2, [company, email, 'admin', md5(password), '1']);
     } catch (e) {
       console.log(e.message);
@@ -117,15 +117,10 @@ const Companies = {
       console.log(e.message);
     }
 
-    //return response.affectedRows === 1 ? { response: 'ok' } : { error: response.sqlMessage };
     return response.affectedRows === 1 ? { response: 'Successfully updated' } : { error: error };
   },
 
   remove: async (id) => {
-    //const sql = `
-    //DELETE FROM ${TABLE_NAME}
-    //WHERE id = ?
-    //INNER JOIN users DELETE FROM users WHERE idCompany = ?`;
 
     const sql = `
     DELETE c

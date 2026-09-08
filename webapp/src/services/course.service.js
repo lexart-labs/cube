@@ -48,6 +48,19 @@ const CourseService = function () {
         cb(res.data);
       });
     },
+		copyCourse(id, cb) {
+			const token = localStorage.getItem(`token-app-${APP_NAME}`);
+			const userId = localStorage.getItem(`id-${APP_NAME}`);
+
+			const headers = {
+				token,
+				'user-id': userId,
+			};
+
+			axios.post(`${API + model}copy/${id}`, {}, { headers }).then((res) => {
+				cb(res.data);
+			});
+		},
     getPagesLength: async function(query) {
       const token = localStorage.getItem(`token-app-${APP_NAME}`);
       const userId = localStorage.getItem(`id-${APP_NAME}`);
@@ -57,7 +70,7 @@ const CourseService = function () {
         'user-id': userId,
       };
 
-      const endpoint = query ? `${API + model}count?query=${query}` : `${API + model}count`; 
+      const endpoint = query ? `${API + model}count?query=${query}` : `${API + model}count`;
 
       return axios.get(endpoint, { headers });
         // .then((res) => {cb(res.data);});

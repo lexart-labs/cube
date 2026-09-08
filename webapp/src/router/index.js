@@ -2,7 +2,6 @@ import VueRouter from 'vue-router';
 
 import Login from '../views/Login.vue';
 import Dashboard from '../views/Dashboard.vue';
-import Evaluations from '../views/Evaluations.vue';
 import Admin from '../views/Admin/Admin.vue';
 import Users from '../views/Admin/Users.vue';
 import EvaluationsAdmin from '../views/Admin/Evaluations.vue';
@@ -16,6 +15,9 @@ import Payments from '../views/Admin/Payments.vue';
 import Levels from '../views/Admin/Levels.vue'
 import CareerType from '../views/Admin/CareerType';
 import Positions from '../views/Admin/Positions.vue';
+import Candidates from '../views/Admin/Candidates.vue';
+import Partners from '../views/Admin/Partners.vue';
+import OnboardingUsers from '../views/Admin/OnboardingUsers.vue';
 
 const routes = [
   { path: '/:slug/login', name: 'Login', component: Login },
@@ -26,7 +28,6 @@ const routes = [
     component: AppComponent,
     children: [
       { path: 'dashboard', component: Dashboard },
-      { path: 'evaluations/:id/:curso', component: Evaluations },
       {
         path: 'administration',
         component: Admin,
@@ -34,42 +35,48 @@ const routes = [
           {
             path: 'users',
             component: Users,
+						name: 'Users',
+						children: [
+							{
+								path: 'evaluaciones',
+								component: EvaluationsAdmin,
+							},
+							{
+								path: 'technologies',
+								component: Technologies,
+							},
+							{
+								path: 'origins',
+								component: Origin,
+							},
+							{
+								path: 'levels',
+								component: Levels
+							},
+							{
+								path: 'career-type',
+								component: CareerType,
+							},
+							{
+								path: 'career',
+								component: Positions,
+							},
+						]
           },
-          {
-            path: 'collaborators',
-            component: Collaborators,
+					{
+            path: 'partners',
+						name: 'Partners',
+            component: Partners,
+						children: [
+							{
+								path: 'candidates',
+								component: Candidates,
+							}
+						]
           },
-          {
-            path: 'evaluaciones',
-            component: EvaluationsAdmin,
-          },
-          {
-            path: 'continuity',
-            component: Continuity,
-          },
-          {
-            path: 'payments',
-            component: Payments,
-          },
-          {
-            path: 'technologies',
-            component: Technologies,
-          },
-          {
-            path: 'origins',
-            component: Origin,
-          },
-          {
-            path: 'levels',
-            component: Levels
-          },
-          {
-            path: 'career-type',
-            component: CareerType,
-          },
-          {
-            path: 'career',
-            component: Positions,
+					{
+            path: 'onboarding-users',
+            component: OnboardingUsers,
           },
         ],
       },

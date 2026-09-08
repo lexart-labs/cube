@@ -9,7 +9,7 @@
     aria-hidden="true"
   >
     <div class="modal-dialog modal-xl">
-      <div class="modal-content  evaluations-modal">
+      <div class="modal-content evaluations-modal">
         <div class="modal-header">
           <h4 class="courseTitle" id="staticBackdropLabel">
             <span class="is-bold is-upper">{{ $t('AdminEvaluations.evaluation') }}:</span>
@@ -41,122 +41,6 @@
               >
             </li>
           </ul>
-        </div>
-
-        <!-- Clases -->
-        <div class="modal-body" v-if="tabs.clases">
-          <div class="row" style="margin-top: 1rem">
-            <!-- Tabla de clases -->
-            <div class="col-12">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th><b>{{ $t('generic.topic')}}</b></th>
-                    <th><b>{{ $t('generic.score')}}</b></th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody style="zoom: 0.85">
-                  <tr
-                    v-for="(item, key) in course.indicadores['desempeño']"
-                    :key="key"
-                  >
-                    <td>{{ $t('AdminEvaluations.performanceArray')[key] }}</td>
-                    <td>
-                      <input
-                        type="range"
-                        min="1"
-                        max="5"
-                        class="form-control score-input"
-                        v-model="item.total"
-                        disabled
-                      />
-                    </td>
-                    <td class="is-big-text">
-                      <b>{{ item.total }}/{{ MAX_POINTS }}</b>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <!-- Pagos -->
-        <div class="modal-body" v-if="tabs.pagos">
-          <div class="row" style="margin-top: 1rem">
-            <!-- Tabla de clases -->
-            <div class="col-12">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th><b>{{ $t('generic.topic')}}</b></th>
-                    <th><b>{{ $t('generic.score')}}</b></th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody style="zoom: 0.85">
-                  <tr
-                    v-for="(item, key) in course.indicadores['factorHumano']"
-                    :key="key"
-                  >
-                    <td>{{ $t('AdminEvaluations.HumanFactorArray')[key] }}</td>
-                    <td>
-                      <input
-                        type="range"
-                        min="1"
-                        max="5"
-                        class="form-control"
-                        v-model="item.total"
-                        disabled
-                      />
-                    </td>
-                    <td class="is-big-text">
-                      <b>{{ item.total }}/{{ MAX_POINTS }}</b>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Evaluaciones -->
-        <div class="modal-body" v-if="tabs.evaluaciones">
-          <div class="row" style="margin-top: 1rem">
-            <!-- Tabla de clases -->
-            <div class="col-12">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th><b>{{ $t('generic.topic')}}</b></th>
-                    <th><b>{{ $t('generic.score')}}</b></th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody style="zoom: 0.85">
-                  <tr
-                    v-for="(item, key) in course.indicadores['habilidades']"
-                    :key="key"
-                  >
-                    <td>{{ $t('AdminEvaluations.skillsArray')[key] }}</td>
-                    <td>
-                      <input
-                        type="range"
-                        min="1"
-                        max="5"
-                        class="form-control"
-                        v-model="item.total"
-                        disabled
-                      />
-                    </td>
-                    <td class="is-big-text">
-                      <b>{{ item.total }}/{{ MAX_POINTS }}</b>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
       </div>
     </div>

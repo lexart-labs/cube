@@ -132,7 +132,7 @@ const Technologies = {
       console.log(e.message);
     }
 
-    result = response.reduce((acc, cur) => {
+    let result = response.reduce((acc, cur) => {
       acc[cur.user]  = acc[cur.user] ? acc[cur.user] : [];
       const {name, id, plataform} = cur;
       acc[cur.user] = [...acc[cur.user], {name, id, plataform}];
@@ -159,7 +159,7 @@ const Technologies = {
       console.log(e.message);
     }
 
-    result = response.reduce((acc, cur) => {
+    let result = response.reduce((acc, cur) => {
       acc[cur.user]  = acc[cur.user] ? acc[cur.user] : [];
       acc[cur.user] = [...acc[cur.user], cur.technology];
       return acc;

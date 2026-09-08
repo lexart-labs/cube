@@ -33,10 +33,8 @@ const Mdl = {
 		}
 	},
 	middlewareCourse: async function (req, res, next){
-		
-		let error = {"error":"El curso no corresponde a este usuario"}
 
-		const tablaNombre = 'user_course'
+		let error = {"error":"El curso no corresponde a este usuario"}
 		const userId 	  = req.headers['user-id'];
 		const courseId 	  = req.params.id;
 
@@ -46,7 +44,7 @@ const Mdl = {
 			WHERE courses.json_data REGEXP '"idUser": ?' AND courses.id = ?
 		`
 		let response = []
-		
+
 		try {
 			response = await conn.query(sql, [parseInt(userId), courseId]);
 		} catch(e){}

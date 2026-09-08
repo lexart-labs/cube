@@ -89,7 +89,7 @@ const setUpData = async (idLextracking, year, token, evaluations) => {
 	const EVALUATION_LENGTH = evaluations.length;
 
 	// Busco las horas menuales por año
-	const monthlyHours = await getMonthHours(idLextracking, year, token);
+	const monthlyHours = await getMonthHours(idLextracking, year);
 
 	const evolutionAvg = sumAll(evaluations, 'total') / evaluations.length;
 	let continuityAvg = 0;

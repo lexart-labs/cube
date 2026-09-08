@@ -22,17 +22,17 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th> 
+                    <th>
                         <span data-toggle="tooltip" data-placement="top" :title="$t('UserBurnoutTest.tooltipScore') + ' 26'">
                             {{ $t('UserBurnoutTest.scoreTired') }}
                         </span>
                     </th>
-                    <th> 
+                    <th>
                         <span data-toggle="tooltip" data-placement="top" :title="$t('UserBurnoutTest.tooltipScore') + ' 9'">
-                            {{ $t('UserBurnoutTest.scoreDepersonalization') }} 
+                            {{ $t('UserBurnoutTest.scoreDepersonalization') }}
                         </span>
                     </th>
-                    <th> 
+                    <th>
                         <span data-toggle="tooltip" data-placement="top" :title="$t('UserBurnoutTest.tooltipScore') + ' 34'">
                             {{ $t('UserBurnoutTest.scoreRealization') }}
                         </span>
@@ -209,9 +209,7 @@
         methods: {
             checkTestDoneLastThreeMonths() {
                 let isTestDoneInLastThreeMonths = false;
-                if (!this.items.length) {
-                    isTestDoneInLastThreeMonths = false;
-                } else {
+                if (this.items.length) {
                     const firstTest = this.items[0];
                     const firstTestDate = new Date(firstTest.dateCreated);
                     const threeMonthsAgo = new Date();

@@ -21,10 +21,10 @@ export default {
     };
   },
   watch: {
-    evaluations: function(newVal, oldVal) {
+    evaluations: function (newVal, oldVal) {
       this.createGraphic();
     },
-    '$store.state.language': function(newVal, oldVal) {
+    '$store.state.language': function (newVal, oldVal) {
       this.months = translations[this.$store.state.language].generic.months;
       this.createGraphic();
     },
@@ -34,16 +34,31 @@ export default {
       am4core.useTheme(am4themes_animated);
       const chart = am4core.create(this.$refs.chartdiv2, am4charts.XYChart);
 
-      const generateData = (array) =>
-        array.reduce((acc, cur) => {
-          const docTemplate = {
-            x: this.months[new Date(cur.fecha).getMonth()],
-            y: cur.total,
-            text: `${cur.total} %`,
-          };
+      const generateData = (array) => {
+       
+        const dataByMonth = {};
 
-          return [...acc, docTemplate];
+        
+        array.forEach(item => {
+          const month = new Date(item.fecha).getMonth();
+          if (!dataByMonth[month]) {
+            dataByMonth[month] = [];
+          }
+          dataByMonth[month].push(item);
+        });
+
+        Object.keys(dataByMonth).forEach(month => {
+          dataByMonth[month].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+        });
+
+        return Object.keys(dataByMonth).reduce((acc, month) => {
+          return acc.concat(dataByMonth[month].map(item => ({
+            x: this.months[new Date(item.fecha).getMonth()],
+            y: item.total,
+            text: `${item.total} %`
+          })));
         }, []);
+      };
 
       chart.data = generateData(this.evaluations);
 
@@ -61,6 +76,7 @@ export default {
       const series = chart.series.push(new am4charts.LineSeries());
       series.dataFields.categoryX = "x";
       series.dataFields.valueY = "y";
+      series.sortByField = "x";
       series.stroke = am4core.color("#6a6c74");
       series.strokeWidth = 2;
 
@@ -78,6 +94,7 @@ export default {
       labelBullet.label.paddingBottom = 30;
       labelBullet.label.fill = am4core.color("#6a6c74");
     },
+
   },
   mounted() {
     this.createGraphic();

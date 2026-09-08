@@ -11,24 +11,20 @@ u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
 	margin: 0;
 	padding: 0;
 	border: 0;
 	font-size: 100%;
-	font: inherit;
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
-}
-body {
-	line-height: 1;
 }
 ol, ul {
 	list-style: none;
@@ -64,7 +60,7 @@ body {
   --brand-color: #ffb900;
   /* Fonts */
   --main-font: 'Montserrat';
-
+	line-height: 1;
   /* Sizes */
   --big: 2rem;
   --mid: 1rem;
@@ -306,6 +302,7 @@ label {
   width: 100%;
   justify-content: center;
   gap: 1rem;
+	margin: 5rem auto 2rem;
 }
 .psy-notf button {
   padding: 0;
@@ -334,7 +331,7 @@ label {
   width: 60%;
 }
 .inner-addon {
-  position: relative; 
+  position: relative;
 }
 .inner-addon .fas {
   position: absolute;
@@ -419,11 +416,6 @@ input[type=range] {
 /* Leads tree tab */
 .table-striped tbody tr:nth-of-type(odd) {
   background-color: var(--blue-1);
-}
-
-/* Personify tab */
-.personify-searcher {
-  margin: 5rem auto 2rem;
 }
 
 /* technologies */
@@ -592,10 +584,10 @@ span.badge.badge-primary {
 @media (min-width: 481px) and (max-width: 915px) and (orientation: landscape) {
   /* Login */
   .formContainer__background > img {
-    left: 0; 
-    right: 0; 
-    margin-left: auto; 
-    margin-right: auto; 
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
     width: 360px;
   }
   .formContainer__login {
@@ -732,10 +724,10 @@ span.badge.badge-primary {
   }
   /* Login */
   .formContainer__background > img {
-    left: 0; 
-    right: 0; 
-    margin-left: auto; 
-    margin-right: auto; 
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
     width: 360px;
   }
   .formContainer__login {
@@ -980,7 +972,7 @@ span.badge.badge-primary {
     overflow-x: auto;
     white-space: nowrap;
   }
-  
+
   #admin--component h4 span{
     font-size: 18px;
   }

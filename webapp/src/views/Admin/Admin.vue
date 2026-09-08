@@ -8,39 +8,14 @@
               >Developers</router-link
             >
           </li>
-          <li class="nav-item" v-if="slug !== 'lexart_labs'">
-            <router-link to="/app/administration/collaborators" class="nav-link"
-              >{{ $t('generic.collaborators') }}</router-link
+					<li class="nav-item">
+            <router-link to="/app/administration/partners" class="nav-link"
+              >{{ $t('generic.partners') }}</router-link
             >
           </li>
-          <li class="nav-item">
-            <router-link to="/app/administration/evaluaciones" class="nav-link"
-              >{{ $t('AdminEvaluations.evaluations') }}</router-link
-            >
-          </li>
-          <li class="nav-item">
-            <router-link to="/app/administration/technologies" class="nav-link"
-              >{{ $t('generic.technologies') }}</router-link
-            >
-          </li>
-          <li class="nav-item">
-            <router-link to="/app/administration/origins" class="nav-link"
-              >{{ $t('generic.origin') }}</router-link
-            >
-          </li>
-          <li class="nav-item">
-            <router-link to="/app/administration/career" class="nav-link"
-              >{{ $t('generic.Positions') }}</router-link
-            >
-          </li>
-          <li class="nav-item">
-            <li class="nav-item">
-            <router-link to="/app/administration/levels" class="nav-link"
-              >Levels</router-link>
-            <li class="nav-item">
-            <router-link to="/app/administration/career-type" class="nav-link"
-              >{{ $t('generic.careerType') }}</router-link
-            >
+					<li class="nav-item">
+            <router-link to="/app/administration/onboarding-users" class="nav-link"
+              >{{ $t('generic.onboardingUsers') }}</router-link>
           </li>
         </ul>
       </nav>
@@ -71,12 +46,10 @@ export default {
   },
   methods: {},
   mounted() {
-    const id = this.$route.params.id ? this.$route.params.id : undefined;
     this.curso = this.$route.params.curso
       ? decodeURIComponent(this.$route.params.curso)
       : undefined;
     const token = localStorage.getItem(`token-app-${APP_NAME}`);
-    const userId = localStorage.getItem(`id-${APP_NAME}`);
 
     // Verifico el token
     verifyToken(token);

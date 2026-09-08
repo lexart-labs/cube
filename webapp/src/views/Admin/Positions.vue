@@ -120,7 +120,6 @@
               <hr>
               <template v-for="(item, i) in positionSelected.roadmap">
                 <ul :key="`head${i}`">
-                  <!-- <input class="form-control col-10 is-rounded"  v-model="positionSelected.roadmap[i]" :key="`head${i}`" /> -->
                   <li class="item justify-content-between mt-2">
                     <p> - {{ positionSelected.roadmap[i] }}</p>
                     <button v-on:click="removeFromRoadmap(i)" class="modal-button"><img src="../../assets/trash-can.png" alt="" srcset=""></button>
@@ -272,7 +271,7 @@ export default {
       }
 
       Vue.toasted.show(this.$t('AdminPositions.edited'), { type: 'success', duration: 4000 })
-      
+
       this.getCareers();
       this.newPosition = { ...DEFAULT_VALUE };
     },

@@ -2,21 +2,21 @@ const express = require('express');
 const router  = express.Router();
 const Companies   = require('../services/companies.service');
 
-router.get('/', async (_req, res) => {
+router.get('/', Mdl.middleware, async (_req, res) => {
   const response = await Companies.getAll();
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 });
 
-router.get('/openToExternalRelations', async (_req, res) => {
+router.get('/openToExternalRelations', Mdl.middleware, async (_req, res) => {
   const response = await Companies.getAllOpenToExternalRelations();
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 });
 
-router.post('/verify', async (req, res) => {
+router.post('/verify', Mdl.middleware, async (req, res) => {
   const { company } = req.body;
 
   const response = await Companies.exists(company);
@@ -25,7 +25,7 @@ router.post('/verify', async (req, res) => {
   return res.send(response);
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', Mdl.middleware, async (req, res) => {
   const { id } = req.params;
 
   const response = await Companies.getById(id);
@@ -34,14 +34,14 @@ router.get('/:id', async (req, res) => {
   return res.send(response);
 });
 
-router.post('/', async (req, res) => {
+router.post('/', Mdl.middleware, async (req, res) => {
   const response = await Companies.insert(req.body);
 
   res.set(['Content-Type', 'application/json']);
   return res.send(response);
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', Mdl.middleware, async (req, res) => {
   const { id } = req.params;
 
   const response = await Companies.update(id, req.body);
@@ -50,7 +50,7 @@ router.put('/:id', async (req, res) => {
   return res.send(response);
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', Mdl.middleware, async (req, res) => {
   const { id } = req.params;
 
   const response = await Companies.remove(id);
