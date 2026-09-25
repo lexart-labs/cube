@@ -1,0 +1,48 @@
+version: 2
+
+updates:
+  # ---------------------------------------------------------------------------
+  # Dependencias de la aplicación v2.
+  #
+  # MED-09 de Security.md: v1 arrastró durante años Vue 2 (EOL), axios 0.23 y
+  # jsonwebtoken 8.5.1, todos con vulnerabilidades conocidas. Esto es lo que
+  # evita repetirlo.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: npm
+    directory: /cube
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    groups:
+      # Los parches se agrupan en un solo PR: son los que interesa aplicar
+      # rápido y revisarlos de uno en uno solo genera ruido.
+      patches:
+        update-types: [patch]
+      # Las menores también, pero aparte.
+      minors:
+        update-types: [minor]
+    # Las mayores llegan de una en una: rompen cosas y merecen su propia revisión.
+    labels: [dependencias]
+    commit-message:
+      prefix: 'deps'
+      include: scope
+
+  # ---------------------------------------------------------------------------
+  # Acciones del propio CI. Una acción comprometida ejecuta código con acceso
+  # al repositorio y a sus secretos.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels: [ci]
+
+  # ---------------------------------------------------------------------------
+  # Imagen base del contenedor: parches de seguridad de Node y Debian.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: docker
+    directory: /cube
+    schedule:
+      interval: weekly
+    labels: [docker]

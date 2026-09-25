@@ -1,0 +1,17 @@
+# Nunca entra en la imagen: contiene secretos reales.
+.env
+.env.*
+!.env.example
+
+node_modules
+.nuxt
+.output
+.data
+dist
+
+.git
+.gitignore
+*.log
+tests
+.vscode
+README.md

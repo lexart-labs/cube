@@ -1,0 +1,40 @@
+# Configuración de gitleaks.
+#
+# El objetivo no es solo el código nuevo: `Security.md` §8 documenta que v1
+# tiene secretos reales en el historial (el pepper `y0ur.k3y`, contraseñas en
+# el compose). Reescribir el historial no los recupera —cualquier clon previo
+# ya los tiene—, así que la medida real es rotarlos; esto evita que entren más.
+
+title = "Cube"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "cube-secretos-en-env"
+description = "Secreto con valor real en un fichero de ejemplo"
+regex = '''(?i)(NUXT_SESSION_SECRET|NUXT_DB_PASSWORD|MYSQL_ROOT_PASSWORD)\s*=\s*[^\s#]{8,}'''
+path = '''\.env\.example$'''
+
+[allowlist]
+description = "Rutas y valores que no son secretos reales"
+paths = [
+  # v1 ya no está en el árbol, pero gitleaks recorre el HISTORIAL completo
+  # (fetch-depth: 0) y sus secretos siguen ahí. Se excluyen para que el trabajo
+  # no falle por commits antiguos; la rotación está en Security.md §8 y es
+  # exactamente por esto: borrar el código no invalida una clave publicada.
+  '''^backend/''',
+  '''^webapp/''',
+  '''^ext/''',
+  '''^db/''',
+  # Documentación que cita secretos de v1 precisamente para señalarlos.
+  '''^Security\.md$''',
+  '''^Roadmap\.md$''',
+  '''^CLAUDE\.md$''',
+]
+regexes = [
+  # Valores de usar y tirar de los tests y del CI, nunca de producción.
+  '''ci-root-password-no-produccion''',
+  '''ci-cube-password-no-produccion''',
+  '''cube-demo-2026!''',
+]

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -nE \"^#{1,3} |Fase [0-9]\" /workspace/Roadmap.md)",
+      "Bash(npx vitest *)",
+      "Bash(grep -nE \"process\\\\.env|\\\\\\\\$\\\\{?[A-Z_]+|mysqldump\" scripts/db-backup.sh)",
+      "Bash(npx prettier *)"
+    ]
+  }
+}

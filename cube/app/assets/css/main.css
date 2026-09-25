@@ -1,0 +1,305 @@
+@import 'tailwindcss';
+
+/**
+ * Paleta de CUBE.
+ *
+ * Los valores vienen de `webapp/src/styles.css` de v1 —el azul `#0676ff`, el
+ * ámbar de marca `#ffb900`, el header `#2c2d31`, el verde `#3cc688`— y se han
+ * revalidado uno a uno, no dado por buenos por ser "los de la marca":
+ *
+ *   · `#0676ff` pasa TODOS los umbrales del validador de dataviz en claro y en
+ *     oscuro (banda de luminosidad, suelo de croma y contraste ≥ 3:1). Por eso
+ *     es el color de los datos, sin retocar.
+ *
+ *   · `#ffb900` FALLA como color de datos: luminosidad 0.829 (fuera de banda) y
+ *     1.72:1 sobre blanco. Sobre el header oscuro, en cambio, da 7.99:1. Ahí es
+ *     donde vive el acento de marca, y nunca sobre fondo claro.
+ *
+ *   · El gris medio de v1 (`#888787`) da 3.58:1 sobre blanco, insuficiente para
+ *     texto corrido. Se sustituye por `#55565a` (7.33:1) y `#75767a` (4.54:1),
+ *     que conservan el carácter neutro sin sacrificar legibilidad.
+ */
+:root {
+  color-scheme: light;
+
+  /* Superficies */
+  --page-plane: #f2f3f5;
+  --surface-1: #ffffff;
+  --surface-2: #f3f7fa; /* v1 --blue-2 */
+  --header-bg: #2c2d31; /* v1 --color-header */
+
+  /* Tinta */
+  --text-primary: #020305; /* v1 --text-color */
+  --text-secondary: #55565a;
+  --text-muted: #75767a;
+  --text-on-dark: #edeeee; /* v1 --text-color-bright */
+
+  /* Cromo */
+  --gridline: #e4e7ea;
+  --baseline: #c9ced4;
+  --hairline: rgba(2, 3, 5, 0.1);
+  --shadow-card: 0 1px 2px rgba(2, 3, 5, 0.04), 0 4px 12px rgba(2, 3, 5, 0.04);
+  --shadow-raised: 0 2px 4px rgba(2, 3, 5, 0.06), 0 12px 28px rgba(2, 3, 5, 0.08);
+
+  /* Datos: serie única, azul de CUBE. Validado. */
+  --series-1: #0676ff; /* v1 --blue-4 */
+  --series-1-strong: #0559c4; /* para texto pequeño, donde 4.16:1 se queda corto */
+  --series-1-track: #c1ddff; /* paso claro de la MISMA rampa, no un gris */
+  --series-1-wash: rgba(6, 118, 255, 0.1);
+
+  /* Marca. Solo sobre fondo oscuro. */
+  --brand: #ffb900; /* v1 --brand-color */
+
+  /* Estado */
+  --success-text: #1a7a4c;
+  --success-mark: #3cc688; /* v1 --green-2 */
+
+  /**
+   * Acción destructiva. Validado como fondo de botón con texto blanco: 6.54:1
+   * en claro y 4.98:1 en oscuro, donde además hace falta que el relleno se
+   * separe de la superficie (3.38:1 sobre `--surface-1`). No se usa para
+   * puntuar a nadie: los datos no se colorean por severidad.
+   */
+  --danger: #b3261e;
+  --danger-strong: #8c1d18;
+
+  --radius-card: 14px;
+  --radius-control: 9px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme='light'])) {
+    color-scheme: dark;
+
+    --page-plane: #141518;
+    --surface-1: #1c1d21;
+    --surface-2: #24252a;
+    --header-bg: #1c1d21;
+
+    --text-primary: #edeeee;
+    --text-secondary: #b4b5b8;
+    --text-muted: #8e8f93;
+    --text-on-dark: #edeeee;
+
+    --gridline: #2e2f34;
+    --baseline: #3d3e44;
+    --hairline: rgba(237, 238, 238, 0.12);
+    --shadow-card: none;
+    --shadow-raised: 0 12px 28px rgba(0, 0, 0, 0.5);
+
+    --series-1: #3d8bff;
+    --series-1-strong: #6ea6ff;
+    --series-1-track: #0d4a99;
+    --series-1-wash: rgba(61, 139, 255, 0.14);
+
+    --success-text: #3cc688;
+    --success-mark: #3cc688;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --page-plane: #141518;
+  --surface-1: #1c1d21;
+  --surface-2: #24252a;
+  --header-bg: #1c1d21;
+
+  --text-primary: #edeeee;
+  --text-secondary: #b4b5b8;
+  --text-muted: #8e8f93;
+  --text-on-dark: #edeeee;
+
+  --gridline: #2e2f34;
+  --baseline: #3d3e44;
+  --hairline: rgba(237, 238, 238, 0.12);
+  --shadow-card: none;
+  --shadow-raised: 0 12px 28px rgba(0, 0, 0, 0.5);
+
+  --series-1: #3d8bff;
+  --series-1-strong: #6ea6ff;
+  --series-1-track: #0d4a99;
+  --series-1-wash: rgba(61, 139, 255, 0.14);
+
+  --success-text: #3cc688;
+  --success-mark: #3cc688;
+
+  --danger: #d32f2f;
+  --danger-strong: #b3261e;
+}
+
+@theme inline {
+  --color-surface: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-plane: var(--page-plane);
+  --color-ink: var(--text-primary);
+  --color-ink-soft: var(--text-secondary);
+  --color-ink-muted: var(--text-muted);
+  --color-hairline: var(--hairline);
+  --color-series: var(--series-1);
+  --color-brand: var(--brand);
+
+  /**
+   * Montserrat es la tipografía de CUBE. Autoalojada vía @fontsource-variable:
+   * cargarla desde Google Fonts obligaría a abrir `font-src` en la CSP y a
+   * filtrar la IP de cada visitante a un tercero.
+   */
+  --font-sans:
+    'Montserrat Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+html {
+  background: var(--page-plane);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/**
+ * Las observaciones y los contratos se guardan como TEXTO PLANO (ver
+ * server/utils/sanitize.ts), así que los saltos de línea se respetan con CSS.
+ * No hay `v-html` en toda la aplicación, y por tanto tampoco la clase de XSS
+ * de MED-02.
+ */
+.plain-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------------------------
+   Primitivas de interfaz.
+   Existen para que un cambio de radio o de sombra ocurra en un sitio, y para
+   que las páginas no repitan doce clases de utilidad en cada tarjeta.
+   -------------------------------------------------------------------------- */
+
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.field {
+  width: 100%;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-control);
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  transition: border-color 0.15s ease;
+}
+
+.field:hover {
+  border-color: var(--baseline);
+}
+
+.field:focus {
+  border-color: var(--series-1);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-control);
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--series-1);
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--series-1-strong);
+}
+
+.btn-secondary {
+  border: 1px solid var(--hairline);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--baseline);
+  background: var(--surface-2);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger-strong);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/**
+ * Enlace de texto pequeño. Usa el paso fuerte del azul porque `#0676ff` da
+ * 4.16:1 sobre blanco — suficiente para elementos grandes, justo para texto
+ * pequeño. El subrayado hace que no dependa solo del color.
+ */
+.link {
+  color: var(--series-1-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/**
+ * Medidores y barras de indicadores.
+ *
+ * Estas clases existen porque los colores iban antes en `:style`, y la CSP de
+ * producción descarta los atributos `style` salvo que se permitan
+ * explícitamente: las barras se renderizaban SIN color ni relleno. Como clase,
+ * el color no depende de ninguna excepción de CSP.
+ *
+ * Solo el ancho sigue siendo un atributo en línea, porque es un dato.
+ */
+.meter {
+  height: 0.5rem;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 0 4px 4px 0;
+  background: var(--series-1-track);
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  background: var(--series-1);
+  transition: width 0.3s ease;
+}
+
+/** Acento de marca. Solo sobre fondo oscuro: 1.72:1 sobre blanco. */
+.brand-accent {
+  background: var(--brand);
+  border-radius: 9999px;
+}
+
+/* Foco visible y consistente: la navegación por teclado no es opcional. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--series-1);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

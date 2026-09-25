@@ -1,0 +1,86 @@
+# Cube v2 — stack de producción.
+#
+# Uso:
+#   cp .env.example .env      # y rellenar TODOS los secretos
+#   docker compose up --build
+#
+# Para desarrollo con recarga en caliente, ver docker-compose.dev.yml.
+#
+# Ninguna credencial está escrita en este fichero. La sintaxis `${VAR:?mensaje}`
+# hace que compose ABORTE si la variable no está definida, en vez de arrancar con
+# un valor por defecto conocido — que es exactamente lo que hacía el compose de
+# v1 (`MYSQL_ROOT_PASSWORD: password`, ver Security.md HIGH-05).
+
+name: cube
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?define MYSQL_ROOT_PASSWORD en .env}
+      MYSQL_DATABASE: ${NUXT_DB_NAME:-lexart_cube}
+      MYSQL_USER: ${NUXT_DB_USER:?define NUXT_DB_USER en .env}
+      MYSQL_PASSWORD: ${NUXT_DB_PASSWORD:?define NUXT_DB_PASSWORD en .env}
+    # Se publica SOLO en la interfaz de loopback. Sin el prefijo 127.0.0.1
+    # Docker abre el puerto en todas las interfaces y salta el firewall del host.
+    # Comenta esta sección si no necesitas conectarte a MySQL desde la máquina.
+    ports:
+      - '127.0.0.1:${DB_PORT:-3306}:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+      # No se monta nada en /docker-entrypoint-initdb.d a propósito: aquello
+      # solo se ejecuta al crear el volumen por primera vez, lo que despista.
+      # El esquema lo aplica la aplicación al arrancar, y es idempotente.
+    healthcheck:
+      # CMD-SHELL y no CMD: la forma exec no lanza shell, así que
+      # $MYSQL_ROOT_PASSWORD no se expandiría y el healthcheck fallaría siempre.
+      # MYSQL_PWD evita además pasar la contraseña como argumento visible en ps.
+      test:
+        [
+          'CMD-SHELL',
+          'MYSQL_PWD="$$MYSQL_ROOT_PASSWORD" mysqladmin ping -h 127.0.0.1 -u root --silent',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks: [cube]
+
+  app:
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    depends_on:
+      db:
+        # No arranca hasta que MySQL responde de verdad, no solo cuando el
+        # contenedor existe.
+        condition: service_healthy
+    environment:
+      NUXT_DB_HOST: db
+      NUXT_DB_PORT: 3306
+      NUXT_DB_USER: ${NUXT_DB_USER:?define NUXT_DB_USER en .env}
+      NUXT_DB_PASSWORD: ${NUXT_DB_PASSWORD:?define NUXT_DB_PASSWORD en .env}
+      NUXT_DB_NAME: ${NUXT_DB_NAME:-lexart_cube}
+      NUXT_DB_SSL: ${NUXT_DB_SSL:-false}
+      NUXT_SESSION_SECRET: ${NUXT_SESSION_SECRET:?define NUXT_SESSION_SECRET en .env (openssl rand -hex 32)}
+      NUXT_PUBLIC_APP_URL: ${NUXT_PUBLIC_APP_URL:-http://localhost:3000}
+      NUXT_LOG_LEVEL: ${NUXT_LOG_LEVEL:-info}
+      # Datos de ejemplo si la base está vacía. Por defecto NO: la semilla crea
+      # cuentas con contraseña conocida (ver .env.example).
+      NUXT_SEED_ON_STARTUP: ${NUXT_SEED_ON_STARTUP:-false}
+      # IA generativa (IDEAL LEXART). Opcional: sin clave la aplicación
+      # arranca igual y solo la redacción automática queda deshabilitada.
+      NUXT_GEMINI_API_KEY: ${NUXT_GEMINI_API_KEY:-}
+      NUXT_GEMINI_MODEL: ${NUXT_GEMINI_MODEL:-}
+    ports:
+      - '${APP_PORT:-3000}:3000'
+    networks: [cube]
+
+volumes:
+  db_data:
+
+networks:
+  cube:
+    driver: bridge

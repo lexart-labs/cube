@@ -1,0 +1,65 @@
+{
+  "name": "cube",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.11.0",
+    "npm": ">=11.0.0"
+  },
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "nuxt typecheck",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "docker:up": "docker compose up --build -d",
+    "docker:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build",
+    "docker:down": "docker compose down",
+    "docker:reset": "docker compose down -v",
+    "docker:logs": "docker compose logs -f app",
+    "docker:sh": "docker compose exec app sh",
+    "docker:db": "docker compose exec db sh -c 'MYSQL_PWD=\"$MYSQL_ROOT_PASSWORD\" mysql -u root \"$MYSQL_DATABASE\"'",
+    "db:migrate": "node server/db/migrate.ts",
+    "db:verify": "node server/db/verify.ts",
+    "db:backup": "bash scripts/db-backup.sh",
+    "verify:build": "bash scripts/verify-build.sh",
+    "db:seed": "node server/db/seed.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/montserrat": "5.3.0",
+    "@google/genai": "^2.22.0",
+    "@pinia/nuxt": "1.0.2",
+    "bcryptjs": "3.0.2",
+    "mysql2": "3.24.4",
+    "nuxt": "4.5.2",
+    "pinia": "4.0.3",
+    "pino": "10.3.1",
+    "vue": "3.5.42",
+    "vue-router": "5.3.1",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "1.17.0",
+    "@nuxtjs/i18n": "10.6.0",
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/vite": "4.3.3",
+    "eslint": "10.10.0",
+    "nuxt-security": "2.6.0",
+    "pino-pretty": "13.1.3",
+    "prettier": "3.9.6",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vitest": "5.0.0",
+    "vue-tsc": "3.3.11"
+  },
+  "overrides": {
+    "esbuild": "^0.28.0"
+  }
+}

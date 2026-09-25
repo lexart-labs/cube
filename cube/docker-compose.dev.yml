@@ -1,0 +1,29 @@
+# Overlay de desarrollo: recarga en caliente sobre el código del host.
+#
+# Uso:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#   (o simplemente: npm run docker:dev)
+#
+# Es un overlay explícito y no un docker-compose.override.yml para que
+# `docker compose up` a secas siga levantando el stack de producción sin
+# sorpresas.
+
+services:
+  app:
+    build:
+      # Solo la etapa de dependencias: en desarrollo no se compila la imagen,
+      # el código llega por bind mount y lo sirve `nuxt dev`.
+      target: deps
+    # --host 0.0.0.0: por defecto `nuxt dev` escucha solo en localhost, que
+    # dentro del contenedor es inalcanzable desde la máquina.
+    command: npm run dev -- --host 0.0.0.0
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      NUXT_LOG_LEVEL: ${NUXT_LOG_LEVEL:-debug}
+    volumes:
+      - .:/app
+      # Volumen anónimo: preserva los node_modules de la imagen y evita que el
+      # bind mount del host los pise (arquitecturas y binarios nativos distintos).
+      - /app/node_modules
+      - uploads:/app/storage/uploads

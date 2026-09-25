@@ -1,0 +1,254 @@
+name: CI
+
+on:
+  push:
+    branches: [main, v2]
+  pull_request:
+    branches: [main, v2]
+
+# Cancela ejecuciones antiguas de la misma rama: no tiene sentido gastar
+# minutos en un commit que ya fue reemplazado.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: cube
+
+env:
+  # Node 24: la cadena de build de Nuxt 4 no funciona en Node 20
+  # (cssnano -> postcss-merge-longhand usa Set.prototype.difference).
+  NODE_VERSION: '24.20.0'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Comprobaciones estáticas. Rápidas y sin dependencias externas.
+  # ---------------------------------------------------------------------------
+  static:
+    name: Lint, tipos y tests unitarios
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: cube/package-lock.json
+
+      # `npm ci` y no `npm install`: instala exactamente lo del lockfile y
+      # aborta si package.json y el lockfile se han desincronizado.
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Tests unitarios
+        run: npm run test
+
+  # ---------------------------------------------------------------------------
+  # Seguridad de la cadena de suministro y de los secretos.
+  # ---------------------------------------------------------------------------
+  security:
+    name: Auditoría y secretos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # gitleaks necesita el historial completo para revisar cada commit.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: cube/package-lock.json
+
+      - run: npm ci
+
+      # Bloqueante a partir de "high": MED-09 de Security.md documenta que v1
+      # arrastraba dependencias con vulnerabilidades conocidas durante años.
+      - name: npm audit
+        run: npm audit --audit-level=high
+
+      # HIGH-05 y §8: v1 tenía secretos escritos en el repositorio
+      # (`y0ur.k3y` en utils.service.js, MYSQL_ROOT_PASSWORD en el compose).
+      - name: Buscar secretos filtrados
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ---------------------------------------------------------------------------
+  # Build y comprobación de que es autosuficiente.
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: cube/package-lock.json
+
+      - run: npm ci
+      - run: npm run build
+
+      # `npm run build` puede pasar y el contenedor morir igualmente: pasó con
+      # `bcryptjs`, importado sin estar declarado en package.json.
+      - name: Verificar que el build sea autosuficiente
+        run: npm run verify:build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: cube/.output
+          retention-days: 3
+
+  # ---------------------------------------------------------------------------
+  # End-to-end contra un MySQL de verdad.
+  #
+  # Es el único sitio donde el esquema, la semilla y los endpoints se ejecutan
+  # contra una base real: el entorno de desarrollo no tiene MySQL disponible.
+  # ---------------------------------------------------------------------------
+  e2e:
+    name: End-to-end
+    runs-on: ubuntu-latest
+    needs: [static, build]
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root-password-no-produccion
+          MYSQL_DATABASE: cube_ci
+          MYSQL_USER: cube
+          MYSQL_PASSWORD: ci-cube-password-no-produccion
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pci-root-password-no-produccion"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      NUXT_DB_HOST: 127.0.0.1
+      NUXT_DB_PORT: '3306'
+      NUXT_DB_USER: cube
+      NUXT_DB_PASSWORD: ci-cube-password-no-produccion
+      NUXT_DB_NAME: cube_ci
+      NUXT_DB_SSL: 'false'
+      NUXT_LOG_LEVEL: warn
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: cube/package-lock.json
+
+      - run: npm ci
+
+      # Secretos de usar y tirar, generados por ejecución. Nunca fijos: un
+      # secreto constante en el repositorio es exactamente HIGH-05.
+      - name: Generar secretos de la ejecución
+        run: |
+          echo "NUXT_SESSION_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
+      - name: Esperar a MySQL
+        run: |
+          for i in $(seq 1 30); do
+            if mysqladmin ping -h 127.0.0.1 -u root -pci-root-password-no-produccion --silent; then
+              echo "MySQL listo"; exit 0
+            fi
+            sleep 2
+          done
+          echo "MySQL no respondió a tiempo" >&2; exit 1
+
+      # Aplica schema.sql y crea los datos de ejemplo. Si el esquema tuviera un
+      # error de sintaxis o una clave foránea imposible, falla aquí.
+      - name: Esquema y semilla
+        run: npm run db:seed
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: cube/.output
+
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Tests end-to-end
+        run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            cube/playwright-report
+            cube/test-results
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # La imagen construye de principio a fin.
+  # ---------------------------------------------------------------------------
+  docker:
+    name: Imagen Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Construir la imagen
+        uses: docker/build-push-action@v6
+        with:
+          context: cube
+          push: false
+          load: true
+          tags: cube:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # El contenedor debe arrancar sin el node_modules del proyecto al lado:
+      # es el fallo que rompió el despliegue con `bcryptjs`.
+      - name: El contenedor arranca
+        run: |
+          docker run --rm -d --name cube-ci -p 3000:3000 \
+            -e NUXT_SESSION_SECRET="$(openssl rand -hex 32)" \
+            -e NUXT_DB_HOST=127.0.0.1 \
+            -e NUXT_DB_USER=cube \
+            -e NUXT_DB_PASSWORD="$(openssl rand -hex 24)" \
+            -e NUXT_DB_NAME=cube \
+            cube:ci
+
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null http://127.0.0.1:3000/login; then
+              echo "El contenedor sirve /login"
+              docker rm -f cube-ci
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "El contenedor no respondió" >&2
+          docker logs cube-ci >&2
+          docker rm -f cube-ci
+          exit 1
+
+      # Verifica que la imagen NO corra como root.
+      - name: El proceso no corre como root
+        run: |
+          user="$(docker run --rm --entrypoint sh cube:ci -c 'id -un')"
+          echo "usuario de la imagen: $user"
+          test "$user" = "node"
