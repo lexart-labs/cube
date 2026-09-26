@@ -215,6 +215,42 @@ describe('invariante 5 — el chrome y la sesión sobreviven al render en servid
     expect(withoutLayout).toEqual(['app/pages/index.vue', 'app/pages/login.vue'])
   })
 
+  it('no queda un solo v-html en la aplicación', () => {
+    /**
+     * MED-02: `ComplianceStep.vue:162` de v1 pintaba una plantilla de contrato
+     * con `v-html` sin sanear, en el paso previo a pedir los datos KYC. En v2 el
+     * texto libre se guarda ya saneado y se pinta con interpolación normal, así
+     * que la clase entera de XSS desaparece en vez de mitigarse con DOMPurify.
+     */
+    // Se ignoran los comentarios —incluidos los de plantilla, `<!-- -->`—:
+    // varias vistas explican ahí precisamente que NO usan v-html.
+    const offenders = appFiles.filter((file) =>
+      /v-html/.test(
+        read(file)
+          .replace(/<!--[\s\S]*?-->/g, '')
+          .replace(/\/\*[\s\S]*?\*\//g, '')
+          .replace(/^\s*\/\/.*$/gm, ''),
+      ),
+    )
+    expect(offenders.map(relative)).toEqual([])
+  })
+
+  it('ninguna pantalla usa los diálogos del navegador', () => {
+    /**
+     * `confirm()` y `alert()` no se traducen —quedarían siempre en el idioma del
+     * navegador, saltándose i18n— y tras varios avisos seguidos el navegador
+     * ofrece silenciar los siguientes, que es justo el que importa: el que
+     * pregunta antes de desactivar a alguien. Se usa `<UiConfirmDialog>`.
+     */
+    const offenders = appFiles.filter((file) => {
+      const code = read(file)
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/^\s*\/\/.*$/gm, '')
+      return /(?<![.\w])(confirm|alert)\s*\(/.test(code)
+    })
+    expect(offenders.map(relative)).toEqual([])
+  })
+
   it('ninguna llamada a la API usa $fetch directamente', () => {
     // `useRequestFetch()` reenvía las cabeceras de la petición entrante; en el
     // cliente es el mismo `$fetch`. Con `$fetch` a secas, el render en servidor

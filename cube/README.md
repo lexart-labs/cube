@@ -145,8 +145,6 @@ docker compose exec app node server/db/seed.ts
   idempotente y se ejecuta siempre.
 - **La aplicación no corre como root** (usuario `node`, uid 1000) y la imagen de runtime solo
   contiene `.output`: ni código fuente, ni dependencias de desarrollo, ni cadena de build.
-- **Los uploads viven en un volumen** montado en `/app/storage/uploads`, fuera del árbol servido
-  como estático (`Security.md`, CRIT-02).
 - **La aplicación espera a que MySQL esté sano**, no solo a que el contenedor exista
   (`depends_on: condition: service_healthy`).
 - **El build no recibe secretos.** `runtimeConfig` se resuelve al arrancar, así que no hay
@@ -314,16 +312,22 @@ consecuencias que el código tiene que sostener:
 ## Estructura
 
 ```
-shared/      Código compartido cliente+servidor, alias `#shared/`
-app/         Vue 3 + Tailwind — pages, components, composables, middleware
-server/      Nitro — api/, db/, middleware/, plugins/, utils/
-tests/       unit/ (vitest) y e2e/ (playwright)
+shared/ideal.ts   Catálogo, pesos y fórmula de IDEAL. Una sola fuente para cliente
+                  y servidor (alias `#shared/`); el cálculo no se duplica.
+app/              Vue 3 + Tailwind — pages, components (ideal/, viz/, ui/),
+                  composables, middleware, layouts
+server/           Nitro — api/{auth,ideal,users,positions,levels}, db/, middleware/,
+                  plugins/, utils/
+tests/            unit/ (vitest) y e2e/ (playwright)
 ```
+
+**No hay `storage/`.** La aplicación no sube ni sirve ficheros desde que se retiró el onboarding
+(AD-06): no queda un `multipart/form-data` en todo el código.
 
 ## Tests y CI
 
 ```
-tests/unit/    13 ficheros, 150 tests — vitest, sin base de datos
+tests/unit/    13 ficheros, 152 tests — vitest, sin base de datos
 tests/e2e/     37 tests — playwright: panel, IDEAL, administración, navegación y Security.md §9
 ```
 
@@ -367,11 +371,14 @@ Las primitivas (`.card`, `.field`, `.btn`, `.link`) están en `app/assets/css/ma
 de radio o de sombra ocurre en un sitio, no en veinte plantillas.
 
 **El rombo/radar de v1 se elimina** y amCharts 4 con él (sin mantenimiento desde amCharts 5,
-licencia comercial). En su lugar, SVG propio: barras horizontales por indicador —la forma correcta
-cuando el trabajo del lector es comparar magnitudes— y una línea de evolución. Cada gráfico tiene
-su vista de tabla; ningún valor es accesible solo por el gráfico ni solo por el color. **El puntaje
-no se colorea por bandas de severidad**: pintar de rojo el desempeño de una persona convierte un
-dato en un juicio.
+licencia comercial). En su lugar, SVG propio en `app/components/viz/`: `ScoreHero` (la cifra
+grande y su variación) y `TrendLine` (la evolución). Las barras horizontales por indicador se
+fueron con el modelo de 27 indicadores; el criterio que las eligió sigue valiendo para lo que venga:
+barras cuando el trabajo del lector es comparar magnitudes, nunca un radar. Cada gráfico tiene su
+vista de tabla; ningún valor es accesible solo por el gráfico ni solo por el color. **El puntaje no
+se colorea por bandas de severidad**: pintar de rojo el desempeño de una persona convierte un dato
+en un juicio. El único color de estado de la interfaz es `--danger`, y solo para el botón que
+confirma una acción destructiva.
 
 **i18n en es/en/pt.** Ninguna cadena queda incrustada en los componentes, y un test comprueba que
 los tres ficheros tienen exactamente las mismas claves, sin valores vacíos y con interpolaciones
@@ -391,6 +398,22 @@ Son propiedades verificadas, no convenciones de estilo. Ver `Roadmap.md` §4.
    allow-list.
 4. **Nada de `console.*` en `server/`.** Usa `server/utils/logger.ts`, que redacta secretos y PII
    automáticamente. ESLint lo impide.
+5. **Un solo dominio de identidad.** Nada puebla un `event.context` paralelo. El onboarding tenía
+   el suyo y se fue con el módulo; un invariante impide que vuelva sin que se vea.
+6. **Nada de `v-html`, nada de `$fetch` directo en `app/`.** El texto libre se guarda saneado y se
+   pinta con `.plain-text`; las llamadas van por `useApi().request` o `useRequestFetch()`, porque
+   en SSR `$fetch` no reenvía la cookie de sesión.
+7. **Nada se borra: se desactiva**, y lo desactivado se sigue viendo y se puede reactivar.
+8. **Toda acción destructiva confirma con `<UiConfirmDialog>`**, nunca con `confirm()` del
+   navegador. Reactivar no pregunta.
+9. **Toda cadena visible va a `i18n/locales/{es,en,pt}.json`**, con las mismas claves y las mismas
+   interpolaciones en los tres idiomas. Hay test.
+
+De la 1 a la 6, y la 8, las comprueba `tests/unit/invariants.test.ts` leyendo el código fuente en
+vez de ejecutarlo; la 9, `tests/unit/i18n.test.ts`. La 7 no se puede comprobar por grep —que una
+lista devuelva lo desactivado es comportamiento, no texto— y la cubre `tests/e2e/admin.spec.ts`
+contra una base real. Las vulnerabilidades de v1 no fueron fallos de lógica sino de disciplina, y la
+disciplina se verifica o no existe.
 
 ## Pendientes conocidos
 

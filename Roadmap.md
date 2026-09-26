@@ -2,7 +2,7 @@
 
 **Proyecto:** Cube (Lexart Labs)
 **Rama:** `v2`
-**Fecha:** 2026-09-08 · **Revisado:** 2026-09-25 (AD-06)
+**Fecha:** 2026-09-08 · **Revisado:** 2026-09-26 (AD-06 y la retirada del modelo de 27 indicadores)
 **Documento hermano:** [`Security.md`](./Security.md) — auditoría de seguridad y especificación normativa
 
 ---
@@ -28,8 +28,11 @@ sobre stack con soporte y con los agujeros de seguridad cerrados por diseño y n
 
 **Criterio de éxito global:**
 - Un desarrollador entra y ve sus evaluaciones sin explicación previa.
-- El flujo de onboarding funciona de extremo a extremo desde una sola aplicación.
-- Los 7 hallazgos críticos y los 10 altos de `Security.md` están cerrados y verificados.
+- ~~El flujo de onboarding funciona de extremo a extremo desde una sola aplicación.~~ Retirado por
+  AD-06: el onboarding pasa a la plataforma de Lexart y sale de v2.
+- Los hallazgos críticos y altos de `Security.md` están cerrados y verificados, o han dejado de
+  aplicar porque la funcionalidad que los causaba ya no existe. La distinción importa y está en
+  `Security.md` §1, "Estado a 2026-09-26".
 - Un despliegue, una base de datos, un pipeline de CI.
 
 ---
@@ -132,7 +135,9 @@ También el **modelo de 27 indicadores** sale de v2 en la misma sesión; queda a
   alcance, porque ya no hay columnas sensibles que cifrar.
 - La **mitigación P0 de v1** (CRIT-01, CRIT-02, CRIT-03) nunca se commiteó y se ha ido con el árbol.
   Sigue explotable en producción — ver §10.1 de `Security.md`.
-- v2 pasa de 43 a **19 endpoints**, de 12 a **6 tablas** y de 203 a **150 tests unitarios**.
+- v2 pasa de 43 a **19 endpoints** y de 12 a **6 tablas**. Los tests unitarios bajan de 203 a 152:
+  desaparecen los del onboarding y los del modelo anterior, y entran los de `envFlag` y dos
+  invariantes nuevos.
 
 ---
 
@@ -150,6 +155,12 @@ También el **modelo de 27 indicadores** sale de v2 en la misma sesión; queda a
 | Usuarios (dev / lead / admin) | `services/users.service.js` — recortado |
 | Posiciones y Niveles | `views/Admin/Positions.vue`, `views/Admin/Levels.vue` |
 | i18n es / en / pt | `webapp/src/data/translate.js` — podado a lo que sobreviva |
+
+> **Revisión 2026-09-25.** De esta tabla dejan de conservarse tres cosas: la **definición de los 27
+> indicadores** y la **visualización asociada** (rombo, viewer, gráfico por indicador), porque el
+> modelo entero se retiró en favor de IDEAL LEXART (AD-05, revisión del 2026-09-25), y el
+> **onboarding completo con su panel**, retirado por AD-06. Lo que queda: evaluaciones —ahora
+> IDEAL—, usuarios, posiciones, niveles e i18n.
 
 ### Se elimina
 
@@ -169,53 +180,80 @@ Multi-tenancy (companies, RegisterCompany) · Endpoint genérico `/upload-file` 
 
 ```
 cube/
+├── shared/ideal.ts                    # catálogo, pesos y fórmula de IDEAL LEXART
+│                                      # (alias #shared/, importado por cliente y servidor)
 ├── app/
 │   ├── pages/
 │   │   ├── login.vue
-│   │   ├── dashboard.vue              # dev: sus evaluaciones (solo lectura)
+│   │   ├── dashboard.vue              # dev: su puntaje, evolución e historial
 │   │   ├── evaluations/
-│   │   │   ├── index.vue              # admin/lead: listado + filtros
-│   │   │   └── [id].vue               # ver / editar
-│   │   ├── admin/
-│   │   │   ├── users.vue
-│   │   │   ├── positions.vue
-│   │   │   ├── levels.vue
-│   │   │   └── onboarding.vue         # ex OnboardingUsers.vue
-│   │   └── onboarding/index.vue       # extranet pública (stepper)
+│   │   │   ├── index.vue              # listado (un dev ve solo las suyas)
+│   │   │   ├── new.vue                # alta IDEAL + resultado de la redacción
+│   │   │   └── [id].vue               # detalle
+│   │   └── admin/
+│   │       ├── users.vue
+│   │       └── catalogs.vue           # posiciones y niveles en una sola pantalla
 │   ├── components/
-│   │   ├── evaluations/               # Viewer, RadarChart, ScoreRing, IndicatorForm
-│   │   └── onboarding/                # LoginStep, ComplianceStep, ReviewStep, CompletionStep
-│   ├── composables/                   # useAuth, useEvaluations, useOnboarding
+│   │   ├── ideal/                     # IdealEvaluationForm, ScoreScale
+│   │   ├── viz/                       # ScoreHero, TrendLine
+│   │   └── ui/                        # ConfirmDialog
+│   ├── composables/                   # useAuth, useApi
 │   └── middleware/                    # auth.ts, admin.ts
 ├── server/
-│   ├── api/{auth,evaluations,users,positions,levels,onboarding}/
-│   ├── middleware/auth.ts             # verifica sesión → event.context.user
-│   ├── db/{index.ts,schema.sql,migrations/}
-│   └── utils/{security.ts,validation.ts,storage.ts,crypto.ts,logger.ts}
-├── storage/uploads/                   # FUERA del webroot
+│   ├── api/{auth,ideal,users,positions,levels}/
+│   ├── middleware/01.auth.ts          # verifica sesión → event.context.user
+│   ├── db/{index.ts,schema.ts,bootstrap.ts,migrate.ts,verify.ts,mapping.ts}
+│   └── utils/{rbac,session,password,validation,sanitize,errors,logger,audit,ratelimit,gemini}.ts
 ├── tests/{unit,e2e}/
 └── nuxt.config.ts
 ```
 
+> **Revisión 2026-09-25.** Este árbol es el real. El planificado el 2026-09-08 tenía además
+> `pages/onboarding/`, `pages/admin/onboarding.vue`, `components/onboarding/`,
+> `server/api/onboarding/`, `server/utils/{storage,crypto}.ts` y un directorio `storage/uploads/`
+> fuera del webroot: se fueron con AD-06. Y `api/evaluations/` con sus pantallas, que se fue con el
+> modelo de 27 indicadores. `schema.sql` acabó siendo `schema.ts`: Nitro empaqueta JavaScript y un
+> fichero de datos no llega a `.output`.
+
 ### Invariantes de la arquitectura
 
-Tres reglas que no se negocian caso por caso — son propiedades verificadas en CI:
+Reglas que no se negocian caso por caso — son propiedades verificadas en CI por
+`tests/unit/invariants.test.ts`, que lee el código fuente en vez de ejecutarlo:
 
 1. **Identidad.** El actor sale **siempre** de `event.context.user`, derivado de la cookie de
-   sesión firmada. Ningún handler lee `user-id`, `token` ni `company_slug` de los headers.
-   *(Cierra CRIT-07; verificado por grep en CI.)*
+   sesión opaca. Ningún handler lee `user-id`, `token` ni `company_slug` de los headers.
+   *(Cierra CRIT-07.)*
 2. **Autorización explícita.** Autenticación como middleware global con allow-list de rutas
-   públicas; cada handler de administración declara `requireRole()`. Olvidar declarar deniega,
-   no expone. *(Cierra HIGH-01, HIGH-02.)*
+   públicas —hoy dos: `POST /api/auth/login` y `GET /api/health`—; cada handler declara
+   `requireUser` o `requireRole`. Olvidar declarar deniega, no expone. *(Cierra HIGH-01, HIGH-02.)*
 3. **Validación en la frontera.** Todo `body`, `query` y `params` pasa por un esquema Zod antes de
    tocar la lógica. Las consultas usan exclusivamente parámetros vinculados; los fragmentos que no
    los admiten (`ORDER BY`, columnas) van contra allow-list. *(Cierra CRIT-04.)*
+4. **Un solo dominio de identidad.** Nada puebla un `event.context` paralelo. El onboarding tenía
+   el suyo (`context.candidate`); se fue con el módulo, y el invariante impide que vuelva sin que
+   se vea. *(AD-06.)*
+5. **El chrome se renderiza.** `app.vue` envuelve la página en `<NuxtLayout>` y ninguna llamada a
+   la API usa `$fetch` directamente — en SSR no reenvía la cookie y la petición sale sin sesión.
+   Dos fallos que no rompían ningún test hasta que existió este invariante.
+
+### Nada se borra: se desactiva
+
+Posiciones, niveles, usuarios y evaluaciones se desactivan (`active = 0`), porque hay historial que
+los referencia. De ahí dos obligaciones que el código sostiene:
+
+- **Lo desactivado se sigue viendo y se puede reactivar** (`?includeInactive=true` en los catálogos,
+  filtro de estado en usuarios). Una lista que solo devuelve lo activo convierte "desactivar" en
+  "perder".
+- **Desactivar siempre confirma**, con `<UiConfirmDialog>` y nunca con `confirm()` del navegador,
+  que no se traduce y puede ofrecer silenciarse. Reactivar no pregunta.
 
 ### Sustitución de amCharts
 
-`@amcharts/amcharts4` (sin mantenimiento + licencia comercial) se sustituye por SVG propio para el
-rombo/radar y las barras de indicadores. Consultar la skill `dataviz` antes de escribir esos
-componentes.
+`@amcharts/amcharts4` (sin mantenimiento + licencia comercial) se sustituye por SVG propio.
+Quedan dos componentes, `ScoreHero` y `TrendLine`: el rombo/radar y las barras por indicador se
+fueron con el modelo de 27 indicadores. Cada gráfico tiene su vista de tabla equivalente y ningún
+valor es accesible solo por el gráfico o solo por el color. Consultar la skill `dataviz` antes de
+escribir un componente nuevo.
 
 ---
 
@@ -233,9 +271,11 @@ hasta la fase 6.
 - `server/db/index.ts`: pool `mysql2/promise` (límite 10), TLS, propagación real de errores
   mediante `reject` — no el `resolve(error)` de `backend/config/conn.js:22-28`.
 - `server/utils/logger.ts`: `pino` con redacción automática de `password`, `token`, `apiKey`,
-  `authorization`, `iban`, `identity_document`.
+  `authorization`, `cookie` y los secretos de configuración. *(Los campos de PII financiera —`iban`,
+  `identity_document`— se retiraron de la lista con el onboarding: ya no existen.)*
 - Validación de configuración al arrancar: **falla el arranque** si falta o es débil
-  `NUXT_SESSION_SECRET`, `NUXT_DB_PASSWORD` o `NUXT_KYC_ENCRYPTION_KEY`. Sin valores por defecto.
+  `NUXT_SESSION_SECRET` o `NUXT_DB_PASSWORD`. Sin valores por defecto. *(`NUXT_KYC_ENCRYPTION_KEY`
+  formaba parte de esta lista hasta AD-06.)*
 - `nuxt-security` con CSP (nonces, sin `unsafe-inline`) y HSTS.
 - ESLint + Prettier + `no-console` en `server/`.
 
@@ -310,6 +350,13 @@ quedarían mal asignadas sin error alguno; `buildCanonicalIndex` detecta y repor
 ---
 
 ### Fase 3 — API y núcleo de seguridad
+
+> **Qué queda en pie a 2026-09-26.** De los entregables de abajo desaparecieron los de onboarding
+> (subidas con magic bytes, `GET /api/onboarding/documents/[id]`, enlace de activación,
+> `audit_log` de aprobaciones) con AD-06, y los ocho endpoints del modelo de 27 indicadores con la
+> revisión de AD-05. Quedan **19 endpoints** en `{auth, ideal, users, positions, levels}`. Todo lo
+> demás de esta fase —sesión opaca, RBAC por handler, bcrypt 12, rehash, límite de intentos,
+> contrato de error, `audit_log`— sigue vigente tal cual se describe.
 
 **Entregables**
 - Endpoints Nitro para los cuatro dominios.
@@ -388,6 +435,14 @@ detecta nada de lo escrito hasta ahora.
 ---
 
 ### Fase 4 — Frontend de evaluaciones
+
+> **Qué queda en pie a 2026-09-26.** Esta fase construyó el frontend del modelo de 27 indicadores,
+> que se retiró entero el 2026-09-25 (ver AD-05): con él se fueron el listado con alta/edición/copia,
+> el detalle por indicador y los componentes `IndicatorBars` y `ScoreMeter`. **Lo que sobrevive es
+> el criterio, no el código**: el panel sigue liderando con una sola cifra grande, sigue sin colorear
+> el puntaje por bandas de severidad, cada gráfico sigue teniendo su tabla equivalente, y la paleta
+> y el i18n son los mismos. El panel se rehízo sobre IDEAL y `/evaluations` es ahora la lista IDEAL.
+> Las decisiones de visualización de más abajo siguen siendo la referencia para los gráficos nuevos.
 
 **Entregables**
 - Dashboard del desarrollador: sus evaluaciones, evolución por año, detalle por indicador.
@@ -576,14 +631,14 @@ entrado todavía.
 
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
-| **Los hallazgos críticos son explotables hoy** | Alto | Mitigar en producción **antes** de v2 con reglas en NGINX: bloquear `/public/uploads/signed-documents` y `/api/upload`, exigir autenticación en `/onboarding/*`. Ver `Security.md` §10, prioridad P0. |
+| **Los hallazgos críticos siguen explotables en producción** | Alto | La mitigación se escribió el 2026-09-21 sobre el árbol de v1, **nunca se commiteó** y se perdió al borrar v1 del árbol. Hoy CRIT-01, CRIT-02 y CRIT-03 siguen abiertos en producción. Rehacerla partiendo de `origin/develop`, o acelerar el despliegue de v2. Ver `Security.md` §10.1. |
 | **Rehash de contraseñas** | Medio | Ventana de 60 días con rehash transparente (§6) + comunicación previa. |
 | **Cron de Lextracking** (`backend/server.js:11-23`, sincroniza horas cada día 1 a la 01:30) | Medio | Se elimina. **Confirmar con el equipo que ningún consumidor externo depende de ese job antes de la fase 6.** |
-| **URLs de documentos ya distribuidas** | Medio | Al mover los ficheros fuera del webroot, las URLs viejas dejan de resolver. Inventariar dónde se compartieron y reemitir enlaces autenticados. |
+| **URLs de documentos ya distribuidas** | Medio | Sin cambio respecto a v1: v2 ya no sirve ficheros. Cuando el onboarding se rehaga en la plataforma de Lexart, los enlaces viejos seguirán apuntando a v1; inventariar dónde se compartieron antes de apagarla. |
 | **Pérdida de datos en la migración** | Alto | Backup + `--dry-run` + `db:verify` con conteos y checksums. Ensayo completo sobre una copia de producción antes de ejecutar. |
-| **Regresión funcional en evaluaciones** | Medio | Comparación directa de `calcTotal` viejo vs nuevo sobre evaluaciones reales (fase 4, criterio 3). |
-| **Alcance que se expande** | Medio | AD-01…AD-04 están cerradas. Cualquier funcionalidad fuera de §3 se registra como propuesta post-v2, no se añade en marcha. |
-| **Secretos ya comprometidos** | Alto | Inventario y rotación en `Security.md` §8, **antes** del despliegue de v2. La API key del onboarding se ha estado registrando en claro en cada petición. |
+| **El histórico de evaluaciones deja de estar en el producto** | Medio | Al retirar el modelo de 27 indicadores, las evaluaciones anteriores no se migran: quedan en la base de v1 y en su backup. Decidir cuánto tiempo se conserva esa base antes de apagarla, y quién puede consultarla mientras tanto. |
+| **Alcance que se expande** | Medio | AD-01…AD-06 están cerradas. Cualquier funcionalidad fuera de §3 se registra como propuesta post-v2, no se añade en marcha. |
+| **Secretos ya comprometidos** | Alto | Inventario y rotación en `Security.md` §8, **antes** del despliegue de v2. Siguen sin rotar. Borrar v1 del árbol no ha caducado ninguno: están en el historial de git y en producción. |
 
 ---
 
@@ -591,19 +646,25 @@ entrado todavía.
 
 Se registran para que la decisión sea explícita y no se cuelen en marcha:
 
-- Reintroducir el plan de carrera / roadmap como producto propio, si se pide.
-- SSO con Google Workspace (hay integración parcial en `ext/onboarding`; se retira en v2 y se
-  reevalúa después).
+- **Onboarding / offboarding**: sale de v2 por AD-06 y pasa a la plataforma de Lexart. Si vuelve
+  aquí, `Security.md` es la especificación de cómo construirlo (CRIT-01, CRIT-02, CRIT-03, CRIT-06,
+  HIGH-08, HIGH-10, MED-05, MED-06, MED-07).
+- **Consulta del histórico de los 27 indicadores**: el modelo se retiró y esos datos se quedan en la
+  base de v1. Si hiciera falta verlos desde Cube, es un visor nuevo de solo lectura, no reactivar el
+  modelo.
+- **Plan de carrera / roadmap** como producto propio, si se pide. Hoy no existe en v2: AD-03 lo dejó
+  fuera y solo quedan `positions` y `levels` como contexto de la evaluación.
+- SSO con Google Workspace (había integración parcial en `ext/onboarding`; se retiró con v1).
 - Volver a multi-tenancy, si alguna vez se vende la plataforma.
 - Exportación de evaluaciones a PDF.
-- Notificaciones por correo más allá del onboarding.
+- Notificaciones por correo.
 - Migrar a KMS/secret manager gestionado (v2 usa variables de entorno).
 
 ---
 
 ## 9. Seguimiento
 
-Estado al **2026-09-25**, tras AD-06.
+Estado al **2026-09-26**, tras AD-06 y la retirada del modelo de 27 indicadores.
 
 | Fase | Estado | Cierra |
 |---|---|---|
@@ -611,17 +672,17 @@ Estado al **2026-09-25**, tras AD-06.
 | 1 · Andamiaje y configuración segura | ✅ Completa | HIGH-05, HIGH-06, HIGH-08, MED-03, MED-08 |
 | 2 · Esquema y migración de datos | 🟡 Escrita, sin ejecutar nunca contra una base real | ~~HIGH-10~~ (fuera de alcance por AD-06) |
 | 3 · API y núcleo de seguridad | ✅ Completa (sin ejecutar contra base real) | CRIT-04…07, HIGH-01…04, HIGH-07, HIGH-09, MED-01…06 |
-| 4 · Frontend de evaluaciones | ✅ Completa | MED-01, MED-02 |
+| 4 · Frontend de evaluaciones | ✅ Completa. Rehecha sobre IDEAL al retirar el modelo anterior | MED-01, MED-02 |
 | 5 · Frontend de onboarding | ⬛ Retirada (AD-06) | — |
 | 6 · Infraestructura, CI y retirada | 🟡 v1 fuera del árbol; CI sin ejecutar en GitHub | MED-09, LOW-01…06 |
 | 7 · IDEAL LEXART (AD-05) | ✅ Completa. El modelo anterior se retiró entero el 2026-09-25 | — |
 | P0 · Mitigación en producción | ⛔ Escrita el 2026-09-21, **nunca commiteada**, retirada con el árbol de v1. Explotable en producción | CRIT-01, CRIT-02, CRIT-03 |
 
 **Bloqueo de cabecera:** `cube/` y `.github/` siguen **sin commitear**. Mientras sigan así, el CI no
-puede ejecutarse en GitHub, y el CI es el único sitio donde el esquema y los 26 endpoints se
+puede ejecutarse en GitHub, y el CI es el único sitio donde el esquema y los 19 endpoints se
 ejecutan contra MySQL de verdad.
 
-**Hallazgo del 2026-09-25, ya corregido:** `seedOnStartup` y `db.ssl` usaban
+**Hallazgo del 2026-09-25, ya corregido** (V2-01 en `Security.md` §11): `seedOnStartup` y `db.ssl` usaban
 `z.coerce.boolean()`, que convierte la cadena `"false"` en `true`. Como `nuxt.config.ts` declara
 `'false'` como valor por defecto, **la semilla estaba activada sin que nadie la pidiera**: el primer
 arranque contra una base vacía habría creado `admin@cube.test` con la contraseña publicada en el

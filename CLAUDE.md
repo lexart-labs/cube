@@ -44,7 +44,7 @@ npm run build          # build de producción
 npm run verify:build   # que .output arranque aislado — ejecutar ANTES de construir la imagen
 npm run lint           # eslint (prettier NO está en el CI; no reformatees ficheros enteros)
 npm run typecheck      # vue-tsc
-npm run test           # vitest, 13 ficheros / 150 tests, sin base de datos
+npm run test           # vitest, 13 ficheros / 152 tests, sin base de datos
 npm run test:e2e       # playwright, 37 tests — necesita `build` previo y base sembrada
 npx vitest run tests/unit/ideal.test.ts          # un solo fichero
 npx vitest run -t "promedio ponderado"           # un solo test
@@ -90,7 +90,8 @@ cube/
 
 ## Reglas que el código nuevo debe cumplir
 
-No son estilo: `tests/unit/invariants.test.ts` las comprueba sobre el código y fallan en CI.
+No son estilo: `tests/unit/invariants.test.ts` las comprueba sobre el código y fallan en CI —salvo
+la 9, que es comportamiento y la cubre `tests/e2e/admin.spec.ts`.
 
 1. **Identidad solo desde la sesión.** `requireUser(event)` / `requireRole(event, 'lead')`. Ningún
    handler lee `user-id`, `token` ni `company_slug` de las cabeceras — ese patrón de v1 es el IDOR

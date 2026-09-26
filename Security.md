@@ -1,45 +1,35 @@
 # Security.md — Auditoría de seguridad y plan de endurecimiento
 
 **Proyecto:** Cube (Lexart Labs)
-**Fecha de auditoría:** 2026-09-08
+**Fecha de auditoría:** 2026-09-08 · **Revisado:** 2026-09-26
 **Rama:** `v2`
-**Alcance:** `backend/` (Express 4), `webapp/` (Vue 2.6), `ext/onboarding/` (Nuxt 3), infraestructura (`docker-compose.yml`, `.env.sample`)
+**Alcance auditado:** `backend/` (Express 4), `webapp/` (Vue 2.6), `ext/onboarding/` (Nuxt 3), infraestructura (`docker-compose.yml`, `.env.sample`)
 **Método:** revisión manual del código fuente completo. Cada hallazgo referencia `archivo:línea` verificado en el commit `70e8c98`.
+
+> Ese árbol **ya no está en esta rama** (se borró el 2026-09-25, AD-06). Las referencias
+> `archivo:línea` se resuelven en el historial de git y en `origin/main` / `origin/develop`, desde
+> donde despliega producción — que sigue ejecutando exactamente el código auditado.
 
 > Este documento cumple dos funciones: (1) inventario de deuda de seguridad del sistema actual,
 > y (2) **especificación normativa** de cómo debe construirse Cube v2. Ningún hallazgo se cierra
 > hasta que exista una prueba automatizada o un comando de verificación que lo demuestre
 > (ver [§9 Verificación](#9-verificación)).
 
-> ### Actualización 2026-09-25 — AD-06
->
-> El árbol de v1 (`backend/`, `webapp/`, `ext/onboarding/`, `db/`) **se borró de la rama `v2`**, y
-> el módulo de onboarding **se retiró también de v2**. Qué significa eso para este documento:
->
-> - **Los `archivo:línea` de v1 ya no se resuelven en el árbol de trabajo.** Están en el historial
->   de git y en `origin/main` / `origin/develop`. Siguen siendo la evidencia de cada hallazgo.
-> - **v1 sigue en producción y sigue vulnerable.** Borrar el código de esta rama no despliega nada
->   ni cierra nada. CRIT-01, CRIT-02 y CRIT-03 continúan explotables hoy.
-> - **La mitigación P0 (§10.1) nunca se commiteó** y desapareció con el árbol. Lo que describe §10.1
->   es trabajo que existió en el directorio de trabajo el 2026-09-21 y ya no está.
-> - **Los hallazgos del onboarding no tienen equivalente en v2**, porque el módulo ya no existe:
->   CRIT-01, CRIT-02, CRIT-03, CRIT-06 y HIGH-08 quedan como deuda **de v1 únicamente**.
-> - **HIGH-10** (cifrado de columnas KYC) queda **fuera de alcance** en v2: ya no hay columnas
->   sensibles. No está cerrado; dejó de aplicar.
-> - **§8 sigue vigente en su totalidad.** Borrar el código **no invalida ningún secreto**: el pepper
->   `y0ur.k3y`, las API keys y los JWT siguen en el historial y siguen sin rotar.
-
 ---
 
 ## 1. Resumen ejecutivo
 
-| Severidad | Cantidad | Estado |
+| Severidad | Cantidad | Estado en el sistema auditado (v1, hoy en producción) |
 |---|---|---|
 | 🔴 Crítica | 7 | Abiertas |
 | 🟠 Alta | 10 | Abiertas |
 | 🟡 Media | 9 | Abiertas |
 | 🔵 Baja / Higiene | 6 | Abiertas |
 | **Total** | **32** | |
+
+Ese estado es el de **producción**, que sigue siendo v1. Para el estado en v2 —lo construido, lo
+que dejó de aplicar y lo que sigue sin verificarse— ver [Estado a 2026-09-26](#estado-a-2026-09-26)
+al final de esta sección.
 
 **Riesgo agregado: CRÍTICO.**
 
@@ -56,6 +46,42 @@ A esto se suma inyección SQL en ocho servicios, contraseñas con MD5 sin salt, 
 contraseñas en texto plano por correo. La combinación expone datos personales y financieros de
 los desarrolladores, lo que además implica exposición regulatoria (GDPR art. 32 / Ley 18.331 UY
 de Protección de Datos Personales, por el tratamiento de documentos de identidad y datos bancarios).
+
+### Estado a 2026-09-26
+
+**Qué es v2 hoy.** Una sola aplicación Nuxt 4: **19 endpoints**, **6 tablas**, un solo dominio de
+identidad y un solo módulo funcional (evaluaciones IDEAL LEXART). Dos retiradas del 2026-09-25
+(AD-06) cambian la superficie de ataque más que cualquier parche:
+
+- **Sin módulo de onboarding**: no hay extranet pública, ni sesión de candidato, ni documentos de
+  identidad, ni IBAN, ni contratos, ni tabla KYC. La PII que trata v2 se reduce a nombre, correo,
+  cargo, nivel y notas de evaluación.
+- **Sin subida ni descarga de ficheros**: no queda un solo `multipart/form-data` en la aplicación,
+  ni directorio `storage/`, ni endpoint que sirva un fichero.
+- **Sin el modelo de 27 indicadores**: una tabla y ocho endpoints menos.
+
+**Dónde está cada hallazgo.** "Cerrado en v2" significa que hay código y prueba; no significa
+desplegado — v2 **no se ha desplegado nunca**.
+
+| Hallazgos | Estado en v2 | Con qué se sostiene |
+|---|---|---|
+| CRIT-04, CRIT-07, HIGH-01, HIGH-02 | ✅ Cerrados | `tests/unit/invariants.test.ts` + `tests/e2e/security.spec.ts` |
+| CRIT-05 | ✅ Cerrado | bcrypt coste 12 con rehash transparente desde MD5 (§7) |
+| HIGH-03 | ✅ Cerrado | Sesión opaca en base; logout y cambio de contraseña revocan al instante |
+| HIGH-06, HIGH-07 | ✅ Cerrados | `reject` real en la capa de datos; error único `{ statusCode, message }` con `requestId` |
+| HIGH-05 | ✅ Cerrado, con recaída ya corregida | El arranque aborta con secretos ausentes o débiles. Ver **V2-01** en §11 |
+| HIGH-09 | ✅ Cerrado | `corsHandler` con origen explícito y credenciales |
+| MED-01, MED-02, MED-03, MED-04, MED-08 | ✅ Cerrados | Cookie `httpOnly`; ni un `v-html`; `nuxt-security`; límite por IP y por cuenta en el login; pool con TLS opcional |
+| MED-09, LOW-02, LOW-05, LOW-06 | ✅ Cerrados | Stack con soporte + `npm audit` bloqueante; 150 unitarios y 37 E2E; imagen multi-etapa sin root con `HEALTHCHECK`; `audit_log` |
+| LOW-01 | 🟡 Escrito, sin ejecutar | `.github/workflows/ci.yml` existe; **nunca ha corrido en GitHub** |
+| LOW-03, LOW-04 | 🟡 Documentado, sin ejecutar | `.env.example` con marcadores; **los secretos de §8 siguen sin rotar** |
+| CRIT-01, CRIT-02, CRIT-03, CRIT-06, HIGH-04, HIGH-08, HIGH-10, MED-05, MED-06, MED-07 | ⬛ Sin equivalente en v2 | El código que los causaba no existe: onboarding, subidas, `makeLexToken`, API key entre servicios, columnas KYC, registro abierto |
+| CRIT-01, CRIT-02, CRIT-03 | ⛔ **Abiertos en producción** | v1 sigue sirviendo. La mitigación de §10.1 nunca se commiteó |
+
+**⬛ no es ✅.** Un hallazgo sin equivalente no está corregido: dejó de aplicar porque se retiró la
+funcionalidad. Si el onboarding vuelve —en la plataforma de Lexart o donde sea— vuelven CRIT-01,
+CRIT-02, CRIT-03, CRIT-06, HIGH-08, HIGH-10, MED-05, MED-06 y MED-07 con él, y este documento es la
+especificación de cómo construirlo para que no se repitan.
 
 ---
 
@@ -322,8 +348,14 @@ Si una variable de entorno falta en el despliegue, la aplicación **arranca igua
 conocido y presente en el repositorio. Un atacante puede firmar sus propios JWT.
 
 **Corrección:** validar la configuración al arrancar con Zod y **fallar el arranque** si falta o
-es débil cualquier secreto requerido (`NUXT_SESSION_SECRET`, `NUXT_DB_PASSWORD`,
-`NUXT_KYC_ENCRYPTION_KEY`). Sin valores por defecto, nunca. Longitud mínima 32 bytes.
+es débil cualquier secreto requerido —en v2, `NUXT_SESSION_SECRET` y `NUXT_DB_PASSWORD`; también
+`NUXT_KYC_ENCRYPTION_KEY` hasta que AD-06 retiró las columnas cifradas—. Sin valores por defecto,
+nunca. Longitud mínima 32 bytes.
+
+**Y cuidado con la otra mitad del problema:** que un valor esté presente no significa que diga lo
+que parece. Las banderas booleanas de `runtimeConfig` llegan como texto, y `z.coerce.boolean()`
+convierte `"false"` en `true`. Eso reabrió esta misma clase de fallo dentro de v2 — ver **V2-01**
+en §11.
 
 ---
 
@@ -513,7 +545,12 @@ CI como bloqueante, y Dependabot con auto-merge para parches.
 
 ---
 
-## 6. Cobertura de autenticación por endpoint (estado actual)
+## 6. Cobertura de autenticación por endpoint (v1, en el momento de la auditoría)
+
+Este recuento describe **v1**, que es lo que corre en producción. En v2 la pregunta ya no se hace
+endpoint por endpoint: la autenticación es un middleware global con allow-list de dos rutas
+(`POST /api/auth/login` y `GET /api/health`) y un test recorre `server/api/` exigiendo que todo
+handler declare `requireUser` o `requireRole`. Olvidarlo deniega.
 
 `ext/onboarding/server/api/` — resultado del recuento de comprobaciones `validateApiKey` / `jwt.verify`:
 
@@ -567,6 +604,12 @@ Deben considerarse **comprometidos** y rotarse antes del despliegue de v2:
 | `LX_MAIL_AUTH`, `MAILGUN_API_KEY` | Rotación preventiva |
 | Clave de la cuenta de servicio de Google | Rotación preventiva |
 
+**Los secretos que v2 necesita son menos**, porque hay menos sistema: `NUXT_SESSION_SECRET`,
+`NUXT_DB_PASSWORD` y, opcional, `NUXT_GEMINI_API_KEY`. Desaparecen la API key entre servicios
+(no hay dos servicios) y `NUXT_KYC_ENCRYPTION_KEY` (no hay columnas cifradas). Eso **no reduce la
+tabla de arriba**: son secretos de v1, siguen en producción y siguen en el historial de git.
+Borrar el código no caduca una clave.
+
 **Reglas permanentes:**
 - Ningún secreto en el repositorio, ni siquiera como valor por defecto (HIGH-05).
 - `.env` en `.gitignore` (ya lo está) + `gitleaks` como hook de pre-commit y en CI.
@@ -579,46 +622,72 @@ Deben considerarse **comprometidos** y rotarse antes del despliegue de v2:
 ## 9. Verificación
 
 Cada hallazgo se cierra con una comprobación reproducible. Estos comandos forman parte de la
-definición de "terminado" de cada fase del `Roadmap.md`.
+definición de "terminado" de cada fase del `Roadmap.md`, y los que se pueden automatizar están ya
+en `tests/e2e/security.spec.ts`, que el CI ejecuta contra una base real.
+
+Los comandos de CRIT-01, CRIT-02 y CRIT-03 apuntaban a endpoints del onboarding y **ya no aplican a
+v2**: ese módulo no existe. Siguen siendo la verificación válida **contra producción**, donde esos
+tres hallazgos están abiertos, y están en §10.1 con la URL de producción.
 
 ```bash
-# CRIT-07 — Forjar user-id ya no cambia la identidad del actor (debe devolver SOLO lo propio)
-curl -H 'user-id: 1' -b "session=<cookie-de-otro-usuario>" localhost:3000/api/evaluations
+# CRIT-07 — Forjar user-id no cambia la identidad del actor (debe devolver SOLO lo propio)
+curl -H 'user-id: 1' -b "cube_session=<cookie-de-un-developer>" localhost:3000/api/ideal
 
-# CRIT-04 — Inyección SQL en el buscador (debe devolver 400 de validación, nunca datos)
-curl -b "session=<admin>" "localhost:3000/api/evaluations?query=%27%20OR%201%3D1--"
+# CRIT-04 — Inyección SQL en el buscador (la carga se trata como texto: 0 resultados, nunca 500)
+curl -b "cube_session=<lead>" "localhost:3000/api/users?search=%27%20OR%201%3D1--"
 
-# CRIT-01 — Administración de onboarding sin sesión → 401
-curl -X POST localhost:3000/api/onboarding/candidates/1/approve
+# CRIT-04 — Lo que SQL no parametriza va contra allow-list (debe devolver 400)
+curl -b "cube_session=<lead>" "localhost:3000/api/users?sort=name%3B%20DELETE"
 
-# CRIT-03 — Subida sin sesión → 401
-curl -X POST -F file=@x.pdf localhost:3000/api/onboarding/upload
+# HIGH-01 — RBAC: un developer no alcanza la administración → 403
+curl -b "cube_session=<dev>" localhost:3000/api/users
 
-# CRIT-02 — Acceso directo al fichero → 404; vía endpoint sin sesión → 401
-curl -I localhost:3000/uploads/signed-documents/cualquier.pdf
-curl -I localhost:3000/api/onboarding/documents/1
+# HIGH-02 — Sin sesión, toda la API responde 401 (ninguna ruta se queda sin middleware)
+for path in ideal users positions levels auth/me; do
+  curl -s -o /dev/null -w "$path %{http_code}\n" "localhost:3000/api/$path"
+done
 
-# MED-04 — Límite de intentos en login → 429 antes del intento 11
-for i in $(seq 1 15); do curl -s -o /dev/null -w '%{http_code} ' \
+# HIGH-03 — El logout revoca al instante: la misma cookie deja de valer
+curl -X POST -b "cube_session=<c>" localhost:3000/api/auth/logout
+curl -s -o /dev/null -w '%{http_code}\n' -b "cube_session=<c>" localhost:3000/api/auth/me   # 401
+
+# HIGH-07 — Un 404 no filtra sqlMessage, nombres de tabla ni rutas del sistema
+curl -b "cube_session=<lead>" localhost:3000/api/ideal/999999
+
+# MED-01 — La cookie de sesión es httpOnly y SameSite
+curl -sI -X POST localhost:3000/api/auth/login -H 'Content-Type: application/json' \
+  -d '{"email":"admin@cube.test","password":"cube-demo-2026!"}' | grep -i set-cookie
+
+# MED-04 — Límite de intentos en login → 429 antes del intento 21 por IP (10 por cuenta)
+for i in $(seq 1 25); do curl -s -o /dev/null -w '%{http_code} ' \
   -X POST localhost:3000/api/auth/login -d '{"email":"a@b.c","password":"x"}' \
   -H 'Content-Type: application/json'; done
 
 # MED-03 — Cabeceras de seguridad presentes
 curl -sI localhost:3000/ | grep -iE 'content-security|strict-transport|x-content-type|referrer-policy'
 
-# HIGH-01 — RBAC: un desarrollador no accede a administración → 403
-curl -b "session=<dev>" localhost:3000/api/users
+# V2-01 — La semilla NO se activa sin pedirlo (ver §11)
+NUXT_SEED_ON_STARTUP=false npm run dev   # en el log no debe aparecer "datos de ejemplo creados"
 
 # MED-09 / LOW-01 — Cadena automatizada
 npm run lint && npm run typecheck && npm run test && npm audit --audit-level=high
 ```
 
-**Pruebas automatizadas obligatorias antes del despliegue de v2:**
-- Test que enumera todas las rutas de `server/api/` y falla si alguna no declara política de acceso.
-- Test de RBAC por rol (`dev`, `lead`, `admin`) sobre cada endpoint de administración.
-- Test de que los documentos de onboarding no son accesibles sin sesión ni por ruta directa.
-- Test de ida y vuelta del cifrado KYC (cifra → almacena → recupera → descifra → valor original).
-- Test de que ningún handler lee `user-id`, `token` ni `company_slug` de los headers (grep en CI).
+**Pruebas automatizadas obligatorias antes del despliegue de v2** — todas existen ya:
+
+| Prueba | Dónde |
+|---|---|
+| Ningún fichero de `server/` lee `user-id`, `token` ni `company_slug` | `tests/unit/invariants.test.ts` |
+| Todo handler de `server/api/` declara `requireUser`/`requireRole`, salvo login y health | `tests/unit/invariants.test.ts` |
+| No existe un segundo dominio de identidad (`event.context.candidate`) | `tests/unit/invariants.test.ts` |
+| Ninguna consulta interpola `body`/`query`/`params`, y el detector tiene su propio test | `tests/unit/invariants.test.ts` |
+| RBAC por rol sobre los endpoints de administración | `tests/unit/rbac.test.ts` + `tests/e2e/security.spec.ts` |
+| Forjar `user-id` no amplía el alcance | `tests/e2e/evaluations.spec.ts` |
+| Rehash transparente de MD5 a bcrypt | `tests/e2e/evaluations.spec.ts` |
+| Las banderas de entorno no se activan con la cadena `"false"` | `tests/unit/config.test.ts` |
+
+Las pruebas de documentos del onboarding y de ida y vuelta del cifrado KYC **se retiraron con el
+módulo**: ya no hay nada que probar. Si el flujo vuelve, vuelven con él.
 
 ---
 
@@ -684,6 +753,48 @@ curl -s -o /dev/null -w '%{http_code}\n' -F file=@foto.png https://<extranet>/ap
 
 Tests: `backend/tests/routes/onboarding.test.js` (10 casos: 401/403 por rol, 404 en la ruta
 estática, allow-list de tipos y nombres, proxy en streaming con cabeceras).
+
+---
+
+## 11. Hallazgos propios de v2
+
+Los 32 de arriba son de v1. Esto es lo encontrado **en el código nuevo**, que también se registra:
+un hallazgo en v2 no es menos real por estar en la rama que todavía no se ha desplegado — de hecho
+es el único momento en que sale gratis arreglarlo.
+
+### V2-01 · La semilla se activaba sola: cuenta de administrador con contraseña publicada
+**Severidad:** 🔴 Crítica (si se hubiera desplegado) · **Encontrado:** 2026-09-25 ·
+**Estado:** ✅ corregido el mismo día
+**Archivos:** `server/utils/config.ts`, `nuxt.config.ts:33`
+
+`z.coerce.boolean()` es `Boolean(valor)`, y en JavaScript **toda cadena no vacía es verdadera,
+también `"false"`**. La configuración usaba esa coerción para dos banderas:
+
+```ts
+seedOnStartup: z.coerce.boolean().default(false),   // NUXT_SEED_ON_STARTUP
+ssl: z.coerce.boolean(),                            // NUXT_DB_SSL
+```
+
+Y `nuxt.config.ts` declara la cadena `'false'` como valor por defecto de `seedOnStartup`, porque
+`runtimeConfig` rellena desde variables de entorno, que siempre son texto. Resultado:
+`seedOnStartup` valía **`true` sin que nadie la activara**, y bastaba con que el arranque
+encontrara la base sin usuarios —un despliegue nuevo, una base recreada, un contenedor con volumen
+perdido— para que se creara `admin@cube.test` con `cube-demo-2026!`, contraseña que está escrita en
+el repositorio. Exactamente el accidente que los comentarios del propio módulo decían prevenir.
+
+Las tres salvaguardas existentes no lo habrían impedido: la comprobación de `NODE_ENV=production`
+solo **avisa** en el log, la de "la base ya tiene usuarios" no aplica a una base vacía, y la de
+`NODE_ENV` del script CLI no interviene en el arranque del servidor.
+
+**Corrección:** `envFlag()` en `server/utils/config.ts`, que solo acepta `true`/`1`/`yes` como
+verdadero, aplicada a `seedOnStartup` y `db.ssl`. Tres tests de regresión en
+`tests/unit/config.test.ts`. El mismo patrón estaba en el parámetro `?active=` de `/api/users`, y
+se corrigió igual; los parámetros de query booleanos usan `z.enum(['true','false'])` con
+`transform`.
+
+**Lección, más allá del caso:** `z.coerce` convierte, no valida. Para cualquier valor que llegue
+como texto —entorno o query string— y que decida algo con consecuencias, la comparación se escribe
+a mano.
 
 ---
 
