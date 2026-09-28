@@ -78,7 +78,7 @@ services:
       # Vacío = no se cree X-Forwarded-For a nadie (ver .env.example).
       NUXT_TRUSTED_PROXIES: ${NUXT_TRUSTED_PROXIES:-}
     ports:
-      - '${APP_PORT:-3000}:3000'
+      - '127.0.0.1:${APP_PORT:-3000}:3000'
     networks: [cube]
 
 volumes:
