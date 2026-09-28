@@ -226,7 +226,7 @@ quedarían mal asignadas **sin error alguno**; `buildCanonicalIndex` detecta y r
 | `/evaluations` | sesión | Listado. Un developer ve solo las suyas |
 | `/evaluations/new` | lead/admin | Alta: bloques con peso por rol, promedio ponderado y redacción con IA |
 | `/evaluations/:id` | sesión | Detalle, con el cuestionario del rol con el que se evaluó. Quien la hizo —o un admin— la edita y la elimina desde aquí |
-| `/admin/users` | admin | CRUD completo: alta con posición, nivel y lead; edición de todos los campos —nombre, email, rol, posición, nivel, lead y contraseña—; filtro por estado; activar/desactivar (**revoca las sesiones abiertas**) |
+| `/admin/users` | admin | CRUD completo: alta con posición, nivel y lead; edición de todos los campos —nombre, email, rol, posición, nivel, lead y contraseña—; lista solo los activos, con "mostrar desactivados" para verlos y reactivarlos; activar/desactivar (**revoca las sesiones abiertas**) |
 | `/admin/catalogs` | admin | Posiciones y niveles: alta, renombrado y meses mínimos en la propia fila. Se desactivan, nunca se borran, y los desactivados se siguen viendo |
 | `/admin/api-keys` | admin | Claves de la API externa, con su lista de IPs y dominios. El token se ve una sola vez |
 
@@ -422,9 +422,12 @@ Nada se borra de verdad: las posiciones, los niveles y los usuarios se desactiva
 porque hay evaluaciones que los referencian y borrarlos dejaría ese historial sin contexto. Dos
 consecuencias que el código tiene que sostener:
 
-- **Lo desactivado se sigue viendo y se puede reactivar.** `/admin/catalogs` tiene "mostrar
-  desactivados" (`?includeInactive=true`), y `/admin/users` y `/admin/api-keys` un filtro de
-  estado. Una lista que solo devuelve lo activo convierte "desactivar" en "perder".
+- **Lo desactivado sale de la lista, pero se sigue pudiendo ver y reactivar.** `/admin/catalogs` y
+  `/admin/users` listan solo lo activo —desactivar algo es quitarlo de en medio— y tienen la casilla
+  "mostrar desactivados" que lo devuelve a la lista marcado y con su acción de reactivar
+  (`?includeInactive=true` en los catálogos, `?active=true` en usuarios);
+  `/admin/api-keys` mantiene su filtro de estado. Una lista que *solo* pueda devolver lo activo
+  convierte "desactivar" en "perder".
 - **Desactivar siempre pregunta**, con `<UiConfirmDialog>` —un `<dialog>` nativo, traducible y con
   el foco gestionado por el navegador—, nunca con `confirm()`. Reactivar no pregunta: la
   confirmación es para lo que quita algo de en medio.

@@ -6,9 +6,11 @@
  *   1. Desactivar SIEMPRE pregunta, y pregunta en un modal de la aplicación.
  *      Con `confirm()` del navegador el texto no se traducía y, tras varios
  *      avisos seguidos, el navegador ofrece silenciar los siguientes.
- *   2. Lo desactivado se sigue viendo. Antes, `/api/positions` y `/api/levels`
- *      solo devolvían lo activo: desactivar un nivel era perderlo, porque no
- *      quedaba ninguna pantalla desde la que volver a activarlo.
+ *   2. Lo desactivado se sigue pudiendo ver. Las listas son de activos —lo que
+ *      se desactiva sale de en medio, que es de lo que se trata— pero una
+ *      casilla los trae de vuelta marcados y con su acción de reactivar. Antes,
+ *      `/api/positions` y `/api/levels` solo devolvían lo activo y no había
+ *      casilla ninguna: desactivar un nivel era perderlo.
  */
 import { test, expect } from '@playwright/test'
 import { ACCOUNTS, login } from './helpers'
@@ -64,12 +66,14 @@ test.describe('catálogos', () => {
 })
 
 test.describe('usuarios', () => {
-  test('el estado se puede filtrar y el desactivado sigue apareciendo', async ({ page }) => {
+  test('el desactivado sale del listado y vuelve al mostrar los desactivados', async ({ page }) => {
     await login(page, ACCOUNTS.admin)
     await page.goto('/admin/users')
 
-    const row = page.getByRole('row').filter({ hasText: 'dev2@cube.test' })
-    await row.getByRole('button', { name: /^desactivar$/i }).click()
+    const bruno = () => page.getByRole('row').filter({ hasText: 'dev2@cube.test' })
+    await bruno()
+      .getByRole('button', { name: /^desactivar$/i })
+      .click()
 
     const dialog = page.getByRole('dialog')
     await expect(dialog).toContainText('Bruno')
@@ -78,20 +82,21 @@ test.describe('usuarios', () => {
     // Cerrar sus sesiones es parte de desactivar, y se dice.
     await expect(page.getByRole('status')).toBeVisible()
 
-    // Sin filtro se listan todos: sigue ahí, marcado como inactivo.
-    await expect(row).toContainText(/inactivo/i)
+    // El listado es de activos: la fila se va. Antes se quedaba, y la única
+    // señal de que algo había pasado era la palabra "Inactivo" en su columna.
+    await expect(bruno()).toHaveCount(0)
 
-    // Y el filtro de estado lo encuentra.
-    await page.getByLabel(/^estado$/i).selectOption('false')
-    await expect(page.getByRole('row').filter({ hasText: 'dev2@cube.test' })).toBeVisible()
-    await expect(page.getByRole('row').filter({ hasText: /^Dana/ })).toHaveCount(0)
+    // No se ha perdido (regla 9): la casilla lo devuelve, marcado como
+    // inactivo y junto a los que siguen activos.
+    await page.getByLabel(/mostrar desactivados/i).check()
+    await expect(bruno()).toContainText(/inactivo/i)
+    await expect(page.getByRole('row').filter({ hasText: 'dev@cube.test' })).toBeVisible()
 
-    // Se deja como estaba, que los tests comparten base.
-    await page
-      .getByRole('row')
-      .filter({ hasText: 'dev2@cube.test' })
+    // Y desde ahí se reactiva. Se deja como estaba, que los tests comparten base.
+    await bruno()
       .getByRole('button', { name: /^activar$/i })
       .click()
+    await expect(bruno().getByRole('button', { name: /^desactivar$/i })).toBeVisible()
   })
 })
 

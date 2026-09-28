@@ -257,8 +257,9 @@ Posiciones, niveles, usuarios y evaluaciones se desactivan (`active = 0`), porqu
 los referencia. De ahí dos obligaciones que el código sostiene:
 
 - **Lo desactivado se sigue viendo y se puede reactivar** (`?includeInactive=true` en los catálogos,
-  filtro de estado en usuarios). Una lista que solo devuelve lo activo convierte "desactivar" en
-  "perder".
+  `?active=true` en usuarios, y en las dos pantallas la casilla "mostrar desactivados" que lo
+  devuelve a la lista). Por defecto se listan solo los activos —desactivar algo es quitarlo de en
+  medio— pero una lista que *solo* pueda devolver lo activo convierte "desactivar" en "perder".
 - **Desactivar siempre confirma**, con `<UiConfirmDialog>` y nunca con `confirm()` del navegador,
   que no se traduce y puede ofrecer silenciarse. Reactivar no pregunta.
 

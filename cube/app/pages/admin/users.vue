@@ -43,11 +43,16 @@ interface CatalogItem {
 const search = ref('')
 const roleFilter = ref<string | null>(null)
 /**
- * null = todos. La lista incluye a los desactivados por defecto, marcados en la
- * columna de estado: a quien se desactiva hay que poder encontrarlo para
- * volver a activarlo.
+ * Por defecto solo los activos. Desactivar a alguien es quitarlo de en medio, y
+ * si la fila se queda en la lista el listado no refleja lo que se acaba de
+ * hacer: la única señal era una palabra en la columna de estado, fácil de pasar
+ * por alto en una lista larga.
+ *
+ * Lo desactivado no se pierde (regla 9): se pide marcando la casilla, y
+ * entonces se listan activos e inactivos juntos, cada uno con su estado y con
+ * su acción de reactivar. Es el mismo mecanismo que `/admin/catalogs`.
  */
-const statusFilter = ref<'true' | 'false' | null>(null)
+const showInactive = ref(false)
 const page = ref(0)
 const LIMIT = 20
 
@@ -70,10 +75,12 @@ const { data, pending, error, refresh } = await useAsyncData(
         limit: LIMIT,
         ...(debouncedSearch.value ? { search: debouncedSearch.value } : {}),
         ...(roleFilter.value ? { role: roleFilter.value } : {}),
-        ...(statusFilter.value ? { active: statusFilter.value } : {}),
+        // Con la casilla marcada no se manda `active`: el endpoint devuelve
+        // entonces activos e inactivos, que es lo que hay que poder repasar.
+        ...(showInactive.value ? {} : { active: 'true' }),
       },
     }),
-  { watch: [page, debouncedSearch, roleFilter, statusFilter] },
+  { watch: [page, debouncedSearch, roleFilter, showInactive] },
 )
 
 const items = computed(() => data.value?.items ?? [])
@@ -498,13 +505,9 @@ useHead({ title: () => `${t('users.title')} · Cube` })
         </select>
       </label>
 
-      <label class="text-sm">
-        <span class="sr-only">{{ $t('users.status') }}</span>
-        <select v-model="statusFilter" class="field w-auto" @change="page = 0">
-          <option :value="null">{{ $t('users.allStatuses') }}</option>
-          <option value="true">{{ $t('users.active') }}</option>
-          <option value="false">{{ $t('users.inactive') }}</option>
-        </select>
+      <label class="flex items-center gap-2 text-sm">
+        <input v-model="showInactive" type="checkbox" class="size-4" @change="page = 0" />
+        <span>{{ $t('common.showInactive') }}</span>
       </label>
     </div>
 

@@ -119,8 +119,10 @@ la 9, que es comportamiento y la cubre `tests/e2e/admin.spec.ts`.
 8. **Toda cadena visible va a `i18n/locales/{es,en,pt}.json`.** Un test exige las mismas claves, sin
    valores vacíos y con las mismas interpolaciones en los tres idiomas.
 9. **Nada se borra: se desactiva** (`active = 0`), y lo desactivado **se sigue pudiendo ver y
-   reactivar** — `/admin/catalogs` con "mostrar desactivados", y `/admin/users` y
-   `/admin/api-keys` con el filtro de estado. Si una lista solo devuelve lo activo, desactivar equivale a perder.
+   reactivar** — `/admin/catalogs` y `/admin/users` con "mostrar desactivados", y
+   `/admin/api-keys` con el filtro de estado. La lista por defecto es la de lo activo: desactivar
+   tiene que quitarlo de en medio, pero si no hay forma de volver a verlo, desactivar equivale a
+   perder.
 10. **Toda acción destructiva confirma con `<UiConfirmDialog>`**, nunca con `confirm()` ni
     `alert()` del navegador: no se traducen y el navegador puede ofrecer silenciarlos. Reactivar no
     pregunta; la confirmación es para lo que quita algo de en medio.
