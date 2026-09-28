@@ -21,6 +21,7 @@
 import { defineEventHandler } from 'h3'
 import { resolveSession } from '../utils/session'
 import { unauthorized } from '../utils/errors'
+import { EXTERNAL_API_PREFIX } from '../utils/apikey'
 
 /**
  * Rutas accesibles sin sesión de Cube. Se comparan de forma exacta o por
@@ -46,6 +47,19 @@ export default defineEventHandler(async (event) => {
   // Fuera de /api no hay nada que autenticar: las páginas se protegen en el
   // cliente y sus datos siempre vienen de /api, que sí pasa por aquí.
   if (!path.startsWith('/api/')) return
+
+  /**
+   * La API externa no se autentica con sesión sino con clave, y de eso se
+   * ocupa `02.external.ts`. Se sale ANTES de resolver la cookie, no después:
+   * si aquí se poblara `event.context.user` porque quien llama resulta tener
+   * además una sesión de Cube en el navegador, los dos dominios de identidad
+   * quedarían solapados en la misma petición y bastaría una comprobación
+   * olvidada en un handler externo para actuar como esa persona.
+   *
+   * Que la ruta salga de aquí no la deja abierta: `02.external.ts` deniega
+   * por defecto todo lo que hay bajo el prefijo.
+   */
+  if (path.startsWith(EXTERNAL_API_PREFIX)) return
 
   const user = await resolveSession(event)
   if (user) event.context.user = user

@@ -7,7 +7,7 @@
  * abrir nada. Un slider además sugiere continuidad, y aquí no la hay —menos
  * todavía en la escala de idiomas, donde el 2 y el 4 no existen—.
  */
-import { LANGUAGE_SCORES, MAX_SCORE, MIN_SCORE, type ScaleKind } from '#shared/ideal'
+import { LANGUAGE_SCORES, MAX_SCORE, MIN_SCORE, type ScaleKind } from '#shared/evaluation'
 
 const props = defineProps<{
   modelValue: number
@@ -26,7 +26,7 @@ const options = computed(() => {
     return LANGUAGE_SCORES.map((value) => ({
       value,
       label: String(value),
-      hint: t(`ideal.languages.${value}`),
+      hint: t(`evaluation.languages.${value}`),
     }))
   }
   return Array.from({ length: MAX_SCORE - MIN_SCORE + 1 }, (_, index) => {

@@ -31,11 +31,14 @@ export default defineNuxtConfig({
     sessionSecret: '',
     // Solo desarrollo. Ver server/utils/config.ts.
     seedOnStartup: 'false',
-    // Redacción de evaluaciones IDEAL (NUXT_GEMINI_API_KEY / NUXT_GEMINI_MODEL).
+    // Redacción de las evaluaciones (NUXT_GEMINI_API_KEY / NUXT_GEMINI_MODEL).
     // Opcional a propósito: sin clave la aplicación arranca igual y solo esa
     // función queda deshabilitada.
     geminiApiKey: '',
     geminiModel: '',
+    // Proxies inversos de confianza (NUXT_TRUSTED_PROXIES). Vacío = no se cree
+    // `X-Forwarded-For` a nadie; ver server/utils/netmatch.ts.
+    trustedProxies: '',
     db: {
       host: '',
       port: '3306',
@@ -125,6 +128,23 @@ export default defineNuxtConfig({
       origin: process.env.NUXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
       methods: ['GET', 'POST', 'PATCH', 'DELETE'],
       credentials: true,
+    },
+  },
+
+  /**
+   * CORS de la API externa: lo resuelve `server/middleware/02.external.ts`.
+   *
+   * El `corsHandler` de nuxt-security fija un único origen —el de la propia
+   * aplicación— y no sabe nada de las listas por clave, así que dejarlo activo
+   * aquí significaría que ningún dominio autorizado podría llamar nunca desde
+   * un navegador. Se desactiva SOLO en este prefijo; el resto de Cube sigue
+   * con el origen único de siempre.
+   */
+  routeRules: {
+    '/api/external/**': {
+      security: {
+        corsHandler: false,
+      },
     },
   },
 

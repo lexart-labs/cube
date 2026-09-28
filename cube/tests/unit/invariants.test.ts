@@ -31,6 +31,15 @@ const apiHandlers = serverFiles.filter(
 )
 
 const read = (path: string) => readFileSync(path, 'utf8')
+/**
+ * El fichero sin sus comentarios. Varios módulos documentan precisamente el
+ * patrón que NO usan —`getRequestIP`, `event.context.apiClient`— y un
+ * invariante que lea el comentario acusa al fichero que mejor se explica.
+ */
+const code = (path: string) =>
+  read(path)
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '')
 const relative = (path: string) => path.replace(`${process.cwd()}/`, '')
 
 describe('invariante 1 — la identidad sale solo de la sesión', () => {
@@ -72,12 +81,15 @@ describe('invariante 2 — cada handler declara su política de acceso', () => {
   const PUBLIC_BY_DESIGN = ['server/api/health.get.ts', 'server/api/auth/login.post.ts']
 
   it('todos los handlers declaran su política de acceso', () => {
+    // `requireApiKey` cuenta como declaración: es lo que hace lo mismo en la
+    // API externa, donde no hay sesión sino clave. Lo que no vale es no
+    // declarar nada.
     const undeclared = apiHandlers
       .map(relative)
       .filter((file) => !PUBLIC_BY_DESIGN.includes(file))
       .filter((file) => {
         const source = read(join(process.cwd(), file))
-        return !/require(User|Role)\s*\(/.test(source)
+        return !/require(User|Role|ApiKey)\s*\(/.test(source)
       })
     expect(undeclared).toEqual([])
   })
@@ -92,6 +104,76 @@ describe('invariante 2 — cada handler declara su política de acceso', () => {
      */
     const offenders = serverFiles.filter((file) => /event\.context\.candidate/.test(read(file)))
     expect(offenders.map(relative)).toEqual([])
+  })
+
+  /**
+   * La API externa (`/api/external/`) sí introduce una segunda identidad:
+   * `event.context.apiClient`, que es un sistema y no una persona. Se admite
+   * porque hay un caso real —la plataforma de Lexart dando de alta usuarios
+   * desde AD-06— pero con los cuatro barrotes de abajo, que son justo los que
+   * le faltaron a la extranet de onboarding:
+   *
+   *   · solo la pone un sitio,
+   *   · solo la lee un sitio,
+   *   · no sale de `/api/external/`,
+   *   · y ahí dentro no convive con la identidad de sesión.
+   *
+   * Sin ellos, un cliente externo a un despiste de distancia de ser un usuario.
+   */
+  const externalHandlers = apiHandlers.filter((file) =>
+    file.includes(`${'/'}api${'/'}external${'/'}`),
+  )
+
+  it('solo el middleware de la API externa establece event.context.apiClient', () => {
+    const setters = serverFiles.filter((file) => /event\.context\.apiClient\s*=/.test(read(file)))
+    expect(setters.map(relative)).toEqual(['server/middleware/02.external.ts'])
+  })
+
+  it('solo requireApiKey lee event.context.apiClient', () => {
+    // Que nadie lo consulte a mano: `requireApiKey` es el único sitio donde se
+    // comprueba el permiso, y saltárselo sería tener la clave sin el scope.
+    const readers = serverFiles.filter((file) =>
+      /event\.context\.apiClient(?!\s*=)/.test(code(file)),
+    )
+    expect(readers.map(relative)).toEqual(['server/utils/apikey.ts'])
+  })
+
+  it('requireApiKey solo se usa dentro de server/api/external/', () => {
+    expect(externalHandlers.length).toBeGreaterThan(0)
+
+    const offenders = serverFiles
+      .filter((file) => !externalHandlers.includes(file))
+      .filter((file) => !file.endsWith(`utils${'/'}apikey.ts`))
+      .filter((file) => /requireApiKey\s*\(/.test(code(file)))
+    expect(offenders.map(relative)).toEqual([])
+  })
+
+  it('los handlers externos no tocan la identidad de sesión', () => {
+    // No hay cookie en esas rutas —`01.auth.ts` sale antes de resolverla—, así
+    // que un `requireUser` ahí sería una comprobación que nunca se cumple o,
+    // peor, una que se cumpliera por accidente si algún día vuelve la cookie.
+    const offenders = externalHandlers.filter((file) =>
+      /require(User|Role)\s*\(/.test(code(file)),
+    )
+    expect(offenders.map(relative)).toEqual([])
+  })
+
+  it('todo handler de server/api/external/ exige clave', () => {
+    const undeclared = externalHandlers.filter((file) => !/requireApiKey\s*\(/.test(code(file)))
+    expect(undeclared.map(relative)).toEqual([])
+  })
+
+  it('la API externa no se apoya en getRequestIP para la lista de IPs', () => {
+    /**
+     * `getRequestIP(event, { xForwardedFor: true })` coge el primer valor de
+     * una cabecera que escribe el cliente: con ella, la lista blanca de IPs se
+     * salta mandando `X-Forwarded-For: 10.0.0.5`. La IP de la API externa sale
+     * de `pickClientIp`, que solo mira la cadena si el socket es un proxy
+     * declarado en `NUXT_TRUSTED_PROXIES`.
+     */
+    const apikey = code(join(SERVER_DIR, 'utils/apikey.ts'))
+    expect(apikey).toContain('pickClientIp(')
+    expect(apikey).not.toMatch(/getRequestIP\s*\(/)
   })
 
   it('las rutas públicas están en la allow-list del middleware', () => {

@@ -26,6 +26,10 @@ export default defineEventHandler(async (event) => {
     [body.name, body.minimumTimeMonths],
   )
 
-  await audit(event, { action: 'user.update', resource: 'position', resourceId: result.insertId })
+  await audit(event, {
+    action: 'catalog.create',
+    resource: 'position',
+    resourceId: result.insertId,
+  })
   return { id: result.insertId }
 })

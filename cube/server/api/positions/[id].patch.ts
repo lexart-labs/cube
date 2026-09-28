@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { execute, queryOne } from '../../db'
 import { validatedBody, validatedParams, idParam } from '../../utils/validation'
 import { requireRole } from '../../utils/rbac'
-import { notFound } from '../../utils/errors'
+import { notFound, conflict } from '../../utils/errors'
 import { audit } from '../../utils/audit'
 
 const bodySchema = z
@@ -28,17 +28,40 @@ export default defineEventHandler(async (event) => {
   const existing = await queryOne<{ id: number }>('SELECT id FROM positions WHERE id = ?', [id])
   if (!existing) throw notFound('Posición no encontrada')
 
+  // El nombre es UNIQUE en la tabla. Sin esta comprobación, renombrar a algo
+  // que ya existe sale como un 500 genérico —el error del motor no cruza la
+  // frontera (HIGH-07)— y quien lo intenta no sabe por qué ha fallado.
+  if (body.name !== undefined) {
+    const duplicate = await queryOne<{ id: number }>(
+      'SELECT id FROM positions WHERE name = ? AND id <> ?',
+      [body.name, id],
+    )
+    if (duplicate) throw conflict('Ya existe una posición con ese nombre')
+  }
+
   const updates: string[] = []
   const values: (string | number)[] = []
-  if (body.name !== undefined) { updates.push('name = ?'); values.push(body.name) }
-  if (body.minimumTimeMonths !== undefined) {
-    updates.push('minimum_time_months = ?'); values.push(body.minimumTimeMonths)
+  if (body.name !== undefined) {
+    updates.push('name = ?')
+    values.push(body.name)
   }
-  if (body.active !== undefined) { updates.push('active = ?'); values.push(body.active ? 1 : 0) }
+  if (body.minimumTimeMonths !== undefined) {
+    updates.push('minimum_time_months = ?')
+    values.push(body.minimumTimeMonths)
+  }
+  if (body.active !== undefined) {
+    updates.push('active = ?')
+    values.push(body.active ? 1 : 0)
+  }
 
   values.push(id)
   await execute(`UPDATE positions SET ${updates.join(', ')} WHERE id = ?`, values)
 
-  await audit(event, { action: 'user.update', resource: 'position', resourceId: id })
+  await audit(event, {
+    action: 'catalog.update',
+    resource: 'position',
+    resourceId: id,
+    metadata: { fields: Object.keys(body) },
+  })
   return { id, updated: true }
 })

@@ -1,5 +1,9 @@
 /**
- * IDEAL LEXART — catálogo de roles, bloques y pesos, y el cálculo del promedio.
+ * Catálogo de roles, bloques y pesos, y el cálculo del promedio ponderado.
+ *
+ * Se llamó IDEAL LEXART hasta el 2026-09-27; el nombre se retiró y el dominio
+ * pasó a llamarse simplemente "evaluaciones". Es el mismo modelo: bloques con
+ * peso por rol, notas de 1 a 5 y promedio ponderado.
  *
  * Vive en `shared/` (alias `#shared/`, Nuxt 4) porque lo necesitan las DOS
  * partes: el formulario para pintar los bloques y mostrar el promedio en vivo,
@@ -28,12 +32,12 @@ export type LanguageScore = (typeof LANGUAGE_SCORES)[number]
 
 export type ScaleKind = 'linear' | 'languages'
 
-export interface IdealBlock {
+export interface EvaluationBlock {
   /** Clave estable. Se guarda en la base: no renombrar a la ligera. */
   key: string
   /**
    * Nombre legible del bloque. Lo usan el prompt de la IA y, como respaldo, la
-   * interfaz cuando no hay traducción en `ideal.blocks.*`.
+   * interfaz cuando no hay traducción en `evaluation.blocks.*`.
    */
   label: string
   /** Peso del bloque dentro del rol, en porcentaje. */
@@ -42,14 +46,14 @@ export interface IdealBlock {
   questions: string[]
 }
 
-export interface IdealRole {
+export interface EvaluationRole {
   key: string
   label: string
-  blocks: IdealBlock[]
+  blocks: EvaluationBlock[]
 }
 
 /** Pregunta única del bloque de idiomas, igual en todos los roles. */
-const LANGUAGE_BLOCK: IdealBlock = {
+const LANGUAGE_BLOCK: EvaluationBlock = {
   key: 'idiomas',
   label: 'Idiomas',
   weight: 10,
@@ -57,7 +61,7 @@ const LANGUAGE_BLOCK: IdealBlock = {
   questions: ['Idiomas en los que puede trabajar con un cliente'],
 }
 
-export const IDEAL_ROLES: Record<string, IdealRole> = {
+export const EVALUATION_ROLES: Record<string, EvaluationRole> = {
   'arquitecto-l1': {
     key: 'arquitecto-l1',
     label: 'Arquitecto L1',
@@ -232,17 +236,17 @@ export const IDEAL_ROLES: Record<string, IdealRole> = {
   },
 }
 
-export const IDEAL_ROLE_KEYS = Object.keys(IDEAL_ROLES)
+export const ROLE_KEYS = Object.keys(EVALUATION_ROLES)
 
-export function getRole(roleKey: string): IdealRole | null {
-  return IDEAL_ROLES[roleKey] ?? null
+export function getRole(roleKey: string): EvaluationRole | null {
+  return EVALUATION_ROLES[roleKey] ?? null
 }
 
 /** Notas por bloque, en el mismo orden que las preguntas del bloque. */
-export type IdealScores = Record<string, number[]>
+export type EvaluationScores = Record<string, number[]>
 
 /** Formulario vacío: todo al punto medio, como hacía el modelo anterior. */
-export function emptyScores(roleKey: string): IdealScores {
+export function emptyScores(roleKey: string): EvaluationScores {
   const role = getRole(roleKey)
   if (!role) return {}
   // 3 es válido en las dos escalas: punto medio en la lineal y "dos idiomas"
@@ -258,7 +262,7 @@ export function emptyScores(roleKey: string): IdealScores {
  * Se comprueba antes de calcular en vez de rellenar los huecos con un valor por
  * defecto: un bloque a medias daría un promedio que parece real y no lo es.
  */
-export function isComplete(roleKey: string, scores: IdealScores): boolean {
+export function isComplete(roleKey: string, scores: EvaluationScores): boolean {
   const role = getRole(roleKey)
   if (!role) return false
 
@@ -289,7 +293,7 @@ export function blockAverage(values: number[]): number {
  * Devuelve 0 si falta alguna nota: quien llama debe comprobar `isComplete`
  * antes, y el servidor además valida con Zod.
  */
-export function weightedAverage(roleKey: string, scores: IdealScores): number {
+export function weightedAverage(roleKey: string, scores: EvaluationScores): number {
   const role = getRole(roleKey)
   if (!role || !isComplete(roleKey, scores)) return 0
 

@@ -14,9 +14,10 @@
 import type { Connection, Pool, RowDataPacket } from 'mysql2/promise'
 import bcrypt from 'bcryptjs'
 import { createHash } from 'node:crypto'
-import { schemaStatements } from './schema.ts'
-import { IDEAL_ROLES, scorePercent, weightedAverage } from '../../shared/ideal.ts'
-import type { IdealScores } from '../../shared/ideal.ts'
+import { findSchemaMismatches, schemaStatements, type SchemaMismatch } from './schema.ts'
+import { planRepairs, type Repair, type SchemaShape } from './repairs.ts'
+import { EVALUATION_ROLES, scorePercent, weightedAverage } from '../../shared/evaluation.ts'
+import type { EvaluationScores } from '../../shared/evaluation.ts'
 
 type Executor = Pick<Connection | Pool, 'query'>
 
@@ -38,6 +39,96 @@ export async function ensureSchema(executor: Executor): Promise<number> {
   return statements.length
 }
 
+/**
+ * Comprueba que las tablas que ya existían tienen la forma que el esquema
+ * declara.
+ *
+ * `CREATE TABLE IF NOT EXISTS` mira el NOMBRE, no la forma: si en la base hay
+ * una tabla que se llama igual pero es otra cosa, el arranque no la toca y no
+ * dice nada. Eso fue exactamente lo que pasó al renombrar `ideal_evaluations`
+ * a `evaluations` el 2026-09-27: el nombre estaba ocupado por la tabla del
+ * modelo de 27 indicadores que vivía ahí antes, la tabla nueva nunca se creó y
+ * el fallo salió mucho después, en la primera consulta, como
+ * `Unknown column 'e.role_key' in 'field list'` — un 500 en cada pantalla y
+ * ninguna pista de la causa.
+ *
+ * Se ejecuta DESPUÉS de `applySchemaRepairs()`, así que lo que llega aquí es
+ * lo que no se ha podido arreglar solo: un desajuste que nadie ha enumerado en
+ * `repairs.ts` y que, por tanto, decide una persona. Esta función no toca
+ * nada; solo lo dice, en el arranque, que es cuando se puede arreglar.
+ */
+export async function verifySchemaShape(
+  executor: Executor,
+  database: string,
+): Promise<SchemaMismatch[]> {
+  return findSchemaMismatches(await readSchemaShape(executor, database))
+}
+
+/** Estado real de la base: tabla → columnas que tiene. */
+export async function readSchemaShape(executor: Executor, database: string): Promise<SchemaShape> {
+  const [rows] = await executor.query(
+    `SELECT TABLE_NAME AS tableName, COLUMN_NAME AS columnName
+       FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = ?`,
+    [database],
+  )
+
+  const actual: SchemaShape = new Map()
+  for (const row of rows as RowDataPacket[]) {
+    const table = String(row.tableName)
+    if (!actual.has(table)) actual.set(table, new Set())
+    actual.get(table)!.add(String(row.columnName))
+  }
+
+  return actual
+}
+
+/**
+ * Aplica las reparaciones de esquema conocidas antes de crear nada.
+ *
+ * Es lo que hace que `docker compose up` deje lista una base heredada sin que
+ * nadie escriba SQL: aparta la tabla de la versión anterior que ocupa un
+ * nombre del esquema y mueve los datos de la que sí vale.
+ *
+ * **Solo renombra**, nunca borra ni altera: lo apartado sigue entero y se
+ * puede devolver con otro `RENAME TABLE`. Y solo hace lo que está enumerado en
+ * `repairs.ts`; cualquier otro desajuste lo decide una persona (ver el
+ * comentario de ese módulo, que explica por qué una regla genérica sería una
+ * máquina de perder datos).
+ *
+ * Devuelve lo que ha hecho, para que el arranque pueda registrarlo. Los
+ * renombrados a una base de otro se ven en el log o no se ven en ninguna parte.
+ */
+export async function applySchemaRepairs(executor: Executor, database: string): Promise<Repair[]> {
+  const plan = planRepairs(await readSchemaShape(executor, database))
+
+  for (const repair of plan) {
+    // Los nombres salen de `repairs.ts` y de `freeName`, nunca de la petición
+    // ni del entorno: SQL no permite parametrizar identificadores.
+    await executor.query(`RENAME TABLE \`${repair.from}\` TO \`${repair.to}\``)
+  }
+
+  return plan
+}
+
+/** El aviso que se escribe en el log cuando una tabla no tiene la forma esperada. */
+export function describeMismatches(problems: SchemaMismatch[]): string {
+  const detail = problems
+    .map((problem) => `  · ${problem.table}: faltan ${problem.missing.join(', ')}`)
+    .join('\n')
+
+  return (
+    'Hay tablas con un nombre del esquema pero otra forma, así que el esquema NO las ha creado ' +
+    '(CREATE TABLE IF NOT EXISTS solo mira el nombre):\n\n' +
+    `${detail}\n\n` +
+    'Las reparaciones automáticas de server/db/repairs.ts no cubren este caso, así que hay que ' +
+    'decidirlo a mano: míralas con SHOW COLUMNS y, si son de otra versión, apártalas ' +
+    '(RENAME TABLE x TO x_old) y reinicia; si son tuyas y solo les faltan columnas, añádelas con ' +
+    'ALTER TABLE. Cube arranca y sirve el resto; solo la parte que depende de esas tablas ' +
+    'responde 503.'
+  )
+}
+
 /** Número de usuarios. Es lo que decide si la base está "vacía". */
 export async function countUsers(executor: Executor): Promise<number> {
   const [rows] = await executor.query('SELECT COUNT(*) AS total FROM users')
@@ -49,11 +140,11 @@ export async function countUsers(executor: Executor): Promise<number> {
  * exactos, así que no puede haber azar aquí. El bloque de idiomas tiene escala
  * cerrada 1/3/5 y no admite el mismo tratamiento que el resto.
  */
-function buildScores(roleKey: string, base: number, offset: number): IdealScores {
-  const role = IDEAL_ROLES[roleKey]
-  if (!role) throw new Error(`Rol IDEAL desconocido en la semilla: ${roleKey}`)
+function buildScores(roleKey: string, base: number, offset: number): EvaluationScores {
+  const role = EVALUATION_ROLES[roleKey]
+  if (!role) throw new Error(`Rol desconocido en la semilla: ${roleKey}`)
 
-  const scores: IdealScores = {}
+  const scores: EvaluationScores = {}
   let index = 0
   for (const block of role.blocks) {
     scores[block.key] = block.questions.map(() => {
@@ -117,7 +208,7 @@ export async function seedDemoData(executor: Executor): Promise<void> {
     const scores = buildScores(item.role, item.base, item.offset)
     const average = weightedAverage(item.role, scores)
     await executor.query(
-      `INSERT INTO ideal_evaluations
+      `INSERT INTO evaluations
          (id, author_user_id, evaluated_user_id, role_key, evaluated_on, scores,
           weighted_average, score_percent, observations, active)
        VALUES (?, 2, ?, ?, ?, CAST(? AS JSON), ?, ?, ?, 1)

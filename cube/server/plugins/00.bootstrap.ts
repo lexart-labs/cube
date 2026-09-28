@@ -18,9 +18,17 @@
  */
 import { validateServerConfig } from '../utils/config'
 import { initDatabase, ping, query } from '../db'
-import { ensureSchema, countUsers, seedDemoData, seedSummary } from '../db/bootstrap'
+import {
+  applySchemaRepairs,
+  ensureSchema,
+  verifySchemaShape,
+  describeMismatches,
+  countUsers,
+  seedDemoData,
+  seedSummary,
+} from '../db/bootstrap'
 import { logger } from '../utils/logger'
-import { setDatabaseReady } from '../utils/health'
+import { setDatabaseReady, setSchemaProblem } from '../utils/health'
 
 /** Ejecutor que enruta al pool ya inicializado. */
 const executor = {
@@ -58,6 +66,30 @@ export default defineNitroPlugin(async () => {
     return
   }
 
+  /**
+   * --- reparaciones de una base heredada ---
+   *
+   * Antes de crear nada: si una tabla de una versión anterior ocupa un nombre
+   * del esquema, se aparta con su contenido intacto para que `ensureSchema`
+   * pueda crear la buena. Solo renombra, y solo los casos enumerados en
+   * `db/repairs.ts`.
+   */
+  try {
+    const repairs = await applySchemaRepairs(executor, config.db.name)
+    for (const repair of repairs) {
+      // A nivel warn a propósito: renombrar una tabla en la base de otro es
+      // algo que tiene que verse, aunque sea correcto y reversible.
+      logger.warn(
+        { from: repair.from, to: repair.to },
+        `esquema heredado: ${repair.description} (${repair.from} → ${repair.to})`,
+      )
+    }
+  } catch (error) {
+    // Si no se puede reparar, se sigue: `ensureSchema` y la verificación de
+    // después dirán qué falta y la salvaguarda cortará solo lo afectado.
+    logger.error({ err: error }, 'no se pudieron aplicar las reparaciones de esquema')
+  }
+
   // --- esquema ---
   try {
     const statements = await ensureSchema(executor)
@@ -66,6 +98,33 @@ export default defineNitroPlugin(async () => {
     logger.error({ err: error }, 'no se pudo aplicar el esquema')
     setDatabaseReady(false)
     return
+  }
+
+  /**
+   * Y que las tablas que ya estaban tengan la forma que el esquema declara.
+   *
+   * `CREATE TABLE IF NOT EXISTS` mira el nombre, no las columnas: una tabla
+   * vieja ocupando un nombre del esquema pasa desapercibida en el arranque y
+   * revienta después, en la primera consulta, con un `Unknown column` que no
+   * apunta a ninguna parte. Se prefiere no servir tráfico a servir 500.
+   */
+  try {
+    const problems = await verifySchemaShape(executor, config.db.name)
+    if (problems.length > 0) {
+      const detail = describeMismatches(problems)
+      logger.error({ problems }, detail)
+      // Deja en 503 SOLO los endpoints que dependen de esas tablas (ver
+      // server/middleware/00.ready.ts). No se limpia solo: hay que arreglar la
+      // base y reiniciar.
+      setSchemaProblem({ detail, tables: problems.map((problem) => problem.table) })
+      // La base responde y el resto de la aplicación sirve: no se marca como
+      // caída, o el healthcheck del contenedor la reiniciaría en bucle.
+      return
+    }
+  } catch (error) {
+    // Que no se pueda leer `information_schema` no es motivo para no arrancar:
+    // la comprobación es una red, no un requisito.
+    logger.warn({ err: error }, 'no se pudo verificar la forma del esquema')
   }
 
   // --- datos de ejemplo ---

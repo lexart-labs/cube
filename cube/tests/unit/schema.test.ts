@@ -22,9 +22,18 @@ const tableNames = createTable.map((s) => {
 })
 
 describe('esquema', () => {
-  it('crea las 6 tablas del modelo', () => {
+  it('crea las 8 tablas del modelo', () => {
     expect(tableNames.sort()).toEqual(
-      ['audit_log', 'ideal_evaluations', 'levels', 'positions', 'sessions', 'users'].sort(),
+      [
+        'api_key_allowlist',
+        'api_keys',
+        'audit_log',
+        'evaluations',
+        'levels',
+        'positions',
+        'sessions',
+        'users',
+      ].sort(),
     )
   })
 
@@ -71,5 +80,14 @@ describe('esquema', () => {
     const sessions = createTable.find((s) => s.includes('CREATE TABLE IF NOT EXISTS sessions'))!
     expect(sessions).toContain('token_hash')
     expect(sessions).not.toMatch(/\btoken\s+VARCHAR/)
+  })
+
+  it('la tabla de claves de API tampoco guarda el token', () => {
+    // Mismo criterio que en `sessions`: un volcado de la tabla no puede
+    // permitir llamar a la API. Solo el prefijo, que identifica sin servir.
+    const keys = createTable.find((s) => s.includes('CREATE TABLE IF NOT EXISTS api_keys'))!
+    expect(keys).toContain('token_hash')
+    expect(keys).toContain('prefix')
+    expect(keys).not.toMatch(/\btoken\s+(VARCHAR|CHAR|TEXT)/)
   })
 })

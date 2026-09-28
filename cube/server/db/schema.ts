@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ---------------------------------------------------------------------------
--- Evaluaciones IDEAL LEXART — el dominio principal
+-- Evaluaciones — el dominio principal
 -- ---------------------------------------------------------------------------
 
 -- El modelo de 27 indicadores sobre 135 que venía de v1 se retiró entero el
@@ -111,13 +111,13 @@ CREATE TABLE IF NOT EXISTS users (
 -- Las preguntas del catálogo pueden cambiar con el tiempo; por eso se guardan
 -- las notas JUNTO al rol con el que se evaluó, y el promedio ya calculado. Una
 -- evaluación vieja se sigue leyendo aunque el cuestionario haya cambiado.
-CREATE TABLE IF NOT EXISTS ideal_evaluations (
+CREATE TABLE IF NOT EXISTS evaluations (
   id                INT UNSIGNED NOT NULL AUTO_INCREMENT,
 
   author_user_id    INT UNSIGNED DEFAULT NULL,
   evaluated_user_id INT UNSIGNED NOT NULL,
 
-  -- Clave del rol en \`shared/ideal.ts\` (arquitecto-l1, desarrollador-l3, …).
+  -- Clave del rol en \`shared/evaluation.ts\` (arquitecto-l1, desarrollador-l3, …).
   role_key          VARCHAR(64) NOT NULL,
   evaluated_on      DATE NOT NULL,
 
@@ -143,10 +143,10 @@ CREATE TABLE IF NOT EXISTS ideal_evaluations (
   updated_at        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
   PRIMARY KEY (id),
-  KEY idx_ideal_evaluated (evaluated_user_id, active, evaluated_on),
-  KEY idx_ideal_author (author_user_id),
-  CONSTRAINT fk_ideal_author    FOREIGN KEY (author_user_id)    REFERENCES users (id) ON DELETE SET NULL,
-  CONSTRAINT fk_ideal_evaluated FOREIGN KEY (evaluated_user_id) REFERENCES users (id) ON DELETE CASCADE
+  KEY idx_evaluations_evaluated (evaluated_user_id, active, evaluated_on),
+  KEY idx_evaluations_author (author_user_id),
+  CONSTRAINT fk_evaluations_author    FOREIGN KEY (author_user_id)    REFERENCES users (id) ON DELETE SET NULL,
+  CONSTRAINT fk_evaluations_evaluated FOREIGN KEY (evaluated_user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ---------------------------------------------------------------------------
@@ -185,6 +185,90 @@ CREATE TABLE IF NOT EXISTS sessions (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ---------------------------------------------------------------------------
+-- API externa — claves y listas de acceso
+-- ---------------------------------------------------------------------------
+
+-- Credenciales de sistemas externos (la plataforma de Lexart, sobre todo, que
+-- desde AD-06 es quien da de alta a la gente). NO son usuarios: una clave no
+-- tiene sesión, no entra por la interfaz y no puede convertirse nunca en
+-- \`event.context.user\`.
+--
+-- Igual que en \`sessions\`, aquí solo vive el SHA-256 del token: un volcado de
+-- esta tabla no permite llamar a la API. \`prefix\` es la parte del token que sí
+-- se muestra —en la lista, en los logs y en la auditoría— para poder decir QUÉ
+-- clave hizo algo sin conocerla.
+CREATE TABLE IF NOT EXISTS api_keys (
+  id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+  -- Para quién es. Se muestra en la administración; no concede nada.
+  name          VARCHAR(191) NOT NULL,
+
+  -- Parte pública del token, la que va entre los dos guiones bajos.
+  prefix        CHAR(12) NOT NULL,
+  token_hash    CHAR(64) NOT NULL,
+
+  -- Permisos separados por comas (\`users:create\`). Vacío = la clave se
+  -- autentica pero no puede hacer nada: otro escalón que deniega por defecto.
+  scopes        VARCHAR(255) NOT NULL DEFAULT '',
+
+  created_by    INT UNSIGNED DEFAULT NULL,
+
+  -- Caducidad opcional. NULL = no caduca.
+  --
+  -- DATETIME y no TIMESTAMP, que es lo que usa el resto del esquema: TIMESTAMP
+  -- se acaba en 2038 y aquí la fecha la escribe una persona en un formulario.
+  -- Un 2040-01-01 tecleado sin pensar haría fallar el INSERT con un error de
+  -- rango, que el cliente vería como un 500 sin explicación.
+  expires_at    DATETIME NULL DEFAULT NULL,
+
+  last_used_at  TIMESTAMP NULL DEFAULT NULL,
+  last_used_ip  VARBINARY(16) DEFAULT NULL,
+
+  active        TINYINT(1) NOT NULL DEFAULT 1,
+  created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_api_keys_token (token_hash),
+  UNIQUE KEY uq_api_keys_prefix (prefix),
+  KEY idx_api_keys_active (active),
+  CONSTRAINT fk_api_keys_creator FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Desde dónde se admite cada clave. Sin ninguna fila aquí la clave está
+-- BLOQUEADA aunque sea válida y esté activa: tener el token no basta, hay que
+-- venir además de un sitio declarado.
+--
+-- \`kind\` separa los dos canales, que no son intercambiables:
+--   · 'ip'     — IP o CIDR de quien llama. Es lo único que vale de servidor a
+--                servidor, donde no hay cabecera Origin.
+--   · 'domain' — host de la cabecera Origin. Solo lo puede fijar un navegador,
+--                y es además lo que gobierna el CORS de la respuesta.
+--
+-- La columna se llama \`pattern\` y no \`value\`: VALUE está a un carácter de
+-- VALUES, que sí es palabra reservada, y \`lead\` ya nos mordió una vez.
+CREATE TABLE IF NOT EXISTS api_key_allowlist (
+  id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  api_key_id  INT UNSIGNED NOT NULL,
+  kind        ENUM('ip','domain') NOT NULL,
+
+  -- IP ('127.0.0.1', '::1'), CIDR ('10.0.0.0/8') o host ('localhost',
+  -- 'app.lexart.tech', '*.lexart.tech'). Se valida antes de guardarse.
+  pattern     VARCHAR(191) NOT NULL,
+
+  -- Quién o qué es esa entrada. Una lista de IPs sin notas es ilegible a los
+  -- seis meses y entonces nadie se atreve a quitar nada.
+  note        VARCHAR(191) DEFAULT NULL,
+
+  created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_allowlist_entry (api_key_id, kind, pattern),
+  KEY idx_allowlist_key (api_key_id, kind),
+  CONSTRAINT fk_allowlist_key FOREIGN KEY (api_key_id) REFERENCES api_keys (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ---------------------------------------------------------------------------
 -- Auditoría
 -- ---------------------------------------------------------------------------
 
@@ -217,12 +301,77 @@ SET FOREIGN_KEY_CHECKS = 1;
  * mantenerla desactivada también aquí.
  */
 export function schemaStatements(): string[] {
-  return SCHEMA_SQL
-    // Comentarios de línea completa: no aportan nada al motor.
-    .split('\n')
-    .filter((line) => !line.trim().startsWith('--'))
-    .join('\n')
-    .split(';')
-    .map((statement) => statement.trim())
-    .filter((statement) => statement.length > 0)
+  return (
+    SCHEMA_SQL
+      // Comentarios de línea completa: no aportan nada al motor.
+      .split('\n')
+      .filter((line) => !line.trim().startsWith('--'))
+      .join('\n')
+      .split(';')
+      .map((statement) => statement.trim())
+      .filter((statement) => statement.length > 0)
+  )
+}
+
+/**
+ * Tablas del esquema con las columnas que declara cada una.
+ *
+ * Existe por un fallo concreto y caro de diagnosticar: `CREATE TABLE IF NOT
+ * EXISTS` no comprueba la forma de la tabla, solo su nombre. Si en la base ya
+ * hay una tabla que se llama igual —por ejemplo la `evaluations` del modelo de
+ * 27 indicadores, que ocupaba ese nombre antes de la revisión de AD-05— el
+ * arranque no hace nada, no se queja, y el fallo aparece más tarde como
+ * `Unknown column 'e.role_key' in 'field list'` en la primera consulta.
+ *
+ * Con esto, `verifySchemaShape()` puede contrastar lo declarado con lo que hay
+ * de verdad y decirlo en el arranque, que es cuando se puede arreglar.
+ */
+export function expectedColumns(): Map<string, string[]> {
+  const tables = new Map<string, string[]>()
+
+  for (const statement of schemaStatements()) {
+    const header = statement.match(/^CREATE TABLE(?: IF NOT EXISTS)?\s+(\w+)/)
+    if (!header) continue
+
+    const columns = statement
+      .split('\n')
+      .map((line) => line.trim())
+      // Las columnas empiezan por su nombre en minúsculas; las claves e
+      // índices, por una palabra clave en mayúsculas (PRIMARY, UNIQUE, KEY,
+      // CONSTRAINT). Esa es toda la diferencia que hace falta.
+      .map((line) => line.match(/^([a-z_][a-z0-9_]*)\s+[A-Za-z]/)?.[1])
+      .filter((name): name is string => name !== undefined)
+
+    tables.set(header[1]!, columns)
+  }
+
+  return tables
+}
+
+/** Una tabla que existe pero no tiene la forma que el esquema declara. */
+export interface SchemaMismatch {
+  table: string
+  missing: string[]
+}
+
+/**
+ * Contrasta lo que el esquema declara con lo que la base tiene de verdad.
+ *
+ * Solo mira columnas que FALTAN: que sobren no rompe nada —una columna de más
+ * se ignora— y avisar de ellas convertiría cualquier añadido manual en un
+ * arranque fallido.
+ */
+export function findSchemaMismatches(actual: Map<string, Set<string>>): SchemaMismatch[] {
+  const problems: SchemaMismatch[] = []
+
+  for (const [table, columns] of expectedColumns()) {
+    const present = actual.get(table)
+    // Una tabla que no existe no es un problema: el esquema la crea.
+    if (!present) continue
+
+    const missing = columns.filter((column) => !present.has(column))
+    if (missing.length > 0) problems.push({ table, missing })
+  }
+
+  return problems
 }

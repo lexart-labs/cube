@@ -4,11 +4,18 @@
  *
  * Se desactivan, nunca se borran: hay usuarios y evaluaciones que los
  * referencian, y borrarlos dejaría ese historial sin contexto.
+ *
+ * Se editan en la propia fila. Antes solo se podían crear y desactivar: una
+ * errata en el nombre de una posición era definitiva —solo quedaba crear otra
+ * y desactivar la mala, dejando a la gente repartida entre las dos— y los
+ * meses mínimos no se podían corregir después de crearla.
  */
 definePageMeta({ middleware: 'admin' })
 
 const { request } = useApi()
 const { t } = useI18n()
+
+type Catalog = 'positions' | 'levels'
 
 interface Position {
   id: number
@@ -29,9 +36,7 @@ interface Level {
  */
 const showInactive = ref(false)
 
-const catalogQuery = computed(() =>
-  showInactive.value ? { includeInactive: 'true' } : undefined,
-)
+const catalogQuery = computed(() => (showInactive.value ? { includeInactive: 'true' } : undefined))
 
 const {
   data: positionsData,
@@ -60,6 +65,8 @@ const newPosition = reactive({ name: '', minimumTimeMonths: 0 })
 const newLevel = reactive({ name: '' })
 const message = ref('')
 
+const refreshOf = (kind: Catalog) => (kind === 'positions' ? refreshPositions() : refreshLevels())
+
 async function addPosition() {
   message.value = ''
   try {
@@ -83,6 +90,56 @@ async function addLevel() {
   }
 }
 
+/* ---- edición en la fila ---- */
+
+/**
+ * Qué se está editando, y con qué valores. Los valores van en un objeto que
+ * siempre existe para que la plantilla pueda enlazarlos sin tener que afirmar
+ * que hay algo en edición.
+ */
+const editing = ref<{ kind: Catalog; id: number } | null>(null)
+const editDraft = reactive({ name: '', minimumTimeMonths: 0 })
+const saving = ref(false)
+
+const isEditing = (kind: Catalog, id: number) =>
+  editing.value?.kind === kind && editing.value.id === id
+
+function startEdit(kind: Catalog, item: Position | Level) {
+  message.value = ''
+  editing.value = { kind, id: item.id }
+  editDraft.name = item.name
+  editDraft.minimumTimeMonths = 'minimum_time_months' in item ? item.minimum_time_months : 0
+}
+
+function cancelEdit() {
+  editing.value = null
+}
+
+async function saveEdit() {
+  const target = editing.value
+  if (!target) return
+
+  message.value = ''
+  saving.value = true
+  try {
+    await request(`/api/${target.kind}/${target.id}`, {
+      method: 'PATCH',
+      body: {
+        name: editDraft.name,
+        // Los meses mínimos solo existen en las posiciones; mandarlos en un
+        // nivel sería un campo que su esquema no conoce.
+        ...(target.kind === 'positions' ? { minimumTimeMonths: editDraft.minimumTimeMonths } : {}),
+      },
+    })
+    editing.value = null
+    await refreshOf(target.kind)
+  } catch (err) {
+    message.value = apiErrorMessage(err)
+  } finally {
+    saving.value = false
+  }
+}
+
 /* ---- activar / desactivar ---- */
 
 /**
@@ -91,12 +148,14 @@ async function addLevel() {
  */
 const pending = ref<{ name: string; run: () => Promise<void> } | null>(null)
 
-function toggle(kind: 'positions' | 'levels', item: Position | Level) {
+function toggle(kind: Catalog, item: Position | Level) {
   const activating = item.active !== 1
   const run = async () => {
     try {
       await request(`/api/${kind}/${item.id}`, { method: 'PATCH', body: { active: activating } })
-      await (kind === 'positions' ? refreshPositions() : refreshLevels())
+      // Si se estaba editando justo eso, el formulario deja de tener sentido.
+      if (isEditing(kind, item.id)) editing.value = null
+      await refreshOf(kind)
     } catch (err) {
       message.value = apiErrorMessage(err)
     }
@@ -121,7 +180,7 @@ useHead({ title: () => `${t('catalogs.title')} · Cube` })
     <p class="mt-1 text-sm text-[var(--text-secondary)]">{{ $t('catalogs.deactivateHint') }}</p>
 
     <label class="mt-4 flex items-center gap-2 text-sm">
-      <input v-model="showInactive" type="checkbox" class="size-4">
+      <input v-model="showInactive" type="checkbox" class="size-4" />
       <span>{{ $t('common.showInactive') }}</span>
       <span class="text-[var(--text-muted)]">· {{ $t('catalogs.showInactiveHint') }}</span>
     </label>
@@ -132,6 +191,7 @@ useHead({ title: () => `${t('catalogs.title')} · Cube` })
     </p>
 
     <div class="mt-6 grid gap-6 lg:grid-cols-2">
+      <!-- ------------------------------------------------------ posiciones -->
       <section class="card p-6">
         <h2 class="text-lg font-medium">{{ $t('catalogs.positions') }}</h2>
 
@@ -143,8 +203,8 @@ useHead({ title: () => `${t('catalogs.title')} · Cube` })
               type="text"
               required
               :placeholder="$t('catalogs.positionName')"
-              class="w-full rounded-md border border-[var(--hairline)] bg-transparent px-3 py-2 text-sm"
-            >
+              class="field"
+            />
           </label>
           <label class="w-32">
             <span class="sr-only">{{ $t('catalogs.minimumMonths') }}</span>
@@ -154,44 +214,80 @@ useHead({ title: () => `${t('catalogs.title')} · Cube` })
               min="0"
               max="600"
               :placeholder="$t('catalogs.minimumMonths')"
-              class="w-full rounded-md border border-[var(--hairline)] bg-transparent px-3 py-2 text-sm"
-            >
+              class="field"
+            />
           </label>
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
-            {{ $t('common.create') }}
-          </button>
+          <button type="submit" class="btn btn-primary">{{ $t('common.create') }}</button>
         </form>
 
         <ul class="mt-4 flex list-none flex-col p-0">
           <li
             v-for="item in positions"
             :key="item.id"
-            class="flex items-center justify-between gap-3 border-b border-[var(--hairline)] py-2 last:border-0"
+            class="border-b border-[var(--hairline)] py-2 last:border-0"
           >
-            <span :class="item.active ? '' : 'text-[var(--text-muted)]'">
-              {{ item.name }}
-              <span v-if="item.minimum_time_months" class="text-sm text-[var(--text-muted)]">
-                · {{ item.minimum_time_months }} {{ $t('catalogs.minimumMonths').toLowerCase() }}
-              </span>
-              <!-- Texto, no solo color: el estado nunca se codifica solo con color. -->
-              <span v-if="!item.active" class="text-sm text-[var(--text-secondary)]">
-                · {{ $t('users.inactive') }}
-              </span>
-            </span>
-            <button
-              type="button"
-              class="text-sm text-[var(--text-secondary)] underline underline-offset-2 whitespace-nowrap"
-              @click="toggle('positions', item)"
+            <!-- Modo edición: el nombre y los meses pasan a ser campos. -->
+            <form
+              v-if="isEditing('positions', item.id)"
+              class="flex flex-wrap items-center gap-2"
+              novalidate
+              @submit.prevent="saveEdit"
             >
-              {{ item.active ? $t('users.deactivate') : $t('users.activate') }}
-            </button>
+              <label class="min-w-[140px] flex-1">
+                <span class="sr-only">{{ $t('catalogs.positionName') }}</span>
+                <input v-model="editDraft.name" type="text" required class="field" />
+              </label>
+              <label class="w-28">
+                <span class="sr-only">{{ $t('catalogs.minimumMonths') }}</span>
+                <input
+                  v-model.number="editDraft.minimumTimeMonths"
+                  type="number"
+                  min="0"
+                  max="600"
+                  class="field"
+                />
+              </label>
+              <button type="submit" :disabled="saving" class="btn btn-primary py-1">
+                {{ $t('common.save') }}
+              </button>
+              <button type="button" class="btn btn-secondary py-1" @click="cancelEdit">
+                {{ $t('common.cancel') }}
+              </button>
+            </form>
+
+            <div v-else class="flex items-center justify-between gap-3">
+              <span :class="item.active ? '' : 'text-[var(--text-muted)]'">
+                {{ item.name }}
+                <span v-if="item.minimum_time_months" class="text-sm text-[var(--text-muted)]">
+                  · {{ item.minimum_time_months }} {{ $t('catalogs.minimumMonths').toLowerCase() }}
+                </span>
+                <!-- Texto, no solo color: el estado nunca se codifica solo con color. -->
+                <span v-if="!item.active" class="text-sm text-[var(--text-secondary)]">
+                  · {{ $t('users.inactive') }}
+                </span>
+              </span>
+              <span class="whitespace-nowrap">
+                <button
+                  type="button"
+                  class="text-sm text-[var(--text-secondary)] underline underline-offset-2"
+                  @click="startEdit('positions', item)"
+                >
+                  {{ $t('common.edit') }}
+                </button>
+                <button
+                  type="button"
+                  class="ml-3 text-sm text-[var(--text-secondary)] underline underline-offset-2"
+                  @click="toggle('positions', item)"
+                >
+                  {{ item.active ? $t('users.deactivate') : $t('users.activate') }}
+                </button>
+              </span>
+            </div>
           </li>
         </ul>
       </section>
 
+      <!-- ---------------------------------------------------------- niveles -->
       <section class="card p-6">
         <h2 class="text-lg font-medium">{{ $t('catalogs.levels') }}</h2>
 
@@ -203,36 +299,60 @@ useHead({ title: () => `${t('catalogs.title')} · Cube` })
               type="text"
               required
               :placeholder="$t('catalogs.levelName')"
-              class="w-full rounded-md border border-[var(--hairline)] bg-transparent px-3 py-2 text-sm"
-            >
+              class="field"
+            />
           </label>
-          <button
-            type="submit"
-            class="btn btn-primary"
-          >
-            {{ $t('common.create') }}
-          </button>
+          <button type="submit" class="btn btn-primary">{{ $t('common.create') }}</button>
         </form>
 
         <ul class="mt-4 flex list-none flex-col p-0">
           <li
             v-for="item in levels"
             :key="item.id"
-            class="flex items-center justify-between gap-3 border-b border-[var(--hairline)] py-2 last:border-0"
+            class="border-b border-[var(--hairline)] py-2 last:border-0"
           >
-            <span :class="item.active ? '' : 'text-[var(--text-muted)]'">
-              {{ item.name }}
-              <span v-if="!item.active" class="text-sm text-[var(--text-secondary)]">
-                · {{ $t('users.inactive') }}
-              </span>
-            </span>
-            <button
-              type="button"
-              class="text-sm text-[var(--text-secondary)] underline underline-offset-2 whitespace-nowrap"
-              @click="toggle('levels', item)"
+            <form
+              v-if="isEditing('levels', item.id)"
+              class="flex flex-wrap items-center gap-2"
+              novalidate
+              @submit.prevent="saveEdit"
             >
-              {{ item.active ? $t('users.deactivate') : $t('users.activate') }}
-            </button>
+              <label class="min-w-[140px] flex-1">
+                <span class="sr-only">{{ $t('catalogs.levelName') }}</span>
+                <input v-model="editDraft.name" type="text" required class="field" />
+              </label>
+              <button type="submit" :disabled="saving" class="btn btn-primary py-1">
+                {{ $t('common.save') }}
+              </button>
+              <button type="button" class="btn btn-secondary py-1" @click="cancelEdit">
+                {{ $t('common.cancel') }}
+              </button>
+            </form>
+
+            <div v-else class="flex items-center justify-between gap-3">
+              <span :class="item.active ? '' : 'text-[var(--text-muted)]'">
+                {{ item.name }}
+                <span v-if="!item.active" class="text-sm text-[var(--text-secondary)]">
+                  · {{ $t('users.inactive') }}
+                </span>
+              </span>
+              <span class="whitespace-nowrap">
+                <button
+                  type="button"
+                  class="text-sm text-[var(--text-secondary)] underline underline-offset-2"
+                  @click="startEdit('levels', item)"
+                >
+                  {{ $t('common.edit') }}
+                </button>
+                <button
+                  type="button"
+                  class="ml-3 text-sm text-[var(--text-secondary)] underline underline-offset-2"
+                  @click="toggle('levels', item)"
+                >
+                  {{ item.active ? $t('users.deactivate') : $t('users.activate') }}
+                </button>
+              </span>
+            </div>
           </li>
         </ul>
       </section>

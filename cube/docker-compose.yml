@@ -74,6 +74,9 @@ services:
       # arranca igual y solo la redacción automática queda deshabilitada.
       NUXT_GEMINI_API_KEY: ${NUXT_GEMINI_API_KEY:-}
       NUXT_GEMINI_MODEL: ${NUXT_GEMINI_MODEL:-}
+      # Proxies inversos de confianza, para la lista de IPs de la API externa.
+      # Vacío = no se cree X-Forwarded-For a nadie (ver .env.example).
+      NUXT_TRUSTED_PROXIES: ${NUXT_TRUSTED_PROXIES:-}
     ports:
       - '${APP_PORT:-3000}:3000'
     networks: [cube]

@@ -7,7 +7,7 @@
  * Solo migra lo que v2 conserva: **catálogos y usuarios**. Ni el onboarding
  * (AD-06) ni las evaluaciones de los 27 indicadores, cuyo modelo se retiró
  * entero el 2026-09-25: su escala sobre 135 no es convertible al promedio
- * ponderado de IDEAL, así que se quedan en la base de v1 y en su backup.
+ * ponderado de v2, así que se quedan en la base de v1 y en su backup.
  *
  * El Roadmap describía una transformación en el sitio; se cambió por esto
  * porque es netamente más seguro: v1 sigue intacta y en marcha durante la

@@ -10,7 +10,7 @@
  * El alcance lo decide el servidor: un developer recibe únicamente sus propias
  * evaluaciones, mande lo que mande en la petición.
  *
- * Solo existe el modelo IDEAL LEXART. El de 27 indicadores se retiró entero
+ * Solo hay un modelo de evaluación. El de 27 indicadores se retiró entero
  * (AD-05 + decisión del 2026-09-25), así que aquí ya no hay dos series que no
  * se podían mezclar: una sola escala, una sola línea.
  */
@@ -20,7 +20,7 @@ const { user } = useAuth()
 const { request } = useApi()
 const { t, locale } = useI18n()
 
-interface IdealSummary {
+interface EvaluationSummary {
   id: number
   roleKey: string
   evaluatedOn: string
@@ -33,8 +33,8 @@ const {
   data,
   pending,
   error,
-} = await useAsyncData('dashboard:ideal', () =>
-  request<{ evaluations: IdealSummary[] }>('/api/ideal'),
+} = await useAsyncData('dashboard:evaluations', () =>
+  request<{ evaluations: EvaluationSummary[] }>('/api/evaluations'),
 )
 
 /**
@@ -121,7 +121,7 @@ useHead({ title: () => `${t('nav.dashboard')} · Cube` })
     <div v-else class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
       <section class="card p-6">
         <VizScoreHero
-          :label="$t('dashboard.latestIdeal')"
+          :label="$t('dashboard.latestScore')"
           :score="latest.scorePercent"
           :previous-score="previous?.scorePercent ?? null"
           :period-label="
@@ -133,7 +133,7 @@ useHead({ title: () => `${t('nav.dashboard')} · Cube` })
           "
         />
         <p class="mt-4 text-sm text-[var(--text-secondary)]">
-          {{ $t('dashboard.idealAverage', { value: latest.weightedAverage.toFixed(2) }) }}
+          {{ $t('dashboard.average', { value: latest.weightedAverage.toFixed(2) }) }}
         </p>
         <p v-if="latest.authorName" class="mt-1 text-sm text-[var(--text-muted)]">
           {{ $t('dashboard.evaluatedBy', { name: latest.authorName }) }}
@@ -145,7 +145,7 @@ useHead({ title: () => `${t('nav.dashboard')} · Cube` })
 
       <section v-if="trendPoints.length > 1" class="card p-6">
         <VizTrendLine
-          :title="$t('dashboard.idealEvolution')"
+          :title="$t('dashboard.evolution')"
           :points="trendPoints"
           @select="openEvaluation"
         />
@@ -161,7 +161,7 @@ useHead({ title: () => `${t('nav.dashboard')} · Cube` })
             class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--hairline)] bg-[var(--surface-1)] px-4 py-3 hover:border-[var(--baseline)]"
           >
             <span>
-              <span class="font-medium">{{ $t('ideal.title') }}</span>
+              <span class="font-medium">{{ $t('evaluation.title') }}</span>
               <span class="ml-2 text-sm text-[var(--text-muted)]">
                 {{ new Date(item.evaluatedOn).toLocaleDateString(locale) }}
               </span>

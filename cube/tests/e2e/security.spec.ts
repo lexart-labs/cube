@@ -40,7 +40,7 @@ test.describe('inyección SQL — CRIT-04', () => {
 
   test('la paginación rechaza valores no numéricos', async ({ page, request }) => {
     await login(page, ACCOUNTS.lead)
-    const response = await request.get('/api/ideal', { params: { page: '1; DROP TABLE users' } })
+    const response = await request.get('/api/evaluations', { params: { page: '1; DROP TABLE users' } })
     expect(response.status()).toBe(400)
   })
 
@@ -54,7 +54,7 @@ test.describe('inyección SQL — CRIT-04', () => {
 test.describe('control de acceso — HIGH-01, HIGH-02', () => {
   test('sin sesión, toda la API responde 401', async ({ request }) => {
     const paths = [
-      '/api/ideal',
+      '/api/evaluations',
       '/api/users',
       '/api/positions',
       '/api/levels',
@@ -69,7 +69,7 @@ test.describe('control de acceso — HIGH-01, HIGH-02', () => {
     await login(page, ACCOUNTS.dev)
 
     expect((await request.get('/api/users')).status()).toBe(403)
-    expect((await request.post('/api/ideal', { data: {} })).status()).toBe(403)
+    expect((await request.post('/api/evaluations', { data: {} })).status()).toBe(403)
   })
 
   test('un lead no puede crear usuarios', async ({ page, request }) => {
@@ -131,7 +131,7 @@ test.describe('sesión — HIGH-03, MED-01', () => {
 test.describe('errores — HIGH-07', () => {
   test('un 404 no filtra detalles internos', async ({ page, request }) => {
     await login(page, ACCOUNTS.lead)
-    const response = await request.get('/api/ideal/999999')
+    const response = await request.get('/api/evaluations/999999')
     const body = await response.text()
 
     expect(response.status()).toBe(404)
@@ -141,7 +141,7 @@ test.describe('errores — HIGH-07', () => {
 
   test('un cuerpo inválido devuelve un mensaje legible, no una traza', async ({ page, request }) => {
     await login(page, ACCOUNTS.lead)
-    const response = await request.post('/api/ideal', { data: { roleKey: '' } })
+    const response = await request.post('/api/evaluations', { data: { roleKey: '' } })
 
     expect(response.status()).toBe(400)
     const body = await response.text()

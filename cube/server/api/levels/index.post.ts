@@ -19,6 +19,6 @@ export default defineEventHandler(async (event) => {
   if (existing) throw conflict('Ya existe un nivel con ese nombre')
 
   const result = await execute('INSERT INTO levels (name, active) VALUES (?, 1)', [body.name])
-  await audit(event, { action: 'user.update', resource: 'level', resourceId: result.insertId })
+  await audit(event, { action: 'catalog.create', resource: 'level', resourceId: result.insertId })
   return { id: result.insertId }
 })

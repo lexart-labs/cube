@@ -77,7 +77,7 @@ que no se pidió.
 (AD-01) esa frontera deja de existir. El aislamiento de la PII se logra mejor con cifrado a nivel
 de columna (HIGH-10) que con una base separada a la que la aplicación accede igualmente.
 
-### AD-05 · IDEAL LEXART sustituye al modelo de 27 indicadores
+### AD-05 · Un solo modelo de evaluación (en su día, IDEAL LEXART)
 Las evaluaciones nuevas se hacen con el estándar **IDEAL LEXART**: bloques con peso según el rol
 (Arquitecto L1/L2/L3, Desarrollador L3), notas de 1 a 5, promedio ponderado y una redacción en
 español e inglés generada con Gemini. Vive en su propia tabla (`ideal_evaluations`) y en
@@ -94,6 +94,21 @@ unidas en una línea.
 > gráfico y cada test, para consultar un histórico que **sigue existiendo en la base de v1 y en su
 > backup**. v2 nace con un solo instrumento. La migración tampoco los trae: no hay conversión
 > posible entre una suma sobre 135 y un promedio ponderado 1-5.
+
+> **Revisión 2026-09-27 — se retira el nombre, no el modelo.** El instrumento sigue siendo
+> exactamente el mismo; lo que desaparece es la marca "IDEAL LEXART", que ya no se usa en Lexart.
+> El dominio pasa a llamarse **evaluaciones** a secas: `shared/ideal.ts` → `shared/evaluation.ts`,
+> `/api/ideal` → `/api/evaluations`, `IDEAL_ROLES` → `EVALUATION_ROLES`, `ideal.*` →
+> `evaluation.*` en los tres idiomas y la tabla `ideal_evaluations` → `evaluations`.
+>
+> El renombrado de la tabla se hace **ahora** porque es gratis ahora: v2 nunca se ha ejecutado
+> contra MySQL, así que no hay una sola fila que migrar. Dentro de un mes habría que escribir una
+> migración para lo mismo. Una base de desarrollo anterior sí necesita
+> `RENAME TABLE ideal_evaluations TO evaluations;`, porque el esquema solo crea lo que falta.
+>
+> Nota incómoda que conviene tener presente: `evaluations` es el nombre que tenía en v1 la tabla
+> del modelo de 27 indicadores. No son la misma tabla, no comparten escala y la migración no toca
+> ninguna de las dos, pero el nombre coincide y en el historial de git conviven.
 
 **Motivo:** es el instrumento que la empresa usa hoy para evaluar, y el modelo heredado de v1 no lo
 refleja. Se decide aquí, y no en marcha, porque §8 dice que lo que no está en el alcance se registra
@@ -180,7 +195,7 @@ Multi-tenancy (companies, RegisterCompany) · Endpoint genérico `/upload-file` 
 
 ```
 cube/
-├── shared/ideal.ts                    # catálogo, pesos y fórmula de IDEAL LEXART
+├── shared/evaluation.ts               # catálogo, pesos y fórmula del modelo
 │                                      # (alias #shared/, importado por cliente y servidor)
 ├── app/
 │   ├── pages/
@@ -194,13 +209,13 @@ cube/
 │   │       ├── users.vue
 │   │       └── catalogs.vue           # posiciones y niveles en una sola pantalla
 │   ├── components/
-│   │   ├── ideal/                     # IdealEvaluationForm, ScoreScale
+│   │   ├── evaluation/                # EvaluationForm, ScoreScale
 │   │   ├── viz/                       # ScoreHero, TrendLine
 │   │   └── ui/                        # ConfirmDialog
 │   ├── composables/                   # useAuth, useApi
 │   └── middleware/                    # auth.ts, admin.ts
 ├── server/
-│   ├── api/{auth,ideal,users,positions,levels}/
+│   ├── api/{auth,evaluations,users,positions,levels,api-keys,external}/
 │   ├── middleware/01.auth.ts          # verifica sesión → event.context.user
 │   ├── db/{index.ts,schema.ts,bootstrap.ts,migrate.ts,verify.ts,mapping.ts}
 │   └── utils/{rbac,session,password,validation,sanitize,errors,logger,audit,ratelimit,gemini}.ts
@@ -354,7 +369,8 @@ quedarían mal asignadas sin error alguno; `buildCanonicalIndex` detecta y repor
 > **Qué queda en pie a 2026-09-26.** De los entregables de abajo desaparecieron los de onboarding
 > (subidas con magic bytes, `GET /api/onboarding/documents/[id]`, enlace de activación,
 > `audit_log` de aprobaciones) con AD-06, y los ocho endpoints del modelo de 27 indicadores con la
-> revisión de AD-05. Quedan **19 endpoints** en `{auth, ideal, users, positions, levels}`. Todo lo
+> revisión de AD-05. Quedan **25 endpoints** en `{auth, evaluations, users, positions, levels,
+> api-keys, external}` — los de claves de API y los externos se añadieron el 2026-09-26. Todo lo
 > demás de esta fase —sesión opaca, RBAC por handler, bcrypt 12, rehash, límite de intentos,
 > contrato de error, `audit_log`— sigue vigente tal cual se describe.
 
@@ -672,10 +688,10 @@ Estado al **2026-09-26**, tras AD-06 y la retirada del modelo de 27 indicadores.
 | 1 · Andamiaje y configuración segura | ✅ Completa | HIGH-05, HIGH-06, HIGH-08, MED-03, MED-08 |
 | 2 · Esquema y migración de datos | 🟡 Escrita, sin ejecutar nunca contra una base real | ~~HIGH-10~~ (fuera de alcance por AD-06) |
 | 3 · API y núcleo de seguridad | ✅ Completa (sin ejecutar contra base real) | CRIT-04…07, HIGH-01…04, HIGH-07, HIGH-09, MED-01…06 |
-| 4 · Frontend de evaluaciones | ✅ Completa. Rehecha sobre IDEAL al retirar el modelo anterior | MED-01, MED-02 |
+| 4 · Frontend de evaluaciones | ✅ Completa. Rehecha al retirar el modelo anterior; edición y borrado lógico desde el 2026-09-27 | MED-01, MED-02 |
 | 5 · Frontend de onboarding | ⬛ Retirada (AD-06) | — |
 | 6 · Infraestructura, CI y retirada | 🟡 v1 fuera del árbol; CI sin ejecutar en GitHub | MED-09, LOW-01…06 |
-| 7 · IDEAL LEXART (AD-05) | ✅ Completa. El modelo anterior se retiró entero el 2026-09-25 | — |
+| 7 · Modelo de evaluación (AD-05) | ✅ Completa. El modelo anterior se retiró el 2026-09-25 y el nombre IDEAL el 2026-09-27 | — |
 | P0 · Mitigación en producción | ⛔ Escrita el 2026-09-21, **nunca commiteada**, retirada con el árbol de v1. Explotable en producción | CRIT-01, CRIT-02, CRIT-03 |
 
 **Bloqueo de cabecera:** `cube/` y `.github/` siguen **sin commitear**. Mientras sigan así, el CI no

@@ -6,14 +6,13 @@ const route = useRoute()
 const links = computed(() => {
   const base = [{ to: '/dashboard', label: t('nav.dashboard') }]
   if (isLead.value) {
-    // Apunta a IDEAL, que es el modelo vigente (AD-05). El archivo de los 27
-    // indicadores se alcanza desde ahí.
     base.push({ to: '/evaluations', label: t('nav.evaluations') })
   }
   if (isAdmin.value) {
     base.push(
       { to: '/admin/users', label: t('nav.users') },
       { to: '/admin/catalogs', label: t('nav.catalogs') },
+      { to: '/admin/api-keys', label: t('nav.apiKeys') },
     )
   }
   return base

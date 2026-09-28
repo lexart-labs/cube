@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Formulario IDEAL LEXART.
+ * Formulario de evaluación.
  *
  * Los bloques y sus pesos salen del rol elegido, así que cambiar de rol repinta
  * el cuestionario entero y reinicia las notas: las preguntas de un Arquitecto L3
@@ -8,37 +8,46 @@
  * un promedio sin sentido.
  *
  * El promedio se calcula con la MISMA función que usa el servidor
- * (`#shared/ideal`), no con una copia. Lo que se ve mientras se rellena es
+ * (`#shared/evaluation`), no con una copia. Lo que se ve mientras se rellena es
  * exactamente lo que quedará registrado.
  */
 import {
-  IDEAL_ROLES,
+  EVALUATION_ROLES,
   blockAverage,
   emptyScores,
   getRole,
   isComplete,
   scorePercent,
   weightedAverage,
-  type IdealScores,
-} from '#shared/ideal'
+  type EvaluationScores,
+} from '#shared/evaluation'
 
-export interface IdealFormValue {
+export interface EvaluationFormValue {
   evaluatedUserId: number | null
   roleKey: string
   evaluatedOn: string
-  scores: IdealScores
+  scores: EvaluationScores
   observations: string
 }
 
 const props = defineProps<{
-  modelValue: IdealFormValue
+  modelValue: EvaluationFormValue
   developers?: { id: number; name: string }[]
   submitting?: boolean
   error?: string
+  /**
+   * Al editar, la persona evaluada no se toca: cambiarla no sería corregir
+   * esta evaluación sino convertirla en la de otra persona, con las notas de
+   * la primera. Se muestra, no se elige.
+   */
+  lockPerson?: boolean
+  personName?: string
+  /** Texto del botón. Por defecto, el del alta ("Generar evaluación con IA"). */
+  submitLabel?: string
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: IdealFormValue]
+  'update:modelValue': [value: EvaluationFormValue]
   submit: []
 }>()
 
@@ -49,12 +58,12 @@ const form = computed({
   set: (value) => emit('update:modelValue', value),
 })
 
-const roles = computed(() => Object.values(IDEAL_ROLES))
+const roles = computed(() => Object.values(EVALUATION_ROLES))
 const role = computed(() => getRole(form.value.roleKey))
 
 /** Etiqueta traducida del bloque, con el nombre del catálogo como respaldo. */
 function blockLabel(key: string, fallback: string): string {
-  return te(`ideal.blocks.${key}`) ? t(`ideal.blocks.${key}`) : fallback
+  return te(`evaluation.blocks.${key}`) ? t(`evaluation.blocks.${key}`) : fallback
 }
 
 function onRoleChange(event: Event) {
@@ -84,10 +93,15 @@ const canSubmit = computed(
       <div class="flex flex-col gap-6">
         <section class="card p-6">
           <div class="grid gap-4 sm:grid-cols-2">
-            <label class="block">
-              <span class="text-sm font-medium">{{ $t('ideal.collaborator') }}</span>
+            <div v-if="lockPerson" class="block">
+              <span class="text-sm font-medium">{{ $t('evaluation.collaborator') }}</span>
+              <p class="field mt-1 text-[var(--text-secondary)]">{{ personName ?? '—' }}</p>
+            </div>
+
+            <label v-else class="block">
+              <span class="text-sm font-medium">{{ $t('evaluation.collaborator') }}</span>
               <select v-model.number="form.evaluatedUserId" class="field mt-1" required>
-                <option :value="null" disabled>{{ $t('ideal.choosePerson') }}</option>
+                <option :value="null" disabled>{{ $t('evaluation.choosePerson') }}</option>
                 <option v-for="dev in developers ?? []" :key="dev.id" :value="dev.id">
                   {{ dev.name }}
                 </option>
@@ -95,7 +109,7 @@ const canSubmit = computed(
             </label>
 
             <label class="block">
-              <span class="text-sm font-medium">{{ $t('ideal.role') }}</span>
+              <span class="text-sm font-medium">{{ $t('evaluation.role') }}</span>
               <select :value="form.roleKey" class="field mt-1" @change="onRoleChange">
                 <option v-for="item in roles" :key="item.key" :value="item.key">
                   {{ item.label }}
@@ -104,8 +118,8 @@ const canSubmit = computed(
             </label>
 
             <label class="block">
-              <span class="text-sm font-medium">{{ $t('ideal.date') }}</span>
-              <input v-model="form.evaluatedOn" type="date" class="field mt-1" required >
+              <span class="text-sm font-medium">{{ $t('evaluation.evaluationDate') }}</span>
+              <input v-model="form.evaluatedOn" type="date" class="field mt-1" required />
             </label>
           </div>
         </section>
@@ -116,17 +130,19 @@ const canSubmit = computed(
           <header class="flex flex-wrap items-baseline justify-between gap-2">
             <h2 class="text-lg font-semibold">{{ blockLabel(block.key, block.label) }}</h2>
             <p class="text-sm text-[var(--text-secondary)]">
-              {{ $t('ideal.weight', { weight: block.weight }) }} ·
-              {{ $t('ideal.blockAverage', { value: blockAverage(form.scores[block.key] ?? []) }) }}
+              {{ $t('evaluation.weight', { weight: block.weight }) }} ·
+              {{
+                $t('evaluation.blockAverage', { value: blockAverage(form.scores[block.key] ?? []) })
+              }}
             </p>
           </header>
 
           <p v-if="block.scale === 'languages'" class="mt-1 text-sm text-[var(--text-secondary)]">
-            {{ $t('ideal.languagesHint') }}
+            {{ $t('evaluation.languagesHint') }}
           </p>
 
           <div class="mt-2 divide-y divide-[var(--gridline)]">
-            <IdealScoreScale
+            <EvaluationScoreScale
               v-for="(question, index) in block.questions"
               :key="question"
               :model-value="form.scores[block.key]?.[index] ?? 3"
@@ -140,9 +156,9 @@ const canSubmit = computed(
 
         <section class="card p-6">
           <label class="block">
-            <span class="text-sm font-medium">{{ $t('ideal.observations') }}</span>
+            <span class="text-sm font-medium">{{ $t('evaluation.observations') }}</span>
             <span class="mt-1 block text-sm text-[var(--text-secondary)]">
-              {{ $t('ideal.observationsHint') }}
+              {{ $t('evaluation.observationsHint') }}
             </span>
             <textarea v-model="form.observations" class="field mt-2" rows="5" maxlength="5000" />
           </label>
@@ -152,10 +168,10 @@ const canSubmit = computed(
       <!-- Panel lateral: el número que resume todo, siempre a la vista. -->
       <aside class="lg:sticky lg:top-6 lg:self-start">
         <div class="card p-6">
-          <p class="text-sm text-[var(--text-secondary)]">{{ $t('ideal.weightedAverage') }}</p>
+          <p class="text-sm text-[var(--text-secondary)]">{{ $t('evaluation.weightedAverage') }}</p>
           <p class="mt-1 text-4xl font-bold tabular-nums">{{ average.toFixed(2) }}</p>
           <p class="text-sm text-[var(--text-secondary)]">
-            {{ $t('ideal.outOfFive') }} · {{ percent }}%
+            {{ $t('evaluation.outOfFive') }} · {{ percent }}%
           </p>
 
           <dl class="mt-4 space-y-1 text-sm">
@@ -163,7 +179,9 @@ const canSubmit = computed(
               <dt class="text-[var(--text-secondary)]">
                 {{ blockLabel(block.key, block.label) }} · {{ block.weight }}%
               </dt>
-              <dd class="tabular-nums">{{ blockAverage(form.scores[block.key] ?? []).toFixed(2) }}</dd>
+              <dd class="tabular-nums">
+                {{ blockAverage(form.scores[block.key] ?? []).toFixed(2) }}
+              </dd>
             </div>
           </dl>
 
@@ -172,19 +190,27 @@ const canSubmit = computed(
           </p>
 
           <button type="submit" class="btn btn-primary mt-4 w-full" :disabled="!canSubmit">
-            {{ submitting ? $t('ideal.generating') : $t('ideal.generate') }}
+            <template v-if="submitting">
+              {{ submitLabel ? $t('evaluation.saving') : $t('evaluation.generating') }}
+            </template>
+            <template v-else>{{ submitLabel ?? $t('evaluation.generate') }}</template>
           </button>
+
+          <slot name="actions" />
 
           <!-- Un botón deshabilitado sin explicación se lee como una avería.
                Aquí se dice qué falta. -->
-          <p
-            v-if="!canSubmit && !submitting"
-            class="mt-2 text-xs text-[var(--text-secondary)]"
-          >
-            {{ form.evaluatedUserId === null ? $t('ideal.needsPerson') : $t('ideal.needsScores') }}
+          <p v-if="!canSubmit && !submitting" class="mt-2 text-xs text-[var(--text-secondary)]">
+            {{
+              form.evaluatedUserId === null
+                ? $t('evaluation.needsPerson')
+                : $t('evaluation.needsScores')
+            }}
           </p>
 
-          <p class="mt-3 text-xs text-[var(--text-secondary)]">{{ $t('ideal.privacyNote') }}</p>
+          <p v-if="!submitLabel" class="mt-3 text-xs text-[var(--text-secondary)]">
+            {{ $t('evaluation.privacyNote') }}
+          </p>
         </div>
       </aside>
     </div>

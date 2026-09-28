@@ -20,11 +20,26 @@ export type AuditAction =
   | 'auth.login_failed'
   | 'auth.logout'
   | 'auth.password_rehashed'
-  | 'ideal.create'
-  | 'ideal.generate'
+  | 'evaluation.create'
+  | 'evaluation.generate'
+  | 'evaluation.update'
+  // "Eliminar" es desactivar (regla 9): la fila sigue ahí y se puede
+  // restaurar, así que las dos acciones son simétricas y se registran aparte.
+  | 'evaluation.delete'
+  | 'evaluation.restore'
   | 'user.create'
   | 'user.update'
   | 'user.delete'
+  // Catálogos. Antes reutilizaban 'user.update', y entonces la auditoría no
+  // distinguía "cambió de rol a alguien" de "renombró un nivel".
+  | 'catalog.create'
+  | 'catalog.update'
+  // API externa. `external.user_create` no lleva actor —no hay persona
+  // detrás—, así que la clave que lo hizo va en `metadata`: sin eso, un alta
+  // por API sería la única acción de Cube sin responsable identificable.
+  | 'apikey.create'
+  | 'apikey.update'
+  | 'external.user_create'
 
 /**
  * Escribe una entrada de auditoría.

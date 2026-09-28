@@ -1,5 +1,5 @@
 /**
- * Evaluación IDEAL LEXART de extremo a extremo.
+ * Alta de una evaluación, de extremo a extremo.
  *
  * Ninguno de estos tests llama a Gemini: el CI no tiene clave y una prueba que
  * dependa de un modelo generativo no es determinista. Lo que se comprueba es
@@ -53,7 +53,7 @@ test.describe('formulario', () => {
 
     // Y el servidor, con las mismas notas, devuelve lo mismo.
     await apiLogin(request, ACCOUNTS.lead)
-    const response = await request.post('/api/ideal', {
+    const response = await request.post('/api/evaluations', {
       data: {
         evaluatedUserId: 3,
         roleKey: 'arquitecto-l1',
@@ -97,7 +97,7 @@ test.describe('consulta', () => {
     await expect(page.getByRole('heading', { name: 'Hard Skills' })).toBeVisible()
   })
 
-  test('un developer ve su propia evaluación IDEAL', async ({ page }) => {
+  test('un developer ve su propia evaluación', async ({ page }) => {
     await login(page, ACCOUNTS.dev)
     await page.goto('/evaluations')
     // No la puede crear, pero sí consultarla: es su evaluación.
@@ -110,7 +110,7 @@ test.describe('API', () => {
   test('la evaluación se guarda aunque la IA no esté configurada', async ({ request }) => {
     await apiLogin(request, ACCOUNTS.lead)
 
-    const response = await request.post('/api/ideal', {
+    const response = await request.post('/api/evaluations', {
       data: {
         evaluatedUserId: 3,
         roleKey: 'arquitecto-l1',
@@ -132,7 +132,7 @@ test.describe('API', () => {
     expect(['ok', 'disabled', 'failed']).toContain(body.aiStatus)
 
     // Y queda consultable, con narrativa o sin ella.
-    const detail = await request.get(`/api/ideal/${body.id}`)
+    const detail = await request.get(`/api/evaluations/${body.id}`)
     expect(detail.ok()).toBeTruthy()
     expect((await detail.json()).evaluation.roleKey).toBe('arquitecto-l1')
   })
@@ -140,7 +140,7 @@ test.describe('API', () => {
   test('rechaza notas que no corresponden al rol', async ({ request }) => {
     await apiLogin(request, ACCOUNTS.lead)
 
-    const response = await request.post('/api/ideal', {
+    const response = await request.post('/api/evaluations', {
       data: {
         evaluatedUserId: 3,
         roleKey: 'arquitecto-l1',
@@ -154,9 +154,9 @@ test.describe('API', () => {
     expect(await response.text()).not.toContain('sqlMessage')
   })
 
-  test('un developer solo alcanza sus propias evaluaciones IDEAL', async ({ request }) => {
+  test('un developer solo alcanza sus propias evaluaciones', async ({ request }) => {
     await apiLogin(request, ACCOUNTS.lead)
-    const created = await request.post('/api/ideal', {
+    const created = await request.post('/api/evaluations', {
       data: {
         evaluatedUserId: 3,
         roleKey: 'arquitecto-l1',
@@ -169,9 +169,9 @@ test.describe('API', () => {
     // dev2 (id 4) no tiene nada que ver con esta evaluación, que es de dev (id 3).
     // 404 y no 403: un 403 confirmaría que existe.
     await apiLogin(request, ACCOUNTS.dev2)
-    expect((await request.get(`/api/ideal/${id}`)).status()).toBe(404)
+    expect((await request.get(`/api/evaluations/${id}`)).status()).toBe(404)
 
-    const list = await request.get('/api/ideal')
+    const list = await request.get('/api/evaluations')
     const { evaluations } = await list.json()
     expect(evaluations.every((item: { evaluatedUserId: number }) => item.evaluatedUserId === 4)).toBe(
       true,
@@ -179,10 +179,10 @@ test.describe('API', () => {
   })
 
   test('sin sesión no se puede crear ni listar', async ({ request }) => {
-    const created = await request.post('/api/ideal', {
+    const created = await request.post('/api/evaluations', {
       data: { evaluatedUserId: 3, roleKey: 'arquitecto-l1', evaluatedOn: '2026-09-11', scores: {} },
     })
     expect(created.status()).toBe(401)
-    expect((await request.get('/api/ideal')).status()).toBe(401)
+    expect((await request.get('/api/evaluations')).status()).toBe(401)
   })
 })

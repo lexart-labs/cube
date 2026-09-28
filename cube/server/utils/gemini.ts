@@ -1,5 +1,5 @@
 /**
- * Redacción de la evaluación IDEAL con Gemini.
+ * Redacción de la evaluación con Gemini.
  *
  * Tres decisiones que conviene no deshacer sin pensarlo:
  *

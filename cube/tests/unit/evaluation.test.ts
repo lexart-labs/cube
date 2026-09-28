@@ -1,5 +1,5 @@
 /**
- * Catálogo y cálculo de IDEAL LEXART.
+ * Catálogo de roles y cálculo del promedio ponderado.
  *
  * El promedio ponderado es el número que acaba en la evaluación de una persona
  * y en el prompt de la IA. Se prueba con casos calculados a mano, no con la
@@ -7,8 +7,8 @@
  */
 import { describe, it, expect } from 'vitest'
 import {
-  IDEAL_ROLES,
-  IDEAL_ROLE_KEYS,
+  EVALUATION_ROLES,
+  ROLE_KEYS,
   LANGUAGE_SCORES,
   blockAverage,
   emptyScores,
@@ -17,7 +17,7 @@ import {
   isValidScore,
   scorePercent,
   weightedAverage,
-} from '../../shared/ideal'
+} from '../../shared/evaluation'
 
 /**
  * Rellena todas las preguntas de un rol con el mismo valor.
@@ -42,7 +42,7 @@ function nearestLanguageScore(value: number): number {
 
 describe('catálogo', () => {
   it('tiene los cuatro roles del estándar', () => {
-    expect(IDEAL_ROLE_KEYS).toEqual([
+    expect(ROLE_KEYS).toEqual([
       'arquitecto-l1',
       'arquitecto-l2',
       'arquitecto-l3',
@@ -50,14 +50,14 @@ describe('catálogo', () => {
     ])
   })
 
-  it.each(IDEAL_ROLE_KEYS)('los pesos de %s suman 100', (roleKey) => {
+  it.each(ROLE_KEYS)('los pesos de %s suman 100', (roleKey) => {
     const total = getRole(roleKey)!.blocks.reduce((sum, block) => sum + block.weight, 0)
     expect(total).toBe(100)
   })
 
   it('cada rol respeta los pesos del estándar', () => {
     const weights = Object.fromEntries(
-      IDEAL_ROLE_KEYS.map((key) => [
+      ROLE_KEYS.map((key) => [
         key,
         Object.fromEntries(getRole(key)!.blocks.map((b) => [b.key, b.weight])),
       ]),
@@ -90,7 +90,7 @@ describe('catálogo', () => {
   })
 
   it('todos los bloques tienen al menos una pregunta y ninguna vacía', () => {
-    for (const role of Object.values(IDEAL_ROLES)) {
+    for (const role of Object.values(EVALUATION_ROLES)) {
       for (const block of role.blocks) {
         expect(block.questions.length).toBeGreaterThan(0)
         for (const question of block.questions) expect(question.trim()).not.toBe('')
@@ -99,7 +99,7 @@ describe('catálogo', () => {
   })
 
   it('el bloque de idiomas es de escala cerrada en todos los roles', () => {
-    for (const role of Object.values(IDEAL_ROLES)) {
+    for (const role of Object.values(EVALUATION_ROLES)) {
       const idiomas = role.blocks.find((b) => b.key === 'idiomas')
       expect(idiomas?.scale).toBe('languages')
       expect(idiomas?.weight).toBe(10)
@@ -146,7 +146,7 @@ describe('validación de notas', () => {
   })
 
   it('el formulario vacío está completo y vale 3 en todo', () => {
-    for (const roleKey of IDEAL_ROLE_KEYS) {
+    for (const roleKey of ROLE_KEYS) {
       const scores = emptyScores(roleKey)
       expect(isComplete(roleKey, scores)).toBe(true)
       expect(weightedAverage(roleKey, scores)).toBe(3)
@@ -156,7 +156,7 @@ describe('validación de notas', () => {
 
 describe('promedio ponderado', () => {
   it('todo al máximo da 5, todo al mínimo da 1', () => {
-    for (const roleKey of IDEAL_ROLE_KEYS) {
+    for (const roleKey of ROLE_KEYS) {
       expect(weightedAverage(roleKey, allAt(roleKey, 5))).toBe(5)
       expect(weightedAverage(roleKey, allAt(roleKey, 1))).toBe(1)
     }

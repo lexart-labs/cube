@@ -1,25 +1,25 @@
 <script setup lang="ts">
 /**
- * Evaluación IDEAL LEXART.
+ * Alta de una evaluación.
  *
  * El lead rellena, el servidor calcula el promedio y la IA redacta. El orden
  * del resultado no es casual: primero el número —que es lo que queda
  * registrado— y después los dos párrafos, que son una ayuda de redacción y no
  * la evaluación en sí.
  */
-import { emptyScores, IDEAL_ROLE_KEYS } from '#shared/ideal'
-import type { IdealFormValue } from '~/components/ideal/IdealEvaluationForm.vue'
+import { emptyScores, ROLE_KEYS } from '#shared/evaluation'
+import type { EvaluationFormValue } from '~/components/evaluation/EvaluationForm.vue'
 
 definePageMeta({ middleware: 'admin' })
 
 const { t } = useI18n()
 const { request } = useApi()
 
-useHead({ title: () => `${t('ideal.title')} · Cube` })
+useHead({ title: () => `${t('evaluation.title')} · Cube` })
 
-const firstRole = IDEAL_ROLE_KEYS[0]!
+const firstRole = ROLE_KEYS[0]!
 
-const form = ref<IdealFormValue>({
+const form = ref<EvaluationFormValue>({
   evaluatedUserId: null,
   roleKey: firstRole,
   evaluatedOn: new Date().toISOString().slice(0, 10),
@@ -28,7 +28,7 @@ const form = ref<IdealFormValue>({
 })
 
 // `/api/users` devuelve { items, total, page, limit } — no { users }.
-const { data: usersData } = await useAsyncData('ideal:users', () =>
+const { data: usersData } = await useAsyncData('evaluations:users', () =>
   request<{ items: { id: number; name: string; role: string }[] }>('/api/users', {
     query: { limit: 100, active: true },
   }),
@@ -36,7 +36,7 @@ const { data: usersData } = await useAsyncData('ideal:users', () =>
 
 const developers = computed(() => usersData.value?.items ?? [])
 
-interface IdealResult {
+interface EvaluationResult {
   id: number
   weightedAverage: number
   scorePercent: number
@@ -45,7 +45,7 @@ interface IdealResult {
   narrative?: { es: string; en: string }
 }
 
-const result = ref<IdealResult | null>(null)
+const result = ref<EvaluationResult | null>(null)
 const submitting = ref(false)
 const retrying = ref(false)
 const error = ref('')
@@ -54,7 +54,7 @@ async function onSubmit() {
   error.value = ''
   submitting.value = true
   try {
-    result.value = await request<IdealResult>('/api/ideal', {
+    result.value = await request<EvaluationResult>('/api/evaluations', {
       method: 'POST',
       body: {
         evaluatedUserId: form.value.evaluatedUserId,
@@ -77,10 +77,10 @@ async function onRetry() {
   retrying.value = true
   try {
     const retried = await request<{
-      aiStatus: IdealResult['aiStatus']
+      aiStatus: EvaluationResult['aiStatus']
       aiMessage?: string
       narrative?: { es: string; en: string }
-    }>(`/api/ideal/${result.value.id}/narrative`, { method: 'POST' })
+    }>(`/api/evaluations/${result.value.id}/narrative`, { method: 'POST' })
     result.value = { ...result.value, ...retried }
   } catch (err) {
     result.value = { ...result.value, aiStatus: 'failed', aiMessage: apiErrorMessage(err) }
@@ -104,22 +104,22 @@ function startAnother() {
   <div>
     <header class="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight">{{ $t('ideal.title') }}</h1>
-        <p class="mt-1 text-sm text-[var(--text-secondary)]">{{ $t('ideal.subtitle') }}</p>
+        <h1 class="text-2xl font-semibold tracking-tight">{{ $t('evaluation.title') }}</h1>
+        <p class="mt-1 text-sm text-[var(--text-secondary)]">{{ $t('evaluation.subtitle') }}</p>
       </div>
-      <NuxtLink to="/evaluations" class="link text-sm">{{ $t('ideal.backToList') }}</NuxtLink>
+      <NuxtLink to="/evaluations" class="link text-sm">{{ $t('evaluation.backToList') }}</NuxtLink>
     </header>
 
     <!-- Resultado. Sustituye al formulario para que no queden dos versiones de
          la misma evaluación en pantalla. -->
     <section v-if="result" class="mt-6 flex flex-col gap-6">
       <div class="card p-6">
-        <p class="text-sm text-[var(--text-secondary)]">{{ $t('ideal.weightedAverage') }}</p>
+        <p class="text-sm text-[var(--text-secondary)]">{{ $t('evaluation.weightedAverage') }}</p>
         <p class="mt-1 text-5xl font-bold tabular-nums">
           {{ result.weightedAverage.toFixed(2) }}
         </p>
         <p class="text-sm text-[var(--text-secondary)]">
-          {{ $t('ideal.outOfFive') }} · {{ result.scorePercent }}%
+          {{ $t('evaluation.outOfFive') }} · {{ result.scorePercent }}%
         </p>
       </div>
 
@@ -131,7 +131,7 @@ function startAnother() {
           :disabled="retrying"
           @click="onRetry"
         >
-          {{ retrying ? $t('ideal.generating') : $t('ideal.retry') }}
+          {{ retrying ? $t('evaluation.generating') : $t('evaluation.retry') }}
         </button>
       </div>
 
@@ -139,26 +139,26 @@ function startAnother() {
            parte de la aplicación (MED-02). -->
       <div v-if="result.narrative" class="grid gap-6 lg:grid-cols-2">
         <article class="card p-6">
-          <h2 class="text-lg font-semibold">{{ $t('ideal.spanish') }}</h2>
+          <h2 class="text-lg font-semibold">{{ $t('evaluation.spanish') }}</h2>
           <p class="plain-text mt-3 text-sm">{{ result.narrative.es }}</p>
         </article>
         <article class="card p-6">
-          <h2 class="text-lg font-semibold">{{ $t('ideal.english') }}</h2>
+          <h2 class="text-lg font-semibold">{{ $t('evaluation.english') }}</h2>
           <p class="plain-text mt-3 text-sm">{{ result.narrative.en }}</p>
         </article>
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
         <button type="button" class="btn btn-primary" @click="startAnother">
-          {{ $t('ideal.another') }}
+          {{ $t('evaluation.another') }}
         </button>
         <NuxtLink :to="`/evaluations/${result.id}`" class="link text-sm">
-          {{ $t('ideal.viewSaved') }}
+          {{ $t('evaluation.viewSaved') }}
         </NuxtLink>
       </div>
     </section>
 
-    <IdealEvaluationForm
+    <EvaluationForm
       v-else
       v-model="form"
       class="mt-6"

@@ -1,6 +1,6 @@
 # Cube v2
 
-Aplicación de **evaluaciones de desarrolladores** con el estándar IDEAL LEXART. Sustituye a
+Aplicación de **evaluaciones de desarrolladores**. Sustituye a
 `backend/` (Express) y `webapp/` (Vue 2) del sistema v1, retirados del árbol el 2026-09-25 (AD-06).
 El onboarding/offboarding pasa a la plataforma de Lexart, y el modelo de evaluación de 27
 indicadores se retiró entero: un solo instrumento, una sola escala.
@@ -20,7 +20,7 @@ la base de producción, y v1 sigue siendo el sistema que funciona en el servidor
 | 4 · Frontend de evaluaciones | ✅ |
 | 5 · Frontend de onboarding | ⬛ retirada (AD-06) |
 | 6 · Infraestructura y CI | 🟡 v1 fuera del árbol; el CI nunca ha corrido en GitHub |
-| 7 · IDEAL LEXART (AD-05) | ✅ único modelo: bloques con peso + redacción con IA |
+| 7 · Modelo de evaluación (AD-05) | ✅ único modelo: bloques con peso + redacción con IA |
 
 ## Requisitos
 
@@ -66,7 +66,7 @@ que la base vuelva: un reinicio de MySQL de diez segundos no debe convertirse en
 
 ## Datos de prueba
 
-`npm run db:seed` crea catálogos, cinco usuarios y cuatro evaluaciones IDEAL.
+`npm run db:seed` crea catálogos, cinco usuarios y cuatro evaluaciones.
 
 ### Cuentas de ejemplo
 
@@ -76,7 +76,7 @@ Todas comparten la misma contraseña: **`cube-demo-2026!`**
 |---|---|---|
 | `admin@cube.test` | admin | Acceso completo: usuarios y catálogos |
 | `lead@cube.test` | lead | Crea y edita evaluaciones |
-| `dev@cube.test` | developer | Tiene **3 evaluaciones IDEAL** (2025-Q1, 2025-Q3, 2026-Q1): es la cuenta para ver el panel con evolución |
+| `dev@cube.test` | developer | Tiene **3 evaluaciones** (2025-Q1, 2025-Q3, 2026-Q1): es la cuenta para ver el panel con evolución |
 | `dev2@cube.test` | developer | 1 evaluación |
 | `legacy@cube.test` | developer | Contraseña guardada en **MD5**, para probar el rehash transparente a bcrypt (`Roadmap.md` §6) |
 
@@ -224,15 +224,16 @@ quedarían mal asignadas **sin error alguno**; `buildCanonicalIndex` detecta y r
 | `/login` | público | Entrada a Cube |
 | `/dashboard` | sesión | Vista del desarrollador: su puntaje más reciente, evolución y historial |
 | `/evaluations` | sesión | Listado. Un developer ve solo las suyas |
-| `/evaluations/new` | lead/admin | Alta IDEAL: bloques con peso por rol, promedio ponderado y redacción con IA |
-| `/evaluations/:id` | sesión | Detalle, con el cuestionario del rol con el que se evaluó |
-| `/admin/users` | admin | Alta, cambio de rol, filtro por estado, activar/desactivar (**revoca las sesiones abiertas**) |
-| `/admin/catalogs` | admin | Posiciones y niveles. Se desactivan, nunca se borran, y los desactivados se siguen viendo |
+| `/evaluations/new` | lead/admin | Alta: bloques con peso por rol, promedio ponderado y redacción con IA |
+| `/evaluations/:id` | sesión | Detalle, con el cuestionario del rol con el que se evaluó. Quien la hizo —o un admin— la edita y la elimina desde aquí |
+| `/admin/users` | admin | CRUD completo: alta con posición, nivel y lead; edición de todos los campos —nombre, email, rol, posición, nivel, lead y contraseña—; filtro por estado; activar/desactivar (**revoca las sesiones abiertas**) |
+| `/admin/catalogs` | admin | Posiciones y niveles: alta, renombrado y meses mínimos en la propia fila. Se desactivan, nunca se borran, y los desactivados se siguen viendo |
+| `/admin/api-keys` | admin | Claves de la API externa, con su lista de IPs y dominios. El token se ve una sola vez |
 
 Las guardas de cliente (`middleware/auth.ts`, `middleware/admin.ts`) solo evitan pantallas vacías;
 la autorización real la aplica `requireRole()` en cada endpoint.
 
-### API — 19 endpoints
+### API interna — 23 endpoints
 
 Sesión en cookie `httpOnly` `cube_session`, y **un solo dominio de identidad**: el actor sale
 siempre de `event.context.user`, que solo puebla `server/middleware/01.auth.ts`. Un invariante
@@ -243,22 +244,76 @@ comprueba que no reaparezca un contexto paralelo.
 | `POST /api/auth/login` | público · 10 intentos / 15 min por IP y por cuenta, con retroceso |
 | `POST /api/auth/logout` · `GET /api/auth/me` | sesión |
 | `GET`/`DELETE /api/auth/sessions` | sesión · listar y cerrar todas |
-| `POST /api/ideal` | lead · crea la evaluación, calcula el promedio y pide la redacción |
-| `POST /api/ideal/:id/narrative` | lead · reintenta solo la redacción |
-| `GET /api/ideal` · `GET /api/ideal/:id` | sesión · un developer solo ve las suyas |
+| `POST /api/evaluations` | lead · crea la evaluación, calcula el promedio y pide la redacción |
+| `POST /api/evaluations/:id/narrative` | lead · reintenta solo la redacción |
+| `GET /api/evaluations` · `GET /api/evaluations/:id` | sesión · un developer solo ve las suyas; `?includeDeleted=true` para lead y admin |
+| `PATCH /api/evaluations/:id` | **quien la hizo o un admin** · corrige las respuestas, o elimina y restaura con `active` |
 | `GET /api/positions` · `GET /api/levels` | sesión · solo lo activo salvo `?includeInactive=true` |
 | `POST`/`PATCH` de posiciones y niveles | admin |
-| `GET /api/users` | lead · `?active=true\|false` filtra por estado; sin el parámetro salen todos |
-| `POST /api/users` · `PATCH /api/users/:id` | admin |
+| `GET /api/users` | lead · `?active=true\|false` filtra por estado y `?role=lead,admin` admite varios roles; devuelve también `position_id`, `level_id` y `lead_id` |
+| `POST /api/users` · `PATCH /api/users/:id` | admin · el PATCH cambia nombre, email, rol, catálogos, lead, contraseña y estado |
+| `GET /api/api-keys` | admin · `?active=true\|false`; nunca devuelve el token ni su hash |
+| `POST /api/api-keys` | admin · **única** respuesta que contiene el token en claro |
+| `PATCH /api/api-keys/:id` | admin · nombre, permisos, caducidad, activar/desactivar y lista de acceso |
 | `GET /api/health` | público · 503 mientras la base no responda |
 
-### IDEAL LEXART — el modelo de evaluación vigente
+### API externa — 2 endpoints
+
+Para que otros sistemas —desde AD-06, la plataforma de Lexart, que es donde vive ahora el
+onboarding— den de alta usuarios sin entrar por la interfaz. Vive bajo `/api/external/`, se
+autentica con clave y **no comparte nada con la sesión**.
+
+| Método y ruta | Requiere |
+|---|---|
+| `GET /api/external/v1/whoami` | clave válida · devuelve la IP y el origen que Cube ha visto |
+| `POST /api/external/v1/users` | clave con permiso `users:create` |
+
+```bash
+curl -X POST https://cube.lexart.tech/api/external/v1/users \
+  -H "X-API-Key: cube_a1b2c3d4e5f6_…" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Ada Lovelace","email":"ada@lexart.tech","password":"una-clave-larga-2026",
+       "role":"developer","lextrackingId":4321}'
+```
+
+Cinco decisiones que conviene no deshacer:
+
+- **Bloqueada por defecto.** Una clave recién creada se autentica y no entra: hay que decir desde
+  dónde. Las IPs (o CIDR) cubren las llamadas de servidor a servidor; los dominios, las de
+  navegador, comparados contra la cabecera `Origin` y usados además para el CORS de la respuesta.
+  Sin ninguna entrada no se admite desde ningún sitio, y la pantalla la marca como BLOQUEADA. El
+  error caro es la clave que funciona desde cualquier parte, no la que aún no funciona desde
+  ninguna. Para desarrollo hay un botón que añade `127.0.0.1`, `::1` y `localhost` de una vez.
+- **El token se muestra una sola vez**, al crearlo. En la base solo queda su SHA-256 y un prefijo
+  público (`cube_<prefijo>_<secreto>`) que identifica la clave en la lista, en los logs y en la
+  auditoría sin permitir usarla. Si se pierde, se crea otra y se desactiva la anterior.
+- **La clave nunca es un usuario.** `01.auth.ts` ni siquiera resuelve la cookie bajo este prefijo,
+  así que las dos identidades no coinciden jamás en la misma petición. Cuatro invariantes lo
+  sostienen (`tests/unit/invariants.test.ts`): quién puede poner `event.context.apiClient`, quién
+  puede leerlo, que `requireApiKey` no salga de `server/api/external/` y que ahí dentro nadie
+  llame a `requireUser`.
+- **No crea administradores.** El rol se limita a `developer` y `lead`; para un admin hace falta
+  una persona en `/admin/users`. Una clave filtrada no puede regalarse la administración entera.
+- **La IP que cuenta es la del socket**, no la de `X-Forwarded-For`: esa cabecera la escribe el
+  cliente y creerla convertiría la lista blanca en un adorno. Detrás de un proxy hay que declararlo
+  en `NUXT_TRUSTED_PROXIES`, y solo entonces se mira la cadena. `whoami` existe justamente para
+  ver qué IP llega de verdad antes de escribir la lista.
+
+### El modelo de evaluación
 
 Bloques con peso según el rol (Arquitecto L1/L2/L3, Desarrollador L3), notas de 1 a 5, promedio
 ponderado y una redacción en español e inglés generada con Gemini. Decisión registrada como **AD-05**
 en `../Roadmap.md`.
 
-- **Catálogo y fórmula en un solo sitio**: `shared/ideal.ts`, importado por el formulario (alias
+> **El nombre "IDEAL LEXART" se retiró el 2026-09-27.** El modelo es el mismo —bloques con peso por
+> rol, notas de 1 a 5, promedio ponderado— pero el dominio se llama simplemente *evaluaciones*. Con
+> el nombre se fueron `shared/ideal.ts` (ahora `shared/evaluation.ts`), `/api/ideal` (ahora
+> `/api/evaluations`) y la tabla `ideal_evaluations`, que pasa a llamarse `evaluations`.
+>
+> Si tienes una base **anterior a esa fecha, no hay que hacer nada**: el arranque la repara solo
+> (ver más abajo).
+
+- **Catálogo y fórmula en un solo sitio**: `shared/evaluation.ts`, importado por el formulario (alias
   `#shared/`) y por el servidor. El promedio que se ve mientras se rellena y el que se guarda
   salen de la misma función, no de dos copias.
 - **Las preguntas son un borrador** derivado de las responsabilidades por rol de v1
@@ -283,6 +338,84 @@ archivo de solo lectura: las dos escalas no son comparables, y mantener las dos 
 desambiguar en cada consulta, cada gráfico y cada test para poder leer un histórico que sigue
 estando en la base de v1 y en su backup.
 
+### Gestionar usuarios y catálogos
+
+La administración hace el CRUD entero, con la D de "desactivar" (ver más abajo). Lo que el
+servidor impide, y por qué:
+
+- **Un email repetido y un nombre de catálogo repetido devuelven 409 con texto.** Las tres
+  columnas son `UNIQUE`; sin comprobarlo antes, el choque salía como el 500 genérico de
+  `HIGH-07` y quien renombraba no sabía por qué había fallado.
+- **La cadena de mando no admite bucles.** Poner como lead a alguien que te reporta —directamente
+  o tres saltos más abajo— se rechaza. Hoy nada recorre la jerarquía, así que el ciclo no rompería
+  ninguna pantalla: quedaría guardado un organigrama que no significa nada y lo descubriría el
+  primer informe que intente subir por él (`server/utils/orgchart.ts`).
+- **No se degrada a developer a quien tiene gente a cargo.** El error dice a quién hay que
+  reasignar primero, en vez de dejar a esas personas apuntando a un lead que ya no lo es.
+- **Desactivar a un lead sí se permite**, porque el acceso hay que cerrarlo el día que la persona
+  se va y no cuando alguien reorganice el equipo; la respuesta dice cuánta gente se queda
+  apuntando a alguien inactivo.
+- **Un admin no puede quitarse el rol ni desactivarse a sí mismo.** El formulario deshabilita el
+  control además de que el servidor lo rechace.
+- **Cambiar la contraseña cierra las sesiones abiertas; cambiar el email no.** La sesión está
+  atada al id del usuario, no a su email, que aquí solo es el identificador con el que se entra:
+  echar a alguien de su sesión por corregirle una errata sería gratuito.
+
+### Arrancar contra una base heredada
+
+`docker compose up` deja lista una base de una versión anterior sin escribir SQL. Antes de crear
+nada, el arranque aplica las reparaciones que conoce (`server/db/repairs.ts`):
+
+| Situación | Qué hace |
+|---|---|
+| Existe una `evaluations` **sin `role_key`** (la del modelo de 27 indicadores, que ocupaba ese nombre) | `RENAME TABLE evaluations TO evaluations_old` |
+| Existe `ideal_evaluations` y `evaluations` está libre | `RENAME TABLE ideal_evaluations TO evaluations` — las evaluaciones guardadas se conservan |
+
+Las dos se aplican en ese orden en el mismo arranque, así que una base con las dos tablas queda
+bien de una vez. Después, `CREATE TABLE IF NOT EXISTS` crea lo que siga faltando.
+
+Tres propiedades que conviene conocer:
+
+- **Solo renombra. Nunca borra ni altera.** Lo apartado sigue entero y se puede devolver con
+  `RENAME TABLE evaluations_old TO evaluations`. Si `evaluations_old` ya existía de otro arranque,
+  usa `evaluations_old_2`, `_3`… : lo que se guardó para mirarlo luego no se pisa.
+- **Es idempotente.** Cada reparación tiene una precondición que deja de cumplirse en cuanto se
+  aplica. El segundo arranque no hace nada.
+- **Cada reparación nombra su tabla.** No hay una regla genérica del tipo "si una tabla no encaja,
+  apártala", y no debe haberla: el día que alguien añada una columna a `users`, una regla así
+  renombraría la tabla de usuarios y crearía una vacía. Un desajuste que no esté enumerado se
+  queda para que lo decida una persona, y mientras tanto **solo** las rutas que dependen de esa
+  tabla responden 503 (`routesAffectedBy` en `server/utils/health.ts`); el resto de Cube sirve.
+
+Todo lo que renombre aparece en el log de arranque a nivel `warn`:
+
+```
+esquema heredado: la tabla `evaluations` del modelo de 27 indicadores se aparta
+(evaluations → evaluations_old)
+```
+
+### Editar y eliminar una evaluación
+
+Una evaluación dejó de ser inmutable. Antes, una nota mal puesta solo se arreglaba creando otra
+encima y las dos seguían contando en el panel de la persona.
+
+- **La edición es del autor, o de un administrador.** Un lead ve todas las evaluaciones, así que
+  intentar cambiar la de otro devuelve 403 y no 404: esconderla no protegería nada y dejaría a
+  quien lo intenta sin saber por qué no puede. Lo mismo para regenerar la redacción, que cuesta
+  dinero y sobrescribe el texto de otro.
+- **Rol, fecha y notas viajan juntos.** Unas notas nuevas con el rol viejo darían un promedio que
+  no corresponde a ninguno de los dos. Las observaciones sí se pueden corregir sueltas.
+- **No se puede cambiar a quién evalúa.** Eso no sería corregir la evaluación: sería atribuirle a
+  otra persona las notas de la primera.
+- **Editar borra la redacción.** El párrafo describía las notas anteriores, así que se limpia y hay
+  que volver a generarlo con el botón de siempre. No se regenera al guardar: la IA tarda y puede
+  fallar, y guardar no puede depender de eso — la misma razón por la que el alta guarda primero y
+  redacta después.
+- **"Eliminar" es desactivar** (`active = 0`), como todo lo demás. Deja de contar en el panel y en
+  el historial de la persona, que es lo que se busca al borrar una evaluación equivocada, pero la
+  fila sigue ahí: el listado tiene "mostrar eliminadas" para lead y admin, y desde ahí se restaura.
+  A la persona evaluada no le aparece ni en el listado ni por URL directa.
+
 ### Desactivar, no borrar
 
 Nada se borra de verdad: las posiciones, los niveles y los usuarios se desactivan (`active = 0`)
@@ -290,8 +423,8 @@ porque hay evaluaciones que los referencian y borrarlos dejaría ese historial s
 consecuencias que el código tiene que sostener:
 
 - **Lo desactivado se sigue viendo y se puede reactivar.** `/admin/catalogs` tiene "mostrar
-  desactivados" (`?includeInactive=true`) y `/admin/users` un filtro de estado. Una lista que solo
-  devuelve lo activo convierte "desactivar" en "perder".
+  desactivados" (`?includeInactive=true`), y `/admin/users` y `/admin/api-keys` un filtro de
+  estado. Una lista que solo devuelve lo activo convierte "desactivar" en "perder".
 - **Desactivar siempre pregunta**, con `<UiConfirmDialog>` —un `<dialog>` nativo, traducible y con
   el foco gestionado por el navegador—, nunca con `confirm()`. Reactivar no pregunta: la
   confirmación es para lo que quita algo de en medio.
@@ -308,16 +441,19 @@ consecuencias que el código tiene que sostener:
   `white-space: pre-wrap`. La clase de XSS desaparece en vez de mitigarse.
 - Contrato de error único `{ statusCode, message }` con `requestId`. Nunca `sqlMessage`, nunca
   trazas.
+- La API externa es el **segundo** modo de acceso y el único que no es una persona: clave
+  hasheada en base, lista de IPs y dominios que deniega por defecto, y cuatro invariantes que
+  impiden que un cliente externo se convierta en usuario.
 
 ## Estructura
 
 ```
-shared/ideal.ts   Catálogo, pesos y fórmula de IDEAL. Una sola fuente para cliente
+shared/evaluation.ts   Catálogo, pesos y fórmula. Una sola fuente para cliente
                   y servidor (alias `#shared/`); el cálculo no se duplica.
-app/              Vue 3 + Tailwind — pages, components (ideal/, viz/, ui/),
+app/              Vue 3 + Tailwind — pages, components (evaluation/, viz/, ui/),
                   composables, middleware, layouts
-server/           Nitro — api/{auth,ideal,users,positions,levels}, db/, middleware/,
-                  plugins/, utils/
+server/           Nitro — api/{auth,evaluations,users,positions,levels,api-keys,external},
+                  db/, middleware/, plugins/, utils/
 tests/            unit/ (vitest) y e2e/ (playwright)
 ```
 
@@ -327,15 +463,18 @@ tests/            unit/ (vitest) y e2e/ (playwright)
 ## Tests y CI
 
 ```
-tests/unit/    13 ficheros, 152 tests — vitest, sin base de datos
-tests/e2e/     37 tests — playwright: panel, IDEAL, administración, navegación y Security.md §9
+tests/unit/    16 ficheros, 222 tests — vitest, sin base de datos
+tests/e2e/     66 tests — playwright: panel, evaluaciones, administración,
+               API externa, navegación y Security.md §9
 ```
 
 `tests/unit/invariants.test.ts` comprueba **el código, no el comportamiento**, porque las
 vulnerabilidades de v1 fueron fallos de disciplina y no de lógica: que ningún fichero del servidor
 lea `user-id`, que todo handler llame a `requireUser`/`requireRole` salvo los públicos por diseño,
 que ninguna consulta interpole `body`/`query`/`params` en el SQL, y que no haya `console.*` en
-`server/`. El detector de interpolación tiene su propio test, para no dar falsa tranquilidad. El
+`server/`. Cuatro más acotan la identidad de la API externa: quién puede poner
+`event.context.apiClient`, quién leerlo, que `requireApiKey` no salga de `server/api/external/`
+y que ahí dentro nadie llame a `requireUser`. El detector de interpolación tiene su propio test, para no dar falsa tranquilidad. El
 quinto invariante cubre el cliente: que `app.vue` envuelva la página en `<NuxtLayout>` —sin eso
 Nuxt no aplica ningún layout y la aplicación se queda sin barra ni márgenes— y que ninguna llamada
 a la API use `$fetch` directamente, porque en SSR no reenvía la cookie de sesión.

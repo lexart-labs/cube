@@ -10,6 +10,7 @@
  * placeholder conocido o tiene poca variedad de caracteres, el proceso NO arranca.
  */
 import { z } from 'zod'
+import { isValidIpPattern } from './netmatch'
 
 /** Longitud mínima para un secreto de propósito general. */
 const MIN_SECRET_LENGTH = 32
@@ -123,7 +124,7 @@ export const serverConfigSchema = z.object({
    */
   seedOnStartup: envFlag(false),
   /**
-   * IA generativa (redacción de las evaluaciones IDEAL).
+   * IA generativa (redacción de las evaluaciones).
    *
    * A diferencia del resto, NO aborta el arranque si falta: que no haya IA no
    * pone en riesgo ningún dato. Sin clave, el endpoint responde con un mensaje
@@ -136,6 +137,39 @@ export const serverConfigSchema = z.object({
    */
   geminiApiKey: z.string().default(''),
   geminiModel: z.string().default(''),
+
+  /**
+   * Proxies inversos de confianza, IPs o CIDR separados por comas.
+   *
+   * Solo si la conexión llega **desde una de estas direcciones** se mira
+   * `X-Forwarded-For` para averiguar quién llama de verdad. Vacío por
+   * defecto, y eso significa ignorar la cabecera entera.
+   *
+   * Importa porque la lista de IPs de la API externa se apoya en esa
+   * decisión: `X-Forwarded-For` la escribe el cliente, así que creerla sin
+   * más convierte la lista blanca en un adorno que se salta cualquiera
+   * mandando `X-Forwarded-For: 10.0.0.5`. Ver `pickClientIp` en
+   * `server/utils/netmatch.ts`.
+   *
+   * Una entrada mal escrita **aborta el arranque**: en silencio se
+   * traduciría en "no confío en nadie", la aplicación funcionaría y las
+   * listas de IPs empezarían a rechazar a todo el mundo sin que nada lo
+   * explique.
+   */
+  trustedProxies: z
+    .string()
+    .default('')
+    .superRefine((value, ctx) => {
+      for (const entry of value.split(',').map((item) => item.trim())) {
+        if (entry.length === 0) continue
+        if (!isValidIpPattern(entry)) {
+          ctx.addIssue({
+            code: 'custom',
+            message: `NUXT_TRUSTED_PROXIES contiene «${entry}», que no es una IP ni un CIDR`,
+          })
+        }
+      }
+    }),
 
   db: z.object({
     host: z.string().min(1, 'NUXT_DB_HOST no está definida'),

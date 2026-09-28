@@ -1,5 +1,5 @@
 /**
- * Puente entre una evaluación IDEAL guardada y la redacción de la IA.
+ * Puente entre una evaluación guardada y la redacción de la IA.
  *
  * Lo comparten la creación y el reintento, y **no lanza cuando la IA falla**:
  * la evaluación ya está en la base y el trabajo de quien la rellenó no se
@@ -16,14 +16,14 @@ import {
   type Narrative,
   type NarrativeClient,
 } from './gemini'
-import { blockAverage, type IdealRole, type IdealScores } from '../../shared/ideal'
+import { blockAverage, type EvaluationRole, type EvaluationScores } from '../../shared/evaluation'
 
 export type AiStatus = 'ok' | 'disabled' | 'failed'
 
 export interface BuildNarrativeParams {
   id: number
-  role: IdealRole
-  scores: IdealScores
+  role: EvaluationRole
+  scores: EvaluationScores
   average: number
   observations: string | null
   /** Solo para sustituir el testigo al volver. Nunca viaja en el prompt. */
@@ -76,7 +76,7 @@ export async function buildNarrative(params: BuildNarrativeParams): Promise<Buil
     )
 
     await execute(
-      `UPDATE ideal_evaluations
+      `UPDATE evaluations
           SET narrative_es = ?, narrative_en = ?, ai_model = ?, generated_at = NOW()
         WHERE id = ?`,
       [narrative.es, narrative.en, model, params.id],
@@ -86,7 +86,7 @@ export async function buildNarrative(params: BuildNarrativeParams): Promise<Buil
   } catch (error) {
     // Ni el prompt ni la respuesta se registran: llevan las observaciones del
     // lead, que son texto libre sobre una persona.
-    logger.error({ err: error, evaluationId: params.id }, 'no se pudo redactar la evaluación IDEAL')
+    logger.error({ err: error, evaluationId: params.id }, 'no se pudo redactar la evaluación')
     return {
       aiStatus: 'failed',
       aiMessage: 'No se pudo generar la redacción. La evaluación se ha guardado; puedes reintentar.',
