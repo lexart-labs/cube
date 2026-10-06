@@ -16,6 +16,7 @@ import {
   hostFromOrigin,
   domainMatches,
   isValidDomainPattern,
+  parseEmbedOrigin,
   pickClientIp,
   evaluateAccess,
 } from '../../server/utils/netmatch'
@@ -181,6 +182,47 @@ describe('dominios', () => {
       '-mal.tech',
     ]) {
       expect(isValidDomainPattern(value), value).toBe(false)
+    }
+  })
+
+  it('parseEmbedOrigin normaliza a fuente CSP, con https por defecto', () => {
+    expect(parseEmbedOrigin('platform.lexart.tech')).toBe('https://platform.lexart.tech')
+    expect(parseEmbedOrigin('*.lexart.tech')).toBe('https://*.lexart.tech')
+    expect(parseEmbedOrigin('  https://Platform.Lexart.Tech  ')).toBe(
+      'https://platform.lexart.tech',
+    )
+    // El comodín no cubre el dominio desnudo: quien quiera los dos, los dos.
+    expect(parseEmbedOrigin('lexart.tech')).toBe('https://lexart.tech')
+  })
+
+  it('parseEmbedOrigin conserva esquema y puerto: la CSP los distingue', () => {
+    // Aquí sí importan, al revés que en la lista de dominios de la API externa:
+    // quien compara es el navegador contra la CSP, no este código.
+    expect(parseEmbedOrigin('http://localhost:5173')).toBe('http://localhost:5173')
+    expect(parseEmbedOrigin('*.lexart.tech:8443')).toBe('https://*.lexart.tech:8443')
+  })
+
+  it('parseEmbedOrigin rechaza lo que no es un origen', () => {
+    // Una URL con ruta se rechaza en vez de recortarse: recortarla enseñaría
+    // que cualquiera puede declarar la mitad de lo que escribió.
+    for (const value of [
+      '',
+      '*',
+      '*.',
+      'https://*.lexart.tech/ruta',
+      'https://app.lexart.tech?x=1',
+      'ftp://app.lexart.tech',
+      'https://',
+      'https://:443',
+      'app.lexart.tech:puerto',
+      'app.lexart.tech:0',
+      'app.lexart.tech:99999',
+      'https://user@app.lexart.tech',
+      'https://[::1]',
+      'a..b',
+      '-mal.tech',
+    ]) {
+      expect(parseEmbedOrigin(value), value).toBeNull()
     }
   })
 })

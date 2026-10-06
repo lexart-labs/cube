@@ -55,10 +55,9 @@ function parseIpv6(text: string): Uint8Array | null {
   // Sufijo IPv4 embebido (`::ffff:192.168.0.1`): se traduce a dos grupos hex
   // para tratar todo el resto con un solo algoritmo.
   let head = address
-  let tailBytes: Uint8Array | null = null
   const lastColon = address.lastIndexOf(':')
   if (address.includes('.')) {
-    tailBytes = parseIpv4(address.slice(lastColon + 1))
+    const tailBytes = parseIpv4(address.slice(lastColon + 1))
     if (!tailBytes) return null
     head = address.slice(0, lastColon + 1)
     head += `${((tailBytes[0]! << 8) | tailBytes[1]!).toString(16)}:${(
@@ -253,6 +252,57 @@ export function domainMatches(pattern: string, host: string): boolean {
 export function domainMatchesAny(patterns: readonly string[], host: string | null): boolean {
   if (!host) return false
   return patterns.some((pattern) => domainMatches(pattern, host))
+}
+
+/**
+ * Una entrada de `NUXT_EMBED_ORIGINS`, normalizada a fuente CSP (host-source).
+ *
+ * Se acepta `host`, `host:puerto` o `scheme://host:puerto`, con `https` como
+ * esquema cuando no se declara. El comodín es el de `isValidDomainPattern`:
+ * `*.lexart.tech` cubre los subdominios pero no el dominio desnudo, así que
+ * quien quiera los dos declara los dos. La plataforma de Lexart embebe a Cube
+ * en un iframe, y esta lista es la que abre `frame-ancestors` — que por defecto
+ * está en `'none'` (ver `server/plugins/10.embed-origins.ts`).
+ *
+ * A diferencia de `hostFromOrigin`, aquí el esquema y el puerto IMPORTAN: la
+ * comparación la hace el navegador contra la CSP, no este código contra una
+ * tabla, y en una CSP `https://app.lexart.tech` no cubre `http://` ni otro
+ * puerto. Nada de ruta, consulta ni fragmento: es un origen, no una URL, y
+ * "limpiarlo" en silencio escondería el error de quien declaró una URL entera.
+ *
+ * `null` si la entrada no vale.
+ */
+export function parseEmbedOrigin(entry: string): string | null {
+  const value = entry.trim().toLowerCase()
+  if (value === '') return null
+
+  let scheme = 'https'
+  let rest = value
+  const schemeMatch = /^([a-z][a-z0-9+.-]*):\/\//.exec(value)
+  if (schemeMatch) {
+    // Solo http y https: una lista blanca de esquemas rara sería un anuncio
+    // de que hay algo más raro aceptándose.
+    if (schemeMatch[1] !== 'http' && schemeMatch[1] !== 'https') return null
+    scheme = schemeMatch[1]!
+    rest = value.slice(schemeMatch[0].length)
+  }
+
+  // Ni ruta, ni consulta, ni fragmento, ni userinfo, ni IPv6 entre corchetes.
+  if (/[/?#@[\\\]^|]/.test(rest)) return null
+
+  const colon = rest.lastIndexOf(':')
+  let host = rest
+  let port = ''
+  if (colon !== -1) {
+    host = rest.slice(0, colon)
+    port = rest.slice(colon + 1)
+    if (!/^\d{1,5}$/.test(port)) return null
+    if (Number(port) < 1 || Number(port) > 65535) return null
+  }
+
+  if (!isValidDomainPattern(host)) return null
+
+  return port === '' ? `${scheme}://${host}` : `${scheme}://${host}:${port}`
 }
 
 // ---------------------------------------------------------------------------

@@ -3,7 +3,7 @@
  * corto o de plantilla debe impedir el arranque, no degradarse silenciosamente.
  */
 import { describe, it, expect } from 'vitest'
-import { validateServerConfig } from '../../server/utils/config'
+import { validateServerConfig, embedOriginList } from '../../server/utils/config'
 
 const strongSecret = 'k7Qz-91xR2mB4vL8pT6wY3nJ5cH0sD2f'
 
@@ -99,5 +99,39 @@ describe('validateServerConfig', () => {
       expect(message).toContain('NUXT_SESSION_SECRET')
       expect(message).toContain('NUXT_DB_PASSWORD')
     }
+  })
+})
+
+describe('embedOrigins — embebido en iframe (NUXT_EMBED_ORIGINS)', () => {
+  it('por defecto la lista es vacía y nadie puede embeber', () => {
+    // Sin la variable, el cierre de hoy se queda igual: frame-ancestors 'none'.
+    expect(validateServerConfig(baseConfig).embedOrigins).toBe('')
+    expect(embedOriginList('')).toEqual([])
+  })
+
+  it('acepta los orígenes de la plataforma de Lexart', () => {
+    const config = validateServerConfig({
+      ...baseConfig,
+      embedOrigins: 'platform.lexart.tech, *.lexart.tech',
+    })
+    expect(config.embedOrigins).toBe('platform.lexart.tech, *.lexart.tech')
+
+    // Normalizadas a fuentes CSP, en el orden declarado.
+    expect(embedOriginList(config.embedOrigins)).toEqual([
+      'https://platform.lexart.tech',
+      'https://*.lexart.tech',
+    ])
+  })
+
+  it('una entrada mal escrita aborta el arranque, no se ignora en silencio', () => {
+    // Igual que trustedProxies: si se ignorara, el embebido seguiría cerrado
+    // y la plataforma seguiría sin poder cargar a Cube sin que nada lo dijera.
+    const config = { ...baseConfig, embedOrigins: 'https://*.lexart.tech/ruta' }
+    expect(() => validateServerConfig(config)).toThrow(/NUXT_EMBED_ORIGINS/)
+  })
+
+  it('el comodín suelto no se acepta: abriría el marco a cualquiera', () => {
+    const config = { ...baseConfig, embedOrigins: '*' }
+    expect(() => validateServerConfig(config)).toThrow(/NUXT_EMBED_ORIGINS/)
   })
 })

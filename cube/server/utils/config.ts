@@ -10,7 +10,7 @@
  * placeholder conocido o tiene poca variedad de caracteres, el proceso NO arranca.
  */
 import { z } from 'zod'
-import { isValidIpPattern } from './netmatch'
+import { isValidIpPattern, parseEmbedOrigin } from './netmatch'
 
 /** Longitud mínima para un secreto de propósito general. */
 const MIN_SECRET_LENGTH = 32
@@ -171,6 +171,35 @@ export const serverConfigSchema = z.object({
       }
     }),
 
+  /**
+   * Orígenes que pueden embeber a Cube en un iframe, separados por comas
+   * (NUXT_EMBED_ORIGINS).
+   *
+   * VACÍO por defecto, y vacío significa lo mismo que hasta ahora: nadie puede
+   * embeber la aplicación (`frame-ancestors 'none'` + `X-Frame-Options: DENY`).
+   * Abrir el embebido a la plataforma de Lexart es una decisión de despliegue,
+   * no del código, y cada entrada es un origen que podrá cargar a Cube dentro
+   * de un marco: `platform.lexart.tech`, `*.lexart.tech`, `https://host:puerto`.
+   *
+   * Igual que `trustedProxies`, una entrada mal escrita **aborta el arranque**:
+   * en silencio el embebido seguiría cerrado y la plataforma seguiría sin
+   * poder cargar a Cube sin que nada lo explicara.
+   */
+  embedOrigins: z
+    .string()
+    .default('')
+    .superRefine((value, ctx) => {
+      for (const entry of value.split(',').map((item) => item.trim())) {
+        if (entry.length === 0) continue
+        if (!parseEmbedOrigin(entry)) {
+          ctx.addIssue({
+            code: 'custom',
+            message: `NUXT_EMBED_ORIGINS contiene «${entry}», que no es un origen (host, host:puerto o scheme://host:puerto)`,
+          })
+        }
+      }
+    }),
+
   db: z.object({
     host: z.string().min(1, 'NUXT_DB_HOST no está definida'),
     port: z.coerce.number().int().min(1).max(65535),
@@ -182,6 +211,22 @@ export const serverConfigSchema = z.object({
 })
 
 export type ServerConfig = z.infer<typeof serverConfigSchema>
+
+/**
+ * Los orígenes de `NUXT_EMBED_ORIGINS` ya normalizados como fuentes CSP
+ * (`https://platform.lexart.tech`, `https://*.lexart.tech`).
+ *
+ * Vacía = nadie puede embeber la aplicación. El valor crudo ya se validó en el
+ * arranque con el mismo `parseEmbedOrigin`, así que aquí no vuelve a haber
+ * entradas inválidas que descartar: filtrar es solo tolerancia al formato
+ * (espacios, mayúsculas).
+ */
+export function embedOriginList(raw: string): string[] {
+  return raw
+    .split(',')
+    .map((entry) => parseEmbedOrigin(entry.trim()))
+    .filter((origin): origin is string => origin !== null)
+}
 
 /**
  * Valida el `runtimeConfig` y devuelve la configuración tipada.

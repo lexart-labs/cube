@@ -39,6 +39,9 @@ export default defineNuxtConfig({
     // Proxies inversos de confianza (NUXT_TRUSTED_PROXIES). Vacío = no se cree
     // `X-Forwarded-For` a nadie; ver server/utils/netmatch.ts.
     trustedProxies: '',
+    // Orígenes que pueden embeber a Cube en un iframe (NUXT_EMBED_ORIGINS).
+    // Vacío = nadie; ver server/plugins/10.embed-origins.ts.
+    embedOrigins: '',
     db: {
       host: '',
       port: '3306',

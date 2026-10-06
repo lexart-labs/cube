@@ -447,6 +447,13 @@ consecuencias que el código tiene que sostener:
 - La API externa es el **segundo** modo de acceso y el único que no es una persona: clave
   hasheada en base, lista de IPs y dominios que deniega por defecto, y cuatro invariantes que
   impiden que un cliente externo se convierta en usuario.
+- **El embebido en iframe está cerrado por defecto** (`frame-ancestors 'none'` +
+  `X-Frame-Options: DENY`). Para que la plataforma de Lexart (`platform.lexart.tech`) pueda
+  cargar a Cube en un marco se declara `NUXT_EMBED_ORIGINS` (orígenes separados por comas, con
+  `*.lexart.tech` para los subdominios); se valida en el arranque y una entrada mal escrita
+  aborta el proceso. Solo abre `frame-ancestors`: ni el CORS ni la cookie se tocan, y Cube
+  debe vivir en un subdominio de `lexart.tech` precisamente para que la cookie `SameSite=Lax`
+  siga viajando dentro del iframe. Ver `server/plugins/10.embed-origins.ts`.
 
 ## Estructura
 

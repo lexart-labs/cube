@@ -19,7 +19,36 @@ test.describe('cabeceras — MED-03', () => {
     expect(headers['strict-transport-security']).toContain('max-age=31536000')
     expect(headers['x-content-type-options']).toBe('nosniff')
     expect(headers['x-frame-options']).toBe('DENY')
+    // Por defecto nadie puede enmarcar la aplicación: NUXT_EMBED_ORIGINS vacía.
+    expect(headers['content-security-policy']).toContain("frame-ancestors 'none'")
     expect(headers['referrer-policy']).toBeTruthy()
+  })
+})
+
+test.describe('embebido en iframe — NUXT_EMBED_ORIGINS', () => {
+  // Corre contra el segundo servidor de playwright.config.ts: el mismo build
+  // con la única diferencia de que el embebido está abierto.
+  const embedURL = `http://127.0.0.1:${process.env.E2E_EMBED_PORT ?? 3011}`
+
+  test.use({ baseURL: embedURL })
+
+  test('la CSP permite los orígenes declarados y nada más', async ({ request }) => {
+    const headers = (await request.get('/login')).headers()
+    const csp = headers['content-security-policy']
+
+    // Los declarados en la variable, con 'self' además, y ya no 'none'.
+    expect(csp).toContain(
+      "frame-ancestors 'self' https://platform.lexart.tech https://*.lexart.tech",
+    )
+    expect(csp).not.toContain("frame-ancestors 'none'")
+
+    // X-Frame-Options no admite listas: para lo que solo entiende XFO queda el
+    // propio origen. DENY contradiría la lista que acaba de abrirse.
+    expect(headers['x-frame-options']).toBe('SAMEORIGIN')
+
+    // El resto de la CSP no se relaja por abrir el marco.
+    expect(csp).toContain("'strict-dynamic'")
+    expect(csp).not.toContain("'unsafe-inline'")
   })
 })
 
